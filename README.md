@@ -1,4 +1,4 @@
-# Use_Desk
+# UseDesk_SDK_Swift
 
 [![CI Status](http://img.shields.io/travis/Maxim/Use_Desk_iOS_SDK.svg?style=flat)](https://travis-ci.org/Maxim/Use_Desk_iOS_SDK)
 [![Version](https://img.shields.io/cocoapods/v/Use_Desk_iOS_SDK.svg?style=flat)](http://cocoapods.org/pods/Use_Desk_iOS_SDK)
@@ -39,7 +39,6 @@ it, simply add the following line to your Podfile:
 
 ## Скриншоты Тестового приложения
 <a href="https://imgur.com/qVKFEi2"><img src="https://i.imgur.com/qVKFEi2.png?1" title="source: imgur.com" /></a>https://imgur.com/PkPJrup
-<a href="https://imgur.com/PkPJrup"><img src="https://i.imgur.com/PkPJrup.png?2" title="source: imgur.com" /></a>
 <a href="https://imgur.com/BmvNVGc"><img src="https://i.imgur.com/BmvNVGc.png?1" title="source: imgur.com" /></a>
 
 # Добавление библиотеки в проект:
