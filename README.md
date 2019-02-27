@@ -1,24 +1,14 @@
 # UseDesk_SDK_Swift
 
-- [Example](#example)
-- [Добавление библиотеки в проект](#добавление-библиотеки)
+- [Образец](#образец)
+- [Добавление библиотеки в проект](#добавление-библиотеки-в-проект)
 - [Классы базы знаний](#классы-базы)
 - [Методы базы знаний](#методы-базы)
 - [Методы чата](#методы-чата)
 - [CallBack](#callback)
 
-# Example
-
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
-
-## Requirements
-
-## Installation
-
-UseDesk_SDK_Swift is available through [CocoaPods](http://cocoapods.org). To install
-it, simply add the following line to your Podfile:
-
-
+# Образец
+Чтобы запустить пример проекта, клонируйте репозиторий и сначала запустите `pod install` из каталога примера.
 
 ## Тестовое приложение
 
@@ -41,6 +31,7 @@ it, simply add the following line to your Podfile:
 Библиотека UseDesk_SDK_Swift доступна через систему управления зависимостями [CocoaPods](http://cocoapods.org).
 
 -Добавьте строчку в Podfile вашего приложения
+
 ```ruby
 pod 'UseDesk_SDK_Swift'
 ```
