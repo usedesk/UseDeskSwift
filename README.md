@@ -1,10 +1,5 @@
 # UseDesk_SDK_Swift
 
-[![CI Status](http://img.shields.io/travis/Maxim/Use_Desk_iOS_SDK.svg?style=flat)](https://travis-ci.org/Maxim/Use_Desk_iOS_SDK)
-[![Version](https://img.shields.io/cocoapods/v/Use_Desk_iOS_SDK.svg?style=flat)](http://cocoapods.org/pods/Use_Desk_iOS_SDK)
-[![License](https://img.shields.io/cocoapods/l/Use_Desk_iOS_SDK.svg?style=flat)](http://cocoapods.org/pods/Use_Desk_iOS_SDK)
-[![Platform](https://img.shields.io/cocoapods/p/Use_Desk_iOS_SDK.svg?style=flat)](http://cocoapods.org/pods/Use_Desk_iOS_SDK)
-
 - [Example](#example)
 - [Добавление библиотеки в проект](#добавление-библиотеки)
 - [Классы базы знаний](#классы-базы)
@@ -20,7 +15,7 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ## Installation
 
-Use_Desk_iOS_SDK is available through [CocoaPods](http://cocoapods.org). To install
+UseDesk_SDK_Swift is available through [CocoaPods](http://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
 
@@ -43,11 +38,11 @@ it, simply add the following line to your Podfile:
 
 # Добавление библиотеки в проект:
 
-Библиотека Use_Desk_iOS_SDK доступна через систему управления зависимостями [CocoaPods](http://cocoapods.org).
+Библиотека UseDesk_SDK_Swift доступна через систему управления зависимостями [CocoaPods](http://cocoapods.org).
 
 -Добавьте строчку в Podfile вашего приложения
 ```ruby
-pod 'Use_Desk'
+pod 'UseDesk_SDK_Swift'
 ```
 
 -Выполните команду в терминале `pod update`
@@ -346,5 +341,5 @@ self.usedesk.feedbackMessageBlock = (message){
 
 ## License
 
-Use_Desk_iOS_SDK is available under the MIT license. See the LICENSE file for more info.
+UseDesk_SDK_Swift is available under the MIT license. See the LICENSE file for more info.
 
