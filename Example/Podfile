@@ -1,0 +1,8 @@
+use_frameworks!
+target 'UseDesk_Example' do
+  pod 'UseDesk_SDK_Swift', :path => '../'
+
+  target 'UseDesk_Tests' do
+    inherit! :search_paths
+  end
+end
