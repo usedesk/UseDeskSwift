@@ -186,8 +186,7 @@ usedesk.getArticle(articleID: 1, connectionStatus baseBlock: @escaping UDSArticl
 | query | String | Поисковая строка запроса, которая ищет по заголовку и тексту статьи |
 | type | TypeArticle(.all .open .close) | выводятся все статьи. Если статья публичная, но находится в приватной категории, то при запросе с type=open она не выведется, т.к будет считаться приватной из-за родительской категории |
 | sort | SortArticle (.id .title .category_id .public .created_at) | Параметр, по которому сортируются статьи |
-| order | OrderArticle (.asc .desc) | Порядок сортировки по параметру sort. по умолчанию: asc
-Варианты: asc - по возрастанию, desc - по убыванию |
+| order | OrderArticle (.asc .desc) | Порядок сортировки по параметру sort. по умолчанию: asc Варианты: asc - по возрастанию, desc - по убыванию |
 
 
 #### Пример:
