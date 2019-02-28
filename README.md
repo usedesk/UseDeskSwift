@@ -243,12 +243,11 @@ usedesk.sendMessage(text, withFileName: "file", fileType: "image/png", contentBa
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
 | Message | String | тест сообщения |
-| URL | String | адрес отправки |
-
 
 #### Пример:
 ```swift
-usedesk.sendMessage(withMessage: "привет", url: "https:dev.cany.ru"){ (success, error) in
+usedesk.sendOfflineForm(withMessage message: "привет") { (result, error) in
+
 }
 ```
 

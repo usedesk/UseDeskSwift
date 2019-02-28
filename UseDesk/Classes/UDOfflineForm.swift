@@ -3,15 +3,14 @@
 
 import Foundation
 import MBProgressHUD
-
+import Alamofire
 
 class UDOfflineForm: UIViewController, UITextFieldDelegate {
-    var url = ""
     
-    @IBOutlet var companyIdTextField: UITextField!
-    @IBOutlet var emailTextField: UITextField!
-    @IBOutlet var nameTextField: UITextField!
     @IBOutlet var messageTextField: UITextField!
+    
+    var url = ""
+    var usedesk: Any?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,49 +37,20 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         let hud = MBProgressHUD.showAdded(to: view, animated: true)
         hud.mode = MBProgressHUDMode.indeterminate
         hud.label.text = "Sending Message..."
-        let body = getPostData()
-        DispatchQueue.global(qos: .default).async(execute: {
-//            let manager = AFHTTPSessionManager()
-//            manager.requestSerializer.timeoutInterval = 15.0
-//            
-//            //manager.securityPolicy.allowInvalidCertificates = YES;
-//            
-//            manager.responseSerializer.acceptableContentTypes = Set<AnyHashable>(["application/json"]) as? Set<String>
-//            manager.responseSerializer = AFJSONResponseSerializer(readingOptions: JSONSerialization.ReadingOptions.allowFragments)
-//            let urlStr = "\(self.url)/widget.js/post"
-//            manager.post(urlStr, parameters: body, progress: { uploadProgress in
-//                
-//            }, success: { task, responseObject in
-//                if let anObject = responseObject {
-//                    print("autorization JSON: \(anObject)")
-//                }
-//                DispatchQueue.main.async(execute: {
-//                    hud.hide(animated: true)
-//                    self.dismiss(animated: true)
-//                    // }];
-//                })
-//                
-//                
-//            }, failure: { task, error in
-//                self.showAlert("Error", text: error.localizedDescription)
-//                hud.hide(animated: true)
-//                
-//            })
-            
-            
-        })
+        let use = usedesk as! UseDeskSDK
+        use.sendOfflineForm(withMessage: messageTextField.text) { (result, error) in
+            if result {
+                DispatchQueue.main.async(execute: {
+                    hud.hide(animated: true)
+                    self.dismiss(animated: true)
+                })
+            } else {
+                self.showAlert("Error", text: error)
+                hud.hide(animated: true)
+            }
+        }
     }
     
-    func getPostData() -> [AnyHashable : Any]? {
-        let dic = [
-            "company_id" : companyIdTextField.text,
-            "name" : nameTextField.text,
-            "email" : emailTextField.text,
-            "message" : messageTextField.text
-        ]
-        return dic as [AnyHashable : Any]
-        
-    }
     
     @IBAction func cancelMessage(_ sender: Any) {
         

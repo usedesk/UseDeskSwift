@@ -37,8 +37,9 @@ public class UseDeskSDK: NSObject {
     var account_id = ""
     var api_token = ""
     var port = ""
+    var name = ""
     
-     @objc public func start(withCompanyID _companyID: String, account_id _account_id: String, api_token _api_token: String, email _email: String, url _url: String, port _port: String, connectionStatus startBlock: UDSStartBlock) {
+     @objc public func start(withCompanyID _companyID: String, account_id _account_id: String, api_token _api_token: String, email _email: String, url _url: String, port _port: String, name _name: String, connectionStatus startBlock: UDSStartBlock) {
         
         let hud = MBProgressHUD.showAdded(to: (RootView?.view)!, animated: true)
         hud.mode = MBProgressHUDMode.indeterminate
@@ -51,7 +52,7 @@ public class UseDeskSDK: NSObject {
         port = _port
         urlWithoutPort = _url
         url = "\(_url):\(port)"
-        
+        name = _name
         
         let baseView = UDBaseView()
         baseView.usedesk = self
@@ -71,7 +72,7 @@ public class UseDeskSDK: NSObject {
         socket!.emit("dispatch", with: mess!)
     }
     
-     @objc public func startWithoutGUICompanyID(companyID _companyID: String, account_id _account_id: String, api_token _api_token: String, email _email: String, url _url: String, port _port: String, connectionStatus startBlock: @escaping UDSStartBlock) {
+     @objc public func startWithoutGUICompanyID(companyID _companyID: String, account_id _account_id: String, api_token _api_token: String, email _email: String, url _url: String, port _port: String, name _name: String, connectionStatus startBlock: @escaping UDSStartBlock) {
         
         companyID = _companyID
         email = _email
@@ -79,6 +80,7 @@ public class UseDeskSDK: NSObject {
         api_token = _api_token
         port = _port
         url = "\(_url):\(port)"
+        name = _name
         
         let urlAdress = URL(string: url)
         
@@ -173,7 +175,7 @@ public class UseDeskSDK: NSObject {
         DispatchQueue.global(qos: .default).async(execute: {
             request("https://api.usedesk.ru/support/\(self.account_id)/articles/\(articleID)/add-views?api_token=\(self.api_token)&count=\(count)").responseJSON{ responseJSON in
                 switch responseJSON.result {
-                case .success(let value):
+                case .success( _):
                     connectBlock(true, "")
                 case .failure(let error):
                     connectBlock(false, error.localizedDescription)
@@ -271,7 +273,25 @@ public class UseDeskSDK: NSObject {
         })
     }
     
-    func sendOfflineForm(withMessage message: String?, url: String?, callback resultBlock: UDSStartBlock) {
+    func sendOfflineForm(withMessage message: String?, callback resultBlock: @escaping UDSStartBlock) {
+        let param = [
+            "company_id" : self.companyID,
+            "name" : self.name,
+            "email" : self.email,
+            "message" : message
+        ]
+        
+        DispatchQueue.global(qos: .default).async(execute: {
+            let urlStr = "https://secure.usedesk.ru/widget.js/post"
+            request(urlStr, method: .post, parameters: param as Parameters).responseJSON{ responseJSON in
+                switch responseJSON.result {
+                case .success( _):
+                    resultBlock(true, nil)
+                case .failure(let error):
+                    resultBlock(false, error.localizedDescription)
+                }
+            }
+        })
     }
     
     func action_INITED(_ data: [Any]?) {

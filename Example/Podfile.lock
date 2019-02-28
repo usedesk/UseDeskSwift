@@ -11,7 +11,6 @@ PODS:
   - NYTPhotoViewer/Core (1.2.0)
   - ProgressHUD (2.60)
   - QBImagePickerController (3.4.0)
-  - RCAudioPlayer (1.01)
   - SDWebImage (4.4.6):
     - SDWebImage/Core (= 4.4.6)
   - SDWebImage/Core (4.4.6)
@@ -25,7 +24,6 @@ PODS:
     - NYTPhotoViewer (= 1.2.0)
     - ProgressHUD
     - QBImagePickerController
-    - RCAudioPlayer
     - SDWebImage
     - Socket.IO-Client-Swift
     - "UIAlertController+Blocks"
@@ -41,7 +39,6 @@ SPEC REPOS:
     - NYTPhotoViewer
     - ProgressHUD
     - QBImagePickerController
-    - RCAudioPlayer
     - SDWebImage
     - Socket.IO-Client-Swift
     - Starscream
@@ -58,12 +55,11 @@ SPEC CHECKSUMS:
   NYTPhotoViewer: 323217e4590a1586eb3c9674b3fefb0fb8b57896
   ProgressHUD: 4e4efbaf4f5de8bd32e0c4c3b6644a90ea1a8c3e
   QBImagePickerController: d54cf93db6decf26baf6ed3472f336ef35cae022
-  RCAudioPlayer: c0ddab68cc30359efaa0b6b2f179060c481eef81
   SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
   Socket.IO-Client-Swift: 21e6a8a23a7d367d5ddfab6cbbd3c679cf3c25d6
   Starscream: ef3ece99d765eeccb67de105bfa143f929026cf5
   "UIAlertController+Blocks": 80e28b92523fb58aba4d1bccec013d5a0b0bddb2
-  UseDesk_SDK_Swift: ebac476dc095277e9b272e2fcde85d1479006387
+  UseDesk_SDK_Swift: 96d865802eb5dfddafb89cf06161b53323a9c351
 
 PODFILE CHECKSUM: 7cd6edf11bb1f0550fcf721e9980a88d5b0a38fc
 

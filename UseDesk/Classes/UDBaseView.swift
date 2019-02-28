@@ -72,28 +72,37 @@ class UDBaseView: UIViewController, UITableViewDelegate, UITableViewDataSource, 
             self.loadingView.alpha = 1
         }
         let use = usedesk as! UseDeskSDK
-        use.startWithoutGUICompanyID(companyID: use.companyID, account_id: use.account_id, api_token: use.api_token, email: use.email, url: use.urlWithoutPort, port: use.port, connectionStatus: { success, error in
-            if success {
-                DispatchQueue.main.async(execute: {
-                    let dialogflowVC : DialogflowView = DialogflowView()
-                    dialogflowVC.usedesk = self.usedesk
-                    self.navigationController?.pushViewController(dialogflowVC, animated: true)
-                    UIView.animate(withDuration: 0.3) {
-                        self.loadingView.alpha = 0
-                    }
-                })
-            } else {
-                if (error == "noOperators") {
-                    let offlineVC = UDOfflineForm(nibName: "UDOfflineForm", bundle: nil)
-                    if self.url != nil {
-                        offlineVC.url = self.url!
-                    }
-                    self.navigationController?.pushViewController(offlineVC, animated: true)
-                    UIView.animate(withDuration: 0.3) {
-                        self.loadingView.alpha = 0
-                    }
-                }
+        use.startWithoutGUICompanyID(companyID: use.companyID, account_id: use.account_id, api_token: use.api_token, email: use.email, url: use.urlWithoutPort, port: use.port, name: use.name, connectionStatus: { success, error in
+            let offlineVC = UDOfflineForm(nibName: "UDOfflineForm", bundle: nil)
+            if self.url != nil {
+                offlineVC.url = self.url!
             }
+            offlineVC.usedesk = self.usedesk
+            self.navigationController?.pushViewController(offlineVC, animated: true)
+            UIView.animate(withDuration: 0.3) {
+                self.loadingView.alpha = 0
+            }
+//            if success {
+//                DispatchQueue.main.async(execute: {
+//                    let dialogflowVC : DialogflowView = DialogflowView()
+//                    dialogflowVC.usedesk = self.usedesk
+//                    self.navigationController?.pushViewController(dialogflowVC, animated: true)
+//                    UIView.animate(withDuration: 0.3) {
+//                        self.loadingView.alpha = 0
+//                    }
+//                })
+//            } else {
+//                if (error == "noOperators") {
+//                    let offlineVC = UDOfflineForm(nibName: "UDOfflineForm", bundle: nil)
+//                    if self.url != nil {
+//                        offlineVC.url = self.url!
+//                    }
+//                    self.navigationController?.pushViewController(offlineVC, animated: true)
+//                    UIView.animate(withDuration: 0.3) {
+//                        self.loadingView.alpha = 0
+//                    }
+//                }
+//            }
             
         })
     }

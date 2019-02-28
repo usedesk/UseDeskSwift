@@ -50,9 +50,9 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
             }
             self.refreshTableView1()
             
-            if message?.incoming != false {
-                UDAudio.playMessageIncoming()
-            }
+//            if message?.incoming != false {
+//                UDAudio.playMessageIncoming()
+//            }
         }
         
         use!.feedbackAnswerMessageBlock = { success in
@@ -145,9 +145,6 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     override func textSectionHeader(_ indexPath: IndexPath?) -> String? {
         let rcmessage = rcmessages[indexPath!.section] as! RCMessage
         
-        let timeZoneSeconds = NSTimeZone.local.secondsFromGMT()
-        //let dateInLocalTimezone = rcmessage.date!.addingTimeInterval(TimeInterval(timeZoneSeconds))
-        
         if rcmessage.date!.isToday{
             return rcmessage.date!.timeString
         }
@@ -239,7 +236,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         let fulfillment = result?["fulfillment"] as? [AnyHashable : Any]
         let text = fulfillment?["speech"] as? String
         addMessage(text, incoming: true)
-        UDAudio.playMessageIncoming()
+        //UDAudio.playMessageIncoming()
     }
     
     // MARK: - User actions
@@ -248,7 +245,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     }
     
     override func actionSendMessage(_ text: String?) {
-        UDAudio.playMessageOutgoing()
+        //UDAudio.playMessageOutgoing()
         let use = usedesk as? UseDeskSDK
         
         if sendImageArr.count == 0 {
@@ -265,7 +262,8 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                         //image = result
                         if result != nil {
                             let content = "data:image/png;base64,\(UseDeskSDKHelp.image(toNSString: result!))"
-                            let fileName = String(format: "%ld", content.hash)
+                            var fileName = String(format: "%ld", content.hash)
+                            fileName += ".png"
                             //self.dicLoadingBuffer.updateValue("1", forKey: fileName)
                             //dicLoadingBuffer[fileName] = "1"
                             use?.sendMessage(text, withFileName: fileName, fileType: "image/png", contentBase64: content)

@@ -537,10 +537,10 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     @objc func audioRecorderUpdate() {
-        let interval: TimeInterval = Date().timeIntervalSince(dateAudioStart!)
-        let millisec = Int(interval * 100) % 100
-        let seconds = Int(interval) % 60
-        let minutes = Int(interval) / 60
+//        let interval: TimeInterval = Date().timeIntervalSince(dateAudioStart!)
+//        let millisec = Int(interval * 100) % 100
+//        let seconds = Int(interval) % 60
+//        let minutes = Int(interval) / 60
         //labelInputAudio.text = String(format: "%01d:%02d,%02d", minutes, seconds, millisec)
     }
     

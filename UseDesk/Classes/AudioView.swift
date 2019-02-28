@@ -97,12 +97,7 @@ class AudioView: UIViewController, AVAudioPlayerDelegate, AVAudioRecorderDelegat
             }
         } catch {
         }
-        let settings = [
-            AVFormatIDKey: NSNumber(value: kAudioFormatMPEG4AAC),
-            AVSampleRateKey: NSNumber(value: 44100),
-            AVNumberOfChannelsKey: NSNumber(value: 2)
-        ]
-        //audioRecorder = [[AVAudioRecorder alloc] initWithURL:[NSURL fileURLWithPath:[File temp:@"m4a"]] settings:settings error:nil];
+
         audioRecorder!.prepareToRecord()
         audioRecorder!.record()
     }
