@@ -22,10 +22,6 @@
 
 -Выполнить команду `pod install`
 
-## Скриншоты Тестового приложения
-<a href="https://imgur.com/qVKFEi2"><img src="https://i.imgur.com/qVKFEi2.png?1" title="source: imgur.com" /></a>
-<a href="https://imgur.com/BmvNVGc"><img src="https://i.imgur.com/BmvNVGc.png?1" title="source: imgur.com" /></a>
-
 # Добавление библиотеки в проект:
 
 Библиотека UseDesk_SDK_Swift доступна через систему управления зависимостями [CocoaPods](http://cocoapods.org).
