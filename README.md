@@ -73,7 +73,7 @@ usedesk.start(withCompanyID: "1234567", account_id: "1", api_token: "143ed59g90e
 | Email | String | почта клиента |
 | URL | String | адрес сервера |
 | Port | String | порт сервера |
-| Account ID | String | идентификатор аккаунта |
+| Account ID | String | идентификатор базы знаний |
 | API Token | String | личный API ключ |
 
 #### Пример:
