@@ -43,7 +43,7 @@ pod 'UseDesk_SDK_Swift'
 | CompanyID | String | идентификатор компании |
 | Email | String | почта клиента |
 | URL | String | адрес сервера с номером порта |
-| Account ID | String | идентификатор аккаунта |
+| Account ID | String | идентификатор базы знаний |
 | API Token | String | личный API ключ |
 
 ### Блок возвращает следующие параметры:
