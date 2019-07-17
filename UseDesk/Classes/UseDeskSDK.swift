@@ -62,12 +62,12 @@ public class UseDeskSDK: NSObject {
         hud.hide(animated: true)
     }
 
-    func sendMessage(_ text: String?) {
+    public func sendMessage(_ text: String?) {
         let mess = UseDeskSDKHelp.messageText(text)
         socket!.emit("dispatch", with: mess!)
     }
     
-    func sendMessage(_ text: String?, withFileName fileName: String?, fileType: String?, contentBase64: String?) {
+    public func sendMessage(_ text: String?, withFileName fileName: String?, fileType: String?, contentBase64: String?) {
         let mess = UseDeskSDKHelp.message(text, withFileName: fileName, fileType: fileType, contentBase64: contentBase64)
         socket!.emit("dispatch", with: mess!)
     }
@@ -127,8 +127,10 @@ public class UseDeskSDK: NSObject {
             
             if auth_success {
                 startBlock(auth_success, "")
+            } else {
+                startBlock(auth_success, "false inited")
             }
-            
+ 
             if auth_success && (self.connectBlock != nil) {
                 self.connectBlock!(true, nil)
             }
@@ -416,17 +418,17 @@ public class UseDeskSDK: NSObject {
         if type == nil {
             return false
         }
-        if !(type == "@@chat/current/ADD_MESSAGE") {
-            return false
+        if (type == "@@chat/current/INITED") { //ADD_MESSAGE
+            return true
         }
         
-        let message = dicServer?["message"] as? [AnyHashable : Any]
-        
-        if message != nil {
-            if (message?["chat"] is NSNull) {
-                return true
-            }
-        }
+//        let message = dicServer?["message"] as? [AnyHashable : Any]
+//
+//        if message != nil {
+//            if (message?["chat"] is NSNull) {
+//                return true
+//            }
+//        }
         return false
         
     }
