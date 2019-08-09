@@ -32,6 +32,10 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         //if ([FUser wallpaper] != nil)
         //self.tableView.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:[FUser wallpaper]]];
         
+        //Notification
+        NotificationCenter.default.addObserver(self, selector: #selector(self.openUrlFromMessageButton(_:)), name: Notification.Name("messageButtonURLOpen"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.sendMessageButton(_:)), name: Notification.Name("messageButtonSend"), object: nil)
+        
         rcmessages = [AnyHashable]()
         loadEarlierShow(false)
         
@@ -85,6 +89,11 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         reloadhistory()
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: Notification.Name("messageButtonURLOpen"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: Notification.Name("messageButtonSend"), object: nil)
+    }
+    
     func reloadhistory() {
         let use = usedesk as! UseDeskSDK
         for message in (use.historyMess) {
@@ -102,6 +111,19 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         let rcmessage = RCMessage(text: text, incoming: incoming)
         rcmessages.append(rcmessage)
         refreshTableView1()
+    }
+    // MARK: - Message Button methods
+    @objc func openUrlFromMessageButton(_ notification: NSNotification) {
+        if let url = notification.userInfo?["url"] as? String {
+            UIApplication.shared.openURL(URL(string: url)!)
+        }
+    }
+    
+    @objc func sendMessageButton(_ notification: NSNotification) {
+        if let text = notification.userInfo?["text"] as? String {
+            let use = usedesk as! UseDeskSDK
+            use.sendMessage(text)
+        }
     }
     
     // MARK: - Avatar methods
@@ -245,9 +267,8 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     }
     
     override func actionSendMessage(_ text: String?) {
-        //UDAudio.playMessageOutgoing()
         let use = usedesk as? UseDeskSDK
-        
+
         if sendImageArr.count == 0 {
             use?.sendMessage(text)
         } else {

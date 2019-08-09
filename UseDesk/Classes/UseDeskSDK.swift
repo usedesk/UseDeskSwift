@@ -5,6 +5,7 @@ import Foundation
 import SocketIO
 import MBProgressHUD
 import Alamofire
+import UserNotifications
 
 public typealias UDSStartBlock = (Bool, String?) -> Void
 public typealias UDSBaseBlock = (Bool, [BaseCollection]?, String?) -> Void
@@ -24,8 +25,7 @@ public class UseDeskSDK: NSObject {
     var errorBlock: UDSErrorBlock?
     var feedbackMessageBlock: UDSFeedbackMessageBlock?
     var feedbackAnswerMessageBlock: UDSFeedbackAnswerMessageBlock?
-    var historyMess: [AnyHashable] = []
-    
+    var historyMess: [AnyHashable] = []    
     
     var manager: SocketManager?
     var socket: SocketIOClient?
@@ -88,7 +88,7 @@ public class UseDeskSDK: NSObject {
         manager = SocketManager(socketURL: urlAdress!, config: config)
         
         socket = manager!.defaultSocket
-        
+
         socket!.connect()
         
         socket!.on("connect", callback: { data, ack in
@@ -344,6 +344,23 @@ public class UseDeskSDK: NSObject {
         m.incoming = (mess?["type"] as! String == "client_to_operator") ? false : true
         m.outgoing = !m.incoming
         m.text = mess?["text"] as! String
+
+        if m.incoming {
+            let stringsFromButtons = parseMessageFromButtons(text: m.text)
+            for stringFromButton in stringsFromButtons {
+                let rsButton = buttonFromString(stringButton: stringFromButton)
+                if rsButton != nil {
+                    m.rcButtons.append(rsButton!)
+                }
+                m.text = m.text.replacingOccurrences(of: stringFromButton, with: "")
+            }
+            for index in 0..<m.rcButtons.count {
+                let invertIndex = (m.rcButtons.count - 1) - index
+                if m.rcButtons[invertIndex].visible {
+                    m.text = m.rcButtons[invertIndex].title + " " + m.text
+                }
+            }
+        }        
         
         let payload = mess?["payload"] //as? [AnyHashable : Any]
         
@@ -384,11 +401,76 @@ public class UseDeskSDK: NSObject {
             m.feedback = true
             m.type = 9
         }
-        
-        
+
         return m
     }
+    //{{button:Возьми дробовик;https://usedesk.ru;blank;show}}
+    func parseMessageFromButtons(text: String) -> [String] {
+        var isAddingButton: Bool = false
+        var characterArrayFromRCButton = [Character]()
+        var stringsFromRCButton = [String]()
+        if text.count > 2 {
+            for index in 0..<text.count - 1 {
+                let indexString = text.index(text.startIndex, offsetBy: index)
+                let secondIndexString = text.index(text.startIndex, offsetBy: index + 1)
+                if isAddingButton {
+                    characterArrayFromRCButton.append(text[indexString])
+                    if (text[indexString] == "}") && (text[secondIndexString] == "}") {
+                        characterArrayFromRCButton.append(text[secondIndexString])
+                        isAddingButton = false
+                        stringsFromRCButton.append(String(characterArrayFromRCButton))
+                        characterArrayFromRCButton = []
+                    }
+                } else {
+                    if (text[indexString] == "{") && (text[secondIndexString] == "{") {
+                        characterArrayFromRCButton.append(text[indexString])
+                        isAddingButton = true
+                    }
+                }
+            }
+        }
+        return stringsFromRCButton
+    }
+    
+    func buttonFromString(stringButton: String) -> RCMessageButton? {
+        var stringsParameters = [String]()
+        var charactersFromParameter = [Character]()
+        var index = 9
+        var isNameExists = true
+        while (index < stringButton.count - 2) && isNameExists {
+            let indexString = stringButton.index(stringButton.startIndex, offsetBy: index)
+            if stringButton[indexString] != ";" {
+                charactersFromParameter.append(stringButton[indexString])
+                index += 1
+            } else {
+                // если первый параметр(имя) будет равно "" то не создавать кнопку
+                if (stringsParameters.count == 0) && (charactersFromParameter.count == 0) {
+                    isNameExists = false
+                } else {
+                    stringsParameters.append(String(charactersFromParameter))
+                    charactersFromParameter = []
+                    index += 1
+                }
+            }
+        }
 
+        if isNameExists && (stringsParameters.count == 3) {
+            stringsParameters.append(String(charactersFromParameter))
+            let rcButton = RCMessageButton()
+            rcButton.title = stringsParameters[0]
+            rcButton.url = stringsParameters[1]
+            if stringsParameters[3] == "show" {
+                rcButton.visible = true
+            } else {
+                rcButton.visible = false
+            }
+            return rcButton
+        } else {
+            return nil
+        }
+        
+    }
+    
     func action_INITED_no_operators(_ data: [Any]?) -> Bool {
         
         let dicServer = data?[0] as? [AnyHashable : Any]
@@ -499,6 +581,11 @@ public class UseDeskSDK: NSObject {
     func loadToken(for email: String?) -> String? {
         let savedValue = UserDefaults.standard.string(forKey: email ?? "")
         return savedValue
+    }
+    
+    public func releaseChat() {
+        socket = manager!.defaultSocket
+        socket!.disconnect()
     }
     
 }

@@ -303,6 +303,10 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         //}
     }
     
+    @objc func buttonFromMessageAction() {
+        print("")
+    }
+    
     func actionAttachMessage() {
         print("232")
     }
@@ -356,7 +360,12 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                 return RCStatusCell.height(indexPath, messagesView: self)
             }
             if rcmessage?.type == RC_TYPE_TEXT {
-                return RCTextMessageCell.height(indexPath, messagesView: self)
+                var heightButtons: CGFloat = 0
+                for _ in rcmessage!.rcButtons {
+                    heightButtons += 40
+                }
+                heightButtons += 10
+                return RCTextMessageCell.height(indexPath, messagesView: self) + heightButtons
             }
             if rcmessage?.type == RC_TYPE_Feedback {
                 return RCEmojiMessageCell.height(indexPath, messagesView: self)
@@ -402,6 +411,9 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             if rcmessage?.type == RC_TYPE_TEXT {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "RCTextMessageCell", for: indexPath) as! RCTextMessageCell
                 cell.bindData(indexPath, messagesView: self)
+//                for button in cell.buttons {
+//                    button.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.buttonFromMessageAction)))
+//                }
                 return cell
             }
             if rcmessage?.type == RC_TYPE_Feedback {

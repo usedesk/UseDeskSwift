@@ -18,6 +18,7 @@ class RCMessage: NSObject {
     var outgoing = false
     var feedback = false
     var text = ""
+    var rcButtons = [RCMessageButton]()
     var picture_image: UIImage?
     var picture_width: Int = 0
     var picture_height: Int = 0
