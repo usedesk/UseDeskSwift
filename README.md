@@ -261,7 +261,7 @@ usedesk.sendOfflineForm(withMessage message: "привет") { (result, error) i
 #### Пример:
 
 ```swift
-self.usedesk.connectBlock = (success, error){
+usedesk.connectBlock = (success, error){
 }
 ```
 #### Блок возвращает следующие параметры:
@@ -280,21 +280,27 @@ self.usedesk.connectBlock = (success, error){
 | outgoing | Bool | флаг исходящего сообщения |
 | text | String | текст сообщения |
 | picture_image | UIImage | изображение |
+| rcButtons | [RCMessageButton] | массив объектов с параметрами кнопки |
 | Error | String | тип ошибки |
 
 
 #### Пример:
 
 ```swift
-self.usedesk.newMessageBlock = (success, message){
+usedesk.newMessageBlock = (success, message){
 }
+```
+### Конец сессии:
+
+```swift
+usedesk.releaseChat()
 ```
 
 
 ### Статус соединия:
 
 ```swift
-self.usedesk.errorBlock = (errors){
+usedesk.errorBlock = (errors){
     if(errors.count > 0) {
         hudErrorConnection.label.text = errors[0]
         hudErrorConnection.showAnimated = true
@@ -314,7 +320,7 @@ self.usedesk.errorBlock = (errors){
 #### Пример:
 
 ```swift
-self.usedesk.feedbackMessageBlock = (message){
+usedesk.feedbackMessageBlock = (message){
 }
 ```
 

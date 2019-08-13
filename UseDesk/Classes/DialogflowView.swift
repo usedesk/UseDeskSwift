@@ -315,26 +315,6 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         self.present(alertController, animated: true, completion: nil)
     }
     
-    // MARK: : Action Sheet Delegate
-    func actionSheet(_ popup: UIActionSheet, clickedButtonAt buttonIndex: Int) {
-        
-        switch popup.tag {
-        case 1:
-            switch buttonIndex {
-            case 0:
-                takePhoto()
-                print("Select From Camera")
-            case 1:
-                selectPhoto()
-                print("Select From Photos")
-            default:
-                break
-            }
-        default:
-            break
-        }
-    }
-    
     func takePhoto() {
         let picker = UIImagePickerController()
         picker.delegate = self

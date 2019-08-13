@@ -101,7 +101,7 @@ class UDArticlesView: UIViewController, UITableViewDelegate, UITableViewDataSour
         if isSearch {
             if searchArticles != nil {
                 cell.textView.text = searchArticles?.articles[indexPath.row].title
-                cell.viewsLabel.text = "\(searchArticles?.articles[indexPath.row].views) просмотров"
+                cell.viewsLabel.text = "\(searchArticles?.articles[indexPath.row].views ?? 0) просмотров"
             } else {
                 cell.textView.text = ""
             }
