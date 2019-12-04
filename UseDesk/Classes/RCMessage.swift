@@ -11,7 +11,7 @@ class RCFile: NSObject {
     var size = ""
 }
 
-class RCMessage: NSObject {
+public class RCMessage: NSObject {
     // MARK: - Properties
     var type: Int = 0
     var incoming = false

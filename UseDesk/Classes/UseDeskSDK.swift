@@ -12,20 +12,20 @@ public typealias UDSBaseBlock = (Bool, [BaseCollection]?, String?) -> Void
 public typealias UDSArticleBlock = (Bool, Article?, String?) -> Void
 public typealias UDSArticleSearchBlock = (Bool, SearchArticle?, String?) -> Void
 public typealias UDSConnectBlock = (Bool, String?) -> Void
-typealias UDSNewMessageBlock = (Bool, RCMessage?) -> Void
-typealias UDSErrorBlock = ([Any]?) -> Void
-typealias UDSFeedbackMessageBlock = (RCMessage?) -> Void
-typealias UDSFeedbackAnswerMessageBlock = (Bool) -> Void
+public typealias UDSNewMessageBlock = (Bool, RCMessage?) -> Void
+public typealias UDSErrorBlock = ([Any]?) -> Void
+public typealias UDSFeedbackMessageBlock = (RCMessage?) -> Void
+public typealias UDSFeedbackAnswerMessageBlock = (Bool) -> Void
 
 let RootView = UIApplication.shared.keyWindow?.rootViewController
 
 public class UseDeskSDK: NSObject {
-    var newMessageBlock: UDSNewMessageBlock?
-    var connectBlock: UDSConnectBlock?
-    var errorBlock: UDSErrorBlock?
-    var feedbackMessageBlock: UDSFeedbackMessageBlock?
-    var feedbackAnswerMessageBlock: UDSFeedbackAnswerMessageBlock?
-    var historyMess: [AnyHashable] = []    
+    public var newMessageBlock: UDSNewMessageBlock?
+    public var connectBlock: UDSConnectBlock?
+    public var errorBlock: UDSErrorBlock?
+    public var feedbackMessageBlock: UDSFeedbackMessageBlock?
+    public var feedbackAnswerMessageBlock: UDSFeedbackAnswerMessageBlock?
+    public var historyMess: [AnyHashable] = []
     
     var manager: SocketManager?
     var socket: SocketIOClient?
@@ -58,6 +58,7 @@ public class UseDeskSDK: NSObject {
         baseView.usedesk = self
         baseView.url = self.url
         let navController = UDNavigationController(rootViewController: baseView)
+        navController.modalPresentationStyle = .fullScreen
         RootView?.present(navController, animated: true)
         hud.hide(animated: true)
     }
@@ -569,7 +570,7 @@ public class UseDeskSDK: NSObject {
         }
     }
     
-    func sendMessageFeedBack(_ status: Bool) {
+    public func sendMessageFeedBack(_ status: Bool) {
         socket!.emit("dispatch", with: UseDeskSDKHelp.feedback(status)!)
     }
     

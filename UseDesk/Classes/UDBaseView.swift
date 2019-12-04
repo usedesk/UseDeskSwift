@@ -21,7 +21,7 @@ class UDBaseView: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        self.modalPresentationStyle = .fullScreen
         UIView.animate(withDuration: 0.3) {
             self.loadingView.alpha = 1
         }

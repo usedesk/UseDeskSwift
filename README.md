@@ -207,7 +207,7 @@ usedesk.addViewsArticle(articleID: id, count: 1, connectionStatus: { success, er
 
 # Методы чата
 
-## Отправка тестового сообщения:
+## Отправка сообщения:
 
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
@@ -219,7 +219,7 @@ usedesk.addViewsArticle(articleID: id, count: 1, connectionStatus: { success, er
 usedesk.sendMessage("привет как дела?")
 ```
 
-## Отправка тестового сообщения с вложением:
+## Отправка сообщения с вложением:
 
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
@@ -227,6 +227,8 @@ usedesk.sendMessage("привет как дела?")
 | FileName | String | имя файла |
 | fileType | String | тип файла (MIMO) |
 | contentBase64 | Base64 | данные |
+
+Несколько файлов отправляются отдельными сообщениями
 
 #### Пример:
 
@@ -290,25 +292,26 @@ usedesk.connectBlock = (success, error){
 usedesk.newMessageBlock = (success, message){
 }
 ```
+
+### Отправление оценки CSI:
+
+| Переменная  | Тип | Описание |
+| -------------| ------------- | ------------- |
+| status | Bool | true - like, false - dislike |
+
+
+#### Пример:
+
+```swift
+usedesk!.sendMessageFeedBack(true)
+```
 ### Конец сессии:
 
 ```swift
 usedesk.releaseChat()
 ```
 
-
-### Статус соединия:
-
-```swift
-usedesk.errorBlock = (errors){
-    if(errors.count > 0) {
-        hudErrorConnection.label.text = errors[0]
-        hudErrorConnection.showAnimated = true
-    }
-}
-```
-
-- Операторы завершили разговор
+### Операторы завершили разговор
 
 #### Блок возвращает следующие параметры:
 
@@ -323,6 +326,27 @@ usedesk.errorBlock = (errors){
 usedesk.feedbackMessageBlock = (message){
 }
 ```
+## Список ошибок 
+
+### При работе с базой знаний:
+| Код  | Ошибка | Описание |
+| -------------| ------------- | ------------- |
+| 111 | Server error | Ошибка на сервере |
+| 112 | Invalid token | В запросе передан не правильный токен |
+| 115 | Access error | Ошибка доступа |
+| 121 | Request limits | Превышен лимит запросов |
+| - | Could not connect to the server | Не удалось подключиться к серверу |
+
+### При работе с чатом:
+| Код  | Ошибка | Описание |
+| -------------| ------------- | ------------- |
+| 500 | Check server logs | Непредвиденная ошибка сервера |
+| 403 | @@server/chat/INIT First | Не проведена инициализация |
+| 400 | ID of company is not defined | Не передали company_id |
+| 400 | Email is not defined | Не передали email |
+| 400 | Data is not defined | Не передали data в set-действии |
+| 400 | Message is not defined | Не передали message |
+| 403 | Your token is fake | Передали несуществующий токен |
 
 ## Author
 
