@@ -43,8 +43,10 @@ pod 'UseDesk_SDK_Swift'
 | CompanyID | String | идентификатор компании |
 | Email | String | почта клиента |
 | URL | String | адрес сервера с номером порта |
-| Account ID | String | идентификатор базы знаний |
+| Port | String | порт сервера |
+| Account ID | String | идентификатор базы знаний (опциональный) |
 | API Token | String | личный API ключ |
+| isUseBase | Bool | использовать базу знаний |
 
 ### Блок возвращает следующие параметры:
 
@@ -53,10 +55,18 @@ pod 'UseDesk_SDK_Swift'
 | Success | Bool | статус подключения к серверу |
 | Error | String | описание ошибки при неудачном подключении |
 
-#### Пример:
+#### Пример c использованием базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", account_id: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", url: "https:dev.company.ru", port: "213", connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", isUseBase: true, account_id: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", url: "https:dev.company.ru", port: "213", connectionStatus: { success, error in
+
+})
+```
+
+#### Пример без использования базы знаний:
+``` swift
+let usedesk = UseDeskSDK()
+usedesk.start(withCompanyID: "1234567", isUseBase: false, api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", url: "https:dev.company.ru", port: "213", connectionStatus: { success, error in
 
 })
 ```
@@ -73,8 +83,9 @@ usedesk.start(withCompanyID: "1234567", account_id: "1", api_token: "143ed59g90e
 | Email | String | почта клиента |
 | URL | String | адрес сервера |
 | Port | String | порт сервера |
-| Account ID | String | идентификатор базы знаний |
+| Account ID | String | идентификатор базы знаний (опциональный) |
 | API Token | String | личный API ключ |
+| isUseBase | Bool | использовать базу знаний |
 
 #### Пример:
 ```swift
@@ -146,6 +157,8 @@ usedesk.startWithoutGUICompanyID(companyID: "1234567", account_id: "1", api_toke
 | articles | [Article] | массив статей |
 
 # Методы базы знаний:
+
+### Внимание: если при инициализации не был передан account_id или isUseBase указан false, следующие методы не будут работать. 
 
 ## Получение разделов базы знаний:
 

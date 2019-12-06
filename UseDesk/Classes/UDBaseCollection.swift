@@ -61,13 +61,14 @@ import UIKit
         guard
             let id = json["id"] as? Int,
             let title = json["title"] as? String,
-            let image = json["image"] as? String,
             let open = json["public"] as? Int,
             let categoriesArray = json["categories"] as? Array<[String: Any]>
             else { return nil }
         self.id = id
         self.title = title
-        self.image = image
+        if (json["image"] as? String) != nil {
+            self.image = json["image"] as! String
+        }
         if open == 1 {
             self.open = true
         } else {

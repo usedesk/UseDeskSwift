@@ -38,8 +38,9 @@ public class UseDeskSDK: NSObject {
     var api_token = ""
     var port = ""
     var name = ""
+    var isUseBase = false
     
-     @objc public func start(withCompanyID _companyID: String, account_id _account_id: String, api_token _api_token: String, email _email: String, url _url: String, port _port: String, name _name: String, connectionStatus startBlock: UDSStartBlock) {
+     @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, url _url: String, port _port: String, name _name: String, connectionStatus startBlock: UDSStartBlock) {
         
         let hud = MBProgressHUD.showAdded(to: (RootView?.view)!, animated: true)
         hud.mode = MBProgressHUDMode.indeterminate
@@ -47,20 +48,51 @@ public class UseDeskSDK: NSObject {
         
         companyID = _companyID
         email = _email
-        account_id = _account_id
         api_token = _api_token
         port = _port
         urlWithoutPort = _url
         url = "\(_url):\(port)"
         name = _name
+        isUseBase = _isUseBase
         
-        let baseView = UDBaseView()
-        baseView.usedesk = self
-        baseView.url = self.url
-        let navController = UDNavigationController(rootViewController: baseView)
-        navController.modalPresentationStyle = .fullScreen
-        RootView?.present(navController, animated: true)
-        hud.hide(animated: true)
+        if isUseBase && _account_id != nil {
+            let baseView = UDBaseView()
+            baseView.usedesk = self
+            baseView.url = self.url
+            let navController = UDNavigationController(rootViewController: baseView)
+            navController.modalPresentationStyle = .fullScreen
+            RootView?.present(navController, animated: true)
+            hud.hide(animated: true)
+        } else {
+            if isUseBase && _account_id == nil {
+                startBlock(false, "You did not specify account_id")
+            } else {
+                startWithoutGUICompanyID(companyID: companyID, isUseBase: isUseBase, account_id: account_id, api_token: api_token, email: email, url: urlWithoutPort, port: port, name: name, connectionStatus: { success, error in
+                    if success {
+                        let dialogflowVC : DialogflowView = DialogflowView()
+                        dialogflowVC.usedesk = self
+                        let navController = UDNavigationController(rootViewController: dialogflowVC)
+                        navController.modalPresentationStyle = .fullScreen
+                        RootView?.present(navController, animated: true)
+                        hud.hide(animated: true)
+                    } else {
+                        if (error == "noOperators") {
+                            let offlineVC = UDOfflineForm(nibName: "UDOfflineForm", bundle: nil)
+                            offlineVC.url = self.url
+                            offlineVC.usedesk = self
+                            let navController = UDNavigationController(rootViewController: offlineVC)
+                            navController.modalPresentationStyle = .fullScreen
+                            RootView?.present(navController, animated: true)
+                            hud.hide(animated: true)
+                        }
+                    }
+                    
+                })
+                
+            }
+        }
+        
+        
     }
 
     public func sendMessage(_ text: String?) {
@@ -73,15 +105,19 @@ public class UseDeskSDK: NSObject {
         socket!.emit("dispatch", with: mess!)
     }
     
-     @objc public func startWithoutGUICompanyID(companyID _companyID: String, account_id _account_id: String, api_token _api_token: String, email _email: String, url _url: String, port _port: String, name _name: String, connectionStatus startBlock: @escaping UDSStartBlock) {
+     @objc public func startWithoutGUICompanyID(companyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, url _url: String, port _port: String, name _name: String, connectionStatus startBlock: @escaping UDSStartBlock) {
         
         companyID = _companyID
         email = _email
-        account_id = _account_id
+        
         api_token = _api_token
         port = _port
         url = "\(_url):\(port)"
         name = _name
+        isUseBase = _isUseBase
+        if _account_id != nil {
+            account_id = _account_id!
+        }
         
         let urlAdress = URL(string: url)
         
@@ -120,9 +156,9 @@ public class UseDeskSDK: NSObject {
             
             let no_operators = self.action_INITED_no_operators(data)
             
-            if no_operators {
-                startBlock(false, "noOperators")
-            }
+//            if no_operators {
+//                startBlock(false, "noOperators")
+//            } else {
             
             let auth_success = self.action_ADD_INIT(data)
             
@@ -138,142 +174,174 @@ public class UseDeskSDK: NSObject {
             
             self.action_Feedback_Answer(data)
             
-            self.action_ADD_MESSAGE(data)           
+            self.action_ADD_MESSAGE(data)
+//            }
         })
     }
     
     @objc public func getCollections(connectionStatus baseBlock: @escaping UDSBaseBlock) {
-        DispatchQueue.global(qos: .default).async(execute: {
-            request("https://api.usedesk.ru/support/\(self.account_id)/list?api_token=\(self.api_token)").responseJSON{ responseJSON in
-                switch responseJSON.result {
-                case .success(let value):
-                    guard let collections = BaseCollection.getArray(from: value) else {
-                        baseBlock(false, nil, "error parsing")
-                        return }
-                    baseBlock(true, collections, "")
-                case .failure(let error):
-                    baseBlock(false, nil, error.localizedDescription)
-                }
+        if isUseBase && account_id != "" {
+            DispatchQueue.global(qos: .default).async(execute: {
+                       request("https://api.usedesk.ru/support/\(self.account_id)/list?api_token=\(self.api_token)").responseJSON{ responseJSON in
+                           switch responseJSON.result {
+                           case .success(let value):
+                               guard let collections = BaseCollection.getArray(from: value) else {
+                                   baseBlock(false, nil, "error parsing")
+                                   return }
+                               baseBlock(true, collections, "")
+                           case .failure(let error):
+                               baseBlock(false, nil, error.localizedDescription)
+                           }
+                       }
+                   })
+        } else {
+            if isUseBase && account_id == "" {
+                baseBlock(false, nil, "You did not specify account_id")
+            } else {
+                baseBlock(false, nil, "You specify isUseBase = false")
             }
-        })
+        }
     }
     
     @objc public func getArticle(articleID: Int, connectionStatus baseBlock: @escaping UDSArticleBlock) {
-        DispatchQueue.global(qos: .default).async(execute: {
-            request("https://api.usedesk.ru/support/\(self.account_id)/articles/\(articleID)?api_token=\(self.api_token)").responseJSON{ responseJSON in
-                switch responseJSON.result {
-                case .success(let value):
-                    guard let article = Article.get(from: value) else {
-                        baseBlock(false, nil, "error parsing")
-                        return }
-                    baseBlock(true, article, "")
-                case .failure(let error):
-                    baseBlock(false, nil, error.localizedDescription)
+        if isUseBase && account_id != "" {
+            DispatchQueue.global(qos: .default).async(execute: {                request("https://api.usedesk.ru/support/\(self.account_id)/articles/\(articleID)?api_token=\(self.api_token)").responseJSON{ responseJSON in
+                    switch responseJSON.result {
+                    case .success(let value):
+                        guard let article = Article.get(from: value) else {
+                            baseBlock(false, nil, "error parsing")
+                            return }
+                        baseBlock(true, article, "")
+                    case .failure(let error):
+                        baseBlock(false, nil, error.localizedDescription)
+                    }
                 }
+            })
+        } else {
+            if isUseBase && account_id == "" {
+                baseBlock(false, nil, "You did not specify account_id")
+            } else {
+                baseBlock(false, nil, "You specify isUseBase = false")
             }
-        })
+        }
     }
     
     @objc public func addViewsArticle(articleID: Int, count: Int, connectionStatus connectBlock: @escaping UDSConnectBlock) {
-        DispatchQueue.global(qos: .default).async(execute: {
-            request("https://api.usedesk.ru/support/\(self.account_id)/articles/\(articleID)/add-views?api_token=\(self.api_token)&count=\(count)").responseJSON{ responseJSON in
-                switch responseJSON.result {
-                case .success( _):
-                    connectBlock(true, "")
-                case .failure(let error):
-                    connectBlock(false, error.localizedDescription)
+        if isUseBase && account_id != "" {
+            DispatchQueue.global(qos: .default).async(execute: {            request("https://api.usedesk.ru/support/\(self.account_id)/articles/\(articleID)/add-views?api_token=\(self.api_token)&count=\(count)").responseJSON{ responseJSON in
+                    switch responseJSON.result {
+                    case .success( _):
+                        connectBlock(true, "")
+                    case .failure(let error):
+                        connectBlock(false, error.localizedDescription)
+                    }
                 }
+            })
+        } else {
+            if isUseBase && account_id == "" {
+                connectBlock(false, "You did not specify account_id")
+            } else {
+                connectBlock(false, "You specify isUseBase = false")
             }
-        })
+        }
     }
     
     @objc public func getSearchArticles(collection_ids:[Int], category_ids:[Int], article_ids:[Int], count: Int = 20, page: Int = 1, query: String, type: TypeArticle = .all, sort: SortArticle = .id, order: OrderArticle = .asc, connectionStatus searchBlock: @escaping UDSArticleSearchBlock) {
-        var url = "https://api.usedesk.ru/support/\(self.account_id)/articles/list?api_token=\(self.api_token)"
-        var urlForEncode = "&query=\(query)&count=\(count)&page=\(page)"
-        switch type {
-        case .close:
-            urlForEncode += "&type=public"
-        case .open:
-            urlForEncode += "&type=private"
-        default:
-            break
-        }
-        
-        switch sort {
-        case .id:
-            urlForEncode += "&sort=id"
-        case .category_id:
-            urlForEncode += "&sort=category_id"
-        case .created_at:
-            urlForEncode += "&sort=created_at"
-        case .open:
-            urlForEncode += "&sort=public"
-        case .title:
-            urlForEncode += "&sort=title"
-        default:
-            break
-        }
-        
-        switch order {
-        case .asc:
-            urlForEncode += "&order=asc"
-        case .desc:
-            urlForEncode += "&order=desc"
-        default:
-            break
-        }
-        if collection_ids.count > 0 {
-            var idsStrings = ""
-            urlForEncode += "&collection_ids="
-            for id in collection_ids {
-                if idsStrings == "" {
-                    idsStrings += "\(id)"
-                } else {
-                    idsStrings += ",\(id)"
-                }
+        if isUseBase && account_id != "" {
+            var url = "https://api.usedesk.ru/support/\(account_id)/articles/list?api_token=\(api_token)"
+            var urlForEncode = "&query=\(query)&count=\(count)&page=\(page)"
+            switch type {
+            case .close:
+                urlForEncode += "&type=public"
+            case .open:
+                urlForEncode += "&type=private"
+            default:
+                break
             }
-            urlForEncode += idsStrings
-        }
-        if category_ids.count > 0 {
-            var idsStrings = ""
-            urlForEncode += "&category_ids="
-            for id in category_ids {
-                if idsStrings == "" {
-                    idsStrings += "\(id)"
-                } else {
-                    idsStrings += ",\(id)"
-                }
+            
+            switch sort {
+            case .id:
+                urlForEncode += "&sort=id"
+            case .category_id:
+                urlForEncode += "&sort=category_id"
+            case .created_at:
+                urlForEncode += "&sort=created_at"
+            case .open:
+                urlForEncode += "&sort=public"
+            case .title:
+                urlForEncode += "&sort=title"
+            default:
+                break
             }
-            urlForEncode += idsStrings
-        }
-        if article_ids.count > 0 {
-            var idsStrings = ""
-            urlForEncode += "&article_ids="
-            for id in article_ids {
-                if idsStrings == "" {
-                    idsStrings += "\(id)"
-                } else {
-                    idsStrings += ",\(id)"
-                }
+            
+            switch order {
+            case .asc:
+                urlForEncode += "&order=asc"
+            case .desc:
+                urlForEncode += "&order=desc"
+            default:
+                break
             }
-            urlForEncode += idsStrings
-        }
+            if collection_ids.count > 0 {
+                var idsStrings = ""
+                urlForEncode += "&collection_ids="
+                for id in collection_ids {
+                    if idsStrings == "" {
+                        idsStrings += "\(id)"
+                    } else {
+                        idsStrings += ",\(id)"
+                    }
+                }
+                urlForEncode += idsStrings
+            }
+            if category_ids.count > 0 {
+                var idsStrings = ""
+                urlForEncode += "&category_ids="
+                for id in category_ids {
+                    if idsStrings == "" {
+                        idsStrings += "\(id)"
+                    } else {
+                        idsStrings += ",\(id)"
+                    }
+                }
+                urlForEncode += idsStrings
+            }
+            if article_ids.count > 0 {
+                var idsStrings = ""
+                urlForEncode += "&article_ids="
+                for id in article_ids {
+                    if idsStrings == "" {
+                        idsStrings += "\(id)"
+                    } else {
+                        idsStrings += ",\(id)"
+                    }
+                }
+                urlForEncode += idsStrings
+            }
 
-        let escapedUrl = urlForEncode.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-        url += escapedUrl ?? ""
-        DispatchQueue.global(qos: .default).async(execute: {           
-            request(url).responseJSON{ responseJSON in
-                switch responseJSON.result {
-                case .success(let value):
-                    guard let articles = SearchArticle(from: value) else {
-                        searchBlock(false, nil, "error parsing")
-                        return }
-                    searchBlock(true, articles, "")
-                case .failure(let error):
-                    searchBlock(false, nil, error.localizedDescription)
+            let escapedUrl = urlForEncode.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+            url += escapedUrl ?? ""
+            DispatchQueue.global(qos: .default).async(execute: {
+                request(url).responseJSON{ responseJSON in
+                    switch responseJSON.result {
+                    case .success(let value):
+                        guard let articles = SearchArticle(from: value) else {
+                            searchBlock(false, nil, "error parsing")
+                            return }
+                        searchBlock(true, articles, "")
+                    case .failure(let error):
+                        searchBlock(false, nil, error.localizedDescription)
+                    }
                 }
+            })
+        } else {
+            if isUseBase && account_id == "" {
+                searchBlock(false, nil, "You did not specify account_id")
+            } else {
+                searchBlock(false, nil, "You specify isUseBase = false")
             }
-        })
+        }
+        
     }
     
     func sendOfflineForm(withMessage message: String?, callback resultBlock: @escaping UDSStartBlock) {
@@ -485,7 +553,7 @@ public class UseDeskSDK: NSObject {
         if setup != nil {
             
             let noOperators = (setup?["noOperators"])
-            
+
             if noOperators != nil {
                 return true
             }

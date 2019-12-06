@@ -13,11 +13,13 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet var viewLoadEarlier: UIView!
     @IBOutlet var viewTypingIndicator: UIView!
     @IBOutlet var viewInput: UIView!
-   // @IBOutlet var buttonInputAttach: UIButton!
+    @IBOutlet var buttonInputAttach: UIButton!
     @IBOutlet var buttonInputAudio: UIButton!
     @IBOutlet var buttonInputSend: UIButton!
     @IBOutlet var textInput: UITextView!
-   // @IBOutlet var viewInputAudio: UIView!
+    @IBOutlet weak var textInputHC: NSLayoutConstraint!
+    @IBOutlet weak var textInputBC: NSLayoutConstraint!
+    // @IBOutlet var viewInputAudio: UIView!
     //@IBOutlet var labelInputAudio: UILabel!
     @IBOutlet var labelAttachmentFile: UILabel!
     
@@ -25,12 +27,17 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
 
     private var initialized = false
     private var isShowKeyboard = false
+    private var isChangeOffsetTable = false
+    private var isViewDidLayoutSubviews = false
+    private var changeOffsetTableHeight: CGFloat = 0.0
+    private var heightKeyboard: CGFloat = 0.0
     private var centerView = CGPoint.zero
     private var heightView: CGFloat = 0.0
     private var timerAudio: Timer?
     private var dateAudioStart: Date?
     private var pointAudioStart = CGPoint.zero
     private var audioRecorder: AVAudioRecorder?
+    private var safeAreaInsetsBottom: CGFloat = 0.0
     
     convenience init() {
         self.init(nibName: "RCMessagesView", bundle: nil)
@@ -67,24 +74,32 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         //viewInputAudio.isHidden = true
         
         inputPanelInit()
+        
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        //centerView = view.center
         heightView = view.frame.size.height
-        
-        inputPanelUpdate()
+        if !isViewDidLayoutSubviews {
+            isViewDidLayoutSubviews = true
+            if #available(iOS 11.0, *) {
+                safeAreaInsetsBottom = view.safeAreaInsets.bottom
+                tableView.frame = CGRect(x: tableView.frame.origin.x, y: tableView.frame.origin.y, width: tableView.frame.width, height: tableView.frame.height - safeAreaInsetsBottom)
+            } else {
+                // Fallback on earlier versions
+            }
+            inputPanelUpdate()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
         dismissKeyboard()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
         if initialized == false {
             initialized = true
             scroll(toBottom: true)
@@ -164,8 +179,8 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         }
     }
     
-    func typingIndicatorUpdate() {
-    }
+//    func typingIndicatorUpdate() {
+//    }
     
     // MARK: - Keyboard methods
     @objc func keyboardShow(_ notification: Notification?) {
@@ -175,10 +190,25 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             let keyboard: CGRect? = (info?[UIKeyboardFrameEndUserInfoKey] as AnyObject).cgRectValue
             let duration = TimeInterval((info?[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
             
-            let heightKeyboard: CGFloat? = keyboard?.size.height
+            let keyboardHeight: CGFloat? = keyboard?.size.height
+            if keyboardHeight != nil {
+                heightKeyboard = keyboardHeight!
+            }
             
             UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
-                self.view.center = CGPoint(x: self.centerView.x, y: self.centerView.y - (heightKeyboard ?? 0.0))
+                if self.safeAreaInsetsBottom != 0 {
+                    self.textInputBC.constant = 7
+                }
+//                self.viewInput.frame.origin.y -= keyboardHeight ?? 336
+//                if self.tableView.contentSize.height > (self.heightView - (keyboardHeight ?? 336)) {
+//                    self.changeOffsetTableHeight = self.tableView.contentSize.height - (self.heightView - (keyboardHeight ?? 336))
+//                    print(<#T##items: Any...##Any#>)
+//                    print(<#T##items: Any...##Any#>)
+//                    print(<#T##items: Any...##Any#>)
+//                    self.tableView.contentOffset.y += self.changeOffsetTableHeight
+//                    self.isChangeOffsetTable = true
+//                }
+                self.view.center = CGPoint(x: self.centerView.x, y: self.centerView.y - (keyboardHeight ?? 0.0))
             })
             isShowKeyboard = true
             UIMenuController.shared.menuItems = nil
@@ -189,9 +219,27 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         if isShowKeyboard {
             let info = notification?.userInfo
             let duration = TimeInterval((info?[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
-            
+//            var heightText: CGFloat
+//            let sizeText = textInput.sizeThatFits(CGSize(width: textInput.frame.size.width, height: CGFloat(MAXFLOAT)))
+//            heightText = CGFloat(fmaxf(Float(RCMessages.inputTextHeightMin()), Float(sizeText.height)))
+//            heightText = CGFloat(fminf(Float(RCMessages.inputTextHeightMax()), Float(heightText)))
+//            let heightInput: CGFloat = heightText + (RCMessages.inputViewHeightMin() - RCMessages.inputTextHeightMin())
+//
+//            var frameViewInput: CGRect = viewInput.frame
+//            frameViewInput.origin.y = heightView - heightInput
             UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
+                if self.safeAreaInsetsBottom != 0 {
+                    self.textInputBC.constant = 7 + self.safeAreaInsetsBottom
+                }
                 self.view.center = self.centerView
+                
+
+//                self.viewInput.frame.origin.y = self.heightView - heightInput
+//                if self.isChangeOffsetTable {
+//                    self.isChangeOffsetTable = false
+//                    self.tableView.contentOffset.y -= self.changeOffsetTableHeight
+//                    print(self.changeOffsetTableHeight)
+//                }
             })
             isShowKeyboard = false
         }
@@ -205,16 +253,17 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     func inputPanelInit() {
         viewInput.backgroundColor = RCMessages.inputViewBackColor()
         textInput.backgroundColor = RCMessages.inputTextBackColor()
-        //---------------------------------------------------------------------------------------------------------------------------------------------
+        textInput.isScrollEnabled = false
+        
         textInput.font = RCMessages.inputFont()
         textInput.textColor = RCMessages.inputTextTextColor()
-        //---------------------------------------------------------------------------------------------------------------------------------------------
+        
         textInput.textContainer.lineFragmentPadding = 0
         textInput.textContainerInset = RCMessages.inputInset()
-        //---------------------------------------------------------------------------------------------------------------------------------------------
+   
         textInput.layer.borderColor = RCMessages.inputBorderColor()
         textInput.layer.borderWidth = RCMessages.inputBorderWidth()
-        //---------------------------------------------------------------------------------------------------------------------------------------------
+        
         textInput.layer.cornerRadius = RCMessages.inputRadius()
         textInput.clipsToBounds = true
     }
@@ -223,44 +272,51 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         let widthText = textInput.frame.size.width
         var heightText: CGFloat
         let sizeText = textInput.sizeThatFits(CGSize(width: widthText, height: CGFloat(MAXFLOAT)))
-        //---------------------------------------------------------------------------------------------------------------------------------------------
+        
         heightText = CGFloat(fmaxf(Float(RCMessages.inputTextHeightMin()), Float(sizeText.height)))
         heightText = CGFloat(fminf(Float(RCMessages.inputTextHeightMax()), Float(heightText)))
-        //---------------------------------------------------------------------------------------------------------------------------------------------
-        let heightInput: CGFloat = heightText + (RCMessages.inputViewHeightMin() - RCMessages.inputTextHeightMin())
+
+        var heightInput: CGFloat = 0  // + (RCMessages.inputViewHeightMin() - RCMessages.inputTextHeightMin())
+        if heightText > 104 {
+            heightInput = 110
+            textInput.isScrollEnabled = true
+        } else {
+            heightInput = heightText
+            textInput.isScrollEnabled = false
+        }
         
-        tableView.frame = CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: heightView - heightInput)
-        //---------------------------------------------------------------------------------------------------------------------------------------------
+
         var frameViewInput: CGRect = viewInput.frame
-        frameViewInput.origin.y = heightView - heightInput
-        frameViewInput.size.height = heightInput
+        frameViewInput.origin.y = isShowKeyboard ? (heightView - heightInput) : (heightView - heightInput - safeAreaInsetsBottom)
+        if safeAreaInsetsBottom != 0 {
+            textInputBC.constant = isShowKeyboard ? 7 : safeAreaInsetsBottom + 7
+        }
+        frameViewInput.size.height = isShowKeyboard ? heightInput : heightInput + safeAreaInsetsBottom
+         
         viewInput.frame = frameViewInput
-        //---------------------------------------------------------------------------------------------------------------------------------------------
         viewInput.layoutIfNeeded()
         
-//        var frameAttach: CGRect = buttonInputAttach.frame
-//        frameAttach.origin.y = heightInput - frameAttach.size.height
-//        buttonInputAttach.frame = frameAttach
-        //---------------------------------------------------------------------------------------------------------------------------------------------
         var frameTextInput: CGRect = textInput.frame
-        frameTextInput.size.height = heightText
+        frameTextInput.size.height = heightInput
         textInput.frame = frameTextInput
+        textInputHC.constant = heightInput
+        //tableView.frame = CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: heightView - heightInput)
+//        var frameAudio: CGRect = buttonInputAudio.frame
+//        frameAudio.origin.y = heightInput - frameAudio.size.height
+//        buttonInputAudio.frame = frameAudio
+        self.view.layoutIfNeeded()
         
-        var frameAudio: CGRect = buttonInputAudio.frame
-        frameAudio.origin.y = heightInput - frameAudio.size.height
-        buttonInputAudio.frame = frameAudio
-        //---------------------------------------------------------------------------------------------------------------------------------------------
-        var frameSend: CGRect = buttonInputSend.frame
-        frameSend.origin.y = heightInput - frameSend.size.height
-        buttonInputSend.frame = frameSend
-        //---------------------------------------------------------------------------------------------------------------------------------------------
-        buttonInputAudio.isHidden = textInput.text.count != 0
+//        var frameSend: CGRect = buttonInputSend.frame
+//        frameSend.origin.y = heightInput - frameSend.size.height
+       // buttonInputSend.frame = frameSend
+        
+//        buttonInputAudio.isHidden = textInput.text.count != 0
         buttonInputSend.isHidden = textInput.text.count == 0
         
-        let offset = CGPoint(x: 0, y: sizeText.height - heightText)
-        textInput.setContentOffset(offset, animated: false)
-        //---------------------------------------------------------------------------------------------------------------------------------------------
-        scroll(toBottom: false)
+//        let offset = CGPoint(x: 0, y: sizeText.height - heightText)
+//        textInput.setContentOffset(offset, animated: false)
+        
+//        scroll(toBottom: false)
     }
     
     // MARK: - User actions (title)
@@ -469,8 +525,8 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func textViewDidChange(_ textView: UITextView) {
-        inputPanelUpdate()
-        typingIndicatorUpdate()
+          inputPanelUpdate()
+        //typingIndicatorUpdate()
     }
     // MARK: - Audio recorder methods
     @objc func audioRecorderGesture(_ gestureRecognizer: UILongPressGestureRecognizer) {

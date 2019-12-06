@@ -54,8 +54,12 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func startChatButton(_ sender: Any) {
         let usedesk: UseDeskSDK? = UseDeskSDK()
-        usedesk!.start(withCompanyID: companyIdTextField.text!, account_id: accountIdTextField.text!, api_token: apiTokenTextField.text!, email: emailTextField.text!, url: urlTextField.text!, port: portTextField.text!, name: nameTextField.text!, connectionStatus: { success, error in
-            
+        usedesk!.start(withCompanyID: companyIdTextField.text!, isUseBase: false, /*account_id: accountIdTextField.text!,*/ api_token: apiTokenTextField.text!, email: emailTextField.text!, url: urlTextField.text!, port: portTextField.text!, name: nameTextField.text!, connectionStatus: { success, error in
+
         })
+//        usedesk!.start(withCompanyID: "157457", account_id: "600", api_token: "98cc4c7dc7641feba6a86351e57390357417995d", email: "user_email@here.com", url: "https://pubsub.usedesk.ru", port: "443", name: "User Name") { (status, error) in
+//            print(status)
+//            print(error)
+//        }
     }
 }

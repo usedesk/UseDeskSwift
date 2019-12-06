@@ -18,7 +18,8 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         super.viewDidLoad()
         
        // navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Gif", style: .done, target: self, action: #selector(self.actionDone))
-        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .reply, target: self, action: #selector(self.actionDone))
+        navigationItem.titleView = UIView(frame: navigationController?.navigationBar.bounds ?? .zero)
         hudErrorConnection = MBProgressHUD(view: view)
         hudErrorConnection?.removeFromSuperViewOnHide = true
         view.addSubview(hudErrorConnection!)
