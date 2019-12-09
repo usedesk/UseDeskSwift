@@ -312,12 +312,22 @@ usedesk.newMessageBlock = (success, message){
 | -------------| ------------- | ------------- |
 | status | Bool | true - like, false - dislike |
 
-
 #### Пример:
 
 ```swift
 usedesk!.sendMessageFeedBack(true)
 ```
+
+### Статус соединения:
+
+#### Пример:
+
+```swift
+usedesk.errorBlock = (errors){
+    
+}
+```
+
 ### Конец сессии:
 
 ```swift
