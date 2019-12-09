@@ -156,9 +156,9 @@ public class UseDeskSDK: NSObject {
             
             let no_operators = self.action_INITED_no_operators(data)
             
-//            if no_operators {
-//                startBlock(false, "noOperators")
-//            } else {
+            if no_operators {
+                startBlock(false, "noOperators")
+            } else {
             
             let auth_success = self.action_ADD_INIT(data)
             
@@ -175,7 +175,7 @@ public class UseDeskSDK: NSObject {
             self.action_Feedback_Answer(data)
             
             self.action_ADD_MESSAGE(data)
-//            }
+            }
         })
     }
     

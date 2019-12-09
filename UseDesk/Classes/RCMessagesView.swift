@@ -199,19 +199,11 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                 if self.safeAreaInsetsBottom != 0 {
                     self.textInputBC.constant = 7
                 }
-//                self.viewInput.frame.origin.y -= keyboardHeight ?? 336
-//                if self.tableView.contentSize.height > (self.heightView - (keyboardHeight ?? 336)) {
-//                    self.changeOffsetTableHeight = self.tableView.contentSize.height - (self.heightView - (keyboardHeight ?? 336))
-//                    print(<#T##items: Any...##Any#>)
-//                    print(<#T##items: Any...##Any#>)
-//                    print(<#T##items: Any...##Any#>)
-//                    self.tableView.contentOffset.y += self.changeOffsetTableHeight
-//                    self.isChangeOffsetTable = true
-//                }
                 self.view.center = CGPoint(x: self.centerView.x, y: self.centerView.y - (keyboardHeight ?? 0.0))
             })
             isShowKeyboard = true
             UIMenuController.shared.menuItems = nil
+            inputPanelUpdate()
         }
     }
     
@@ -219,29 +211,14 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         if isShowKeyboard {
             let info = notification?.userInfo
             let duration = TimeInterval((info?[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
-//            var heightText: CGFloat
-//            let sizeText = textInput.sizeThatFits(CGSize(width: textInput.frame.size.width, height: CGFloat(MAXFLOAT)))
-//            heightText = CGFloat(fmaxf(Float(RCMessages.inputTextHeightMin()), Float(sizeText.height)))
-//            heightText = CGFloat(fminf(Float(RCMessages.inputTextHeightMax()), Float(heightText)))
-//            let heightInput: CGFloat = heightText + (RCMessages.inputViewHeightMin() - RCMessages.inputTextHeightMin())
-//
-//            var frameViewInput: CGRect = viewInput.frame
-//            frameViewInput.origin.y = heightView - heightInput
             UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
                 if self.safeAreaInsetsBottom != 0 {
                     self.textInputBC.constant = 7 + self.safeAreaInsetsBottom
                 }
                 self.view.center = self.centerView
-                
-
-//                self.viewInput.frame.origin.y = self.heightView - heightInput
-//                if self.isChangeOffsetTable {
-//                    self.isChangeOffsetTable = false
-//                    self.tableView.contentOffset.y -= self.changeOffsetTableHeight
-//                    print(self.changeOffsetTableHeight)
-//                }
             })
             isShowKeyboard = false
+            
         }
     }
     
@@ -346,6 +323,7 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
 
     // MARK: - User actions (input panel)
     @IBAction func actionInputAttach(_ sender: Any) {
+        dismissKeyboard()
         actionAttachMessage()
     }
     
@@ -360,11 +338,11 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     @objc func buttonFromMessageAction() {
-        print("")
+        
     }
     
     func actionAttachMessage() {
-        print("232")
+        
     }
     
     func actionSendAudio(_ path: String?) {

@@ -51,7 +51,7 @@
                             <state key="normal" image="rcmessage_send.png"/>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aaP-dQ-ykO">
-                            <rect key="frame" x="270" y="-7" width="44" height="44"/>
+                            <rect key="frame" x="270" y="-11" width="44" height="44"/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="44" id="mFz-Hz-yj8"/>
                             </constraints>
@@ -61,7 +61,7 @@
                             </connections>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wx7-PH-b4G">
-                            <rect key="frame" x="0.0" y="-7" width="44" height="44"/>
+                            <rect key="frame" x="0.0" y="-11" width="44" height="44"/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="44" id="TdM-ns-r9m"/>
                             </constraints>
@@ -96,17 +96,17 @@
                     <constraints>
                         <constraint firstItem="WF4-Ti-KqT" firstAttribute="leading" secondItem="xuU-RB-86v" secondAttribute="leading" constant="44" id="02r-Nl-wYU"/>
                         <constraint firstAttribute="bottom" secondItem="WF4-Ti-KqT" secondAttribute="bottom" constant="7" id="0QF-3K-Leo"/>
-                        <constraint firstItem="bG1-CG-gi3" firstAttribute="bottom" secondItem="Wx7-PH-b4G" secondAttribute="bottom" constant="2" id="1tY-kl-lbw"/>
+                        <constraint firstItem="bG1-CG-gi3" firstAttribute="bottom" secondItem="Wx7-PH-b4G" secondAttribute="bottom" constant="6" id="1tY-kl-lbw"/>
                         <constraint firstItem="WF4-Ti-KqT" firstAttribute="top" secondItem="xuU-RB-86v" secondAttribute="top" constant="7" id="AxG-Vq-6Zg"/>
                         <constraint firstAttribute="trailing" secondItem="WF4-Ti-KqT" secondAttribute="trailing" constant="56" id="BOa-0Q-yIe"/>
                         <constraint firstItem="bG1-CG-gi3" firstAttribute="centerX" secondItem="Wx7-PH-b4G" secondAttribute="centerX" id="I8W-od-rRD"/>
-                        <constraint firstItem="Wx7-PH-b4G" firstAttribute="bottom" secondItem="WF4-Ti-KqT" secondAttribute="bottom" id="Q1y-yC-voh"/>
+                        <constraint firstItem="Wx7-PH-b4G" firstAttribute="bottom" secondItem="WF4-Ti-KqT" secondAttribute="bottom" constant="-4" id="Q1y-yC-voh"/>
                         <constraint firstAttribute="trailing" secondItem="aaP-dQ-ykO" secondAttribute="trailing" constant="6" id="Wny-R1-Wnx"/>
                         <constraint firstItem="Wx7-PH-b4G" firstAttribute="leading" secondItem="xuU-RB-86v" secondAttribute="leading" id="cJY-eL-XRL"/>
                         <constraint firstAttribute="bottom" secondItem="ss1-G4-3fI" secondAttribute="bottom" id="epQ-8P-fp3"/>
-                        <constraint firstItem="aaP-dQ-ykO" firstAttribute="bottom" secondItem="WF4-Ti-KqT" secondAttribute="bottom" id="h14-5c-07U"/>
                         <constraint firstItem="ss1-G4-3fI" firstAttribute="top" secondItem="xuU-RB-86v" secondAttribute="top" id="pGI-nP-tFA"/>
                         <constraint firstAttribute="trailing" secondItem="ss1-G4-3fI" secondAttribute="trailing" constant="6" id="rnW-VL-wzl"/>
+                        <constraint firstItem="aaP-dQ-ykO" firstAttribute="centerY" secondItem="Wx7-PH-b4G" secondAttribute="centerY" id="sBc-P5-djC"/>
                     </constraints>
                 </view>
             </subviews>

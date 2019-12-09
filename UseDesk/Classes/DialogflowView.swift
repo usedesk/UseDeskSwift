@@ -3,6 +3,7 @@
 
 
 import Foundation
+import UIKit
 import QBImagePickerController
 import MBProgressHUD
 
@@ -273,27 +274,36 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         if sendImageArr.count == 0 {
             use?.sendMessage(text)
         } else {
-            
+            var isSendTextMessage = false
             for i in 0..<sendImageArr.count {
-                let asset = sendImageArr[i] as? PHAsset
-
-                let options = PHImageRequestOptions()
-                options.isSynchronous = true
-                if let anAsset = asset {
-                    PHCachingImageManager.default().requestImage(for: anAsset, targetSize: CGSize(width: CGFloat(asset?.pixelWidth ?? Int(0.0)), height: CGFloat(asset?.pixelHeight ?? Int(0.0))), contentMode: .aspectFit, options: options, resultHandler: { result, info in
-                        //image = result
+                if sendImageArr[i] as? PHAsset != nil {
+                    let options = PHImageRequestOptions()
+                    options.isSynchronous = true
+                    let asset = sendImageArr[i] as! PHAsset
+                    PHCachingImageManager.default().requestImage(for: asset, targetSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight)), contentMode: .aspectFit, options: options, resultHandler: { result, info in
                         if result != nil {
                             let content = "data:image/png;base64,\(UseDeskSDKHelp.image(toNSString: result!))"
                             var fileName = String(format: "%ld", content.hash)
                             fileName += ".png"
                             //self.dicLoadingBuffer.updateValue("1", forKey: fileName)
                             //dicLoadingBuffer[fileName] = "1"
-                            use?.sendMessage(text, withFileName: fileName, fileType: "image/png", contentBase64: content)
+                            let textMessage = isSendTextMessage ? text : ""
+                            use?.sendMessage(textMessage, withFileName: fileName, fileType: "image/png", contentBase64: content)
+                            isSendTextMessage = true
                         }
                     })
+                } else if sendImageArr[i] as? UIImage != nil {
+                    let pickerImage = sendImageArr[i] as! UIImage
+                    let content = "data:image/png;base64,\(UseDeskSDKHelp.image(toNSString: pickerImage))"
+                    var fileName = String(format: "%ld", content.hash)
+                    fileName += ".png"
+                    let textMessage = isSendTextMessage ? text : ""
+                    use?.sendMessage(textMessage, withFileName: fileName, fileType: "image/png", contentBase64: content)
+                    isSendTextMessage = true
                 }
             }
             sendImageArr = []
+            isSendTextMessage = false
             labelAttachmentFile.isHidden = true
         }
     }
@@ -374,7 +384,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         let rcmessage: RCMessage? = self.rcmessage(indexPath)
         UIPasteboard.general.string = rcmessage?.text
     }
-    
+   
     // MARK: - Table view data source
     override func numberOfSections(in tableView: UITableView) -> Int {
         return rcmessages.count
