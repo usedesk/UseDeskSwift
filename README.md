@@ -318,7 +318,7 @@ usedesk.newMessageBlock = (success, message){
 usedesk!.sendMessageFeedBack(true)
 ```
 
-### Статус соединения:
+### Ошибка при соединения:
 
 #### Пример:
 
