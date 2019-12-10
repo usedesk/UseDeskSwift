@@ -269,6 +269,16 @@ usedesk.sendOfflineForm(withMessage message: "привет") { (result, error) i
 | Success | Bool | статус отправки |
 | Error | String | тип ошибки |
 
+## История сообщений в текущем чате:
+
+История сообщений доступна после инициализации чата в параметре historyMess = [RCMessage]
+RCMessage - объект хранящий всю информацию о сообщении
+
+#### Пример:
+```swift
+usedesk.historyMess
+```
+
 # CallBack – уведомления о действиях
 
 ### Статус соединия:
