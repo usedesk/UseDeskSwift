@@ -384,6 +384,7 @@ usedesk.feedbackMessageBlock = (message){
 ## Author
 
 Сергей, kon.sergius@gmail.com
+
 Максим, ixotdog@gmail.com
 
 ## License
