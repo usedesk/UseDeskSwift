@@ -31,6 +31,7 @@ public class UseDeskSDK: NSObject {
     var socket: SocketIOClient?
     var companyID = ""
     var email = ""
+    var phone = ""
     var url = ""
     var urlWithoutPort = ""
     var token = ""
@@ -40,7 +41,7 @@ public class UseDeskSDK: NSObject {
     var name = ""
     var isUseBase = false
     
-     @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, url _url: String, port _port: String, name _name: String, connectionStatus startBlock: UDSStartBlock) {
+     @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, connectionStatus startBlock: UDSStartBlock) {
         
         let hud = MBProgressHUD.showAdded(to: (RootView?.view)!, animated: true)
         hud.mode = MBProgressHUDMode.indeterminate
@@ -52,9 +53,20 @@ public class UseDeskSDK: NSObject {
         port = _port
         urlWithoutPort = _url
         url = "\(_url):\(port)"
-        name = _name
         isUseBase = _isUseBase
-        
+        if _account_id != nil {
+            account_id = _account_id!
+        }
+        if _name != nil {
+            if _name != "" {
+                name = _name!
+            }
+        }
+        if _phone != nil {
+            if _phone != "" {
+                phone = _phone!
+            }
+        }
         if isUseBase && _account_id != nil {
             let baseView = UDBaseView()
             baseView.usedesk = self
@@ -67,7 +79,7 @@ public class UseDeskSDK: NSObject {
             if isUseBase && _account_id == nil {
                 startBlock(false, "You did not specify account_id")
             } else {
-                startWithoutGUICompanyID(companyID: companyID, isUseBase: isUseBase, account_id: account_id, api_token: api_token, email: email, url: urlWithoutPort, port: port, name: name, connectionStatus: { success, error in
+                startWithoutGUICompanyID(companyID: companyID, isUseBase: isUseBase, account_id: account_id, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, connectionStatus: { success, error in
                     if success {
                         let dialogflowVC : DialogflowView = DialogflowView()
                         dialogflowVC.usedesk = self
@@ -90,9 +102,7 @@ public class UseDeskSDK: NSObject {
                 })
                 
             }
-        }
-        
-        
+        }       
     }
 
     public func sendMessage(_ text: String?) {
@@ -105,7 +115,7 @@ public class UseDeskSDK: NSObject {
         socket!.emit("dispatch", with: mess!)
     }
     
-     @objc public func startWithoutGUICompanyID(companyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, url _url: String, port _port: String, name _name: String, connectionStatus startBlock: @escaping UDSStartBlock) {
+     @objc public func startWithoutGUICompanyID(companyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
         
         companyID = _companyID
         email = _email
@@ -113,12 +123,20 @@ public class UseDeskSDK: NSObject {
         api_token = _api_token
         port = _port
         url = "\(_url):\(port)"
-        name = _name
         isUseBase = _isUseBase
         if _account_id != nil {
             account_id = _account_id!
         }
-        
+        if _name != nil {
+            if _name != "" {
+                name = _name!
+            }
+        }
+        if _phone != nil {
+            if _phone != "" {
+                phone = _phone!
+            }
+        }
         let urlAdress = URL(string: url)
         
         let config = ["log": true]
@@ -131,7 +149,7 @@ public class UseDeskSDK: NSObject {
         socket!.on("connect", callback: { data, ack in
             print("socket connected")
             let token = self.loadToken(for: self.email)
-            let arrConfStart = UseDeskSDKHelp.config_CompanyID(self.companyID, email: self.email, url: self.url, token: token)
+            let arrConfStart = UseDeskSDKHelp.config_CompanyID(self.companyID, email: self.email, phone: self.phone, name: self.name, url: self.url, token: token)
             self.socket!.emit("dispatch", with: arrConfStart!)
         })
         
@@ -143,7 +161,7 @@ public class UseDeskSDK: NSObject {
         socket!.on("disconnect", callback: { data, ack in
             print("socket disconnect")
             let token = self.loadToken(for: self.email)
-            let arrConfStart = UseDeskSDKHelp.config_CompanyID(self.companyID, email: self.email, url: self.url, token: token)
+            let arrConfStart = UseDeskSDKHelp.config_CompanyID(self.companyID, email: self.email, phone: self.phone, name: self.name, url: self.url, token: token)
             self.socket!.emit("dispatch", with: arrConfStart!)
         })
         
@@ -366,7 +384,7 @@ public class UseDeskSDK: NSObject {
     }
     
     func action_INITED(_ data: [Any]?) {
-        
+        print(data)
         let dicServer = data?[0] as? [AnyHashable : Any]
         
         if dicServer?["token"] != nil {
@@ -390,7 +408,7 @@ public class UseDeskSDK: NSObject {
             //let waitingEmail = Bool(setup?["waitingEmail"] as! Bool )
             
             //if waitingEmail {
-                socket!.emit("dispatch", with: UseDeskSDKHelp.dataEmail(email)!)
+            socket!.emit("dispatch", with: UseDeskSDKHelp.dataEmail(email, phone: self.phone, name: self.name)!)
             //}
         }
         

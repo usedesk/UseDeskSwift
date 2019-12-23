@@ -97,6 +97,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     }
     
     func reloadhistory() {
+        rcmessages = []
         let use = usedesk as! UseDeskSDK
         for message in (use.historyMess) {
             rcmessages.append(message)
@@ -411,18 +412,28 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                 // Fallback on earlier versions
             }
         } else {
+            navigationItem.leftBarButtonItem?.isEnabled = false
+            navigationItem.leftBarButtonItem?.tintColor = .clear
+            if let cell = tableView.cellForRow(at: indexPath!) as? RCPictureMessageCell {
+                rcmessage.status = RC_STATUS_OPENIMAGE
+                cell.bindData(indexPath!, messagesView: self)
+            }
+            imageVC = UDImageView(nibName: "UDImageView", bundle: nil)
+            self.addChildViewController(self.imageVC)
+            self.view.addSubview(self.imageVC.view)
+            imageVC.view.frame = CGRect(x:0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
             let session = URLSession.shared
             if let url = URL(string: rcmessage.file!.content) {
                 (session.dataTask(with: url, completionHandler: { data, response, error in
                     if error == nil {
                         DispatchQueue.main.async(execute: {
-                            self.imageVC = UDImageView(nibName: "UDImageView", bundle: nil)
-                            self.addChildViewController(self.imageVC)
-                            self.view.addSubview(self.imageVC.view)
-                            self.imageVC.view.frame = CGRect(x:0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
                             rcmessage.picture_image = UIImage(data: data!)
                             self.imageVC.viewimage.image = rcmessage.picture_image
                             self.imageVC.delegate = self
+                            if let cell = self.tableView.cellForRow(at: indexPath!) as? RCPictureMessageCell {
+                                rcmessage.status = RC_STATUS_SUCCEED
+                                cell.bindData(indexPath!, messagesView: self)
+                            }
                         })
                     }
                 })).resume()
@@ -468,6 +479,8 @@ extension Date {
 extension DialogflowView: UDImageViewDelegate {
     func close() {
         imageVC.view.removeFromSuperview()
+        navigationItem.leftBarButtonItem?.isEnabled = true
+        navigationItem.leftBarButtonItem?.tintColor = nil
     }
     
 }

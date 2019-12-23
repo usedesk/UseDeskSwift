@@ -4,11 +4,10 @@
 import Foundation
 
 class UseDeskSDKHelp {
-    class func config_CompanyID(_ companyID: String?, email: String?, url: String?, token: String?) -> [Any]? {
-        let payload = [
+    class func config_CompanyID(_ companyID: String?, email: String, phone: String?, name: String?, url: String?, token: String?) -> [Any]? {
+        var payload = [
             "sdk" : "iOS"
         ]
-        
         var dic = [
             "type" : "@@server/chat/INIT",
             "payload" : payload,
@@ -22,11 +21,23 @@ class UseDeskSDKHelp {
         return [dic]
     }
     
-    class func dataEmail(_ email: String?) -> [Any]? {
-        let dic = [
+    class func dataEmail(_ email: String?, phone: String?, name: String?) -> [Any]? {
+        var dic: [String : Any] = [
             "type" : "@@server/chat/SET_EMAIL",
             "email" : email ?? ""
         ]
+        var payload: [String : Any] = [:]
+        if name != nil {
+            if name != "" {
+                payload["name"] = name!
+            }
+        }
+        if phone != nil {
+            if phone != "" {
+                payload["phone"] = phone!
+            }
+        }
+        dic["payload"] = payload
         return [dic]
     }
     
