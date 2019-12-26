@@ -77,6 +77,13 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardDidShow, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardDidHide, object: nil)
+    }
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         heightView = view.frame.size.height
@@ -173,9 +180,8 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             tableView.tableFooterView = viewTypingIndicator
             scroll(toBottom: animated)
         } else {
-            UIView.animate(withDuration: animated ? 0.25 : 0, animations: { [weak self] in
-                guard let wSelf = self else {return}
-                wSelf.tableView.tableFooterView = nil
+            UIView.animate(withDuration: animated ? 0.25 : 0, animations: {
+                self.tableView.tableFooterView = nil
             })
         }
     }
@@ -196,12 +202,11 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                 heightKeyboard = keyboardHeight!
             }
             
-            UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: { [weak self] in
-                guard let wSelf = self else {return}
-                if wSelf.safeAreaInsetsBottom != 0 {
-                    wSelf.textInputBC.constant = 7
+            UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
+                if self.safeAreaInsetsBottom != 0 {
+                    self.textInputBC.constant = 7
                 }
-                wSelf.view.center = CGPoint(x: wSelf.centerView.x, y: wSelf.centerView.y - (keyboardHeight ?? 0.0))
+                self.view.center = CGPoint(x: self.centerView.x, y: self.centerView.y - (keyboardHeight ?? 0.0))
             })
             isShowKeyboard = true
             UIMenuController.shared.menuItems = nil
@@ -213,12 +218,11 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         if isShowKeyboard {
             let info = notification?.userInfo
             let duration = TimeInterval((info?[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
-            UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: { [weak self] in
-            guard let wSelf = self else {return}
-                if wSelf.safeAreaInsetsBottom != 0 {
-                    wSelf.textInputBC.constant = 7 + wSelf.safeAreaInsetsBottom
+            UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
+                if self.safeAreaInsetsBottom != 0 {
+                    self.textInputBC.constant = 7 + self.safeAreaInsetsBottom
                 }
-                wSelf.view.center = wSelf.centerView
+                self.view.center = self.centerView
             })
             isShowKeyboard = false
             
@@ -455,7 +459,9 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             }
             if rcmessage?.type == RC_TYPE_Feedback {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "RCEmojiMessageCell", for: indexPath) as! RCEmojiMessageCell
-                cell.usedesk = (usedesk as! UseDeskSDK)
+                if usedesk != nil {
+                    cell.usedesk = usedesk!
+                }
                 cell.bindData(indexPath, messagesView: self)
                 return cell
             }

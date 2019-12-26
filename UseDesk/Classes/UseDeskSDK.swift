@@ -394,7 +394,6 @@ public class UseDeskSDK: NSObject {
     }
     
     func action_INITED(_ data: [Any]?) {
-        print(data)
         let dicServer = data?[0] as? [AnyHashable : Any]
         
         if dicServer?["token"] != nil {

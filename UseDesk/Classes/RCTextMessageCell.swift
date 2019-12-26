@@ -7,7 +7,7 @@ class RCTextMessageCell: RCMessageCell, UICollectionViewDelegate, UICollectionVi
     
 
     var textView: UITextView?
-    weak var collectionView: UICollectionView? = nil
+    var collectionView: UICollectionView? = nil
     
     private var indexPath: IndexPath?
     private weak var messagesView: RCMessagesView?

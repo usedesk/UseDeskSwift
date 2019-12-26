@@ -11,7 +11,7 @@ class RCPictureMessageCell: RCMessageCell {
     var textView: UITextView?
     
     private var indexPath: IndexPath?
-    private var messagesView: RCMessagesView?
+    private weak var messagesView: RCMessagesView?
    // private var viewText: UITextView?
     
     override func bindData(_ indexPath_: IndexPath?, messagesView messagesView_: RCMessagesView?) {
