@@ -9,14 +9,14 @@ class RCStatusCell: UITableViewCell {
     var textView: UITextView?
 
     private var indexPath: IndexPath?
-    private var messagesView: RCMessagesView?
+    private weak var messagesView: RCMessagesView?
     
     func bindData(_ indexPath_: IndexPath?, messagesView messagesView_: RCMessagesView?) {
         indexPath = indexPath_
         messagesView = messagesView_
         
         backgroundColor = UIColor.clear
-        let rcmessage: RCMessage? = messagesView!.rcmessage(indexPath)
+        let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
         
         if viewBubble == nil {
             viewBubble = UIView()
@@ -38,7 +38,7 @@ class RCStatusCell: UITableViewCell {
             textView!.textContainerInset = RCMessages.statusInset()
             viewBubble!.addSubview(textView!)
         }
-        textView!.text = rcmessage?.text
+        textView?.text = rcmessage?.text
     }
     
     override func layoutSubviews() {
@@ -48,9 +48,9 @@ class RCStatusCell: UITableViewCell {
         
         let yBubble = RCMessages.sectionHeaderMargin()
         let xBubble: CGFloat = (SCREEN_WIDTH - size.width) / 2
-        viewBubble!.frame = CGRect(x: xBubble, y: yBubble, width: size.width, height: size.height)
+        viewBubble?.frame = CGRect(x: xBubble, y: yBubble, width: size.width, height: size.height)
         
-        textView!.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+        textView?.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
     }
     
     // MARK: - Size methods

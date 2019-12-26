@@ -11,7 +11,7 @@ class RCMessageCell: UITableViewCell {
     var labelAvatar: UILabel!
     
     private var indexPath: IndexPath?
-    private var messagesView: RCMessagesView?
+    private weak var messagesView: RCMessagesView?
     
     func bindData(_ indexPath_: IndexPath?, messagesView messagesView_: RCMessagesView?) {
         indexPath = indexPath_
@@ -36,7 +36,7 @@ class RCMessageCell: UITableViewCell {
             avatarGestureRecognizer()
         }
         
-        imageAvatar.image = messagesView!.avatarImage(indexPath)
+        imageAvatar.image = messagesView?.avatarImage(indexPath)
         
         if labelAvatar == nil {
             labelAvatar = UILabel()
@@ -46,13 +46,13 @@ class RCMessageCell: UITableViewCell {
             contentView.addSubview(labelAvatar)
         }
         
-        labelAvatar.text = (imageAvatar.image == nil) ? messagesView!.avatarInitials(indexPath) : nil
+        labelAvatar.text = (imageAvatar.image == nil) ? messagesView?.avatarInitials(indexPath) : nil
     }
 
     func layoutSubviews(_ size: CGSize) {
         super.layoutSubviews()
         
-        let rcmessage: RCMessage? = messagesView!.rcmessage(indexPath)
+        let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
         
         let xBubble: CGFloat = rcmessage?.incoming != false ? RCMessages.bubbleMarginLeft() : (SCREEN_WIDTH - RCMessages.bubbleMarginRight() - size.width)
         viewBubble.frame = CGRect(x: xBubble, y: 0, width: size.width, height: size.height)
@@ -81,13 +81,13 @@ class RCMessageCell: UITableViewCell {
     
     // MARK: - User actions
     @objc func actionTapBubble() {
-        messagesView!.view.endEditing(true)
-        messagesView!.actionTapBubble(indexPath)
+        messagesView?.view.endEditing(true)
+        messagesView?.actionTapBubble(indexPath)
     }
     
     @objc func actionTapAvatar() {
-        messagesView!.view.endEditing(true)
-        messagesView!.actionTapAvatar(indexPath)
+        messagesView?.view.endEditing(true)
+        messagesView?.actionTapAvatar(indexPath)
     }
     
     @objc func actionLongBubble(_ gestureRecognizer: UILongPressGestureRecognizer?) {
@@ -110,13 +110,13 @@ class RCMessageCell: UITableViewCell {
     }
     
     func actionMenu() {
-        if messagesView!.textInput.isFirstResponder == false {
+        if messagesView?.textInput.isFirstResponder == false {
             let menuController = UIMenuController.shared
-            menuController.menuItems = messagesView!.menuItems(indexPath) as? [UIMenuItem]
+            menuController.menuItems = messagesView?.menuItems(indexPath) as? [UIMenuItem]
             menuController.setTargetRect(viewBubble.frame, in: contentView)
             menuController.setMenuVisible(true, animated: true)
         } else {
-            messagesView!.textInput.resignFirstResponder()
+            messagesView?.textInput.resignFirstResponder()
         }
     }
 }

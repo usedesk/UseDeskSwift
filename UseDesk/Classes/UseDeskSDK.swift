@@ -43,7 +43,7 @@ public class UseDeskSDK: NSObject {
     
      @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, connectionStatus startBlock: UDSStartBlock) {
         
-        let hud = MBProgressHUD.showAdded(to: (RootView?.view)!, animated: true)
+        let hud = MBProgressHUD.showAdded(to: (RootView?.view ?? UIView()), animated: true)
         hud.mode = MBProgressHUDMode.indeterminate
         hud.label.text = "Loading"
         
@@ -79,10 +79,11 @@ public class UseDeskSDK: NSObject {
             if isUseBase && _account_id == nil {
                 startBlock(false, "You did not specify account_id")
             } else {
-                startWithoutGUICompanyID(companyID: companyID, isUseBase: isUseBase, account_id: account_id, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, connectionStatus: { success, error in
+                startWithoutGUICompanyID(companyID: companyID, isUseBase: isUseBase, account_id: account_id, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, connectionStatus: { [weak self] success, error in
+                    guard let wSelf = self else {return}
                     if success {
                         let dialogflowVC : DialogflowView = DialogflowView()
-                        dialogflowVC.usedesk = self
+                        dialogflowVC.usedesk = wSelf
                         let navController = UDNavigationController(rootViewController: dialogflowVC)
                         navController.modalPresentationStyle = .fullScreen
                         RootView?.present(navController, animated: true)
@@ -90,8 +91,8 @@ public class UseDeskSDK: NSObject {
                     } else {
                         if (error == "noOperators") {
                             let offlineVC = UDOfflineForm(nibName: "UDOfflineForm", bundle: nil)
-                            offlineVC.url = self.url
-                            offlineVC.usedesk = self
+                            offlineVC.url = wSelf.url
+                            offlineVC.usedesk = wSelf
                             let navController = UDNavigationController(rootViewController: offlineVC)
                             navController.modalPresentationStyle = .fullScreen
                             RootView?.present(navController, animated: true)
@@ -107,12 +108,12 @@ public class UseDeskSDK: NSObject {
 
     public func sendMessage(_ text: String?) {
         let mess = UseDeskSDKHelp.messageText(text)
-        socket!.emit("dispatch", with: mess!)
+        socket?.emit("dispatch", with: mess!)
     }
     
     public func sendMessage(_ text: String?, withFileName fileName: String?, fileType: String?, contentBase64: String?) {
         let mess = UseDeskSDKHelp.message(text, withFileName: fileName, fileType: fileType, contentBase64: contentBase64)
-        socket!.emit("dispatch", with: mess!)
+        socket?.emit("dispatch", with: mess!)
     }
     
      @objc public func startWithoutGUICompanyID(companyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
@@ -142,43 +143,47 @@ public class UseDeskSDK: NSObject {
         let config = ["log": true]
         manager = SocketManager(socketURL: urlAdress!, config: config)
         
-        socket = manager!.defaultSocket
+        socket = manager?.defaultSocket
 
-        socket!.connect()
+        socket?.connect()
         
-        socket!.on("connect", callback: { data, ack in
+        socket?.on("connect", callback: { [weak self] data, ack in
+            guard let wSelf = self else {return}
             print("socket connected")
-            let token = self.loadToken(for: self.email)
-            let arrConfStart = UseDeskSDKHelp.config_CompanyID(self.companyID, email: self.email, phone: self.phone, name: self.name, url: self.url, token: token)
-            self.socket!.emit("dispatch", with: arrConfStart!)
+            let token = wSelf.loadToken(for: wSelf.email)
+            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: token)
+            wSelf.socket?.emit("dispatch", with: arrConfStart!)
         })
         
-        socket!.on("error", callback: { data, ack in
-            if (self.errorBlock != nil) {
-                self.errorBlock!(data)
+        socket?.on("error", callback: { [weak self] data, ack in
+            guard let wSelf = self else {return}
+            if (wSelf.errorBlock != nil) {
+                wSelf.errorBlock!(data)
             }
         })
-        socket!.on("disconnect", callback: { data, ack in
+        socket?.on("disconnect", callback: { [weak self] data, ack in
+            guard let wSelf = self else {return}
             print("socket disconnect")
-            let token = self.loadToken(for: self.email)
-            let arrConfStart = UseDeskSDKHelp.config_CompanyID(self.companyID, email: self.email, phone: self.phone, name: self.name, url: self.url, token: token)
-            self.socket!.emit("dispatch", with: arrConfStart!)
+            let token = wSelf.loadToken(for: wSelf.email)
+            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: token)
+            wSelf.socket?.emit("dispatch", with: arrConfStart!)
         })
         
-        socket!.on("dispatch", callback: { data, ack in
+        socket?.on("dispatch", callback: { [weak self] data, ack in
+            guard let wSelf = self else {return}
             if data.count == 0 {
                 return
             }
             
-            self.action_INITED(data)
+            wSelf.action_INITED(data)
             
-            let no_operators = self.action_INITED_no_operators(data)
+            let no_operators = wSelf.action_INITED_no_operators(data)
             
             if no_operators {
                 startBlock(false, "noOperators")
             } else {
             
-            let auth_success = self.action_ADD_INIT(data)
+            let auth_success = wSelf.action_ADD_INIT(data)
             
             if auth_success {
                 startBlock(auth_success, "")
@@ -186,32 +191,33 @@ public class UseDeskSDK: NSObject {
                 startBlock(auth_success, "false inited")
             }
  
-            if auth_success && (self.connectBlock != nil) {
-                self.connectBlock!(true, nil)
+            if auth_success && (wSelf.connectBlock != nil) {
+                wSelf.connectBlock!(true, nil)
             }
             
-            self.action_Feedback_Answer(data)
+            wSelf.action_Feedback_Answer(data)
             
-            self.action_ADD_MESSAGE(data)
+            wSelf.action_ADD_MESSAGE(data)
             }
         })
     }
     
     @objc public func getCollections(connectionStatus baseBlock: @escaping UDSBaseBlock) {
         if isUseBase && account_id != "" {
-            DispatchQueue.global(qos: .default).async(execute: {
-                       request("https://api.usedesk.ru/support/\(self.account_id)/list?api_token=\(self.api_token)").responseJSON{ responseJSON in
-                           switch responseJSON.result {
-                           case .success(let value):
-                               guard let collections = BaseCollection.getArray(from: value) else {
-                                   baseBlock(false, nil, "error parsing")
-                                   return }
-                               baseBlock(true, collections, "")
-                           case .failure(let error):
-                               baseBlock(false, nil, error.localizedDescription)
-                           }
-                       }
-                   })
+            DispatchQueue.global(qos: .default).async(execute: { [weak self] in
+                guard let wSelf = self else {return}
+                request("https://api.usedesk.ru/support/\(wSelf.account_id)/list?api_token=\(wSelf.api_token)").responseJSON{  responseJSON in
+                    switch responseJSON.result {
+                    case .success(let value):
+                        guard let collections = BaseCollection.getArray(from: value) else {
+                            baseBlock(false, nil, "error parsing")
+                            return }
+                        baseBlock(true, collections, "")
+                    case .failure(let error):
+                        baseBlock(false, nil, error.localizedDescription)
+                    }
+                }
+            })
         } else {
             if isUseBase && account_id == "" {
                 baseBlock(false, nil, "You did not specify account_id")
@@ -223,7 +229,9 @@ public class UseDeskSDK: NSObject {
     
     @objc public func getArticle(articleID: Int, connectionStatus baseBlock: @escaping UDSArticleBlock) {
         if isUseBase && account_id != "" {
-            DispatchQueue.global(qos: .default).async(execute: {                request("https://api.usedesk.ru/support/\(self.account_id)/articles/\(articleID)?api_token=\(self.api_token)").responseJSON{ responseJSON in
+            DispatchQueue.global(qos: .default).async(execute: {  [weak self] in
+                    guard let wSelf = self else {return}
+                request("https://api.usedesk.ru/support/\(wSelf.account_id)/articles/\(articleID)?api_token=\(wSelf.api_token)").responseJSON{ responseJSON in
                     switch responseJSON.result {
                     case .success(let value):
                         guard let article = Article.get(from: value) else {
@@ -246,7 +254,9 @@ public class UseDeskSDK: NSObject {
     
     @objc public func addViewsArticle(articleID: Int, count: Int, connectionStatus connectBlock: @escaping UDSConnectBlock) {
         if isUseBase && account_id != "" {
-            DispatchQueue.global(qos: .default).async(execute: {            request("https://api.usedesk.ru/support/\(self.account_id)/articles/\(articleID)/add-views?api_token=\(self.api_token)&count=\(count)").responseJSON{ responseJSON in
+            DispatchQueue.global(qos: .default).async(execute: { [weak self] in
+            guard let wSelf = self else {return}
+                request("https://api.usedesk.ru/support/\(wSelf.account_id)/articles/\(articleID)/add-views?api_token=\(wSelf.api_token)&count=\(count)").responseJSON{ responseJSON in
                     switch responseJSON.result {
                     case .success( _):
                         connectBlock(true, "")
@@ -364,9 +374,9 @@ public class UseDeskSDK: NSObject {
     
     func sendOfflineForm(withMessage message: String?, callback resultBlock: @escaping UDSStartBlock) {
         let param = [
-            "company_id" : self.companyID,
-            "name" : self.name,
-            "email" : self.email,
+            "company_id" : companyID,
+            "name" : name,
+            "email" : email,
             "message" : message
         ]
         
@@ -408,7 +418,7 @@ public class UseDeskSDK: NSObject {
             //let waitingEmail = Bool(setup?["waitingEmail"] as! Bool )
             
             //if waitingEmail {
-            socket!.emit("dispatch", with: UseDeskSDKHelp.dataEmail(email, phone: self.phone, name: self.name)!)
+            socket?.emit("dispatch", with: UseDeskSDKHelp.dataEmail(email, phone: phone, name: name)!)
             //}
         }
         
@@ -657,7 +667,7 @@ public class UseDeskSDK: NSObject {
     }
     
     public func sendMessageFeedBack(_ status: Bool) {
-        socket!.emit("dispatch", with: UseDeskSDKHelp.feedback(status)!)
+        socket?.emit("dispatch", with: UseDeskSDKHelp.feedback(status)!)
     }
     
     func save(_ email: String?, token: String?) {
@@ -671,8 +681,8 @@ public class UseDeskSDK: NSObject {
     }
     
     public func releaseChat() {
-        socket = manager!.defaultSocket
-        socket!.disconnect()
+        socket = manager?.defaultSocket
+        socket?.disconnect()
     }
     
 }

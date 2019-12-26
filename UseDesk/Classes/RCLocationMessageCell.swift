@@ -9,13 +9,13 @@ class RCLocationMessageCell: RCMessageCell {
     var spinner: UIActivityIndicatorView?
     
     private var indexPath: IndexPath?
-    private var messagesView: RCMessagesView?
+    private weak var messagesView: RCMessagesView?
     
     override func bindData(_ indexPath_: IndexPath?, messagesView messagesView_: RCMessagesView?) {
         indexPath = indexPath_
         messagesView = messagesView_
         
-        let rcmessage: RCMessage? = messagesView!.rcmessage(indexPath)
+        let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
         
         super.bindData(indexPath, messagesView: messagesView)
         
@@ -33,12 +33,12 @@ class RCLocationMessageCell: RCMessageCell {
         }
         
         if rcmessage?.status == RC_STATUS_LOADING {
-            viewImage!.image = nil
-            spinner!.startAnimating()
+            viewImage?.image = nil
+            spinner?.startAnimating()
         }
         
         if rcmessage?.status == RC_STATUS_SUCCEED {
-            viewImage!.image = rcmessage?.location_thumbnail
+            viewImage?.image = rcmessage?.location_thumbnail
             spinner?.stopAnimating()
         }
     }
@@ -48,13 +48,13 @@ class RCLocationMessageCell: RCMessageCell {
         
         super.layoutSubviews(size)
         
-        viewImage!.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+        viewImage?.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
         
         let widthSpinner = spinner!.frame.size.width
         let heightSpinner = spinner!.frame.size.height
         let xSpinner: CGFloat = (size.width - widthSpinner) / 2
         let ySpinner: CGFloat = (size.height - heightSpinner) / 2
-        spinner!.frame = CGRect(x: xSpinner, y: ySpinner, width: widthSpinner, height: heightSpinner)
+        spinner?.frame = CGRect(x: xSpinner, y: ySpinner, width: widthSpinner, height: heightSpinner)
     }
     
     // MARK: - Size methods

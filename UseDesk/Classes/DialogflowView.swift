@@ -12,7 +12,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     var rcmessages: [AnyHashable] = []
     
     private var sendImageArr: [Any] = []
-    private var hudErrorConnection: MBProgressHUD!
+    private var hudErrorConnection: MBProgressHUD?
     private var imageVC: UDImageView!
     
     override func viewDidLoad() {
@@ -25,7 +25,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         hudErrorConnection?.removeFromSuperViewOnHide = true
         view.addSubview(hudErrorConnection!)
         
-        hudErrorConnection.mode = MBProgressHUDMode.indeterminate//MBProgressHUDModeIndeterminate
+        hudErrorConnection?.mode = MBProgressHUDMode.indeterminate//MBProgressHUDModeIndeterminate
         //hudErrorConnection.label.text = @"Loading";
         //dicLoadingBuffer = [AnyHashable : Any]()
         labelAttachmentFile.isHidden = true
@@ -43,25 +43,29 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         
         updateTitleDetails()
         
-        let use = usedesk as? UseDeskSDK
-        use?.connectBlock = { success, error in
-            self.hudErrorConnection.hide(animated: true)
-            self.reloadhistory()
+        guard usedesk != nil else {
+            reloadhistory()
+            return
+        }
+        usedesk!.connectBlock = { [weak self] success, error in
+            guard let wSelf = self else {return}
+            wSelf.hudErrorConnection?.hide(animated: true)
+            wSelf.reloadhistory()
         }
         
-        use?.newMessageBlock = { success, message in
-
+        usedesk!.newMessageBlock = { [weak self] success, message in
+            guard let wSelf = self else {return}
             if let aMessage = message {
-                self.rcmessages.append(aMessage)
+                wSelf.rcmessages.append(aMessage)
             }
-            self.refreshTableView1()
-            
+            wSelf.refreshTableView1()
 //            if message?.incoming != false {
 //                UDAudio.playMessageIncoming()
 //            }
         }
         
-        use!.feedbackAnswerMessageBlock = { success in
+        usedesk!.feedbackAnswerMessageBlock = { [weak self] success in
+            guard let wSelf = self else {return}
             let alert = UIAlertController(title: "", message: "Спасибо за вашу оценку", preferredStyle: .alert)
             
             
@@ -71,21 +75,23 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
             
             alert.addAction(yesButton)
             
-            self.present(alert, animated: true)
+            wSelf.present(alert, animated: true)
         }
         
-        use!.errorBlock = { errors in
+        usedesk!.errorBlock = { [weak self] errors in
+            guard let wSelf = self else {return}
             if (errors?.count ?? 0) > 0 {
-                self.hudErrorConnection.label.text = (errors?[0] as! String)
+                wSelf.hudErrorConnection?.label.text = (errors?[0] as! String)
             }
-            self.hudErrorConnection.show(animated: true)
+            wSelf.hudErrorConnection?.show(animated: true)
         }
         
-        use!.feedbackMessageBlock = { message in
+        usedesk!.feedbackMessageBlock = { [weak self] message in
+            guard let wSelf = self else {return}
             if let aMessage = message {
-                self.rcmessages.append(aMessage)
+                wSelf.rcmessages.append(aMessage)
             }
-            self.refreshTableView1()
+            wSelf.refreshTableView1()
         }
         
         reloadhistory()
@@ -97,12 +103,13 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     }
     
     func reloadhistory() {
-        rcmessages = []
-        let use = usedesk as! UseDeskSDK
-        for message in (use.historyMess) {
-            rcmessages.append(message)
+        if usedesk != nil {
+            rcmessages = []
+            for message in (usedesk!.historyMess) {
+                rcmessages.append(message)
+            }
+            refreshTableView1()
         }
-        refreshTableView1()
     }
     
     // MARK: - Message methods
@@ -124,8 +131,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     
     @objc func sendMessageButton(_ notification: NSNotification) {
         if let text = notification.userInfo?["text"] as? String {
-            let use = usedesk as! UseDeskSDK
-            use.sendMessage(text)
+            usedesk?.sendMessage(text)
         }
     }
     
@@ -212,8 +218,9 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     // MARK: - Typing indicator methods
     func typingIndicatorShow(_ show: Bool, animated: Bool, delay: CGFloat) {
         let time = DispatchTime.now() + (Double(delay))
-        DispatchQueue.main.asyncAfter(deadline: (time), execute: {
-            self.typingIndicatorShow(show, animated: animated)
+        DispatchQueue.main.asyncAfter(deadline: (time), execute: { [weak self] in
+            guard let wSelf = self else {return}
+            wSelf.typingIndicatorShow(show, animated: animated)
         })
     }
     
@@ -251,8 +258,9 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     
     func displayDialogflowResponse(_ dictionary: [AnyHashable : Any]?, delay: CGFloat) {
         let time = DispatchTime.now() + Double(Double(delay) )
-        DispatchQueue.main.asyncAfter(deadline: time , execute: {
-            self.displayDialogflowResponse(dictionary)
+        DispatchQueue.main.asyncAfter(deadline: time , execute: { [weak self] in
+            guard let wSelf = self else {return}
+            wSelf.displayDialogflowResponse(dictionary)
         })
     }
     
@@ -266,14 +274,13 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     
     // MARK: - User actions
     @objc func actionDone() {
+        usedesk?.releaseChat()
         dismiss(animated: true)
     }
     
     override func actionSendMessage(_ text: String?) {
-        let use = usedesk as? UseDeskSDK
-
         if sendImageArr.count == 0 {
-            use?.sendMessage(text)
+            usedesk?.sendMessage(text)
         } else {
             var isSendTextMessage = false
             for i in 0..<sendImageArr.count {
@@ -281,7 +288,8 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                     let options = PHImageRequestOptions()
                     options.isSynchronous = true
                     let asset = sendImageArr[i] as! PHAsset
-                    PHCachingImageManager.default().requestImage(for: asset, targetSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight)), contentMode: .aspectFit, options: options, resultHandler: { result, info in
+                    PHCachingImageManager.default().requestImage(for: asset, targetSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight)), contentMode: .aspectFit, options: options, resultHandler: { [weak self] result, info in
+                        guard let wSelf = self else {return}
                         if result != nil {
                             let content = "data:image/png;base64,\(UseDeskSDKHelp.image(toNSString: result!))"
                             var fileName = String(format: "%ld", content.hash)
@@ -289,7 +297,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                             //self.dicLoadingBuffer.updateValue("1", forKey: fileName)
                             //dicLoadingBuffer[fileName] = "1"
                             let textMessage = isSendTextMessage ? text : ""
-                            use?.sendMessage(textMessage, withFileName: fileName, fileType: "image/png", contentBase64: content)
+                            wSelf.usedesk?.sendMessage(textMessage, withFileName: fileName, fileType: "image/png", contentBase64: content)
                             isSendTextMessage = true
                         }
                     })
@@ -299,7 +307,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                     var fileName = String(format: "%ld", content.hash)
                     fileName += ".png"
                     let textMessage = isSendTextMessage ? text : ""
-                    use?.sendMessage(textMessage, withFileName: fileName, fileType: "image/png", contentBase64: content)
+                    usedesk?.sendMessage(textMessage, withFileName: fileName, fileType: "image/png", contentBase64: content)
                     isSendTextMessage = true
                 }
             }
@@ -426,13 +434,14 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
             if let url = URL(string: rcmessage.file!.content) {
                 (session.dataTask(with: url, completionHandler: { data, response, error in
                     if error == nil {
-                        DispatchQueue.main.async(execute: {
+                        DispatchQueue.main.async(execute: { [weak self] in
+                            guard let wSelf = self else {return}
                             rcmessage.picture_image = UIImage(data: data!)
-                            self.imageVC.viewimage.image = rcmessage.picture_image
-                            self.imageVC.delegate = self
-                            if let cell = self.tableView.cellForRow(at: indexPath!) as? RCPictureMessageCell {
+                            wSelf.imageVC.viewimage.image = rcmessage.picture_image
+                            wSelf.imageVC.delegate = wSelf
+                            if let cell = wSelf.tableView.cellForRow(at: indexPath!) as? RCPictureMessageCell {
                                 rcmessage.status = RC_STATUS_SUCCEED
-                                cell.bindData(indexPath!, messagesView: self)
+                                cell.bindData(indexPath!, messagesView: wSelf)
                             }
                         })
                     }

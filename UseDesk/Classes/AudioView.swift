@@ -143,7 +143,7 @@ class AudioView: UIViewController, AVAudioPlayerDelegate, AVAudioRecorderDelegat
     func timerStart() {
         dateTimer = Date()
         timer = Timer.scheduledTimer(timeInterval: 0.07, target: self, selector: #selector(self.timerUpdate), userInfo: nil, repeats: true)
-        RunLoop.main.add(timer!, forMode: RunLoopMode.commonModes)
+        //RunLoop.main.add(timer!, forMode: RunLoopMode.commonModes)
     }
     
     @objc func timerUpdate() {

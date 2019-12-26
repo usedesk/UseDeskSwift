@@ -19,9 +19,9 @@ class RCPictureMessageCell: RCMessageCell {
         indexPath = indexPath_
         messagesView = messagesView_
         let rcmessage: RCMessage? = messagesView!.rcmessage(indexPath)
-        if rcmessage!.status == RC_STATUS_OPENIMAGE {
+        if rcmessage?.status == RC_STATUS_OPENIMAGE {
             //viewImage!.image = nil
-            spinner!.startAnimating()
+            spinner?.startAnimating()
             //imageManual!.isHidden = false
         } else {
             
@@ -63,33 +63,34 @@ class RCPictureMessageCell: RCMessageCell {
                 viewBubble.addSubview(imageManual!)
             }
             
-            if rcmessage!.status == RC_STATUS_LOADING {
+            if rcmessage?.status == RC_STATUS_LOADING {
                 viewImage!.image = nil
                 spinner!.startAnimating()
                 imageManual!.isHidden = true
                 
                 let session = URLSession.shared
-                if let url = URL(string: rcmessage!.file!.content) {
-                    (session.dataTask(with: url, completionHandler: { data, response, error in
+                if let url = URL(string: rcmessage!.file?.content ?? "") {
+                    (session.dataTask(with: url, completionHandler: { [weak self] data, response, error in
+                        guard let wSelf = self else {return}
                         if error == nil {
                             let udMineType = UDMimeType()
                             let mimeType = udMineType.typeString(for: data)
                             if (mimeType == "image") {
                                 DispatchQueue.main.async(execute: {
-                                    rcmessage!.picture_image = UIImage(data: data!)
+                                    rcmessage?.picture_image = UIImage(data: data!)
                                     weakSelf?.viewImage!.image = rcmessage!.picture_image
-                                    self.spinner!.stopAnimating()
-                                    rcmessage!.status = RC_STATUS_SUCCEED
-                                    rcmessage!.file!.type = mimeType
+                                    wSelf.spinner?.stopAnimating()
+                                    rcmessage?.status = RC_STATUS_SUCCEED
+                                    rcmessage?.file!.type = mimeType
                                     
                                 })
                             } else {
                                 DispatchQueue.main.async(execute: {
-                                    rcmessage!.picture_image = UIImage(named: "icon_file.png")
+                                    rcmessage?.picture_image = UIImage(named: "icon_file.png")
                                     weakSelf?.imageView!.image = rcmessage!.picture_image
-                                    self.spinner!.stopAnimating()
-                                    rcmessage!.status = RC_STATUS_SUCCEED
-                                    rcmessage!.file!.type = mimeType
+                                    wSelf.spinner?.stopAnimating()
+                                    rcmessage?.status = RC_STATUS_SUCCEED
+                                    rcmessage?.file?.type = mimeType
                                 })
                             }
                         }
@@ -98,16 +99,16 @@ class RCPictureMessageCell: RCMessageCell {
                 spinner!.startAnimating()
             }
             
-            if rcmessage!.status == RC_STATUS_SUCCEED {
-                viewImage!.image = rcmessage!.picture_image
-                spinner!.stopAnimating()
-                imageManual!.isHidden = true
+            if rcmessage?.status == RC_STATUS_SUCCEED {
+                viewImage?.image = rcmessage!.picture_image
+                spinner?.stopAnimating()
+                imageManual?.isHidden = true
             }
 
-            if rcmessage!.status == RC_STATUS_MANUAL {
-                viewImage!.image = nil
-                spinner!.stopAnimating()
-                imageManual!.isHidden = false
+            if rcmessage?.status == RC_STATUS_MANUAL {
+                viewImage?.image = nil
+                spinner?.stopAnimating()
+                imageManual?.isHidden = false
             }
         }
         
@@ -117,26 +118,30 @@ class RCPictureMessageCell: RCMessageCell {
         
         let sizeText: CGSize = RCPictureMessageCell.textSize(indexPath, messagesView: messagesView)
         
-        textView!.frame = CGRect(x: 0, y: 0, width: sizeText.width, height: sizeText.height)
+        textView?.frame = CGRect(x: 0, y: 0, width: sizeText.width, height: sizeText.height)
         
         let sizePicture: CGSize = RCPictureMessageCell.size(indexPath, messagesView: messagesView)
         let size = CGSize(width: sizePicture.width, height: sizeText.height + sizePicture.height)
         
         super.layoutSubviews(size)
         
-        viewImage!.frame = CGRect(x: 0, y: sizeText.height, width: sizePicture.width, height: sizePicture.height)
+        viewImage?.frame = CGRect(x: 0, y: sizeText.height, width: sizePicture.width, height: sizePicture.height)
         
-        let widthSpinner = spinner!.frame.size.width
-        let heightSpinner = spinner!.frame.size.height
-        let xSpinner: CGFloat = (size.width - widthSpinner) / 2
-        let ySpinner: CGFloat = sizeText.height + (sizePicture.height - heightSpinner) / 2
-        spinner!.frame = CGRect(x: xSpinner, y: ySpinner, width: widthSpinner, height: heightSpinner)
+        if spinner != nil {
+            let widthSpinner = spinner!.frame.size.width
+            let heightSpinner = spinner!.frame.size.height
+            let xSpinner: CGFloat = (size.width - widthSpinner) / 2
+            let ySpinner: CGFloat = sizeText.height + (sizePicture.height - heightSpinner) / 2
+            spinner!.frame = CGRect(x: xSpinner, y: ySpinner, width: widthSpinner, height: heightSpinner)
+        }
         
-        let widthManual = imageManual!.image!.size.width
-        let heightManual = imageManual!.image!.size.height
-        let xManual: CGFloat = (size.width - widthManual) / 2
-        let yManual: CGFloat = (size.height - heightManual) / 2
-        imageManual!.frame = CGRect(x: xManual, y: yManual, width: widthManual, height: heightManual)
+        if imageManual?.image != nil {
+            let widthManual = imageManual!.image!.size.width
+            let heightManual = imageManual!.image!.size.height
+            let xManual: CGFloat = (size.width - widthManual) / 2
+            let yManual: CGFloat = (size.height - heightManual) / 2
+            imageManual!.frame = CGRect(x: xManual, y: yManual, width: widthManual, height: heightManual)
+        }
     }
     
 //    class func StartLoading() {
@@ -155,7 +160,7 @@ class RCPictureMessageCell: RCMessageCell {
     class func size(_ indexPath: IndexPath?, messagesView: RCMessagesView?) -> CGSize {
         let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
         let width = fminf(Float(RCMessages.pictureBubbleWidth()), Float((rcmessage?.picture_width)!))
-        return CGSize(width: CGFloat(width), height: CGFloat(Float(rcmessage!.picture_height) * width / Float(rcmessage!.picture_width)))
+        return CGSize(width: CGFloat(width), height: CGFloat(Float(rcmessage?.picture_height ?? 1) * width / Float(rcmessage!.picture_width)))
     }
     
     class func textHeight(_ indexPath: IndexPath?, messagesView: RCMessagesView?) -> CGFloat {

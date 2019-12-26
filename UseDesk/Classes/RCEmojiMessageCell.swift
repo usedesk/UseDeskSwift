@@ -9,15 +9,15 @@ class RCEmojiMessageCell: RCMessageCell {
     var textView: UITextView?
     var likeButton: UIButton?
     var dislikeButton: UIButton?
-    var usedesk: UseDeskSDK?
+    weak var usedesk: UseDeskSDK?
     
     private var indexPath: IndexPath?
-    private var messagesView: RCMessagesView!
+    private weak var messagesView: RCMessagesView?
     
     override func bindData(_ indexPath_: IndexPath?, messagesView messagesView_: RCMessagesView?) {
         indexPath = indexPath_
         messagesView = messagesView_
-        let rcmessage: RCMessage? = messagesView.rcmessage(indexPath)
+        let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
         
         super.bindData(indexPath, messagesView: messagesView)
         viewBubble.backgroundColor = rcmessage?.incoming != false ? RCMessages.emojiBubbleColorIncoming() : RCMessages.emojiBubbleColorOutgoing()
@@ -71,20 +71,20 @@ class RCEmojiMessageCell: RCMessageCell {
     }
     
     @objc func dislikeButton_pressed(_ sender: Any?) {
-        usedesk.self!.sendMessageFeedBack(false)
+        usedesk.self?.sendMessageFeedBack(false)
     }
     
     @objc func likeButton_pressed(_ sender: Any?) {
-        usedesk.self!.sendMessageFeedBack(true)
+        usedesk.self?.sendMessageFeedBack(true)
     }
     
     override func layoutSubviews() {
         let size: CGSize = RCEmojiMessageCell.size(indexPath, messagesView: messagesView)
         
         super.layoutSubviews(size)
-        textView!.frame = CGRect(x: 0, y: size.height - 80, width: size.width, height: 80)
-        dislikeButton!.frame = CGRect(x: size.width * 1 / 10, y: size.height / 4, width: size.width / 4, height: size.height / 4)
-        likeButton!.frame = CGRect(x: size.width * 2 / 3, y: size.height / 4, width: size.width / 4, height: size.height / 4)        
+        textView?.frame = CGRect(x: 0, y: size.height - 80, width: size.width, height: 80)
+        dislikeButton?.frame = CGRect(x: size.width * 1 / 10, y: size.height / 4, width: size.width / 4, height: size.height / 4)
+        likeButton?.frame = CGRect(x: size.width * 2 / 3, y: size.height / 4, width: size.width / 4, height: size.height / 4)        
     }
     
 }

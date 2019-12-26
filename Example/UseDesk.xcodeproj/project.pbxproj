@@ -10,14 +10,11 @@
 		36760D307C3DD819954DEE7B /* Pods_UseDesk_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 250B45C2B592A0674BAB3F7E /* Pods_UseDesk_Tests.framework */; };
 		500D7FD720DA439B000F5100 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 500D7FD620DA439B000F5100 /* README.md */; };
 		500D7FDC20DA4491000F5100 /* UDStartViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 500D7FDA20DA4491000F5100 /* UDStartViewController.xib */; };
-		500D7FDD20DA4491000F5100 /* UDStartViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D7FDB20DA4491000F5100 /* UDStartViewController.m */; };
 		6003F58E195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58F195388D20070C39A /* CoreGraphics.framework */; };
 		6003F592195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F598195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F596195388D20070C39A /* InfoPlist.strings */; };
 		6003F59A195388D20070C39A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F599195388D20070C39A /* main.m */; };
-		6003F59E195388D20070C39A /* UseDeskAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F59D195388D20070C39A /* UseDeskAppDelegate.m */; };
-		6003F5A7195388D20070C39A /* UseDeskViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5A6195388D20070C39A /* UseDeskViewController.m */; };
 		6003F5A9195388D20070C39A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5A8195388D20070C39A /* Images.xcassets */; };
 		6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
 		6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
@@ -46,9 +43,7 @@
 		250B45C2B592A0674BAB3F7E /* Pods_UseDesk_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UseDesk_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B30737FDC18CADB6315D20B /* Pods-UseDesk_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UseDesk_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-UseDesk_Tests/Pods-UseDesk_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		500D7FD620DA439B000F5100 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		500D7FD920DA4491000F5100 /* UDStartViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UDStartViewController.h; sourceTree = "<group>"; };
 		500D7FDA20DA4491000F5100 /* UDStartViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = UDStartViewController.xib; sourceTree = "<group>"; };
-		500D7FDB20DA4491000F5100 /* UDStartViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UDStartViewController.m; sourceTree = "<group>"; };
 		5121B8F74F266703682C5FB3 /* Pods-UseDesk_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UseDesk_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-UseDesk_Tests/Pods-UseDesk_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		6003F58A195388D20070C39A /* UseDesk_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UseDesk_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -58,10 +53,6 @@
 		6003F597195388D20070C39A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6003F599195388D20070C39A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		6003F59B195388D20070C39A /* UseDesk-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UseDesk-Prefix.pch"; sourceTree = "<group>"; };
-		6003F59C195388D20070C39A /* UseDeskAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UseDeskAppDelegate.h; sourceTree = "<group>"; };
-		6003F59D195388D20070C39A /* UseDeskAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UseDeskAppDelegate.m; sourceTree = "<group>"; };
-		6003F5A5195388D20070C39A /* UseDeskViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UseDeskViewController.h; sourceTree = "<group>"; };
-		6003F5A6195388D20070C39A /* UseDeskViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UseDeskViewController.m; sourceTree = "<group>"; };
 		6003F5A8195388D20070C39A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		6003F5AE195388D20070C39A /* UseDesk_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UseDesk_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F5AF195388D20070C39A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -72,10 +63,10 @@
 		6D76E0E6883938C125A51ABB /* Pods-UseDesk_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UseDesk_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-UseDesk_Example/Pods-UseDesk_Example.release.xcconfig"; sourceTree = "<group>"; };
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		95230AE1EA39BDF982DF1180 /* Pods_UseDesk_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UseDesk_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A5238CEE2208D9F100C2D6EC /* UseDesk_Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UseDesk_Example-Bridging-Header.h"; sourceTree = "<group>"; };
 		A5238CEF2208D9F100C2D6EC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A5238CF12208DAFA00C2D6EC /* UDStartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDStartViewController.swift; sourceTree = "<group>"; };
 		A5238CF32208DBD600C2D6EC /* UseDeskViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UseDeskViewController.swift; sourceTree = "<group>"; };
+		A5E0A5D623B4DA0800A73A89 /* UseDesk_Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UseDesk_Example-Bridging-Header.h"; sourceTree = "<group>"; };
 		C96681A0383EBE3AF89CBBDC /* Pods-UseDesk_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UseDesk_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-UseDesk_Example/Pods-UseDesk_Example.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -108,8 +99,6 @@
 		500D7FD820DA4491000F5100 /* UDStartViewController */ = {
 			isa = PBXGroup;
 			children = (
-				500D7FD920DA4491000F5100 /* UDStartViewController.h */,
-				500D7FDB20DA4491000F5100 /* UDStartViewController.m */,
 				A5238CF12208DAFA00C2D6EC /* UDStartViewController.swift */,
 				500D7FDA20DA4491000F5100 /* UDStartViewController.xib */,
 			);
@@ -153,17 +142,13 @@
 		6003F593195388D20070C39A /* Example for UseDesk */ = {
 			isa = PBXGroup;
 			children = (
-				6003F59C195388D20070C39A /* UseDeskAppDelegate.h */,
-				6003F59D195388D20070C39A /* UseDeskAppDelegate.m */,
 				A5238CEF2208D9F100C2D6EC /* AppDelegate.swift */,
 				500D7FD820DA4491000F5100 /* UDStartViewController */,
-				6003F5A5195388D20070C39A /* UseDeskViewController.h */,
-				6003F5A6195388D20070C39A /* UseDeskViewController.m */,
 				A5238CF32208DBD600C2D6EC /* UseDeskViewController.swift */,
 				71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */,
+				A5E0A5D623B4DA0800A73A89 /* UseDesk_Example-Bridging-Header.h */,
 				6003F5A8195388D20070C39A /* Images.xcassets */,
 				6003F594195388D20070C39A /* Supporting Files */,
-				A5238CEE2208D9F100C2D6EC /* UseDesk_Example-Bridging-Header.h */,
 			);
 			name = "Example for UseDesk";
 			path = UseDesk;
@@ -470,10 +455,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A5238CF22208DAFA00C2D6EC /* UDStartViewController.swift in Sources */,
-				500D7FDD20DA4491000F5100 /* UDStartViewController.m in Sources */,
 				A5238CF42208DBD600C2D6EC /* UseDeskViewController.swift in Sources */,
-				6003F59E195388D20070C39A /* UseDeskAppDelegate.m in Sources */,
-				6003F5A7195388D20070C39A /* UseDeskViewController.m in Sources */,
 				A5238CF02208D9F100C2D6EC /* AppDelegate.swift in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
 			);
@@ -623,6 +605,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;

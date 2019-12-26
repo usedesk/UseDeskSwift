@@ -11,13 +11,13 @@ class RCVideoMessageCell: RCMessageCell {
     var spinner: UIActivityIndicatorView?
     
     private var indexPath: IndexPath?
-    private var messagesView: RCMessagesView?
+    private weak var messagesView: RCMessagesView?
     
     override func bindData(_ indexPath_: IndexPath?, messagesView messagesView_: RCMessagesView?) {
         indexPath = indexPath_
         messagesView = messagesView_
         
-        let rcmessage: RCMessage? = messagesView!.rcmessage(indexPath)
+        let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
         
         super.bindData(indexPath, messagesView: messagesView)
         
@@ -46,24 +46,24 @@ class RCVideoMessageCell: RCMessageCell {
         }
         
         if rcmessage?.status == RC_STATUS_LOADING {
-            viewImage!.image = nil
-            imagePlay!.isHidden = true
-            spinner!.startAnimating()
-            imageManual!.isHidden = true
+            viewImage?.image = nil
+            imagePlay?.isHidden = true
+            spinner?.startAnimating()
+            imageManual?.isHidden = true
         }
         
         if rcmessage?.status == RC_STATUS_SUCCEED {
-            viewImage!.image = rcmessage?.video_thumbnail
-            imagePlay!.isHidden = false
-            spinner!.stopAnimating()
-            imageManual!.isHidden = true
+            viewImage?.image = rcmessage?.video_thumbnail
+            imagePlay?.isHidden = false
+            spinner?.stopAnimating()
+            imageManual?.isHidden = true
         }
         
         if rcmessage?.status == RC_STATUS_MANUAL {
-            viewImage!.image = nil
-            imagePlay!.isHidden = true
-            spinner!.stopAnimating()
-            imageManual!.isHidden = false
+            viewImage?.image = nil
+            imagePlay?.isHidden = true
+            spinner?.stopAnimating()
+            imageManual?.isHidden = false
         }
     }
     
@@ -82,24 +82,29 @@ class RCVideoMessageCell: RCMessageCell {
         
         super.layoutSubviews(size)
         
-        viewImage!.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+        viewImage?.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+        if imagePlay?.image != nil {
+            let widthPlay = imagePlay!.image!.size.width
+            let heightPlay = imagePlay!.image!.size.height
+            let xPlay: CGFloat = (size.width - widthPlay) / 2
+            let yPlay: CGFloat = (size.height - heightPlay) / 2
+            imagePlay!.frame = CGRect(x: xPlay, y: yPlay, width: widthPlay, height: heightPlay)
+        }
         
-        let widthPlay = imagePlay!.image!.size.width
-        let heightPlay = imagePlay!.image!.size.height
-        let xPlay: CGFloat = (size.width - widthPlay) / 2
-        let yPlay: CGFloat = (size.height - heightPlay) / 2
-        imagePlay!.frame = CGRect(x: xPlay, y: yPlay, width: widthPlay, height: heightPlay)
+        if spinner != nil {
+            let widthSpinner = spinner!.frame.size.width
+            let heightSpinner = spinner!.frame.size.height
+            let xSpinner: CGFloat = (size.width - widthSpinner) / 2
+            let ySpinner: CGFloat = (size.height - heightSpinner) / 2
+            spinner!.frame = CGRect(x: xSpinner, y: ySpinner, width: widthSpinner, height: heightSpinner)
+        }
         
-        let widthSpinner = spinner!.frame.size.width
-        let heightSpinner = spinner!.frame.size.height
-        let xSpinner: CGFloat = (size.width - widthSpinner) / 2
-        let ySpinner: CGFloat = (size.height - heightSpinner) / 2
-        spinner!.frame = CGRect(x: xSpinner, y: ySpinner, width: widthSpinner, height: heightSpinner)
-        
-        let widthManual = imageManual!.image!.size.width
-        let heightManual = imageManual!.image!.size.height
-        let xManual: CGFloat = (size.width - widthManual) / 2
-        let yManual: CGFloat = (size.height - heightManual) / 2
-        imageManual!.frame = CGRect(x: xManual, y: yManual, width: widthManual, height: heightManual)
+        if imageManual?.image != nil {
+            let widthManual = imageManual!.image!.size.width
+            let heightManual = imageManual!.image!.size.height
+            let xManual: CGFloat = (size.width - widthManual) / 2
+            let yManual: CGFloat = (size.height - heightManual) / 2
+            imageManual!.frame = CGRect(x: xManual, y: yManual, width: widthManual, height: heightManual)
+        }
     }
 }

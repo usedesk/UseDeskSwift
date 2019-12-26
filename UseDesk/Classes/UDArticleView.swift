@@ -10,7 +10,7 @@ class UDArticleView: UIViewController, UIWebViewDelegate, UISearchBarDelegate {
     @IBOutlet weak var loadingView: UIView!
     
     var article: Article? = nil
-    var usedesk: Any?
+    weak var usedesk: UseDeskSDK?
     var url: String?
     
     override func viewDidLoad() {
@@ -23,30 +23,32 @@ class UDArticleView: UIViewController, UIWebViewDelegate, UISearchBarDelegate {
     
     // MARK: - User actions
     @objc func actionChat() {
+        guard usedesk != nil else {return}
         UIView.animate(withDuration: 0.3) {
             self.loadingView.alpha = 1
         }
-        let use = usedesk as! UseDeskSDK
-        use.startWithoutGUICompanyID(companyID: use.companyID, isUseBase: use.isUseBase, account_id: use.account_id, api_token: use.api_token, email: use.email, url: use.urlWithoutPort, port: use.port, name: use.name, connectionStatus: { success, error in
+        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, isUseBase: usedesk!.isUseBase, account_id: usedesk!.account_id, api_token: usedesk!.api_token, email: usedesk!.email, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, connectionStatus: { [weak self] success, error in
+            guard let wSelf = self else {return}
+            guard wSelf.usedesk != nil else {return}
             if success {
                 DispatchQueue.main.async(execute: {
                     let dialogflowVC : DialogflowView = DialogflowView()
-                    dialogflowVC.usedesk = self.usedesk
-                    self.navigationController?.pushViewController(dialogflowVC, animated: true)
+                    dialogflowVC.usedesk = wSelf.usedesk
+                    wSelf.navigationController?.pushViewController(dialogflowVC, animated: true)
                     UIView.animate(withDuration: 0.3) {
-                        self.loadingView.alpha = 0
+                        wSelf.loadingView.alpha = 0
                     }
                 })
             } else {
                 if (error == "noOperators") {
                     let offlineVC = UDOfflineForm(nibName: "UDOfflineForm", bundle: nil)
-                    if self.url != nil {
-                        offlineVC.url = self.url!
+                    if wSelf.url != nil {
+                        offlineVC.url = wSelf.url!
                     }
-                    offlineVC.usedesk = self.usedesk
-                    self.navigationController?.pushViewController(offlineVC, animated: true)
+                    offlineVC.usedesk = wSelf.usedesk
+                    wSelf.navigationController?.pushViewController(offlineVC, animated: true)
                     UIView.animate(withDuration: 0.3) {
-                        self.loadingView.alpha = 0
+                        wSelf.loadingView.alpha = 0
                     }
                 }
             }

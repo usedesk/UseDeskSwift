@@ -16,10 +16,9 @@ class RCSectionHeaderCell: UITableViewCell {
             labelSectionHeader!.font = RCMessages.sectionHeaderFont()
             labelSectionHeader!.textColor = RCMessages.sectionHeaderColor()
             contentView.addSubview(labelSectionHeader!)
+            labelSectionHeader!.textAlignment = rcmessage?.incoming != false ? .center : .center
+            labelSectionHeader!.text = messagesView?.textSectionHeader(indexPath)
         }
-        
-        labelSectionHeader!.textAlignment = rcmessage?.incoming != false ? .center : .center
-        labelSectionHeader!.text = messagesView?.textSectionHeader(indexPath)
     }
     
     override func layoutSubviews() {

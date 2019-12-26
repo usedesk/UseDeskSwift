@@ -7,11 +7,11 @@ class RCTextMessageCell: RCMessageCell, UICollectionViewDelegate, UICollectionVi
     
 
     var textView: UITextView?
-    var collectionView: UICollectionView? = nil
+    weak var collectionView: UICollectionView? = nil
     
     private var indexPath: IndexPath?
-    private var messagesView: RCMessagesView?
-    private var rcmessage: RCMessage?
+    private weak var messagesView: RCMessagesView?
+    private weak var rcmessage: RCMessage?
     
     override func bindData(_ indexPath_: IndexPath?, messagesView messagesView_: RCMessagesView?) {
         indexPath = indexPath_
@@ -32,12 +32,12 @@ class RCTextMessageCell: RCMessageCell, UICollectionViewDelegate, UICollectionVi
             textView!.backgroundColor = UIColor.clear
             textView!.textContainer.lineFragmentPadding = 0
             textView!.textContainerInset = RCMessages.textInset()
-            viewBubble!.addSubview(textView!)
+            viewBubble?.addSubview(textView!)
         }
         
-        textView!.textColor = rcmessage?.incoming != false ? RCMessages.textTextColorIncoming() : RCMessages.textTextColorOutgoing()
+        textView?.textColor = rcmessage?.incoming != false ? RCMessages.textTextColorIncoming() : RCMessages.textTextColorOutgoing()
         
-        textView!.text = rcmessage?.text
+        textView?.text = rcmessage?.text
 
         var size = CGSize(width: 100, height: 0)
         if rcmessage != nil {
@@ -68,7 +68,7 @@ class RCTextMessageCell: RCMessageCell, UICollectionViewDelegate, UICollectionVi
                 }
                 size = CGSize(width: size.width, height: size.height + 10)
                 super.layoutSubviews(size)
-                collectionView!.frame = CGRect(x: 0, y: textSize.height, width: size.width, height: size.height - textSize.height - 10)
+                collectionView?.frame = CGRect(x: 0, y: textSize.height, width: size.width, height: size.height - textSize.height - 10)
                 let layout = UICollectionViewFlowLayout()
                 layout.itemSize = CGSize(width: size.width, height: 30)
                 collectionView?.collectionViewLayout = layout
@@ -76,7 +76,7 @@ class RCTextMessageCell: RCMessageCell, UICollectionViewDelegate, UICollectionVi
                 super.layoutSubviews(size)
             }
         }
-        textView!.frame = CGRect(x: 0, y: 0, width: textSize.width, height: textSize.height)
+        textView?.frame = CGRect(x: 0, y: 0, width: textSize.width, height: textSize.height)
     }
     
     override func prepareForReuse() {
@@ -110,22 +110,21 @@ class RCTextMessageCell: RCMessageCell, UICollectionViewDelegate, UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print(rcmessage!.rcButtons.count)
-        return rcmessage!.rcButtons.count
+        return rcmessage?.rcButtons.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "RCMessageButtonCell", for: indexPath) as! RCMessageButtonCell
-        cell.setingCell(titleButton: rcmessage!.rcButtons[indexPath.row].title)
+        cell.setingCell(titleButton: rcmessage?.rcButtons[indexPath.row].title ?? "")
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if rcmessage!.rcButtons[indexPath.row].url != "" {
+        if rcmessage?.rcButtons[indexPath.row].url != "" {
             let urlDataDict:[String: String] = ["url": rcmessage!.rcButtons[indexPath.row].url]
             NotificationCenter.default.post(name: Notification.Name("messageButtonURLOpen"), object: nil, userInfo: urlDataDict)
         } else {
-            let textDataDict:[String: String] = ["text": rcmessage!.rcButtons[indexPath.row].title]
+            let textDataDict:[String: String] = ["text": rcmessage?.rcButtons[indexPath.row].title ?? ""]
             NotificationCenter.default.post(name: Notification.Name("messageButtonSend"), object: nil, userInfo: textDataDict)
         }
     }

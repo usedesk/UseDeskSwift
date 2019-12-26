@@ -5,25 +5,25 @@ import AVFoundation
 
 class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate {
     //-------------------------------------------------------------------------------------------------------------------------------------------------
-    @IBOutlet var viewTitle: UIView!
-    @IBOutlet var labelTitle1: UILabel!
-    @IBOutlet var labelTitle2: UILabel!
-    @IBOutlet var buttonTitle: UIButton!
-    @IBOutlet var tableView: UITableView!
-    @IBOutlet var viewLoadEarlier: UIView!
-    @IBOutlet var viewTypingIndicator: UIView!
-    @IBOutlet var viewInput: UIView!
-    @IBOutlet var buttonInputAttach: UIButton!
-    @IBOutlet var buttonInputAudio: UIButton!
-    @IBOutlet var buttonInputSend: UIButton!
-    @IBOutlet var textInput: UITextView!
+    @IBOutlet weak var viewTitle: UIView!
+    @IBOutlet weak var labelTitle1: UILabel!
+    @IBOutlet weak var labelTitle2: UILabel!
+    @IBOutlet weak var buttonTitle: UIButton!
+    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var viewLoadEarlier: UIView!
+    @IBOutlet weak var viewTypingIndicator: UIView!
+    @IBOutlet weak var viewInput: UIView!
+    @IBOutlet weak var buttonInputAttach: UIButton!
+    @IBOutlet weak var buttonInputAudio: UIButton!
+    @IBOutlet weak var buttonInputSend: UIButton!
+    @IBOutlet weak var textInput: UITextView!
     @IBOutlet weak var textInputHC: NSLayoutConstraint!
     @IBOutlet weak var textInputBC: NSLayoutConstraint!
     // @IBOutlet var viewInputAudio: UIView!
     //@IBOutlet var labelInputAudio: UILabel!
     @IBOutlet var labelAttachmentFile: UILabel!
     
-    var usedesk: Any?
+    weak var usedesk: UseDeskSDK?
 
     private var initialized = false
     private var isShowKeyboard = false
@@ -173,8 +173,9 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             tableView.tableFooterView = viewTypingIndicator
             scroll(toBottom: animated)
         } else {
-            UIView.animate(withDuration: animated ? 0.25 : 0, animations: {
-                self.tableView.tableFooterView = nil
+            UIView.animate(withDuration: animated ? 0.25 : 0, animations: { [weak self] in
+                guard let wSelf = self else {return}
+                wSelf.tableView.tableFooterView = nil
             })
         }
     }
@@ -195,11 +196,12 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                 heightKeyboard = keyboardHeight!
             }
             
-            UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
-                if self.safeAreaInsetsBottom != 0 {
-                    self.textInputBC.constant = 7
+            UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: { [weak self] in
+                guard let wSelf = self else {return}
+                if wSelf.safeAreaInsetsBottom != 0 {
+                    wSelf.textInputBC.constant = 7
                 }
-                self.view.center = CGPoint(x: self.centerView.x, y: self.centerView.y - (keyboardHeight ?? 0.0))
+                wSelf.view.center = CGPoint(x: wSelf.centerView.x, y: wSelf.centerView.y - (keyboardHeight ?? 0.0))
             })
             isShowKeyboard = true
             UIMenuController.shared.menuItems = nil
@@ -211,11 +213,12 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         if isShowKeyboard {
             let info = notification?.userInfo
             let duration = TimeInterval((info?[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
-            UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
-                if self.safeAreaInsetsBottom != 0 {
-                    self.textInputBC.constant = 7 + self.safeAreaInsetsBottom
+            UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: { [weak self] in
+            guard let wSelf = self else {return}
+                if wSelf.safeAreaInsetsBottom != 0 {
+                    wSelf.textInputBC.constant = 7 + wSelf.safeAreaInsetsBottom
                 }
-                self.view.center = self.centerView
+                wSelf.view.center = wSelf.centerView
             })
             isShowKeyboard = false
             
@@ -559,7 +562,7 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         dateAudioStart = Date()
         //---------------------------------------------------------------------------------------------------------------------------------------------
         timerAudio = Timer.scheduledTimer(timeInterval: 0.07, target: self, selector: #selector(self.audioRecorderUpdate), userInfo: nil, repeats: true)
-        RunLoop.main.add(timerAudio!, forMode: RunLoopMode.commonModes)
+        //RunLoop.main.add(timerAudio!, forMode: RunLoopMode.commonModes)
         //---------------------------------------------------------------------------------------------------------------------------------------------
         audioRecorderUpdate()
         //---------------------------------------------------------------------------------------------------------------------------------------------

@@ -10,7 +10,7 @@ class UDArticlesView: UIViewController, UITableViewDelegate, UITableViewDataSour
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var loadingView: UIView!
     
-    var usedesk: Any?
+    weak var usedesk: UseDeskSDK?
     var url: String?
     var arrayArticles: [ArticleTitle] = []
     var searchArticles: SearchArticle? = nil
@@ -49,30 +49,31 @@ class UDArticlesView: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     // MARK: - User actions
     @objc func actionChat() {
+        guard usedesk != nil else {return}
         UIView.animate(withDuration: 0.3) {
             self.loadingView.alpha = 1
         }
-        let use = usedesk as! UseDeskSDK
-        use.startWithoutGUICompanyID(companyID: use.companyID, isUseBase: use.isUseBase, account_id: use.account_id, api_token: use.api_token, email: use.email, url: use.urlWithoutPort, port: use.port, name: use.name, connectionStatus: { success, error in
+        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, isUseBase: usedesk!.isUseBase, account_id: usedesk!.account_id, api_token: usedesk!.api_token, email: usedesk!.email, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, connectionStatus: { [weak self] success, error in
+            guard let wSelf = self else {return}
             if success {
                 DispatchQueue.main.async(execute: {
                     let dialogflowVC : DialogflowView = DialogflowView()
-                    dialogflowVC.usedesk = self.usedesk
-                    self.navigationController?.pushViewController(dialogflowVC, animated: true)
+                    dialogflowVC.usedesk = wSelf.usedesk
+                    wSelf.navigationController?.pushViewController(dialogflowVC, animated: true)
                     UIView.animate(withDuration: 0.3) {
-                        self.loadingView.alpha = 0
+                        wSelf.loadingView.alpha = 0
                     }
                 })
             } else {
                 if (error == "noOperators") {
                     let offlineVC = UDOfflineForm(nibName: "UDOfflineForm", bundle: nil)
-                    if self.url != nil {
-                        offlineVC.url = self.url!
+                    if wSelf.url != nil {
+                        offlineVC.url = wSelf.url!
                     }
-                    offlineVC.usedesk = self.usedesk
-                    self.navigationController?.pushViewController(offlineVC, animated: true)
+                    offlineVC.usedesk = wSelf.usedesk
+                    wSelf.navigationController?.pushViewController(offlineVC, animated: true)
                     UIView.animate(withDuration: 0.3) {
-                        self.loadingView.alpha = 0
+                        wSelf.loadingView.alpha = 0
                     }
                 }
             }
@@ -119,17 +120,18 @@ class UDArticlesView: UIViewController, UITableViewDelegate, UITableViewDataSour
         } else {
             id = arrayArticles[indexPath.row].id
         }
-        let use = usedesk as! UseDeskSDK
-        use.addViewsArticle(articleID: id, count: 1, connectionStatus: { success, error in
+        usedesk?.addViewsArticle(articleID: id, count: 1, connectionStatus: { success, error in
             
         })
-        use.getArticle(articleID: id, connectionStatus: { success, article, error in
+        
+        usedesk?.getArticle(articleID: id, connectionStatus: { [weak self] success, article, error in
+            guard let wSelf = self else {return}
             if success {
                 let articleVC = UDArticleView(nibName: "UDArticle", bundle: nil)
-                articleVC.usedesk = self.usedesk
+                articleVC.usedesk = wSelf.usedesk
                 articleVC.article = article
-                articleVC.url = self.url
-                self.navigationController?.pushViewController(articleVC, animated: true)
+                articleVC.url = wSelf.url
+                wSelf.navigationController?.pushViewController(articleVC, animated: true)
             }
         })
         
@@ -144,18 +146,18 @@ class UDArticlesView: UIViewController, UITableViewDelegate, UITableViewDataSour
             UIView.animate(withDuration: 0.3) {
                 self.loadingView.alpha = 1
             }
-            let use = usedesk as! UseDeskSDK
-            use.getSearchArticles(collection_ids: [collection_ids], category_ids: [category_ids], article_ids: [], query: searchText, type: .all, sort: .title, order: .asc) { (success, searchArticle, error) in
+            usedesk?.getSearchArticles(collection_ids: [collection_ids], category_ids: [category_ids], article_ids: [], query: searchText, type: .all, sort: .title, order: .asc) {  [weak self] (success, searchArticle, error) in
+                guard let wSelf = self else {return}
                 UIView.animate(withDuration: 0.3) {
-                    self.loadingView.alpha = 0
+                    wSelf.loadingView.alpha = 0
                 }
                 if success {
-                    self.searchArticles = searchArticle
-                    self.isSearch = true
-                    self.tableView.reloadData()
+                    wSelf.searchArticles = searchArticle
+                    wSelf.isSearch = true
+                    wSelf.tableView.reloadData()
                 } else {
-                    self.isSearch = false
-                    self.tableView.reloadData()
+                    wSelf.isSearch = false
+                    wSelf.tableView.reloadData()
                 }
             }
         } else {

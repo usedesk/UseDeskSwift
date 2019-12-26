@@ -19,6 +19,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var phoneTextField: UITextField!
     
     var collection: BaseCollection? = nil
+    var usedesk = UseDeskSDK()
     
     override func viewDidLoad() {
         
@@ -54,7 +55,6 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func startChatButton(_ sender: Any) {
-        let usedesk: UseDeskSDK? = UseDeskSDK()
         var accountId = ""
         var isUseBase = false
         if accountIdTextField.text != nil {
@@ -63,12 +63,8 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
                 accountId = accountIdTextField.text!
             }
         }
-        usedesk!.start(withCompanyID: companyIdTextField.text!, isUseBase: isUseBase, account_id: accountId, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, connectionStatus: { success, error in
-
+        usedesk.start(withCompanyID: companyIdTextField.text!, isUseBase: isUseBase, account_id: accountId, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, connectionStatus: { success, error in
+            
         })
-//        usedesk!.start(withCompanyID: "157457", account_id: "600", api_token: "98cc4c7dc7641feba6a86351e57390357417995d", email: "user_email@here.com", url: "https://pubsub.usedesk.ru", port: "443", name: "User Name") { (status, error) in
-//            print(status)
-//            print(error)
-//        }
     }
 }

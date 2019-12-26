@@ -10,7 +10,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
     @IBOutlet var messageTextField: UITextField!
     
     var url = ""
-    var usedesk: Any?
+    weak var usedesk: UseDeskSDK?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,18 +34,19 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func sendMessage(_ sender: Any) {
+        guard usedesk != nil else {return}
         let hud = MBProgressHUD.showAdded(to: view, animated: true)
         hud.mode = MBProgressHUDMode.indeterminate
         hud.label.text = "Sending Message..."
-        let use = usedesk as! UseDeskSDK
-        use.sendOfflineForm(withMessage: messageTextField.text) { (result, error) in
+        usedesk!.sendOfflineForm(withMessage: messageTextField.text) { [weak self] (result, error) in
+            guard let wSelf = self else {return}
             if result {
                 DispatchQueue.main.async(execute: {
                     hud.hide(animated: true)
-                    self.dismiss(animated: true)
+                    wSelf.dismiss(animated: true)
                 })
             } else {
-                self.showAlert("Error", text: error)
+                wSelf.showAlert("Error", text: error)
                 hud.hide(animated: true)
             }
         }

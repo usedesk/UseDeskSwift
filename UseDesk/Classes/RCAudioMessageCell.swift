@@ -10,13 +10,13 @@ class RCAudioMessageCell: RCMessageCell {
     var imageManual: UIImageView!
     var spinner: UIActivityIndicatorView!
 
-    private var indexPath: IndexPath!
-    private var messagesView: RCMessagesView!
+    private var indexPath: IndexPath?
+    private weak var messagesView: RCMessagesView?
     
     override func bindData(_ indexPath_: IndexPath?, messagesView messagesView_: RCMessagesView?) {
         indexPath = indexPath_
         messagesView = messagesView_
-        let rcmessage: RCMessage? = messagesView!.rcmessage(indexPath)
+        let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
         super.bindData(indexPath, messagesView: messagesView)
         
         viewBubble.backgroundColor = rcmessage?.incoming != false ? RCMessages.audioBubbleColorIncoming() : RCMessages.audioBubbleColorOutgoing()
