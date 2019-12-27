@@ -53,12 +53,13 @@ class UDArticlesView: UIViewController, UITableViewDelegate, UITableViewDataSour
         UIView.animate(withDuration: 0.3) {
             self.loadingView.alpha = 1
         }
-        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, isUseBase: usedesk!.isUseBase, account_id: usedesk!.account_id, api_token: usedesk!.api_token, email: usedesk!.email, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, connectionStatus: { [weak self] success, error in
+        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, isUseBase: usedesk!.isUseBase, account_id: usedesk!.account_id, api_token: usedesk!.api_token, email: usedesk!.email, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, nameChat: usedesk!.nameChat, connectionStatus: { [weak self] success, error in
             guard let wSelf = self else {return}
             if success {
                 DispatchQueue.main.async(execute: {
                     let dialogflowVC : DialogflowView = DialogflowView()
                     dialogflowVC.usedesk = wSelf.usedesk
+                    dialogflowVC.isFromBase = true
                     wSelf.navigationController?.pushViewController(dialogflowVC, animated: true)
                     UIView.animate(withDuration: 0.3) {
                         wSelf.loadingView.alpha = 0

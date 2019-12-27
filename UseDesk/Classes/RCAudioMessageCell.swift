@@ -97,7 +97,7 @@ class RCAudioMessageCell: RCMessageCell {
     
     class func height(_ indexPath: IndexPath?, messagesView: RCMessagesView?) -> CGFloat {
         let size: CGSize = self.size(indexPath, messagesView: messagesView)
-        return size.height
+        return size.height 
     }
     
     class func size(_ indexPath: IndexPath?, messagesView: RCMessagesView?) -> CGSize {

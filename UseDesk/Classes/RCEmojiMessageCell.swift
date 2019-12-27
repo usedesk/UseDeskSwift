@@ -63,11 +63,15 @@ class RCEmojiMessageCell: RCMessageCell {
     
     class func size(_ indexPath: IndexPath?, messagesView: RCMessagesView?) -> CGSize {
         let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
-        let maxwidth: CGFloat = (0.6 * SCREEN_WIDTH) - RCMessages.emojiInsetLeft() - RCMessages.emojiInsetRight()
-        let rect: CGRect? = rcmessage?.text.boundingRect(with: CGSize(width: maxwidth, height: CGFloat(MAXFLOAT)), options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: RCMessages.emojiFont() as Any], context: nil)
-        let width: CGFloat = (rect?.size.width ?? 0.0) + RCMessages.emojiInsetLeft() + RCMessages.emojiInsetRight()
-        let height: CGFloat = (rect?.size.height ?? 0.0) + RCMessages.emojiInsetTop() + RCMessages.emojiInsetBottom()
-        return CGSize(width: CGFloat(fmaxf(Float(width), Float(RCMessages.emojiBubbleWidthMin()))), height: CGFloat(fmaxf(Float(height), Float(RCMessages.emojiBubbleHeightMin()))))
+        if rcmessage != nil {
+            let maxwidth: CGFloat = (0.6 * SCREEN_WIDTH) - RCMessages.emojiInsetLeft() - RCMessages.emojiInsetRight()
+            let rect: CGRect? = rcmessage?.text.boundingRect(with: CGSize(width: maxwidth, height: CGFloat(MAXFLOAT)), options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: RCMessages.emojiFont() as Any], context: nil)
+            let width: CGFloat = (rect?.size.width ?? 0.0) + RCMessages.emojiInsetLeft() + RCMessages.emojiInsetRight()
+            var height: CGFloat = (rect?.size.height ?? 0.0) + RCMessages.emojiInsetTop() + RCMessages.emojiInsetBottom()     
+            return CGSize(width: CGFloat(fmaxf(Float(width), Float(RCMessages.emojiBubbleWidthMin()))), height: CGFloat(fmaxf(Float(height), Float(RCMessages.emojiBubbleHeightMin()))))
+        } else {
+            return CGSize(width: 0, height: 0)
+        }
     }
     
     @objc func dislikeButton_pressed(_ sender: Any?) {

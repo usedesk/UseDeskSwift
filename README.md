@@ -41,14 +41,15 @@ pod 'UseDesk_SDK_Swift'
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
 | CompanyID | String | идентификатор компании |
-| Email | String | почта клиента |
-| Phone | String | телефон клиента (опционально) |
-| Name | String | имя клиента (опционально) |
-| URL | String | адрес сервера с номером порта |
-| Port | String | порт сервера |
+| isUseBase | Bool | использовать базу знаний |
 | Account ID | String | идентификатор базы знаний (опциональный) |
 | API Token | String | личный API ключ |
-| isUseBase | Bool | использовать базу знаний |
+| Email | String | почта клиента |
+| Phone | String | телефон клиента (опционально) |
+| URL | String | адрес сервера с номером порта |
+| Port | String | порт сервера |
+| Name | String | имя клиента (опционально) |
+| NameChat | String | имя чата (опционально). Отображается в шапке|
 
 ### Блок возвращает следующие параметры:
 
@@ -60,7 +61,7 @@ pod 'UseDesk_SDK_Swift'
 #### Пример c использованием базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", isUseBase: true, account_id: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "https:dev.company.ru", port: "213", name: "Name", connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", isUseBase: true, account_id: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "https:dev.company.ru", port: "213", name: "Name", nameChat: "NameChat", connectionStatus: { success, error in
 
 })
 ```
@@ -68,7 +69,7 @@ usedesk.start(withCompanyID: "1234567", isUseBase: true, account_id: "1", api_to
 #### Пример без использования базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", isUseBase: false, api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "https:dev.company.ru", port: "213", name: "Name", connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", isUseBase: false, api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "https:dev.company.ru", port: "213", name: "Name", nameChat: "NameChat", connectionStatus: { success, error in
 
 })
 ```
@@ -82,19 +83,20 @@ usedesk.start(withCompanyID: "1234567", isUseBase: false, api_token: "143ed59g90
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
 | CompanyID | String | идентификатор компании |
+| isUseBase | Bool | использовать базу знаний |
+| Account ID | String | идентификатор базы знаний (опциональный) |
+| API Token | String | личный API ключ |
 | Email | String | почта клиента |
 | Phone | String | телефон клиента (опционально) |
-| Name | String | имя клиента (опционально) |
-| URL | String | адрес сервера |
+| URL | String | адрес сервера с номером порта |
 | Port | String | порт сервера |
-| Account ID | String | идентификатор базы знаний (опционально) |
-| API Token | String | личный API ключ |
-| isUseBase | Bool | использовать базу знаний |
+| Name | String | имя клиента (опционально) |
+| NameChat | String | имя чата (опционально). Отображается в шапке|
 
 #### Пример:
 ```swift
 let usedesk = UseDeskSDK()
-usedesk.startWithoutGUICompanyID(companyID: "1234567", isUseBase: true, account_id: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "https:dev.company.ru", port: "213", name: "Name", connectionStatus: { (success, error) in
+usedesk.startWithoutGUICompanyID(companyID: "1234567", isUseBase: true, account_id: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "https:dev.company.ru", port: "213", name: "Name", nameChat: "NameChat", connectionStatus: { (success, error) in
 
 })
 ```

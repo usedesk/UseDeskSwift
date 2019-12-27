@@ -17,6 +17,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var apiTokenTextField: UITextField!
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var phoneTextField: UITextField!
+    @IBOutlet weak var nameChatTextField: UITextField!
     
     var collection: BaseCollection? = nil
     var usedesk = UseDeskSDK()
@@ -56,6 +57,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func startChatButton(_ sender: Any) {
         var accountId = ""
+        var nameChat = ""
         var isUseBase = false
         if accountIdTextField.text != nil {
             if accountIdTextField.text! != "" {
@@ -63,7 +65,12 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
                 accountId = accountIdTextField.text!
             }
         }
-        usedesk.start(withCompanyID: companyIdTextField.text!, isUseBase: isUseBase, account_id: accountId, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, connectionStatus: { success, error in
+        if nameChatTextField.text != nil {
+            if nameChatTextField.text! != "" {
+                nameChat = nameChatTextField.text!
+            }
+        }
+        usedesk.start(withCompanyID: companyIdTextField.text!, isUseBase: isUseBase, account_id: accountId, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, nameChat: nameChat, connectionStatus: { success, error in
             
         })
     }

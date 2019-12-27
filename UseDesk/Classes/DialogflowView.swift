@@ -10,6 +10,7 @@ import MBProgressHUD
 class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigationControllerDelegate, QBImagePickerControllerDelegate {
 
     var rcmessages: [AnyHashable] = []
+    var isFromBase = false
     
     private var sendImageArr: [Any] = []
     private var hudErrorConnection: MBProgressHUD?
@@ -17,10 +18,8 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-       // navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Gif", style: .done, target: self, action: #selector(self.actionDone))
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .reply, target: self, action: #selector(self.actionDone))
-        navigationItem.titleView = UIView(frame: navigationController?.navigationBar.bounds ?? .zero)
+        navigationItem.title = usedesk?.nameChat
         hudErrorConnection = MBProgressHUD(view: view)
         hudErrorConnection?.removeFromSuperViewOnHide = true
         view.addSubview(hudErrorConnection!)
@@ -191,10 +190,6 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     }
     
     override func textSectionFooter(_ indexPath: IndexPath?) -> String? {
-        let rcmessage = rcmessages[indexPath!.section] as! RCMessage
-        if rcmessage.incoming != false {
-            return rcmessage.name
-        }
         return nil
     }
     
@@ -275,14 +270,16 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     // MARK: - User actions
     @objc func actionDone() {
         usedesk?.releaseChat()
-        dismiss(animated: true)
+        if isFromBase {
+            navigationController?.popViewController(animated: true)
+        } else {
+            dismiss(animated: true)
+        }
     }
     
     override func actionSendMessage(_ text: String?) {
-        if sendImageArr.count == 0 {
-            usedesk?.sendMessage(text)
-        } else {
-            var isSendTextMessage = false
+        usedesk?.sendMessage(text)
+        if sendImageArr.count > 0 {
             for i in 0..<sendImageArr.count {
                 if sendImageArr[i] as? PHAsset != nil {
                     let options = PHImageRequestOptions()
@@ -296,9 +293,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                             fileName += ".png"
                             //self.dicLoadingBuffer.updateValue("1", forKey: fileName)
                             //dicLoadingBuffer[fileName] = "1"
-                            let textMessage = isSendTextMessage ? text : ""
-                            wSelf.usedesk?.sendMessage(textMessage, withFileName: fileName, fileType: "image/png", contentBase64: content)
-                            isSendTextMessage = true
+                            wSelf.usedesk?.sendMessage("", withFileName: fileName, fileType: "image/png", contentBase64: content)
                         }
                     })
                 } else if sendImageArr[i] as? UIImage != nil {
@@ -306,13 +301,10 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                     let content = "data:image/png;base64,\(UseDeskSDKHelp.image(toNSString: pickerImage))"
                     var fileName = String(format: "%ld", content.hash)
                     fileName += ".png"
-                    let textMessage = isSendTextMessage ? text : ""
-                    usedesk?.sendMessage(textMessage, withFileName: fileName, fileType: "image/png", contentBase64: content)
-                    isSendTextMessage = true
+                    usedesk?.sendMessage("", withFileName: fileName, fileType: "image/png", contentBase64: content)
                 }
             }
             sendImageArr = []
-            isSendTextMessage = false
             labelAttachmentFile.isHidden = true
         }
     }

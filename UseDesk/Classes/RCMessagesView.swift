@@ -405,7 +405,7 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                 for _ in rcmessage!.rcButtons {
                     heightButtons += 40
                 }
-                heightButtons += 10
+                heightButtons += 25
                 return RCTextMessageCell.height(indexPath, messagesView: self) + heightButtons
             }
             if rcmessage?.type == RC_TYPE_Feedback {

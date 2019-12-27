@@ -26,6 +26,8 @@ class UDNavigationController: UINavigationController {
         return .lightContent
     }
     
+//    override var colo
+//    
 //    override var tintColor: UIColor? {
 //        get {
 //            return super.tintColor
@@ -46,8 +48,7 @@ class UDNavigationController: UINavigationController {
 //        }
 //    }
     
-    func setTitleTextAttributes(_ __titleTextAttributes: UIColor?) {
-        titleTextAttributes = __titleTextAttributes
+    func setTitleTextAttributes() {
         navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: titleTextAttributes!]
     }
 }

@@ -39,9 +39,10 @@ public class UseDeskSDK: NSObject {
     var api_token = ""
     var port = ""
     var name = ""
+    var nameChat = ""
     var isUseBase = false
     
-     @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, connectionStatus startBlock: UDSStartBlock) {
+     @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, connectionStatus startBlock: UDSStartBlock) {
         
         let hud = MBProgressHUD.showAdded(to: (RootView?.view ?? UIView()), animated: true)
         hud.mode = MBProgressHUDMode.indeterminate
@@ -67,11 +68,22 @@ public class UseDeskSDK: NSObject {
                 phone = _phone!
             }
         }
+        if _nameChat != nil {
+            if _nameChat != "" {
+                nameChat = _nameChat!
+            } else {
+                nameChat = "Онлайн-чат"
+            }
+        } else {
+            nameChat = "Онлайн-чат"
+        }
+        
         if isUseBase && _account_id != nil {
             let baseView = UDBaseView()
             baseView.usedesk = self
             baseView.url = self.url
             let navController = UDNavigationController(rootViewController: baseView)
+            navController.setTitleTextAttributes()
             navController.modalPresentationStyle = .fullScreen
             RootView?.present(navController, animated: true)
             hud.hide(animated: true)
@@ -79,12 +91,13 @@ public class UseDeskSDK: NSObject {
             if isUseBase && _account_id == nil {
                 startBlock(false, "You did not specify account_id")
             } else {
-                startWithoutGUICompanyID(companyID: companyID, isUseBase: isUseBase, account_id: account_id, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, connectionStatus: { [weak self] success, error in
+                startWithoutGUICompanyID(companyID: companyID, isUseBase: isUseBase, account_id: account_id, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, nameChat: _nameChat, connectionStatus: { [weak self] success, error in
                     guard let wSelf = self else {return}
                     if success {
                         let dialogflowVC : DialogflowView = DialogflowView()
                         dialogflowVC.usedesk = wSelf
                         let navController = UDNavigationController(rootViewController: dialogflowVC)
+                        navController.setTitleTextAttributes()
                         navController.modalPresentationStyle = .fullScreen
                         RootView?.present(navController, animated: true)
                         hud.hide(animated: true)
@@ -116,7 +129,7 @@ public class UseDeskSDK: NSObject {
         socket?.emit("dispatch", with: mess!)
     }
     
-     @objc public func startWithoutGUICompanyID(companyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
+     @objc public func startWithoutGUICompanyID(companyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
         
         companyID = _companyID
         email = _email
@@ -137,6 +150,15 @@ public class UseDeskSDK: NSObject {
             if _phone != "" {
                 phone = _phone!
             }
+        }
+        if _nameChat != nil {
+            if _nameChat != "" {
+                nameChat = _nameChat!
+            } else {
+                nameChat = "Онлайн-чат"
+            }
+        } else {
+            nameChat = "Онлайн-чат"
         }
         let urlAdress = URL(string: url)
         
@@ -437,7 +459,7 @@ public class UseDeskSDK: NSObject {
         m.date = dateFormatter.date(from: createdAt)!
         
         m.messageId = Int(mess?["id"] as! Int)
-        m.incoming = (mess?["type"] as! String == "client_to_operator") ? false : true
+        m.incoming = (mess?["type"] as! String == "operator_to_client") ? true : false
         m.outgoing = !m.incoming
         m.text = mess?["text"] as! String
 
@@ -456,6 +478,7 @@ public class UseDeskSDK: NSObject {
                     m.text = m.rcButtons[invertIndex].title + " " + m.text
                 }
             }
+            m.name = mess?["name"] as! String
         }        
         
         let payload = mess?["payload"] //as? [AnyHashable : Any]

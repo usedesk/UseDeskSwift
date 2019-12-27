@@ -64,7 +64,13 @@ class RCLocationMessageCell: RCMessageCell {
     }
     
     class func size(_ indexPath: IndexPath?, messagesView: RCMessagesView?) -> CGSize {
-        return CGSize(width: RCMessages.locationBubbleWidth(), height: RCMessages.locationBubbleHeight())
+        let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
+        if rcmessage != nil {
+            return CGSize(width: RCMessages.locationBubbleWidth(), height: RCMessages.locationBubbleHeight())
+        } else {
+            return CGSize(width: 0, height: 0)
+        }
+        
     }
 
 }

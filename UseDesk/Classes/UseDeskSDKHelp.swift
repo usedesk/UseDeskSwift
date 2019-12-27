@@ -5,7 +5,7 @@ import Foundation
 
 class UseDeskSDKHelp {
     class func config_CompanyID(_ companyID: String?, email: String, phone: String?, name: String?, url: String?, token: String?) -> [Any]? {
-        var payload = [
+        let payload = [
             "sdk" : "iOS"
         ]
         var dic = [

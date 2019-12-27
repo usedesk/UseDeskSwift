@@ -154,13 +154,17 @@ class RCPictureMessageCell: RCMessageCell {
         let size: CGSize = self.size(indexPath, messagesView: messagesView)
         let sizeText: CGSize = RCPictureMessageCell.textSize(indexPath, messagesView: messagesView)
         
-        return size.height + sizeText.height + 20
+        return size.height + sizeText.height + 20 
     }
     
     class func size(_ indexPath: IndexPath?, messagesView: RCMessagesView?) -> CGSize {
         let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
-        let width = fminf(Float(RCMessages.pictureBubbleWidth()), Float((rcmessage?.picture_width)!))
-        return CGSize(width: CGFloat(width), height: CGFloat(Float(rcmessage?.picture_height ?? 1) * width / Float(rcmessage!.picture_width)))
+        if rcmessage != nil {
+            let width = fminf(Float(RCMessages.pictureBubbleWidth()), Float((rcmessage!.picture_width)))
+            return CGSize(width: CGFloat(width), height: CGFloat(Float(rcmessage!.picture_height) * width / Float(rcmessage!.picture_width)))
+        } else {
+            return CGSize(width: 0, height: 0)
+        }
     }
     
     class func textHeight(_ indexPath: IndexPath?, messagesView: RCMessagesView?) -> CGFloat {

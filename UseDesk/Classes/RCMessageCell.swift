@@ -9,16 +9,32 @@ class RCMessageCell: UITableViewCell {
     var viewBubble: UIView!
     var imageAvatar: UIImageView!
     var labelAvatar: UILabel!
+    var label: UILabel!
     
     private var indexPath: IndexPath?
     private weak var messagesView: RCMessagesView?
     
+    let kHeightName: CGFloat = 15
+    
     func bindData(_ indexPath_: IndexPath?, messagesView messagesView_: RCMessagesView?) {
         indexPath = indexPath_
         messagesView = messagesView_
-        
+        let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
+        if rcmessage != nil {
+            if rcmessage!.incoming {
+                if label == nil {
+                    label = UILabel()
+                    contentView.addSubview(label)
+                }
+            } else {
+                if label != nil {
+                    label.removeFromSuperview()
+                    label = nil
+                }
+            }
+        }
         backgroundColor = UIColor.clear
-        
+       
         if viewBubble == nil {
             viewBubble = UIView()
             viewBubble.layer.cornerRadius = RCMessages.bubbleRadius()
@@ -53,14 +69,23 @@ class RCMessageCell: UITableViewCell {
         super.layoutSubviews()
         
         let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
-        
-        let xBubble: CGFloat = rcmessage?.incoming != false ? RCMessages.bubbleMarginLeft() : (SCREEN_WIDTH - RCMessages.bubbleMarginRight() - size.width)
-        viewBubble.frame = CGRect(x: xBubble, y: 0, width: size.width, height: size.height)
-        
-        let diameter = RCMessages.avatarDiameter()
-        let xAvatar: CGFloat = rcmessage?.incoming != false ? RCMessages.avatarMarginLeft() : (SCREEN_WIDTH - RCMessages.avatarMarginRight() - diameter)
-        imageAvatar.frame = CGRect(x: xAvatar, y: size.height - diameter, width: diameter, height: diameter)
-        labelAvatar.frame = CGRect(x: xAvatar, y: size.height - diameter, width: diameter, height: diameter)
+        if rcmessage != nil {
+            let xBubble: CGFloat = rcmessage!.incoming != false ? RCMessages.bubbleMarginLeft() : (SCREEN_WIDTH - RCMessages.bubbleMarginRight() - size.width)
+            if rcmessage!.incoming {
+                let widthLabel: CGFloat = size.width < 200 ? 200 : size.width
+                label.frame = CGRect(x: xBubble, y: 0, width: widthLabel, height: kHeightName)
+                label.text = rcmessage?.name
+                label.textColor = UIColor(hexString: "828282")
+                label.font = UIFont.systemFont(ofSize: 11, weight: .regular)
+            }
+            viewBubble.frame = CGRect(x: xBubble, y: rcmessage!.incoming ? 18 : 0, width: size.width, height: size.height)
+            
+            let diameter = RCMessages.avatarDiameter()
+            let xAvatar: CGFloat = rcmessage!.incoming ? RCMessages.avatarMarginLeft() : (SCREEN_WIDTH - RCMessages.avatarMarginRight() - diameter)
+            let yAvatar: CGFloat = rcmessage!.incoming ? size.height - diameter + 18 : size.height - diameter
+            imageAvatar.frame = CGRect(x: xAvatar, y: yAvatar, width: diameter, height: diameter)
+            labelAvatar.frame = CGRect(x: xAvatar, y: yAvatar, width: diameter, height: diameter)
+        }
     }
     
     // MARK: - Gesture recognizer methods

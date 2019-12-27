@@ -61,16 +61,21 @@ class RCStatusCell: UITableViewCell {
     
     class func size(_ indexPath: IndexPath?, messagesView: RCMessagesView?) -> CGSize {
         let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
-        
-        let maxwidth: CGFloat = (0.95 * SCREEN_WIDTH) - RCMessages.statusInsetLeft() - RCMessages.statusInsetRight()
-        let rect: CGRect? = rcmessage?.text.boundingRect(with: CGSize(width: maxwidth, height: CGFloat(MAXFLOAT)), options: .usesLineFragmentOrigin, attributes: [
-            NSAttributedString.Key.font: RCMessages.statusFont() as Any
-            ], context: nil)
-        
-        let width: CGFloat = (rect?.size.width ?? 0.0) + RCMessages.statusInsetLeft() + RCMessages.statusInsetRight()
-        let height: CGFloat = (rect?.size.height ?? 0.0) + RCMessages.statusInsetTop() + RCMessages.statusInsetBottom()
-        
-        return CGSize(width: width, height: height)
+        if rcmessage != nil {
+            let maxwidth: CGFloat = (0.95 * SCREEN_WIDTH) - RCMessages.statusInsetLeft() - RCMessages.statusInsetRight()
+            let rect: CGRect? = rcmessage!.text.boundingRect(with: CGSize(width: maxwidth, height: CGFloat(MAXFLOAT)), options: .usesLineFragmentOrigin, attributes: [
+                NSAttributedString.Key.font: RCMessages.statusFont() as Any
+                ], context: nil)
+            
+            let width: CGFloat = (rect?.size.width ?? 0.0) + RCMessages.statusInsetLeft() + RCMessages.statusInsetRight()
+            var height: CGFloat = (rect?.size.height ?? 0.0) + RCMessages.statusInsetTop() + RCMessages.statusInsetBottom()
+            if rcmessage!.incoming {
+                height += 18
+            }
+            return CGSize(width: width, height: height)
+        } else {
+            return CGSize(width: 0, height: 0)
+        }
     }
     
     // MARK: - Gesture recognizer methods
