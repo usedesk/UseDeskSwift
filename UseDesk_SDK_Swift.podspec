@@ -34,11 +34,11 @@ TODO: Add long description of the pod here.
   
   s.ios.source_files = 'UseDesk/Classes/*.{m,h,swift}'
 
-  s.resources = 'UseDesk/Classes/*.{png,jpeg,jpg,storyboard,xib}'
+  s.resources = 'UseDesk/Classes/**/*.{png,xcassets,imageset,jpeg,jpg,storyboard,xib,bundle}'
   #s.resources = 'UseDesk/Assets/*.{png,storyboard}'
-  #s.resource_bundles = {
-  #   'UseDesk' => ['UseDesk/Classes/*']
-  # }
+#  s.resource_bundles = {
+#     'UseDesk' => ['UseDesk/Classes/*']
+#   }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   s.frameworks = 'UIKit', 'MapKit' ,'AVFoundation'

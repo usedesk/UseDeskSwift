@@ -12,7 +12,6 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     var rcmessages: [AnyHashable] = []
     var isFromBase = false
     
-    private var sendImageArr: [Any] = []
     private var hudErrorConnection: MBProgressHUD?
     private var imageVC: UDImageView!
     
@@ -27,7 +26,6 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         hudErrorConnection?.mode = MBProgressHUDMode.indeterminate//MBProgressHUDModeIndeterminate
         //hudErrorConnection.label.text = @"Loading";
         //dicLoadingBuffer = [AnyHashable : Any]()
-        labelAttachmentFile.isHidden = true
         
         //buttonInputAttach.isUserInteractionEnabled = false
         //if ([FUser wallpaper] != nil)
@@ -305,8 +303,8 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                 }
             }
             sendImageArr = []
-            labelAttachmentFile.isHidden = true
         }
+        closeAttachCollection()
     }
     
     override func actionAttachMessage() {
@@ -346,15 +344,32 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     }
     
     func qb_imagePickerController(_ imagePickerController: QBImagePickerController?, didFinishPickingAssets assets: [Any]?) {
-        print("Selected assets:")
-        if let anAssets = assets {
-            print("\(anAssets)")
+        var countReturned: Int = 0
+        sendImageArr = []
+        if assets != nil {
+            for asset in assets! {
+                if ((asset as? PHAsset) != nil) {
+                    let anAsset = asset as! PHAsset
+                    let options = PHImageRequestOptions()
+                    options.isSynchronous = true
+                    PHCachingImageManager.default().requestImage(for: anAsset, targetSize: CGSize(width: CGFloat(anAsset.pixelWidth), height: CGFloat(anAsset.pixelHeight)), contentMode: .aspectFit, options: options, resultHandler: { [weak self] result, info in
+                        guard let wSelf = self else {return}
+                        countReturned += 1
+                        if result != nil {
+                            wSelf.sendImageArr.append(result)
+                        }
+                        if countReturned == assets!.count {
+                            wSelf.showAttachCollection(images: wSelf.sendImageArr as! [UIImage])
+                        }
+                    })
+                } else {
+                    countReturned += 1
+                    if countReturned == assets!.count {
+                        showAttachCollection(images: sendImageArr as! [UIImage])
+                    }
+                }
+            }
         }
-        if let anAssets = assets {
-            sendImageArr = anAssets
-        }
-        labelAttachmentFile.text = String(format: "%lu attachment", UInt(sendImageArr.count))
-        labelAttachmentFile.isHidden = false
         buttonInputSend.isHidden = false
         
         dismiss(animated: true)
@@ -367,15 +382,15 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        
         let chosenImage = info[UIImagePickerControllerEditedImage] as? UIImage
-        sendImageArr = [chosenImage as Any]
-        labelAttachmentFile.isHidden = false
-        labelAttachmentFile.text = String(format: "%lu attachment", UInt(sendImageArr.count))
+        if chosenImage != nil {
+            sendImageArr = [chosenImage as! UIImage]
+            
+            buttonInputSend.isHidden = false
+            // self.imageView.image = chosenImage;
         
-        buttonInputSend.isHidden = false
-        // self.imageView.image = chosenImage;
-        
+            showAttachCollection(images: [chosenImage!])
+        }
         picker.dismiss(animated: true)
     }
     

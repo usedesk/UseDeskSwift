@@ -9,11 +9,10 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="RCMessagesView">
             <connections>
+                <outlet property="attachCollectionView" destination="dSh-VU-anE" id="KJB-QQ-u8Z"/>
                 <outlet property="buttonInputAttach" destination="Wx7-PH-b4G" id="rdS-HP-55b"/>
-                <outlet property="buttonInputAudio" destination="ss1-G4-3fI" id="MFY-UH-tW4"/>
                 <outlet property="buttonInputSend" destination="aaP-dQ-ykO" id="SVD-OS-0XZ"/>
                 <outlet property="buttonTitle" destination="ig1-I6-dCm" id="4xg-Hh-Xfy"/>
-                <outlet property="labelAttachmentFile" destination="bG1-CG-gi3" id="hmf-F5-VYl"/>
                 <outlet property="labelTitle1" destination="UzC-wc-XB5" id="nPc-dn-Mny"/>
                 <outlet property="labelTitle2" destination="Y8g-Ap-txJ" id="XdR-UU-Lt8"/>
                 <outlet property="tableView" destination="i5M-Pr-FkT" id="lyD-HE-CdL"/>
@@ -43,13 +42,6 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xuU-RB-86v">
                     <rect key="frame" x="0.0" y="524" width="320" height="44"/>
                     <subviews>
-                        <button hidden="YES" opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ss1-G4-3fI">
-                            <rect key="frame" x="270" y="0.0" width="44" height="44"/>
-                            <constraints>
-                                <constraint firstAttribute="width" constant="44" id="bYt-3l-rTy"/>
-                            </constraints>
-                            <state key="normal" image="rcmessage_send.png"/>
-                        </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aaP-dQ-ykO">
                             <rect key="frame" x="270" y="-11" width="44" height="44"/>
                             <constraints>
@@ -82,30 +74,32 @@
                                 <outlet property="delegate" destination="-1" id="ysY-ng-J5m"/>
                             </connections>
                         </textView>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1 attachment" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bG1-CG-gi3">
-                            <rect key="frame" x="-0.5" y="31.5" width="45" height="7.5"/>
+                        <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" alpha="0.0" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="dSh-VU-anE">
+                            <rect key="frame" x="0.0" y="44" width="320" height="58"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
-                                <constraint firstAttribute="width" constant="45" id="cR2-Et-Kxw"/>
+                                <constraint firstAttribute="height" constant="58" id="xbo-6w-plq"/>
                             </constraints>
-                            <fontDescription key="fontDescription" type="system" pointSize="6"/>
-                            <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <color key="highlightedColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        </label>
+                            <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="8NT-LY-k4Q">
+                                <size key="itemSize" width="50" height="50"/>
+                                <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                <inset key="sectionInset" minX="16" minY="0.0" maxX="0.0" maxY="0.0"/>
+                            </collectionViewFlowLayout>
+                        </collectionView>
                     </subviews>
                     <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                     <constraints>
                         <constraint firstItem="WF4-Ti-KqT" firstAttribute="leading" secondItem="xuU-RB-86v" secondAttribute="leading" constant="44" id="02r-Nl-wYU"/>
                         <constraint firstAttribute="bottom" secondItem="WF4-Ti-KqT" secondAttribute="bottom" constant="7" id="0QF-3K-Leo"/>
-                        <constraint firstItem="bG1-CG-gi3" firstAttribute="bottom" secondItem="Wx7-PH-b4G" secondAttribute="bottom" constant="6" id="1tY-kl-lbw"/>
+                        <constraint firstAttribute="trailing" secondItem="dSh-VU-anE" secondAttribute="trailing" id="0SX-bI-pqC"/>
                         <constraint firstItem="WF4-Ti-KqT" firstAttribute="top" secondItem="xuU-RB-86v" secondAttribute="top" constant="7" id="AxG-Vq-6Zg"/>
                         <constraint firstAttribute="trailing" secondItem="WF4-Ti-KqT" secondAttribute="trailing" constant="56" id="BOa-0Q-yIe"/>
-                        <constraint firstItem="bG1-CG-gi3" firstAttribute="centerX" secondItem="Wx7-PH-b4G" secondAttribute="centerX" id="I8W-od-rRD"/>
+                        <constraint firstItem="dSh-VU-anE" firstAttribute="top" secondItem="Wx7-PH-b4G" secondAttribute="bottom" constant="11" id="Mae-GE-1De"/>
+                        <constraint firstItem="dSh-VU-anE" firstAttribute="leading" secondItem="xuU-RB-86v" secondAttribute="leading" id="OIs-f3-WIT"/>
                         <constraint firstItem="Wx7-PH-b4G" firstAttribute="bottom" secondItem="WF4-Ti-KqT" secondAttribute="bottom" constant="-4" id="Q1y-yC-voh"/>
                         <constraint firstAttribute="trailing" secondItem="aaP-dQ-ykO" secondAttribute="trailing" constant="6" id="Wny-R1-Wnx"/>
                         <constraint firstItem="Wx7-PH-b4G" firstAttribute="leading" secondItem="xuU-RB-86v" secondAttribute="leading" id="cJY-eL-XRL"/>
-                        <constraint firstAttribute="bottom" secondItem="ss1-G4-3fI" secondAttribute="bottom" id="epQ-8P-fp3"/>
-                        <constraint firstItem="ss1-G4-3fI" firstAttribute="top" secondItem="xuU-RB-86v" secondAttribute="top" id="pGI-nP-tFA"/>
-                        <constraint firstAttribute="trailing" secondItem="ss1-G4-3fI" secondAttribute="trailing" constant="6" id="rnW-VL-wzl"/>
                         <constraint firstItem="aaP-dQ-ykO" firstAttribute="centerY" secondItem="Wx7-PH-b4G" secondAttribute="centerY" id="sBc-P5-djC"/>
                     </constraints>
                 </view>
@@ -120,7 +114,7 @@
                 <constraint firstAttribute="trailing" secondItem="i5M-Pr-FkT" secondAttribute="trailing" id="ivS-wA-vbN"/>
                 <constraint firstItem="i5M-Pr-FkT" firstAttribute="leading" secondItem="PpO-Gc-0B7" secondAttribute="leading" id="pI8-fN-4he"/>
             </constraints>
-            <point key="canvasLocation" x="272" y="768.21589205397311"/>
+            <point key="canvasLocation" x="266.25" y="762.67605633802816"/>
         </view>
         <view contentMode="scaleToFill" id="JnQ-YJ-8Qj">
             <rect key="frame" x="0.0" y="0.0" width="200" height="44"/>
@@ -204,6 +198,17 @@
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <point key="canvasLocation" x="-316.80000000000001" y="702.54872563718152"/>
         </view>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" restorationIdentifier="RCAttachCollectionViewCell" reuseIdentifier="RCAttachCollectionViewCell" id="C8H-QZ-X3t" customClass="RCAttachCollectionViewCell" customModule="UseDesk_SDK_Swift">
+            <rect key="frame" x="0.0" y="0.0" width="58" height="58"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
+                <rect key="frame" x="0.0" y="0.0" width="58" height="58"/>
+                <autoresizingMask key="autoresizingMask"/>
+            </view>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <size key="customSize" width="78" height="69"/>
+            <point key="canvasLocation" x="39.375" y="1155.105633802817"/>
+        </collectionViewCell>
     </objects>
     <resources>
         <image name="rcmessage_attach.png" width="35.200000762939453" height="35.200000762939453"/>

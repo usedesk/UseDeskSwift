@@ -2,6 +2,7 @@
 //  RCMessagesView.swift
 
 import AVFoundation
+import Photos
 
 class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate {
     //-------------------------------------------------------------------------------------------------------------------------------------------------
@@ -14,21 +15,25 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var viewTypingIndicator: UIView!
     @IBOutlet weak var viewInput: UIView!
     @IBOutlet weak var buttonInputAttach: UIButton!
-    @IBOutlet weak var buttonInputAudio: UIButton!
+//    @IBOutlet weak var buttonInputAudio: UIButton!
     @IBOutlet weak var buttonInputSend: UIButton!
     @IBOutlet weak var textInput: UITextView!
     @IBOutlet weak var textInputHC: NSLayoutConstraint!
     @IBOutlet weak var textInputBC: NSLayoutConstraint!
+    @IBOutlet weak var attachCollectionView: UICollectionView!
     // @IBOutlet var viewInputAudio: UIView!
     //@IBOutlet var labelInputAudio: UILabel!
-    @IBOutlet var labelAttachmentFile: UILabel!
     
     weak var usedesk: UseDeskSDK?
+    
+    public var sendImageArr: [Any] = []
 
     private var initialized = false
     private var isShowKeyboard = false
     private var isChangeOffsetTable = false
     private var isViewDidLayoutSubviews = false
+    private var isAttachFiles = false
+    private var isViewInputResizeFromAttach = false
     private var changeOffsetTableHeight: CGFloat = 0.0
     private var heightKeyboard: CGFloat = 0.0
     private var centerView = CGPoint.zero
@@ -38,6 +43,9 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     private var pointAudioStart = CGPoint.zero
     private var audioRecorder: AVAudioRecorder?
     private var safeAreaInsetsBottom: CGFloat = 0.0
+    private var attachImages: [UIImage] = []
+//    private var attachFiles: [PHAsset] = []
+//    private var attachImage: UIImage = UIImage()
     
     convenience init() {
         self.init(nibName: "RCMessagesView", bundle: nil)
@@ -61,6 +69,10 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         tableView.register(RCLocationMessageCell.self, forCellReuseIdentifier: "RCLocationMessageCell")
         tableView.tableHeaderView = viewLoadEarlier
         
+        attachCollectionView.delegate = self
+        attachCollectionView.dataSource = self
+        attachCollectionView.register(RCAttachCollectionViewCell.self, forCellWithReuseIdentifier: "RCAttachCollectionViewCell")
+        
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardShow(_:)), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardHide(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
@@ -69,7 +81,7 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         let gesture = UILongPressGestureRecognizer(target: self, action: #selector(self.audioRecorderGesture(_:)))
         gesture.minimumPressDuration = 0
         gesture.cancelsTouchesInView = false
-        buttonInputAudio.addGestureRecognizer(gesture)
+//        buttonInputAudio.addGestureRecognizer(gesture)
         
         //viewInputAudio.isHidden = true
         
@@ -206,6 +218,9 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                 if self.safeAreaInsetsBottom != 0 {
                     self.textInputBC.constant = 7
                 }
+                if self.isAttachFiles {
+                    self.textInputBC.constant += 58
+                }
                 self.view.center = CGPoint(x: self.centerView.x, y: self.centerView.y - (keyboardHeight ?? 0.0))
             })
             isShowKeyboard = true
@@ -222,10 +237,12 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                 if self.safeAreaInsetsBottom != 0 {
                     self.textInputBC.constant = 7 + self.safeAreaInsetsBottom
                 }
+                if self.isAttachFiles {
+                    self.textInputBC.constant += 58
+                }
                 self.view.center = self.centerView
             })
             isShowKeyboard = false
-            
         }
     }
     
@@ -259,8 +276,8 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         
         heightText = CGFloat(fmaxf(Float(RCMessages.inputTextHeightMin()), Float(sizeText.height)))
         heightText = CGFloat(fminf(Float(RCMessages.inputTextHeightMax()), Float(heightText)))
-
-        var heightInput: CGFloat = 0  // + (RCMessages.inputViewHeightMin() - RCMessages.inputTextHeightMin())
+        print("heightText= ", heightText)
+        var heightInput: CGFloat = 0
         if heightText > 104 {
             heightInput = 110
             textInput.isScrollEnabled = true
@@ -268,15 +285,19 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             heightInput = heightText
             textInput.isScrollEnabled = false
         }
-        
-
+        print("heightInput= ", heightInput)
         var frameViewInput: CGRect = viewInput.frame
         frameViewInput.origin.y = isShowKeyboard ? (heightView - heightInput) : (heightView - heightInput - safeAreaInsetsBottom)
         if safeAreaInsetsBottom != 0 {
             textInputBC.constant = isShowKeyboard ? 7 : safeAreaInsetsBottom + 7
         }
         frameViewInput.size.height = isShowKeyboard ? heightInput : heightInput + safeAreaInsetsBottom
-         
+        
+        if isAttachFiles {
+            frameViewInput.size.height += 58
+            frameViewInput.origin.y -= 58
+            textInputBC.constant += 58
+        }
         viewInput.frame = frameViewInput
         viewInput.layoutIfNeeded()
         
@@ -498,6 +519,37 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         cell.bindData(indexPath, messagesView: self)
         return cell
     }
+    
+    // MARK: - Table view data source
+    func showAttachCollection(images: [UIImage]) {
+        attachImages = images
+        attachCollectionView.reloadData()
+        isAttachFiles = true
+        if !isViewInputResizeFromAttach {
+            UIView.animate(withDuration: 0.3) {
+                self.viewInput.frame.size.height += 58
+                self.viewInput.frame.origin.y -= 58
+                self.textInputBC.constant += 58
+                self.attachCollectionView.alpha = 1
+                self.view.layoutIfNeeded()
+                self.isViewInputResizeFromAttach = true
+            }
+        }
+    }
+    
+    func closeAttachCollection() {
+        if isAttachFiles {
+            isAttachFiles = false
+            UIView.animate(withDuration: 0.3) {
+                self.viewInput.frame.size.height -= 58
+                self.viewInput.frame.origin.y += 58
+                self.textInputBC.constant -= 58
+                self.attachCollectionView.alpha = 0
+                self.view.layoutIfNeeded()
+                self.isViewInputResizeFromAttach = false
+            }
+        }
+    }
     // MARK: - Helper methods
     func scroll(toBottom animated: Bool) {
         if tableView.numberOfSections > 0 {
@@ -599,4 +651,38 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         //labelInputAudio.text = String(format: "%01d:%02d,%02d", minutes, seconds, millisec)
     }
     
+}
+
+
+extension RCMessagesView: UICollectionViewDelegate, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return attachImages.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "RCAttachCollectionViewCell", for: indexPath) as! RCAttachCollectionViewCell
+        cell.delegate = self
+        cell.setingCell(image: attachImages[indexPath.row], index: indexPath.row)
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: 58, height: 58)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 4.0
+    }
+}
+
+extension RCMessagesView: RCAttachCVCellDelegate {
+    func deleteFile(index: Int) {
+        attachImages.remove(at: index)
+        sendImageArr.remove(at: index)
+        attachCollectionView.reloadData()
+        if attachImages.count == 0 {
+            sendImageArr = []
+            closeAttachCollection()
+        }
+    }
 }
