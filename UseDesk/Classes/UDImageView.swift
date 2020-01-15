@@ -19,10 +19,6 @@ class UDImageView: UIViewController, UIScrollViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-//        let singleTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleSingleTap(_:)))
-//        singleTapGestureRecognizer.numberOfTapsRequired = 1
-//        backView.addGestureRecognizer(singleTapGestureRecognizer)
         scrollView.minimumZoomScale = 1.0
         scrollView.maximumZoomScale = 6.0
         scrollView.delegate = self
@@ -33,11 +29,9 @@ class UDImageView: UIViewController, UIScrollViewDelegate {
         return self.viewimage
     }
     
-    //********** VIEW TAPPED **********
     @objc func handleSingleTap(_ sender: UITapGestureRecognizer?) {
         delegate?.close()
     }
-    
     
 }
 

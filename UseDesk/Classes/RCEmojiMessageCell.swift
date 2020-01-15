@@ -39,7 +39,7 @@ class RCEmojiMessageCell: RCMessageCell {
         if dislikeButton == nil {
             
             dislikeButton = UIButton(type: .custom)
-            dislikeButton!.setBackgroundImage(UIImage(named: "ic_dislike.png"), for: .normal)
+            dislikeButton!.setBackgroundImage(UIImage.named("dislike"), for: .normal)
             dislikeButton!.addTarget(self, action: #selector(self.dislikeButton_pressed(_:)), for: .touchUpInside)
             viewBubble.addSubview(dislikeButton!)
         }
@@ -47,7 +47,7 @@ class RCEmojiMessageCell: RCMessageCell {
         if likeButton == nil {
             
             likeButton = UIButton(type: .custom)
-            likeButton!.setBackgroundImage(UIImage(named: "ic_like.png"), for: .normal)
+            likeButton!.setBackgroundImage(UIImage.named("like"), for: .normal)
             likeButton!.addTarget(self, action: #selector(self.likeButton_pressed(_:)), for: .touchUpInside)
             viewBubble.addSubview(likeButton!)
         }

@@ -156,9 +156,9 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                 
             } else {
                 if rcmessage?.outgoing == true {
-                    return UIImage(named: "avatarClient.png")
+                    return UIImage.named("avatarClient")
                 } else {
-                    return UIImage(named: "avatarOperator.png")
+                    return UIImage.named("avatarOperator") 
                 }
             }
         } catch {
@@ -337,7 +337,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         let imagePickerController = QBImagePickerController()
         imagePickerController.delegate = self
         imagePickerController.allowsMultipleSelection = true
-        imagePickerController.maximumNumberOfSelection = 3
+        imagePickerController.maximumNumberOfSelection = 10
         imagePickerController.showsNumberOfSelectedAssets = true
         
         present(imagePickerController, animated: true)
@@ -384,10 +384,9 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         let chosenImage = info[UIImagePickerControllerEditedImage] as? UIImage
         if chosenImage != nil {
-            sendImageArr = [chosenImage as! UIImage]
+            sendImageArr = [chosenImage!]
             
             buttonInputSend.isHidden = false
-            // self.imageView.image = chosenImage;
         
             showAttachCollection(images: [chosenImage!])
         }

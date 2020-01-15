@@ -86,7 +86,7 @@ class RCPictureMessageCell: RCMessageCell {
                                 })
                             } else {
                                 DispatchQueue.main.async(execute: {
-                                    rcmessage?.picture_image = UIImage(named: "icon_file.png")
+                                    rcmessage?.picture_image = UIImage.named( "icon_file.png")
                                     weakSelf?.imageView!.image = rcmessage!.picture_image
                                     wSelf.spinner?.stopAnimating()
                                     rcmessage?.status = RC_STATUS_SUCCEED

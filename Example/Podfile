@@ -1,5 +1,8 @@
-use_frameworks!
+platform :ios, '10.0'
+
 target 'UseDesk_Example' do
+  use_frameworks!
+  
   pod 'UseDesk_SDK_Swift', :path => '../'
 
   target 'UseDesk_Tests' do

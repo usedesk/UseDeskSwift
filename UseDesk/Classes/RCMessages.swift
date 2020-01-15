@@ -281,7 +281,7 @@ class RCMessages: NSObject {
         pictureBubbleColorOutgoing = UIColor.lightGray
         pictureBubbleColorIncoming = UIColor.lightGray
         
-        pictureImageManual = UIImage(named: "rcmessages_manual")
+        pictureImageManual = UIImage.named("rcmessages_manual")
         
         // Video cell
         
@@ -291,8 +291,8 @@ class RCMessages: NSObject {
         videoBubbleColorOutgoing = UIColor.lightGray
         videoBubbleColorIncoming = UIColor.lightGray
         
-        videoImagePlay = UIImage(named: "rcmessages_videoplay")
-        videoImageManual = UIImage(named: "rcmessages_manual")
+        videoImagePlay = UIImage.named("rcmessages_videoplay")
+        videoImageManual = UIImage.named("rcmessages_manual")
         
         // Audio cell
         
@@ -304,9 +304,9 @@ class RCMessages: NSObject {
         audioTextColorOutgoing = UIColor.white
         audioTextColorIncoming = UIColor.black
         
-        audioImagePlay = UIImage(named: "rcmessages_audioplay")
-        audioImagePause = UIImage(named: "rcmessages_audiopause")
-        audioImageManual = UIImage(named: "rcmessages_manual")
+        audioImagePlay = UIImage.named("rcmessages_audioplay")
+        audioImagePause = UIImage.named("rcmessages_audiopause")
+        audioImageManual = UIImage.named("rcmessages_manual")
         
         audioFont = UIFont.systemFont(ofSize: 16)
         

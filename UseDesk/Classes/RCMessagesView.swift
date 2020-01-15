@@ -654,7 +654,7 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
 }
 
 
-extension RCMessagesView: UICollectionViewDelegate, UICollectionViewDataSource {
+extension RCMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return attachImages.count
     }
