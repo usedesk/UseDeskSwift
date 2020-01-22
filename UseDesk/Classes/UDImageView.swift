@@ -4,6 +4,7 @@
 
 import Foundation
 import UIKit
+import AVKit
 
 protocol UDImageViewDelegate: class {
     func close()
@@ -23,6 +24,11 @@ class UDImageView: UIViewController, UIScrollViewDelegate {
         scrollView.maximumZoomScale = 6.0
         scrollView.delegate = self
         scrollView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.handleSingleTap(_:))))
+    }
+    
+    func showImage(image: UIImage) {
+        scrollView.alpha = 1
+        viewimage.image = image
     }
     
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {

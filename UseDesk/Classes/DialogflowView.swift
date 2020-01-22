@@ -6,10 +6,11 @@ import Foundation
 import UIKit
 import QBImagePickerController
 import MBProgressHUD
+import AVKit
 
 class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigationControllerDelegate, QBImagePickerControllerDelegate {
 
-    var rcmessages: [AnyHashable] = []
+    var rcmessages: [RCMessage] = []
     var isFromBase = false
     
     private var hudErrorConnection: MBProgressHUD?
@@ -35,7 +36,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         NotificationCenter.default.addObserver(self, selector: #selector(self.openUrlFromMessageButton(_:)), name: Notification.Name("messageButtonURLOpen"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.sendMessageButton(_:)), name: Notification.Name("messageButtonSend"), object: nil)
         
-        rcmessages = [AnyHashable]()
+        rcmessages = [RCMessage]()
         loadEarlierShow(false)
         
         updateTitleDetails()
@@ -267,6 +268,13 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     
     // MARK: - User actions
     @objc func actionDone() {
+        for rcmessage in rcmessages {
+            if rcmessage.video_path != "" {
+                do {
+                    try? FileManager().removeItem(atPath: rcmessage.video_path)
+                }
+            }
+        }
         usedesk?.releaseChat()
         if isFromBase {
             navigationController?.popViewController(animated: true)
@@ -277,52 +285,73 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     
     override func actionSendMessage(_ text: String?) {
         usedesk?.sendMessage(text)
-        if sendImageArr.count > 0 {
-            for i in 0..<sendImageArr.count {
-                if sendImageArr[i] as? PHAsset != nil {
-                    let options = PHImageRequestOptions()
-                    options.isSynchronous = true
-                    let asset = sendImageArr[i] as! PHAsset
-                    PHCachingImageManager.default().requestImage(for: asset, targetSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight)), contentMode: .aspectFit, options: options, resultHandler: { [weak self] result, info in
-                        guard let wSelf = self else {return}
-                        if result != nil {
-                            let content = "data:image/png;base64,\(UseDeskSDKHelp.image(toNSString: result!))"
-                            var fileName = String(format: "%ld", content.hash)
-                            fileName += ".png"
-                            //self.dicLoadingBuffer.updateValue("1", forKey: fileName)
-                            //dicLoadingBuffer[fileName] = "1"
-                            wSelf.usedesk?.sendMessage("", withFileName: fileName, fileType: "image/png", contentBase64: content)
+        if sendAssets.count > 0 {
+            for i in 0..<sendAssets.count {
+                if sendAssets[i] as? PHAsset != nil {
+                    let asset = sendAssets[i] as! PHAsset
+                    if asset.mediaType == .video {
+                        let options = PHVideoRequestOptions()
+                        options.version = .original
+                        PHCachingImageManager.default().requestAVAsset(forVideo: asset, options: options){ [weak self] avasset, _, _ in
+                            guard let wSelf = self else {return}
+                            if let avassetURL = avasset as? AVURLAsset {
+                                if let video = try? Data(contentsOf: avassetURL.url) {
+                                    let content = "data:video/mp4;base64,\(video.base64EncodedString())"
+                                    var fileName = String(format: "%ld", content.hash)
+                                    fileName += ".mp4"
+                                    wSelf.usedesk?.sendMessage("", withFileName: fileName, fileType: "video/mp4", contentBase64: content)
+                                }
+                                
+                            }
                         }
-                    })
-                } else if sendImageArr[i] as? UIImage != nil {
-                    let pickerImage = sendImageArr[i] as! UIImage
+                    } else {
+                        let options = PHImageRequestOptions()
+                        options.isSynchronous = true
+                        PHCachingImageManager.default().requestImage(for: asset, targetSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight)), contentMode: .aspectFit, options: options, resultHandler: { [weak self] result, info in
+                            guard let wSelf = self else {return}
+                            if result != nil {
+                                let content = "data:image/png;base64,\(UseDeskSDKHelp.image(toNSString: result!))"
+                                var fileName = String(format: "%ld", content.hash)
+                                fileName += ".png"
+                                //self.dicLoadingBuffer.updateValue("1", forKey: fileName)
+                                //dicLoadingBuffer[fileName] = "1"
+                                wSelf.usedesk?.sendMessage("", withFileName: fileName, fileType: "image/png", contentBase64: content)
+                            }
+                        })
+                    }
+                } else if sendAssets[i] as? UIImage != nil {
+                    let pickerImage = sendAssets[i] as! UIImage
                     let content = "data:image/png;base64,\(UseDeskSDKHelp.image(toNSString: pickerImage))"
                     var fileName = String(format: "%ld", content.hash)
                     fileName += ".png"
                     usedesk?.sendMessage("", withFileName: fileName, fileType: "image/png", contentBase64: content)
                 }
             }
-            sendImageArr = []
+            sendAssets = []
         }
         closeAttachCollection()
     }
     
     override func actionAttachMessage() {
-        let alertController = UIAlertController(title: "Select Sharing option:", message:
-            nil, preferredStyle: UIAlertController.Style.alert)
-        let cancelAction = UIAlertAction(title: "Cancel", style: .destructive) { (_) -> Void in
+        if sendAssets.count < Constants.maxCountAssets {
+            let alertController = UIAlertController(title: "Прикрепить файл", message: nil, preferredStyle: UIAlertController.Style.alert)
+            let cancelAction = UIAlertAction(title: "Отмена", style: .destructive) { (_) -> Void in }
+            let takePhotoAction = UIAlertAction(title: "Камера", style: .default) { (_) -> Void in
+                self.takePhoto()
+            }
+            let selectFromPhotosAction = UIAlertAction(title: "Галерея", style: .default) { (_) -> Void in
+                self.selectPhoto()
+            }
+            alertController.addAction(takePhotoAction)
+            alertController.addAction(selectFromPhotosAction)
+            alertController.addAction(cancelAction)
+            self.present(alertController, animated: true, completion: nil)
+        } else {
+            let alertController = UIAlertController(title: "Прикреплено максимальное колличество файлов", message: nil, preferredStyle: UIAlertController.Style.alert)
+            let okAction = UIAlertAction(title: "Ок", style: .default) { (_) -> Void in }
+            alertController.addAction(okAction)
+            self.present(alertController, animated: true, completion: nil)
         }
-        let takePhotoAction = UIAlertAction(title: "Take a Photo", style: .default) { (_) -> Void in
-            self.takePhoto()
-        }
-        let selectFromPhotosAction = UIAlertAction(title: "Select From Photos", style: .default) { (_) -> Void in
-            self.selectPhoto()
-        }        
-        alertController.addAction(takePhotoAction)
-        alertController.addAction(selectFromPhotosAction)
-        alertController.addAction(cancelAction)
-
-        self.present(alertController, animated: true, completion: nil)
     }
     
     func takePhoto() {
@@ -337,7 +366,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         let imagePickerController = QBImagePickerController()
         imagePickerController.delegate = self
         imagePickerController.allowsMultipleSelection = true
-        imagePickerController.maximumNumberOfSelection = 10
+        imagePickerController.maximumNumberOfSelection = UInt(Constants.maxCountAssets - sendAssets.count)
         imagePickerController.showsNumberOfSelectedAssets = true
         
         present(imagePickerController, animated: true)
@@ -345,30 +374,17 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     
     func qb_imagePickerController(_ imagePickerController: QBImagePickerController?, didFinishPickingAssets assets: [Any]?) {
         var countReturned: Int = 0
-        sendImageArr = []
         if assets != nil {
             for asset in assets! {
                 if ((asset as? PHAsset) != nil) {
                     let anAsset = asset as! PHAsset
-                    let options = PHImageRequestOptions()
-                    options.isSynchronous = true
-                    PHCachingImageManager.default().requestImage(for: anAsset, targetSize: CGSize(width: CGFloat(anAsset.pixelWidth), height: CGFloat(anAsset.pixelHeight)), contentMode: .aspectFit, options: options, resultHandler: { [weak self] result, info in
-                        guard let wSelf = self else {return}
-                        countReturned += 1
-                        if result != nil {
-                            wSelf.sendImageArr.append(result)
-                        }
-                        if countReturned == assets!.count {
-                            wSelf.showAttachCollection(images: wSelf.sendImageArr as! [UIImage])
-                        }
-                    })
-                } else {
-                    countReturned += 1
-                    if countReturned == assets!.count {
-                        showAttachCollection(images: sendImageArr as! [UIImage])
+                    if anAsset.mediaType == .image || anAsset.mediaType == .video {
+                        sendAssets.append(anAsset)
                     }
                 }
             }
+            showAttachCollection(assets: sendAssets)
+            //                        }
         }
         buttonInputSend.isHidden = false
         
@@ -384,11 +400,11 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         let chosenImage = info[UIImagePickerControllerEditedImage] as? UIImage
         if chosenImage != nil {
-            sendImageArr = [chosenImage!]
+            sendAssets.append(chosenImage!)
             
             buttonInputSend.isHidden = false
         
-            showAttachCollection(images: [chosenImage!])
+            showAttachCollection(assets: sendAssets)
         }
         picker.dismiss(animated: true)
     }
@@ -406,9 +422,49 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     }
     
     override func actionTapBubble(_ indexPath: IndexPath?) {
-        let rcmessage = rcmessages[indexPath!.section] as! RCMessage
+        let rcmessage = rcmessages[indexPath!.section] 
         guard rcmessage.file != nil else {return}
-        if !(rcmessage.file!.type == "image") {
+        if rcmessage.file!.type == "image" {
+            navigationItem.leftBarButtonItem?.isEnabled = false
+            navigationItem.leftBarButtonItem?.tintColor = .clear
+            if let cell = tableView.cellForRow(at: indexPath!) as? RCPictureMessageCell {
+                rcmessage.status = RC_STATUS_OPENIMAGE
+                cell.bindData(indexPath!, messagesView: self)
+            }
+            imageVC = UDImageView(nibName: "UDImageView", bundle: nil)
+            self.addChildViewController(self.imageVC)
+            self.view.addSubview(self.imageVC.view)
+            imageVC.view.frame = CGRect(x:0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+            imageVC.delegate = self
+                let session = URLSession.shared
+                if let url = URL(string: rcmessage.file!.content) {
+                    (session.dataTask(with: url, completionHandler: { data, response, error in
+                        if error == nil {
+                            DispatchQueue.main.async(execute: { [weak self] in
+                                guard let wSelf = self else {return}
+                                rcmessage.picture_image = UIImage(data: data!)
+                                if rcmessage.picture_image != nil {
+                                    wSelf.imageVC.showImage(image: rcmessage.picture_image!)
+                                }
+                                if let cell = wSelf.tableView.cellForRow(at: indexPath!) as? RCPictureMessageCell {
+                                    rcmessage.status = RC_STATUS_SUCCEED
+                                    cell.bindData(indexPath!, messagesView: wSelf)
+                                }
+                            })
+                        }
+                    })).resume()
+                }
+        } else if rcmessage.file!.type == "video" {
+            if rcmessage.video_path != "" {
+                let videoURL = URL(fileURLWithPath: rcmessage.video_path)
+                let player = AVPlayer(url: videoURL)
+                let playerViewController = AVPlayerViewController()
+                playerViewController.player = player
+                self.present(playerViewController, animated: true) {
+                    playerViewController.player?.play()
+                }
+            }
+        } else {
             let url = URL(string: rcmessage.file!.content )
             
             if #available(iOS 10.0, *) {
@@ -425,34 +481,8 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
             } else {
                 // Fallback on earlier versions
             }
-        } else {
-            navigationItem.leftBarButtonItem?.isEnabled = false
-            navigationItem.leftBarButtonItem?.tintColor = .clear
-            if let cell = tableView.cellForRow(at: indexPath!) as? RCPictureMessageCell {
-                rcmessage.status = RC_STATUS_OPENIMAGE
-                cell.bindData(indexPath!, messagesView: self)
-            }
-            imageVC = UDImageView(nibName: "UDImageView", bundle: nil)
-            self.addChildViewController(self.imageVC)
-            self.view.addSubview(self.imageVC.view)
-            imageVC.view.frame = CGRect(x:0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
-            let session = URLSession.shared
-            if let url = URL(string: rcmessage.file!.content) {
-                (session.dataTask(with: url, completionHandler: { data, response, error in
-                    if error == nil {
-                        DispatchQueue.main.async(execute: { [weak self] in
-                            guard let wSelf = self else {return}
-                            rcmessage.picture_image = UIImage(data: data!)
-                            wSelf.imageVC.viewimage.image = rcmessage.picture_image
-                            wSelf.imageVC.delegate = wSelf
-                            if let cell = wSelf.tableView.cellForRow(at: indexPath!) as? RCPictureMessageCell {
-                                rcmessage.status = RC_STATUS_SUCCEED
-                                cell.bindData(indexPath!, messagesView: wSelf)
-                            }
-                        })
-                    }
-                })).resume()
-            }
+            
+            
         }
         
     }

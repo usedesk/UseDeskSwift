@@ -25,7 +25,7 @@ public class UseDeskSDK: NSObject {
     public var errorBlock: UDSErrorBlock?
     public var feedbackMessageBlock: UDSFeedbackMessageBlock?
     public var feedbackAnswerMessageBlock: UDSFeedbackAnswerMessageBlock?
-    public var historyMess: [AnyHashable] = []
+    public var historyMess: [RCMessage] = []
     
     var manager: SocketManager?
     var socket: SocketIOClient?
@@ -427,7 +427,7 @@ public class UseDeskSDK: NSObject {
         
         if setup != nil {
             let messages = setup?["messages"] as? [Any]
-            historyMess = [AnyHashable]()
+            historyMess = [RCMessage]()
             if messages != nil {
                 for mess in messages!  {
                     let m: RCMessage? = parseMessageDic(mess as? [AnyHashable : Any])
@@ -498,9 +498,9 @@ public class UseDeskSDK: NSObject {
             file.name = fileDic?["name"] as! String
             file.type = fileDic?["type"] as! String
             m.file = file
-            m.type = RC_TYPE_PICTURE
             m.status = RC_STATUS_LOADING
-            if (file.type == "image/png") {
+            if (file.type == "image/png") || (file.name.contains(".png")) {
+                m.type = RC_TYPE_PICTURE
                 do {
                     if  URL(string: file.content) != nil {
                         let aContent = URL(string: file.content)
@@ -510,6 +510,9 @@ public class UseDeskSDK: NSObject {
                     }
                 } catch {                    
                 }
+            } else if (file.type.contains("video/")) || (file.name.contains(".mp4")) {
+                m.type = RC_TYPE_VIDEO
+                file.type = "video"
             }
             
             m.picture_width = Int(0.6 * SCREEN_WIDTH)

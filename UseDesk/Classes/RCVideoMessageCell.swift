@@ -6,16 +6,19 @@ import Foundation
 class RCVideoMessageCell: RCMessageCell {
 
     var viewImage: UIImageView?
+    var imagePreview: UIImageView?
     var imagePlay: UIImageView?
     var imageManual: UIImageView?
     var spinner: UIActivityIndicatorView?
     
     private var indexPath: IndexPath?
     private weak var messagesView: RCMessagesView?
+    private var isDownloadVideo = false
     
-    override func bindData(_ indexPath_: IndexPath?, messagesView messagesView_: RCMessagesView?) {
+    func setData(_ indexPath_: IndexPath?, messagesView messagesView_: RCMessagesView?) {
         indexPath = indexPath_
         messagesView = messagesView_
+        isDownloadVideo = false
         
         let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
         
@@ -30,11 +33,6 @@ class RCVideoMessageCell: RCMessageCell {
             viewBubble.addSubview(viewImage!)
         }
         
-        if imagePlay == nil {
-            imagePlay = UIImageView(image: RCMessages.videoImagePlay())
-            viewBubble.addSubview(imagePlay!)
-        }
-        
         if spinner == nil {
             spinner = UIActivityIndicatorView(activityIndicatorStyle: .white)
             viewBubble.addSubview(spinner!)
@@ -47,25 +45,43 @@ class RCVideoMessageCell: RCMessageCell {
         
         if rcmessage?.status == RC_STATUS_LOADING {
             viewImage?.image = nil
-            imagePlay?.isHidden = true
+            imagePreview?.isHidden = true
             spinner?.startAnimating()
             imageManual?.isHidden = true
         }
         
         if rcmessage?.status == RC_STATUS_SUCCEED {
             viewImage?.image = rcmessage?.video_thumbnail
-            imagePlay?.isHidden = false
+            imagePreview?.isHidden = false
             spinner?.stopAnimating()
             imageManual?.isHidden = true
         }
         
         if rcmessage?.status == RC_STATUS_MANUAL {
             viewImage?.image = nil
-            imagePlay?.isHidden = true
+            imagePreview?.isHidden = true
             spinner?.stopAnimating()
             imageManual?.isHidden = false
         }
     }
+    
+    func addVideo(previewImage: UIImage) {
+        let image = previewImage.resizeImage(targetSize: CGSize(width: viewBubble.frame.width, height: viewBubble.frame.height))
+        imagePreview?.removeFromSuperview()
+        imagePreview = UIImageView(image: image)
+        imagePreview?.layer.masksToBounds = true
+        imagePreview?.layer.cornerRadius = RCMessages.bubbleRadius()
+        imagePreview?.layoutIfNeeded()
+        viewBubble.addSubview(imagePreview!)
+        imagePlay?.removeFromSuperview()
+        imagePlay = UIImageView(image: UIImage.named("videoPlay"))
+        imagePlay?.alpha = 0
+        viewBubble.addSubview(imagePlay!)
+        isDownloadVideo = true
+        self.layoutSubviews()
+    }
+    
+    
     
     // MARK: - Size methods
     class func height(_ indexPath: IndexPath?, messagesView: RCMessagesView?) -> CGFloat {
@@ -76,8 +92,8 @@ class RCVideoMessageCell: RCMessageCell {
     class func size(_ indexPath: IndexPath?, messagesView: RCMessagesView?) -> CGSize {
         let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
         if rcmessage != nil {
-            var size = CGSize(width: RCMessages.videoBubbleWidth(), height: RCMessages.videoBubbleHeight())
-            return size
+            let width = fminf(Float(RCMessages.videoBubbleWidth()), Float((rcmessage!.picture_width)))
+            return CGSize(width: CGFloat(width), height: CGFloat(Float(rcmessage!.picture_height) * width / Float(rcmessage!.picture_width)))
         } else {
             return CGSize(width: 0, height: 0)
         }
@@ -90,12 +106,12 @@ class RCVideoMessageCell: RCMessageCell {
         super.layoutSubviews(size)
         
         viewImage?.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
-        if imagePlay?.image != nil {
-            let widthPlay = imagePlay!.image!.size.width
-            let heightPlay = imagePlay!.image!.size.height
+        if imagePreview?.image != nil {
+            let widthPlay = imagePreview!.image!.size.width
+            let heightPlay = imagePreview!.image!.size.height
             let xPlay: CGFloat = (size.width - widthPlay) / 2
             let yPlay: CGFloat = (size.height - heightPlay) / 2
-            imagePlay!.frame = CGRect(x: xPlay, y: yPlay, width: widthPlay, height: heightPlay)
+            imagePreview!.frame = CGRect(x: xPlay, y: yPlay, width: widthPlay, height: heightPlay)
         }
         
         if spinner != nil {
@@ -112,6 +128,16 @@ class RCVideoMessageCell: RCMessageCell {
             let xManual: CGFloat = (size.width - widthManual) / 2
             let yManual: CGFloat = (size.height - heightManual) / 2
             imageManual!.frame = CGRect(x: xManual, y: yManual, width: widthManual, height: heightManual)
+        }
+        
+        if imagePlay?.image != nil {
+            let widthManual = size.width / 4
+            let heightManual = widthManual
+            let xManual: CGFloat = (size.width - widthManual) / 2
+            let yManual: CGFloat = (size.height - heightManual) / 2
+            imagePlay!.frame = CGRect(x: xManual, y: yManual, width: widthManual, height: heightManual)
+            imagePlay!.alpha = isDownloadVideo ? 1 : 0
+            print("IMAGE PLAY ALPHA= ", imagePlay!.alpha)
         }
     }
 }
