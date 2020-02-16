@@ -154,9 +154,6 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     // MARK: - Header, Footer methods
-    func textSectionHeader(_ indexPath: IndexPath?) -> String? {
-        return nil
-    }
     
     func textBubbleHeader(_ indexPath: IndexPath?) -> String? {
         return nil
@@ -279,7 +276,6 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         
         heightText = CGFloat(fmaxf(Float(RCMessages.inputTextHeightMin()), Float(sizeText.height)))
         heightText = CGFloat(fminf(Float(RCMessages.inputTextHeightMax()), Float(heightText)))
-        print("heightText= ", heightText)
         var heightInput: CGFloat = 0
         if heightText > 104 {
             heightInput = 110
@@ -288,7 +284,6 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             heightInput = heightText
             textInput.isScrollEnabled = false
         }
-        print("heightInput= ", heightInput)
         var frameViewInput: CGRect = viewInput.frame
         frameViewInput.origin.y = isShowKeyboard ? (heightView - heightInput) : (heightView - heightInput - safeAreaInsetsBottom)
         if safeAreaInsetsBottom != 0 {
@@ -308,7 +303,6 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         frameTextInput.size.height = heightInput
         textInput.frame = frameTextInput
         textInputHC.constant = heightInput
-        //tableView.frame = CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: heightView - heightInput)
 //        var frameAudio: CGRect = buttonInputAudio.frame
 //        frameAudio.origin.y = heightInput - frameAudio.size.height
 //        buttonInputAudio.frame = frameAudio
@@ -321,10 +315,6 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
 //        buttonInputAudio.isHidden = textInput.text.count != 0
         buttonInputSend.isHidden = textInput.text.count == 0
         
-//        let offset = CGPoint(x: 0, y: sizeText.height - heightText)
-//        textInput.setContentOffset(offset, animated: false)
-        
-//        scroll(toBottom: false)
     }
     
     // MARK: - User actions (title)

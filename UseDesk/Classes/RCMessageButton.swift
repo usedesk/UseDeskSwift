@@ -4,8 +4,8 @@
 
 import UIKit
 
-class RCMessageButton: NSObject {
-    var title = ""
-    var url = ""
-    var visible = false
+public class RCMessageButton: NSObject {
+    @objc public var title = ""
+    @objc public var url = ""
+    @objc public var visible = false
 }

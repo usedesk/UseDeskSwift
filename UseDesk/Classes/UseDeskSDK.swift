@@ -20,12 +20,12 @@ public typealias UDSFeedbackAnswerMessageBlock = (Bool) -> Void
 let RootView = UIApplication.shared.keyWindow?.rootViewController
 
 public class UseDeskSDK: NSObject {
-    public var newMessageBlock: UDSNewMessageBlock?
-    public var connectBlock: UDSConnectBlock?
-    public var errorBlock: UDSErrorBlock?
-    public var feedbackMessageBlock: UDSFeedbackMessageBlock?
-    public var feedbackAnswerMessageBlock: UDSFeedbackAnswerMessageBlock?
-    public var historyMess: [RCMessage] = []
+    @objc public var newMessageBlock: UDSNewMessageBlock?
+    @objc public var connectBlock: UDSConnectBlock?
+    @objc public var errorBlock: UDSErrorBlock?
+    @objc public var feedbackMessageBlock: UDSFeedbackMessageBlock?
+    @objc public var feedbackAnswerMessageBlock: UDSFeedbackAnswerMessageBlock?
+    @objc public var historyMess: [RCMessage] = []
     
     var manager: SocketManager?
     var socket: SocketIOClient?
@@ -119,12 +119,12 @@ public class UseDeskSDK: NSObject {
         }       
     }
 
-    public func sendMessage(_ text: String?) {
+    @objc public func sendMessage(_ text: String?) {
         let mess = UseDeskSDKHelp.messageText(text)
         socket?.emit("dispatch", with: mess!)
     }
     
-    public func sendMessage(_ text: String?, withFileName fileName: String?, fileType: String?, contentBase64: String?) {
+    @objc public func sendMessage(_ text: String?, withFileName fileName: String?, fileType: String?, contentBase64: String?) {
         let mess = UseDeskSDKHelp.message(text, withFileName: fileName, fileType: fileType, contentBase64: contentBase64)
         socket?.emit("dispatch", with: mess!)
     }
@@ -459,7 +459,7 @@ public class UseDeskSDK: NSObject {
         m.date = dateFormatter.date(from: createdAt)!
         
         m.messageId = Int(mess?["id"] as! Int)
-        m.incoming = (mess?["type"] as! String == "operator_to_client") ? true : false
+        m.incoming = (mess?["type"] as! String == "operator_to_client" || mess?["type"] as! String == "bot_to_client") ? true : false
         m.outgoing = !m.incoming
         m.text = mess?["text"] as! String
 
@@ -519,14 +519,16 @@ public class UseDeskSDK: NSObject {
             m.picture_height = Int(0.6 * SCREEN_WIDTH)
         }
         
-        if payload != nil && (payload is String) {
-            m.feedback = true
-            m.type = 9
+        if payload != nil && (payload is [AnyHashable : Any]) {
+            if ((payload as! [AnyHashable : Any])["csi"] != nil) {
+                m.feedback = true
+                m.type = 9
+            }
         }
 
         return m
     }
-    //{{button:Возьми дробовик;https://usedesk.ru;blank;show}}
+    
     func parseMessageFromButtons(text: String) -> [String] {
         var isAddingButton: Bool = false
         var characterArrayFromRCButton = [Character]()
@@ -684,14 +686,16 @@ public class UseDeskSDK: NSObject {
             if mess?.feedback != nil && (feedbackMessageBlock != nil) {
                 feedbackMessageBlock!(mess)
                 return
+            } else {
+                if (newMessageBlock != nil) {
+                    newMessageBlock!(true, mess)
+                }
             }
-            if (newMessageBlock != nil) {
-                newMessageBlock!(true, mess)
-            }
+            
         }
     }
     
-    public func sendMessageFeedBack(_ status: Bool) {
+    @objc public func sendMessageFeedBack(_ status: Bool) {
         socket?.emit("dispatch", with: UseDeskSDKHelp.feedback(status)!)
     }
     

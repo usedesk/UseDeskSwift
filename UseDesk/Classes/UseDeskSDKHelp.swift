@@ -37,6 +37,11 @@ class UseDeskSDKHelp {
                 payload["phone"] = phone!
             }
         }
+        if email != nil {
+            if email != "" {
+                payload["email"] = email!
+            }
+        }
         dic["payload"] = payload
         return [dic]
     }

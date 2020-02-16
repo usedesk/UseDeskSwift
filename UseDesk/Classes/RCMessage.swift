@@ -4,42 +4,42 @@
 import Foundation
 import MapKit
 
-class RCFile: NSObject {
-    var type = ""
-    var name = ""
-    var content = ""
-    var size = ""
+public class RCFile: NSObject {
+    @objc public var type = ""
+    @objc public var name = ""
+    @objc public var content = ""
+    @objc public var size = ""
 }
 
 public class RCMessage: NSObject {
     // MARK: - Properties
-    var type: Int = 0
-    var incoming = false
-    var outgoing = false
-    var feedback = false
-    var text = ""
-    var rcButtons = [RCMessageButton]()
-    var picture_image: UIImage?
-    var picture_width: Int = 0
-    var picture_height: Int = 0
-    var video_path = ""
-    var video_thumbnail: UIImage?
-    var video_duration: Int = 0
-    var audio_path = ""
-    var audio_duration: Int = 0
-    var audio_status: Int = 0
-    var date: Date?
-    var latitude: CLLocationDegrees = 0
-    var longitude: CLLocationDegrees = 0
-    var location_thumbnail: UIImage?
-    var status: Int = 0
-    var chat: Int = 0
-    var messageId: Int = 0
-    var ticket_id: Int = 0
-    var createdAt = ""
-    var name = ""
-    var avatar = ""
-    var file: RCFile?
+    @objc public var type: Int = 0
+    @objc public var incoming = false
+    @objc public var outgoing = false
+    @objc public var feedback = false
+    @objc public var text = ""
+    @objc public var rcButtons = [RCMessageButton]()
+    @objc public var picture_image: UIImage?
+    @objc public var picture_width: Int = 0
+    @objc public var picture_height: Int = 0
+    @objc public var video_path = ""
+    @objc public var video_thumbnail: UIImage?
+    @objc public var video_duration: Int = 0
+    @objc public var audio_path = ""
+    @objc public var audio_duration: Int = 0
+    @objc public var audio_status: Int = 0
+    @objc public var date: Date?
+    @objc public var latitude: CLLocationDegrees = 0
+    @objc public var longitude: CLLocationDegrees = 0
+    @objc public var location_thumbnail: UIImage?
+    @objc public var status: Int = 0
+    @objc public var chat: Int = 0
+    @objc public var messageId: Int = 0
+    @objc public var ticket_id: Int = 0
+    @objc public var createdAt = ""
+    @objc public var name = ""
+    @objc public var avatar = ""
+    @objc public var file: RCFile?
     
     // MARK: - Initialization methods
     init(status text: String?) {

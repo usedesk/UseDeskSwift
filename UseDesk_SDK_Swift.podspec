@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
 	s.name             = 'UseDesk_SDK_Swift'
-	s.version          = '0.3.7'
+	s.version          = '0.3.8'
 	s.summary          = 'A short description of UseDesk.'
 
 	s.description      = <<-DESC
@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
 
 	s.ios.source_files = 'UseDesk/Classes/*.{m,h,swift}'
 
-	s.resources = [
+	s.resources_bundle = [
 		'UseDesk/Assets/*.{png,xcassets,imageset,jpeg,jpg}',
 		'UseDesk/Classes/*.{storyboard,xib,bundle}'
 	]

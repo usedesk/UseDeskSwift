@@ -171,15 +171,6 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     }
     
     // MARK: - Header, Footer methods
-    override func textSectionHeader(_ indexPath: IndexPath?) -> String? {
-        let rcmessage = rcmessages[indexPath!.section] as! RCMessage
-        
-        if rcmessage.date!.isToday{
-            return rcmessage.date!.timeString
-        }
-        return rcmessage.date!.timeAndDayString
-    }
-    
     override func textBubbleHeader(_ indexPath: IndexPath?) -> String? {
         return nil
     }
@@ -518,6 +509,23 @@ extension Date {
         dateFormatter.locale = Locale(identifier: "ru")
         dateFormatter.timeZone = TimeZone(identifier: "Europe/Moscow")
         return dateFormatter.string(from: self)
+    }
+    
+    var dateFromHeaderComments: String {
+        let calendar = Calendar.current
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "ru")
+        dateFormatter.timeZone = TimeZone.current
+        var dayString = ""
+        if calendar.isDateInYesterday(self) {
+            dayString = "Вчера"
+        } else if calendar.isDateInToday(self) {
+            dayString = "Сегодня"
+        } else {
+            dateFormatter.dateFormat = "d MMMM"
+            dayString = dateFormatter.string(from: self)
+        }
+        return dayString + " " + self.timeString//dateFormatter.string(from: self)
     }
 }
 

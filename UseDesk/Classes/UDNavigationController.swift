@@ -22,32 +22,6 @@ class UDNavigationController: UINavigationController {
         barTintColor = (barTintColor != nil) ? barTintColor : navBarBackgroundColor
     }
     
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
-    }
-    
-//    override var colo
-//    
-//    override var tintColor: UIColor? {
-//        get {
-//            return super.tintColor
-//        }
-//        set(__tintColor) {
-//            tintColor = __tintColor
-//            navigationBar.tintColor = tintColor
-//        }
-//    }
-//    
-//    override var barTintColor: UIColor? {
-//        get {
-//            return super.barTintColor
-//        }
-//        set(__barTintColor) {
-//            barTintColor = __barTintColor
-//            navigationBar.barTintColor = barTintColor
-//        }
-//    }
-    
     func setTitleTextAttributes() {
         navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: titleTextAttributes!]
     }

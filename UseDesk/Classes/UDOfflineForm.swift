@@ -29,7 +29,6 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
     
     //********** VIEW TAPPED **********
     @objc func handleSingleTap(_ sender: UITapGestureRecognizer?) {
-        print("Touched and hide keyboard")
         view.endEditing(true)
     }
     
