@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
 
 	s.ios.source_files = 'UseDesk/Classes/*.{m,h,swift}'
 
-	s.resources_bundle = [
+	s.resources = [
 		'UseDesk/Assets/*.{png,xcassets,imageset,jpeg,jpg}',
 		'UseDesk/Classes/*.{storyboard,xib,bundle}'
 	]
