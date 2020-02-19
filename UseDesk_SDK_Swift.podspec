@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
 
 	s.frameworks = 'UIKit', 'MapKit' ,'AVFoundation'
 
-	s.dependency 'MBProgressHUD', '~> 2.0'
+	s.dependency 'MBProgressHUD', '~> 1.0'
 	s.dependency 'NYTPhotoViewer', '1.2.0'
 	s.dependency 'ProgressHUD', '~> 1.0'
 	s.dependency 'Socket.IO-Client-Swift', '~> 14.0'
