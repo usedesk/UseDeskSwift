@@ -26,13 +26,13 @@ Pod::Spec.new do |s|
 
 	s.frameworks = 'UIKit', 'MapKit' ,'AVFoundation'
 
-	s.dependency 'MBProgressHUD'
+	s.dependency 'MBProgressHUD', '~> 2.0'
 	s.dependency 'NYTPhotoViewer', '1.2.0'
-	s.dependency 'ProgressHUD'
-	s.dependency 'Socket.IO-Client-Swift'
-	s.dependency 'Alamofire'
-	s.dependency 'QBImagePickerController'
-	s.dependency 'UIAlertController+Blocks'
-	s.dependency 'SDWebImage'
+	s.dependency 'ProgressHUD', '~> 1.0'
+	s.dependency 'Socket.IO-Client-Swift', '~> 14.0'
+	s.dependency 'Alamofire', '~> 4.0'
+	s.dependency 'QBImagePickerController', '~> 3.4'
+	s.dependency 'UIAlertController+Blocks', '~> 1.0'
+	s.dependency 'SDWebImage', '~> 4.0'
 
 end
