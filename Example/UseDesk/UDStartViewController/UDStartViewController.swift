@@ -18,6 +18,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var phoneTextField: UITextField!
     @IBOutlet weak var nameChatTextField: UITextField!
+    @IBOutlet weak var firstMessageTextField: UITextField!
     
     var collection: BaseCollection? = nil
     var usedesk = UseDeskSDK()
@@ -70,8 +71,8 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
                 nameChat = nameChatTextField.text!
             }
         }
-        usedesk.start(withCompanyID: companyIdTextField.text!, isUseBase: isUseBase, account_id: accountId, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, nameChat: nameChat, connectionStatus: { success, error in
-            
+        usedesk.start(withCompanyID: companyIdTextField.text!, isUseBase: isUseBase, account_id: accountId, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, nameChat: nameChat, firstMessage: firstMessageTextField.text != nil ? firstMessageTextField.text : nil, connectionStatus: { success, error in
+            print("")
         })
     }
 }

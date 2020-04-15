@@ -40,9 +40,10 @@ public class UseDeskSDK: NSObject {
     var port = ""
     var name = ""
     var nameChat = ""
+    var firstMessage = ""
     var isUseBase = false
     
-     @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, connectionStatus startBlock: UDSStartBlock) {
+    @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, connectionStatus startBlock: UDSStartBlock) {
         
         let hud = MBProgressHUD.showAdded(to: (RootView?.view ?? UIView()), animated: true)
         hud.mode = MBProgressHUDMode.indeterminate
@@ -76,6 +77,11 @@ public class UseDeskSDK: NSObject {
             }
         } else {
             nameChat = "Онлайн-чат"
+        }
+        if _firstMessage != nil {
+            if _firstMessage != "" {
+                firstMessage = _firstMessage!
+            }
         }
         
         if isUseBase && _account_id != nil {
@@ -129,7 +135,7 @@ public class UseDeskSDK: NSObject {
         socket?.emit("dispatch", with: mess!)
     }
     
-     @objc public func startWithoutGUICompanyID(companyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
+     @objc public func startWithoutGUICompanyID(companyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
         
         companyID = _companyID
         email = _email
@@ -159,6 +165,11 @@ public class UseDeskSDK: NSObject {
             }
         } else {
             nameChat = "Онлайн-чат"
+        }
+        if _firstMessage != nil {
+            if _firstMessage != "" {
+                firstMessage = _firstMessage!
+            }
         }
         let urlAdress = URL(string: url)
         
@@ -208,6 +219,10 @@ public class UseDeskSDK: NSObject {
             let auth_success = wSelf.action_ADD_INIT(data)
             
             if auth_success {
+                if wSelf.firstMessage != "" {
+                    wSelf.sendMessage(wSelf.firstMessage)
+                    wSelf.firstMessage = ""
+                }
                 startBlock(auth_success, "")
             } else {
                 startBlock(auth_success, "false inited")
