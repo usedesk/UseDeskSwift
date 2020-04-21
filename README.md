@@ -6,6 +6,7 @@
 - [Методы базы знаний](#методы-базы-знаний)
 - [Методы чата](#методы-чата)
 - [CallBack](#CallBack)
+- [Кастомизация интерфейса](#Кастомизация-интерфейса)
 
 # Образец
 Чтобы запустить пример проекта, клонируйте репозиторий и сначала запустите `pod install` из каталога примера.
@@ -388,6 +389,13 @@ usedesk.feedbackMessageBlock = (message){
 | 400 | Data is not defined | Не передали data в set-действии |
 | 400 | Message is not defined | Не передали message |
 | 403 | Your token is fake | Передали несуществующий токен |
+
+# Кастомизация интерфейса
+Для кастомизации NavigationBar и SearchBar можно переопределить соответствующие переменные в классе [Settings](https://github.com/usedesk/UseDeskSwift/blob/master/UseDesk/Classes/Settings.swift)
+
+Для кастомизации сообщений можно переопределить соответствующие переменные в классе [RCMessages](https://github.com/usedesk/UseDeskSwift/blob/master/UseDesk/Classes/RCMessages.swift)
+
+Так же для таблицы чата, базы знаний и отдельных ячеек можете использовать файлы .xib расположенных в папке UseDesk_SDK_Swift/Resources/Classes
 
 ## Author
 

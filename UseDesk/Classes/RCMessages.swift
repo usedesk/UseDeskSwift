@@ -109,7 +109,6 @@ class RCMessages: NSObject {
     var textInsetBottom: CGFloat = 0.0
     var textInset: UIEdgeInsets?
     // Emoji cell
-    
     var emojiBubbleWidthMin: CGFloat = 0.0
     var emojiBubbleHeightMin: CGFloat = 0.0
     var emojiBubbleColorOutgoing: UIColor?
@@ -133,7 +132,6 @@ class RCMessages: NSObject {
     var videoImagePlay: UIImage?
     var videoImageManual: UIImage?
     // Audio cell
-    
     var audioBubbleWidht: CGFloat = 0.0
     var audioBubbleHeight: CGFloat = 0.0
     var audioBubbleColorOutgoing: UIColor?
@@ -167,19 +165,6 @@ class RCMessages: NSObject {
     var inputInset: UIEdgeInsets?
     
     static let shared = RCMessages()
-    
-//    class func shared() -> RCMessages? {
-//
-//        var once: Int = 0
-//        var rcmessages: RCMessages?
-//
-//        if (once == 0) {
-//            rcmessages = RCMessages()
-//        }
-//        once = 1
-//
-//        return rcmessages
-//    }
     
     override init() {
         super.init()

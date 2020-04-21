@@ -27,13 +27,16 @@ class UDArticlesView: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.dataSource = self
         tableView.delegate = self
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Чат", style: .done, target: self, action: #selector(self.actionChat))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: chatButtonText, style: .done, target: self, action: #selector(self.actionChat))
         navigationView = UIView(frame: navigationController?.navigationBar.bounds ?? .zero)
         navigationItem.titleView = navigationView
         searchBar = UISearchBar()
-        searchBar.placeholder = "Поиск"
-        searchBar.tintColor = .white
+        searchBar.placeholder = searchBarPlaceholderText
+        searchBar.tintColor = searchBarTintColor
         searchBar.delegate = self
+        let textFieldInsideSearchBar = searchBar.value(forKey: "searchField") as? UITextField
+        textFieldInsideSearchBar?.backgroundColor = searchBarTextBackgroundColor
+        textFieldInsideSearchBar?.textColor = searchBarTextColor
         navigationView.addSubview(searchBar)
         
         tableView.register(UINib(nibName: "UDArticleViewCell", bundle: nil), forCellReuseIdentifier: "UDArticleViewCell")
@@ -133,6 +136,10 @@ class UDArticlesView: UIViewController, UITableViewDelegate, UITableViewDataSour
                 articleVC.article = article
                 articleVC.url = wSelf.url
                 wSelf.navigationController?.pushViewController(articleVC, animated: true)
+                if let cell = tableView.cellForRow(at: indexPath) as? UDArticleViewCell {
+                    cell.isSelected = false
+                    cell.selectionStyle = .none
+                }
             }
         })
         

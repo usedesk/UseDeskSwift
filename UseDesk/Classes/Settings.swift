@@ -2,11 +2,17 @@
 //  Settings.swift
 
 import Foundation
-
-public let navBarBackgroundColor = UIColor(red: 208.0 / 255.0, green: 88.0 / 255.0, blue: 93.0 / 255.0, alpha: 1.0)
-
+// MARK: - Navigation Bar
+public let navBarBackgroundColor = UIColor(hexString: "d0585d")
 public let navBarTextColor = UIColor.white
-
+// MARK: - Base
+// Base Search Bar
+public let searchBarTextBackgroundColor = UIColor.white
+public let searchBarTextColor = UIColor.black
+public let searchBarTintColor = UIColor.blue
+public let searchBarPlaceholderText = "Поиск"
+// Base chat button
+public let chatButtonText = "Чат"
 
 struct Constants {
     static let maxCountAssets: Int = 10
