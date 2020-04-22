@@ -15,7 +15,7 @@ class UDArticleView: UIViewController, UIWebViewDelegate, UISearchBarDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Чат", style: .done, target: self, action: #selector(self.actionChat))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: chatButtonText, style: .done, target: self, action: #selector(self.actionChat))
         
         webView.delegate = self
         webView.loadHTMLString(article!.text, baseURL: nil)

@@ -37,9 +37,6 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         NotificationCenter.default.addObserver(self, selector: #selector(self.sendMessageButton(_:)), name: Notification.Name("messageButtonSend"), object: nil)
         
         rcmessages = [RCMessage]()
-        loadEarlierShow(false)
-        
-        updateTitleDetails()
         
         guard usedesk != nil else {
             reloadhistory()
@@ -135,8 +132,8 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     
     // MARK: - Avatar methods
     override func avatarInitials(_ indexPath: IndexPath?) -> String? {
-        let rcmessage = rcmessages[indexPath!.section] as? RCMessage
-        if (rcmessage?.outgoing)! {
+        let rcmessage = rcmessages[indexPath!.section] 
+        if rcmessage.outgoing {
             return "you"
         } else {
             return "Ad"
@@ -144,19 +141,16 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     }
     
     override func avatarImage(_ indexPath: IndexPath?) -> UIImage? {
-        let rcmessage = rcmessages[indexPath!.section] as? RCMessage
-        if rcmessage?.avatar == nil {
-            return nil
-        }
+        let rcmessage = rcmessages[indexPath!.section]
         var image: UIImage? = nil
         do {
-            if  URL(string: rcmessage!.avatar) != nil {
-                let anAvatar = URL(string: rcmessage!.avatar)
+            if  URL(string: rcmessage.avatar) != nil {
+                let anAvatar = URL(string: rcmessage.avatar)
                 let anAvatar1 = try Data(contentsOf: anAvatar!)
                 image = UIImage(data: anAvatar1)
                 
             } else {
-                if rcmessage?.outgoing == true {
+                if rcmessage.outgoing == true {
                     return UIImage.named("avatarClient")
                 } else {
                     return UIImage.named("avatarOperator") 
@@ -196,25 +190,6 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         return false
     }
     
-//    var canBecomeFirstResponder: Bool {
-//        return true
-//    }
-    
-    // MARK: - Typing indicator methods
-    func typingIndicatorShow(_ show: Bool, animated: Bool, delay: CGFloat) {
-        let time = DispatchTime.now() + (Double(delay))
-        DispatchQueue.main.asyncAfter(deadline: (time), execute: { [weak self] in
-            guard let wSelf = self else {return}
-            wSelf.typingIndicatorShow(show, animated: animated)
-        })
-    }
-    
-    // MARK: - Title details methods
-    func updateTitleDetails() {
-        labelTitle1.text = "UseDesk"
-        labelTitle2.text = "online now"
-    }
-    
     // MARK: - Refresh methods
     func refreshTableView1() {
         refreshTableView2()
@@ -223,22 +198,6 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     
     func refreshTableView2() {
         tableView.reloadData()
-    }
-    
-    func sendDialogflowRequest(_ text: String?) {
-        typingIndicatorShow(true, animated: true, delay: 0.5)
-        /*AITextRequest *aiRequest = [apiAI textRequest];
-         aiRequest.query = @[text];
-         [aiRequest setCompletionBlockSuccess:^(AIRequest *request, id response)
-         {
-         [self typingIndicatorShow:NO animated:YES delay:1.0];
-         [self displayDialogflowResponse:response delay:1.1];
-         }
-         failure:^(AIRequest *request, NSError *error)
-         {
-         [ProgressHUD showError:@"Dialogflow request error."];
-         }];
-         [apiAI enqueue:aiRequest];*/
     }
     
     func displayDialogflowResponse(_ dictionary: [AnyHashable : Any]?, delay: CGFloat) {

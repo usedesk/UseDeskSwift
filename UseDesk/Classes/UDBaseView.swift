@@ -30,14 +30,17 @@ class UDBaseView: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         tableView.delegate = self
         tableView.tableFooterView = UIView()
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Чат", style: .done, target: self, action: #selector(self.actionChat))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: chatButtonText, style: .done, target: self, action: #selector(self.actionChat))
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .reply, target: self, action: #selector(self.actionExit))
         navigationView = UIView(frame: navigationController?.navigationBar.bounds ?? .zero)
         navigationItem.titleView = navigationView
         searchBar = UISearchBar()
-        searchBar.placeholder = "Поиск"
-        searchBar.tintColor = .blue
+        searchBar.placeholder = searchBarPlaceholderText
+        searchBar.tintColor = searchBarTintColor
         searchBar.delegate = self
+        let textFieldInsideSearchBar = searchBar.value(forKey: "searchField") as? UITextField
+        textFieldInsideSearchBar?.backgroundColor = searchBarTextBackgroundColor
+        textFieldInsideSearchBar?.textColor = searchBarTextColor
         navigationView.addSubview(searchBar)     
       
         tableView.register(UINib(nibName: "UDBaseViewCell", bundle: nil), forCellReuseIdentifier: "UDBaseViewCell")
@@ -180,6 +183,10 @@ class UDBaseView: UIViewController, UITableViewDelegate, UITableViewDataSource, 
                     articleVC.article = article
                     articleVC.url = wSelf.url
                     wSelf.navigationController?.pushViewController(articleVC, animated: true)
+                    if let cell = tableView.cellForRow(at: indexPath) as? UDBaseViewCell {
+                        cell.isSelected = false
+                        cell.selectionStyle = .none
+                    }
                 }
             })
         } else {
@@ -189,6 +196,10 @@ class UDBaseView: UIViewController, UITableViewDelegate, UITableViewDataSource, 
             articlesVC.collection_ids = arrayCollections[indexPath.section].id
             articlesVC.category_ids = arrayCollections[indexPath.section].сategories[indexPath.row - 1].id
             self.navigationController?.pushViewController(articlesVC, animated: true)
+            if let cell = tableView.cellForRow(at: indexPath) as? UDBaseViewCell {
+                cell.isSelected = false
+                cell.selectionStyle = .none
+            }
         }
     }
     
