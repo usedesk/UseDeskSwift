@@ -12,6 +12,11 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
     var url = ""
     weak var usedesk: UseDeskSDK?
     
+    convenience init() {
+        let nibName: String = "UDOfflineForm"
+        self.init(nibName: nibName, bundle: BundleId.bundle(for: nibName))
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Offline form"

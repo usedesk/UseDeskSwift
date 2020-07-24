@@ -19,10 +19,9 @@ Pod::Spec.new do |s|
 
 	s.ios.source_files = 'UseDesk/Classes/*.{m,h,swift}'
 
-	s.resources = [
-		'UseDesk/Assets/*.{png,xcassets,imageset,jpeg,jpg}',
-		'UseDesk/Classes/*.{storyboard,xib,bundle}'
-	]
+	s.resource_bundles = {
+		'UseDesk' => ['UseDesk/Assets/*.{png,xcassets,imageset,jpeg,jpg}', 'UseDesk/Classes/*.{storyboard,xib,bundle}']
+	}
 
 	s.frameworks = 'UIKit', 'MapKit' ,'AVFoundation'
 

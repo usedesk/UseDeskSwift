@@ -41,7 +41,8 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
 //    private var attachImage: UIImage = UIImage()
     
     convenience init() {
-        self.init(nibName: "RCMessagesView", bundle: nil)
+        let nibName: String = "RCMessagesView"
+        self.init(nibName: nibName, bundle: BundleId.bundle(for: nibName))
     }
     
     override func viewDidLoad() {

@@ -68,23 +68,39 @@ class RCMessageCell: UITableViewCell {
     func layoutSubviews(_ size: CGSize) {
         super.layoutSubviews()
         
-        let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
-        if rcmessage != nil {
-            let xBubble: CGFloat = rcmessage!.incoming != false ? RCMessages.bubbleMarginLeft() : (SCREEN_WIDTH - RCMessages.bubbleMarginRight() - size.width)
-            if rcmessage!.incoming {
-                let widthLabel: CGFloat = size.width < 200 ? 200 : size.width
-                label.frame = CGRect(x: xBubble, y: 0, width: widthLabel, height: kHeightName)
-                label.text = rcmessage?.name
-                label.textColor = UIColor(hexString: "828282")
-                label.font = UIFont.systemFont(ofSize: 11, weight: .regular)
+        guard let rcmessage: RCMessage = messagesView?.rcmessage(indexPath) else { return }
+        
+        let xBubble: CGFloat = rcmessage.incoming != false ? RCMessages.bubbleMarginLeft() : (SCREEN_WIDTH - RCMessages.bubbleMarginRight() - size.width)
+        if rcmessage.incoming {
+            let widthLabel: CGFloat = size.width < 200 ? 200 : size.width
+            label.frame = CGRect(x: xBubble, y: 0, width: widthLabel, height: kHeightName)
+            label.text = rcmessage.name
+            label.textColor = UIColor(hexString: "828282")
+            label.font = UIFont.systemFont(ofSize: 11, weight: .regular)
+        }
+        viewBubble.frame = CGRect(x: xBubble, y: rcmessage.incoming ? 18 : 0, width: size.width, height: size.height)
+        
+        let diameter = RCMessages.avatarDiameter()
+        var xAvatar: CGFloat?
+        var yAvatar: CGFloat?
+        if rcmessage.incoming {
+            if !RCMessages.avatarIncomingHidden() {
+                xAvatar = RCMessages.avatarMarginLeft()
+                yAvatar = size.height - diameter + 18
             }
-            viewBubble.frame = CGRect(x: xBubble, y: rcmessage!.incoming ? 18 : 0, width: size.width, height: size.height)
-            
-            let diameter = RCMessages.avatarDiameter()
-            let xAvatar: CGFloat = rcmessage!.incoming ? RCMessages.avatarMarginLeft() : (SCREEN_WIDTH - RCMessages.avatarMarginRight() - diameter)
-            let yAvatar: CGFloat = rcmessage!.incoming ? size.height - diameter + 18 : size.height - diameter
-            imageAvatar.frame = CGRect(x: xAvatar, y: yAvatar, width: diameter, height: diameter)
-            labelAvatar.frame = CGRect(x: xAvatar, y: yAvatar, width: diameter, height: diameter)
+            imageAvatar.isHidden = RCMessages.avatarIncomingHidden()
+            labelAvatar.isHidden = RCMessages.avatarIncomingHidden()
+        } else {
+            if !RCMessages.avatarOutgoingHidden() {
+                xAvatar = SCREEN_WIDTH - RCMessages.avatarMarginRight() - diameter
+                yAvatar = size.height - diameter
+            }
+            imageAvatar.isHidden = RCMessages.avatarOutgoingHidden()
+            labelAvatar.isHidden = RCMessages.avatarOutgoingHidden()
+        }
+        if let x = xAvatar, let y = yAvatar {
+            imageAvatar.frame = CGRect(x: x, y: y, width: diameter, height: diameter)
+            labelAvatar.frame = CGRect(x: x, y: y, width: diameter, height: diameter)
         }
     }
     

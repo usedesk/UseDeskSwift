@@ -39,7 +39,7 @@ class UDArticlesView: UIViewController, UITableViewDelegate, UITableViewDataSour
         textFieldInsideSearchBar?.textColor = searchBarTextColor
         navigationView.addSubview(searchBar)
         
-        tableView.register(UINib(nibName: "UDArticleViewCell", bundle: nil), forCellReuseIdentifier: "UDArticleViewCell")
+        tableView.register(UINib(nibName: "UDArticleViewCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDArticleViewCell")
     }
     
     override func viewDidLayoutSubviews() {
@@ -131,7 +131,7 @@ class UDArticlesView: UIViewController, UITableViewDelegate, UITableViewDataSour
         usedesk?.getArticle(articleID: id, connectionStatus: { [weak self] success, article, error in
             guard let wSelf = self else {return}
             if success {
-                let articleVC = UDArticleView(nibName: "UDArticle", bundle: nil)
+                let articleVC = UDArticleView()
                 articleVC.usedesk = wSelf.usedesk
                 articleVC.article = article
                 articleVC.url = wSelf.url

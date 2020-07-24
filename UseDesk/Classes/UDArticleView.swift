@@ -13,6 +13,11 @@ class UDArticleView: UIViewController, UIWebViewDelegate, UISearchBarDelegate {
     weak var usedesk: UseDeskSDK?
     var url: String?
     
+    convenience init() {
+        let nibName: String = "UDArticle"
+        self.init(nibName: nibName, bundle: BundleId.bundle(for: nibName))
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: chatButtonText, style: .done, target: self, action: #selector(self.actionChat))
@@ -42,7 +47,7 @@ class UDArticleView: UIViewController, UIWebViewDelegate, UISearchBarDelegate {
                 })
             } else {
                 if (error == "noOperators") {
-                    let offlineVC = UDOfflineForm(nibName: "UDOfflineForm", bundle: nil)
+                    let offlineVC = UDOfflineForm()
                     if wSelf.url != nil {
                         offlineVC.url = wSelf.url!
                     }

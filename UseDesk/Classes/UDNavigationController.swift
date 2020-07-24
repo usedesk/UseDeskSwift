@@ -7,7 +7,12 @@ class UDNavigationController: UINavigationController {
 
     var barTintColor: UIColor?
     var tintColor: UIColor?
-    var titleTextAttributes: UIColor?
+    var titleTextColor: UIColor?
+    var titleTextFont: UIFont?
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return statusBarStyle ?? super.preferredStatusBarStyle
+    }
     
     override func viewDidLoad() {
         
@@ -17,12 +22,20 @@ class UDNavigationController: UINavigationController {
         
         tintColor = (tintColor != nil) ? tintColor : navBarTextColor
         
-        titleTextAttributes = (titleTextAttributes != nil) ? titleTextAttributes : navBarTextColor
+        titleTextColor = titleTextColor ?? navBarTextColor
+        titleTextFont = titleTextFont ?? navBarTextFont
         
         barTintColor = (barTintColor != nil) ? barTintColor : navBarBackgroundColor
     }
     
     func setTitleTextAttributes() {
-        navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: titleTextAttributes!]
+        var attributes: [NSAttributedString.Key: Any] = [:]
+        if let textColor = titleTextColor {
+            attributes[.foregroundColor] = textColor
+        }
+        if let textFont = titleTextFont {
+            attributes[.font] = textFont
+        }
+        navigationBar.titleTextAttributes = attributes
     }
 }

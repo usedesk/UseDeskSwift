@@ -43,9 +43,11 @@ public class UseDeskSDK: NSObject {
     var firstMessage = ""
     var isUseBase = false
     
-    @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, connectionStatus startBlock: UDSStartBlock) {
+    @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: UDSStartBlock) {
         
-        let hud = MBProgressHUD.showAdded(to: (RootView?.view ?? UIView()), animated: true)
+        let parentController: UIViewController? = parentController ?? RootView
+        
+        let hud = MBProgressHUD.showAdded(to: (parentController?.view ?? UIView()), animated: true)
         hud.mode = MBProgressHUDMode.indeterminate
         hud.label.text = "Loading"
         
@@ -91,7 +93,7 @@ public class UseDeskSDK: NSObject {
             let navController = UDNavigationController(rootViewController: baseView)
             navController.setTitleTextAttributes()
             navController.modalPresentationStyle = .fullScreen
-            RootView?.present(navController, animated: true)
+            parentController?.present(navController, animated: true)
             hud.hide(animated: true)
         } else {
             if isUseBase && _account_id == nil {
@@ -105,16 +107,16 @@ public class UseDeskSDK: NSObject {
                         let navController = UDNavigationController(rootViewController: dialogflowVC)
                         navController.setTitleTextAttributes()
                         navController.modalPresentationStyle = .fullScreen
-                        RootView?.present(navController, animated: true)
+                        parentController?.present(navController, animated: true)
                         hud.hide(animated: true)
                     } else {
                         if (error == "noOperators") {
-                            let offlineVC = UDOfflineForm(nibName: "UDOfflineForm", bundle: nil)
+                            let offlineVC = UDOfflineForm()
                             offlineVC.url = wSelf.url
                             offlineVC.usedesk = wSelf
                             let navController = UDNavigationController(rootViewController: offlineVC)
                             navController.modalPresentationStyle = .fullScreen
-                            RootView?.present(navController, animated: true)
+                            parentController?.present(navController, animated: true)
                             hud.hide(animated: true)
                         }
                     }
