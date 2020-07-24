@@ -26,6 +26,8 @@ class UDNavigationController: UINavigationController {
         titleTextFont = titleTextFont ?? navBarTextFont
         
         barTintColor = (barTintColor != nil) ? barTintColor : navBarBackgroundColor
+        navigationBar.barTintColor = barTintColor
+        navigationBar.tintColor = titleTextColor
     }
     
     func setTitleTextAttributes() {
