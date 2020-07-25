@@ -18,6 +18,11 @@ class UDImageView: UIViewController, UIScrollViewDelegate {
     
     weak var delegate: UDImageViewDelegate?
     
+    convenience init() {
+        let nibName: String = "UDImageView"
+        self.init(nibName: nibName, bundle: BundleId.bundle(for: nibName))
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         scrollView.minimumZoomScale = 1.0

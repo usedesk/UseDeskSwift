@@ -32,6 +32,11 @@ class UDArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UIScro
     var keyboardHeight: CGFloat? = 0
     var isShowKeyboard = false
     
+    convenience init() {
+        let nibName: String = "UDArticle"
+        self.init(nibName: nibName, bundle: BundleId.bundle(for: nibName))
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         firstState()
@@ -209,7 +214,7 @@ class UDArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UIScro
                 })
             } else {
                 if (error == "noOperators") {
-                    let offlineVC = UDOfflineForm(nibName: "UDOfflineForm", bundle: nil)
+                    let offlineVC = UDOfflineForm()
                     if wSelf.url != nil {
                         offlineVC.url = wSelf.url!
                     }

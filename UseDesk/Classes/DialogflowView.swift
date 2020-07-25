@@ -18,7 +18,13 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .reply, target: self, action: #selector(self.actionDone))
+        
+        if let backButtonImage = backButtonImage {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(image: backButtonImage, style: .plain, target: self, action: #selector(self.actionDone))
+        } else {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .reply, target: self, action: #selector(self.actionDone))
+        }
+        
         navigationItem.title = usedesk?.nameChat
         hudErrorConnection = MBProgressHUD(view: view)
         hudErrorConnection?.removeFromSuperViewOnHide = true
@@ -287,10 +293,18 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
             let alertController = UIAlertController(title: "Прикрепить файл", message: nil, preferredStyle: UIAlertController.Style.alert)
             let cancelAction = UIAlertAction(title: "Отмена", style: .destructive) { (_) -> Void in }
             let takePhotoAction = UIAlertAction(title: "Камера", style: .default) { (_) -> Void in
-                self.takePhoto()
+                RequestAuthorizationHelper.requestCameraAccess(showErrorIn: self) { [weak self] hasAccess in
+                    if hasAccess {
+                        self?.takePhoto()
+                    }
+                }
             }
             let selectFromPhotosAction = UIAlertAction(title: "Галерея", style: .default) { (_) -> Void in
-                self.selectPhoto()
+                RequestAuthorizationHelper.requestLibraryAccess(showErrorIn: self) { [weak self] hasAccess in
+                    if hasAccess {
+                        self?.selectPhoto()
+                    }
+                }
             }
             alertController.addAction(takePhotoAction)
             alertController.addAction(selectFromPhotosAction)
@@ -318,6 +332,14 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         imagePickerController.allowsMultipleSelection = true
         imagePickerController.maximumNumberOfSelection = UInt(Constants.maxCountAssets - sendAssets.count)
         imagePickerController.showsNumberOfSelectedAssets = true
+        switch supportedAttachmentTypes {
+        case .onlyPhoto:
+            imagePickerController.mediaType = .image
+        case .onlyVideo:
+            imagePickerController.mediaType = .video
+        case .any:
+            imagePickerController.mediaType = .any
+        }
         
         present(imagePickerController, animated: true)
     }
@@ -373,21 +395,22 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     
     override func actionTapBubble(_ indexPath: IndexPath?) {
         let rcmessage = rcmessages[indexPath!.section] 
-        guard rcmessage.file != nil else {return}
-        if rcmessage.file!.type == "image" {
+        guard let file: RCFile = rcmessage.file else { return }
+        
+        if file.type == "image" || rcmessage.type == RC_TYPE_PICTURE {
             navigationItem.leftBarButtonItem?.isEnabled = false
             navigationItem.leftBarButtonItem?.tintColor = .clear
             if let cell = tableView.cellForRow(at: indexPath!) as? RCPictureMessageCell {
                 rcmessage.status = RC_STATUS_OPENIMAGE
                 cell.bindData(indexPath!, messagesView: self)
             }
-            imageVC = UDImageView(nibName: "UDImageView", bundle: nil)
+            imageVC = UDImageView()
             self.addChildViewController(self.imageVC)
             self.view.addSubview(self.imageVC.view)
             imageVC.view.frame = CGRect(x:0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
             imageVC.delegate = self
                 let session = URLSession.shared
-                if let url = URL(string: rcmessage.file!.content) {
+                if let url = URL(string: file.content) {
                     (session.dataTask(with: url, completionHandler: { data, response, error in
                         if error == nil {
                             DispatchQueue.main.async(execute: { [weak self] in
@@ -404,7 +427,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                         }
                     })).resume()
                 }
-        } else if rcmessage.file!.type == "video" {
+        } else if file.type == "video" {
             if rcmessage.video_path != "" {
                 let videoURL = URL(fileURLWithPath: rcmessage.video_path)
                 let player = AVPlayer(url: videoURL)
@@ -415,7 +438,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                 }
             }
         } else {
-            let url = URL(string: rcmessage.file!.content )
+            let url = URL(string: file.content)
             
             if #available(iOS 10.0, *) {
                 if UIApplication.shared.responds(to: #selector(UIApplication.open(_:options:completionHandler:))) {
@@ -436,7 +459,6 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         }
         
     }
-    
 }
 
 extension Date {
@@ -495,4 +517,96 @@ extension DialogflowView: UDImageViewDelegate {
         navigationItem.leftBarButtonItem?.tintColor = nil
     }
     
+}
+
+// Helper which checks if application has access to Camera or Photos Library and show alert with link to settings if user previously forbid access
+private class RequestAuthorizationHelper {
+
+    static func requestCameraAccess(showErrorIn vc: UIViewController, handler: @escaping (Bool) -> Void) {
+        requestDeviceAuthorization(showErrorIn: vc, mediaType: AVMediaType.video.rawValue, handler: handler)
+    }
+
+    private static let mediaTypeLibrary: String = "Library"
+    static func requestLibraryAccess(showErrorIn vc: UIViewController, handler: @escaping (Bool) -> Void) {
+        requestDeviceAuthorization(showErrorIn: vc, mediaType: mediaTypeLibrary, handler: handler)
+    }
+
+    private static func presentAccessDeniedAlert(from vc: UIViewController, mediaType: String) {
+        DispatchQueue.main.async {
+            var message: String = ""
+
+            switch mediaType {
+            case mediaTypeLibrary:
+                message = "У приложения нет доступа к библиотеке фотографий. Пожалуйста, разрешите доступ в настройках."
+            case AVMediaType.video.rawValue:
+                message = "У приложения нет доступа к камере. Пожалуйста, разрешите доступ в настройках."
+            default: break
+            }
+
+            presentMediaTypeDeniedAlertWithMessage(messageFormat: message, fromVC: vc)
+        }
+        
+    }
+    
+    private static func requestDeviceAuthorization(showErrorIn vc: UIViewController, mediaType: String, handler: @escaping (Bool) -> Void) {
+        if mediaType == mediaTypeLibrary {
+            switch PHPhotoLibrary.authorizationStatus() {
+            case .notDetermined:
+                PHPhotoLibrary.requestAuthorization() { status in
+                    guard status == .authorized else {
+                        presentAccessDeniedAlert(from: vc, mediaType: mediaType)
+                        handler(false)
+                        return
+                    }
+                    handler(true)
+                }
+            case .denied:
+                presentAccessDeniedAlert(from: vc, mediaType: mediaType)
+                handler(false)
+            default:
+                handler(true)
+            }
+        } else {
+            let mediaType: AVMediaType = AVMediaType(mediaType)
+
+            switch AVCaptureDevice.authorizationStatus(for: mediaType) {
+            case .notDetermined:
+                AVCaptureDevice.requestAccess(for: mediaType) { granted in
+                    guard granted else {
+                        presentAccessDeniedAlert(from: vc, mediaType: mediaType.rawValue)
+                        handler(false)
+                        return
+                    }
+                    handler(true)
+                }
+            case .denied:
+                presentAccessDeniedAlert(from: vc, mediaType: mediaType.rawValue)
+                handler(false)
+            default:
+                handler(true)
+            }
+        }
+    }
+
+    private static func presentMediaTypeDeniedAlertWithMessage(messageFormat: String, fromVC vc: UIViewController) {
+        guard let appName = Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String else {
+            return
+        }
+
+        let message = String(format: messageFormat, arguments: [appName])
+
+        let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+
+        let dismissAction = UIAlertAction(title: "Закрыть", style: .cancel, handler: nil)
+        alertController.addAction(dismissAction)
+
+        let settingsAction = UIAlertAction.init(title: "В настройки", style: .default) { (action) in
+            if let url = URL(string: UIApplicationOpenSettingsURLString), UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        }
+        alertController.addAction(settingsAction)
+
+        vc.present(alertController, animated: true, completion: nil)
+    }
 }

@@ -339,31 +339,11 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-UseDesk_Example/Pods-UseDesk_Example-resources.sh",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets",
-				"${PODS_ROOT}/../../UseDesk/Classes/AudioView.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/RCMessagesView.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDArticle.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDArticlesView.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDArticleViewCell.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDBaseView.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDBaseViewCell.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDHeaderBaseViewCell.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDImageView.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDOfflineForm.xib",
+				"${PODS_CONFIGURATION_BUILD_DIR}/UseDesk_SDK_Swift/UseDesk.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Assets.car",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AudioView.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RCMessagesView.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDArticle.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDArticlesView.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDArticleViewCell.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDBaseView.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDBaseViewCell.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDHeaderBaseViewCell.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDImageView.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDOfflineForm.nib",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UseDesk.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

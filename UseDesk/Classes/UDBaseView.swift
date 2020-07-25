@@ -43,9 +43,9 @@ class UDBaseView: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         textFieldInsideSearchBar?.textColor = searchBarTextColor
         navigationView.addSubview(searchBar)     
       
-        tableView.register(UINib(nibName: "UDBaseViewCell", bundle: nil), forCellReuseIdentifier: "UDBaseViewCell")
-        tableView.register(UINib(nibName: "UDArticleViewCell", bundle: nil), forCellReuseIdentifier: "UDArticleViewCell")
-        tableView.register(UINib(nibName: "UDHeaderBaseViewCell", bundle: nil), forCellReuseIdentifier: "UDHeaderBaseViewCell")
+        tableView.register(UINib(nibName: "UDBaseViewCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDBaseViewCell")
+        tableView.register(UINib(nibName: "UDArticleViewCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDArticleViewCell")
+        tableView.register(UINib(nibName: "UDHeaderBaseViewCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDHeaderBaseViewCell")
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -90,7 +90,7 @@ class UDBaseView: UIViewController, UITableViewDelegate, UITableViewDataSource, 
                 })
             } else {
                 if (error == "noOperators") {
-                    let offlineVC = UDOfflineForm(nibName: "UDOfflineForm", bundle: nil)
+                    let offlineVC = UDOfflineForm()
                     if wSelf.url != nil {
                         offlineVC.url = wSelf.url!
                     }
@@ -135,7 +135,8 @@ class UDBaseView: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     }
     
 //    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-//        let header = Bundle(for: UDBaseView.self).loadNibNamed("UDHeaderBaseViewCell", owner: self, options: nil)?.first as! UDHeaderBaseViewCell
+//        let headerNibName: String = "UDHeaderBaseViewCell"
+//        let header = BundleId.bundle(for: headerNibName).loadNibNamed(headerNibName, owner: self, options: nil)?.first as! UDHeaderBaseViewCell
 //        header.viewImage.sd_setImage(with: URL(string: arrayCollections[section].image), completed: nil)
 //        header.textView.text = arrayCollections[section].title
 //        return header
@@ -178,7 +179,7 @@ class UDBaseView: UIViewController, UITableViewDelegate, UITableViewDataSource, 
             usedesk!.getArticle(articleID: searchArticles!.articles[indexPath.row].id, connectionStatus: { [weak self] success, article, error in
                 guard let wSelf = self else {return}
                 if success {
-                    let articleVC = UDArticleView(nibName: "UDArticle", bundle: nil)
+                    let articleVC = UDArticleView()
                     articleVC.usedesk = wSelf.usedesk
                     articleVC.article = article
                     articleVC.url = wSelf.url

@@ -3,19 +3,26 @@
 
 import Foundation
 // MARK: - Navigation Bar
-public let navBarBackgroundColor = UIColor(hexString: "d0585d")
-public let navBarTextColor = UIColor.white
+public var navBarBackgroundColor = UIColor(hexString: "d0585d")
+public var navBarTextColor: UIColor = .white
+public var navBarTextFont: UIFont?
+public var statusBarStyle: UIStatusBarStyle?
+public var backButtonImage: UIImage?
 // MARK: - Base
 // Base Search Bar
-public let searchBarTextBackgroundColor = UIColor.white
-public let searchBarTextColor = UIColor.black
-public let searchBarTintColor = UIColor.blue
-public let searchBarPlaceholderText = "Поиск"
+public var searchBarTextBackgroundColor = UIColor.white
+public var searchBarTextColor = UIColor.black
+public var searchBarTintColor = UIColor.blue
+public var searchBarPlaceholderText = "Поиск"
 // Base chat button
-public let chatButtonText = "Чат"
+public var chatButtonText = "Чат"
+// Image picker
+public enum SupportedAttachmentType {
+    case any, onlyPhoto, onlyVideo
+}
+public var supportedAttachmentTypes: SupportedAttachmentType = .any
 
 struct Constants {
     static let maxCountAssets: Int = 10
     static let heightAssetsCollection: CGFloat = 68
 }
-
