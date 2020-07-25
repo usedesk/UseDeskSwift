@@ -236,8 +236,8 @@ public class RCMessages: NSObject {
         bubbleHeaderColor = UIColor.lightGray
         bubbleHeaderFont = UIFont.systemFont(ofSize: 12)
         
-        bubbleMarginLeft = 40.0
-        bubbleMarginRight = 40.0
+        bubbleMarginLeft = 15
+        bubbleMarginRight = 15
         bubbleRadius = 15.0
         
         bubbleFooterHeight = 15.0

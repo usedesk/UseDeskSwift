@@ -52,6 +52,7 @@ pod 'UseDesk_SDK_Swift'
 | Name | String | имя клиента (опционально) |
 | NameChat | String | имя чата (опционально). Отображается в шапке|
 | FirstMessage | String | автоматическое сообщение (опционально). Отправиться сразу после иницилизации от имени клиента|
+| PresentIn | UIViewController | в каком контроллере открывать (опционально)|
 
 ### Блок возвращает следующие параметры:
 
@@ -63,7 +64,7 @@ pod 'UseDesk_SDK_Swift'
 #### Пример c использованием базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", isUseBase: true, account_id: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", nameChat: "NameChat", firstMessage: "message", connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", isUseBase: true, account_id: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", nameChat: "NameChat", firstMessage: "message", presentIn: self, connectionStatus: { success, error in
 
 })
 ```
@@ -368,6 +369,14 @@ usedesk.releaseChat()
 usedesk.feedbackMessageBlock = (message){
 }
 ```
+## Настройки
+
+#### Можно ограничить отправляемые клиентом типы контента, например запретить отправку видео или фото или и то и другое.
+Для этого нужно выбрать значение переменной supportedAttachmentTypes в классе [Settings](https://github.com/usedesk/UseDeskSwift/blob/master/UseDesk/Classes/Settings.swift)
+
+#### Можно скрыть аватар у входящих или исходящих сообщений. 
+Для этого нужно задать соответствующее значение переменным avatarIncomingHidden (для входящих сообщений) и avatarOutgoingHidden (для исходящих сообщений) в классе [RCMessages](https://github.com/usedesk/UseDeskSwift/blob/master/UseDesk/Classes/RCMessages.swift) 
+
 ## Список ошибок 
 
 ### При работе с базой знаний:

@@ -234,6 +234,8 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         
         textInput.layer.cornerRadius = RCMessages.inputRadius()
         textInput.clipsToBounds = true
+        
+        textInput.textContainerInset = UIEdgeInsets(top: 5, left: 7, bottom: 5, right: 7)
     }
 
     func inputPanelUpdate() {
