@@ -34,6 +34,7 @@ public class UseDeskSDK: NSObject {
     var phone = ""
     var url = ""
     var urlWithoutPort = ""
+    var urlAPI = ""
     var token = ""
     var account_id = ""
     var api_token = ""
@@ -43,7 +44,7 @@ public class UseDeskSDK: NSObject {
     var firstMessage = ""
     var isUseBase = false
     
-    @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, connectionStatus startBlock: UDSStartBlock) {
+    @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, urlAPI _urlAPI: String? = nil, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, connectionStatus startBlock: UDSStartBlock) {
         
         let hud = MBProgressHUD.showAdded(to: (RootView?.view ?? UIView()), animated: true)
         hud.mode = MBProgressHUDMode.indeterminate
@@ -59,6 +60,11 @@ public class UseDeskSDK: NSObject {
         if _account_id != nil {
             account_id = _account_id!
         }
+        
+        if _urlAPI != nil {
+            urlAPI = _urlAPI!
+        }
+        
         if _name != nil {
             if _name != "" {
                 name = _name!
@@ -135,17 +141,23 @@ public class UseDeskSDK: NSObject {
         socket?.emit("dispatch", with: mess!)
     }
     
-     @objc public func startWithoutGUICompanyID(companyID _companyID: String, isUseBase _isUseBase: Bool, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
+     @objc public func startWithoutGUICompanyID(companyID _companyID: String, isUseBase _isUseBase: Bool, urlAPI _urlAPI: String? = nil, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
         
         companyID = _companyID
         email = _email
         
         api_token = _api_token
         port = _port
-        url = "\(_url):\(port)"
+        url = "https://" + "\(_url):\(port)"
         isUseBase = _isUseBase
-        if _account_id != nil {
-            account_id = _account_id!
+        if isUseBase {
+            if _account_id != nil {
+                account_id = _account_id!
+            }
+            
+            if _urlAPI != nil {
+                urlAPI = "https://" + _urlAPI!
+            }
         }
         if _name != nil {
             if _name != "" {
@@ -241,20 +253,24 @@ public class UseDeskSDK: NSObject {
     
     @objc public func getCollections(connectionStatus baseBlock: @escaping UDSBaseBlock) {
         if isUseBase && account_id != "" {
-            DispatchQueue.global(qos: .default).async(execute: { [weak self] in
-                guard let wSelf = self else {return}
-                request("https://api.usedesk.ru/support/\(wSelf.account_id)/list?api_token=\(wSelf.api_token)").responseJSON{  responseJSON in
-                    switch responseJSON.result {
-                    case .success(let value):
-                        guard let collections = BaseCollection.getArray(from: value) else {
-                            baseBlock(false, nil, "error parsing")
-                            return }
-                        baseBlock(true, collections, "")
-                    case .failure(let error):
-                        baseBlock(false, nil, error.localizedDescription)
-                    }
+            var url = "https://"
+            if self.urlAPI != "" {
+                url += self.urlAPI
+            } else {
+                url += "api.usedesk.ru"
+            }
+            url += "/support/\(self.account_id)/list?api_token=\(self.api_token)"
+            request(url).responseJSON{  responseJSON in
+                switch responseJSON.result {
+                case .success(let value):
+                    guard let collections = BaseCollection.getArray(from: value) else {
+                        baseBlock(false, nil, "error parsing")
+                        return }
+                    baseBlock(true, collections, "")
+                case .failure(let error):
+                    baseBlock(false, nil, error.localizedDescription)
                 }
-            })
+            }
         } else {
             if isUseBase && account_id == "" {
                 baseBlock(false, nil, "You did not specify account_id")
@@ -266,20 +282,24 @@ public class UseDeskSDK: NSObject {
     
     @objc public func getArticle(articleID: Int, connectionStatus baseBlock: @escaping UDSArticleBlock) {
         if isUseBase && account_id != "" {
-            DispatchQueue.global(qos: .default).async(execute: {  [weak self] in
-                    guard let wSelf = self else {return}
-                request("https://api.usedesk.ru/support/\(wSelf.account_id)/articles/\(articleID)?api_token=\(wSelf.api_token)").responseJSON{ responseJSON in
-                    switch responseJSON.result {
-                    case .success(let value):
-                        guard let article = Article.get(from: value) else {
-                            baseBlock(false, nil, "error parsing")
-                            return }
-                        baseBlock(true, article, "")
-                    case .failure(let error):
-                        baseBlock(false, nil, error.localizedDescription)
-                    }
+            var url = "https://"
+            if self.urlAPI != "" {
+                url += self.urlAPI
+            } else {
+                url += "api.usedesk.ru"
+            }
+            url += "/support/\(self.account_id)/articles/\(articleID)?api_token=\(self.api_token)"
+            request(url).responseJSON{ responseJSON in
+                switch responseJSON.result {
+                case .success(let value):
+                    guard let article = Article.get(from: value) else {
+                        baseBlock(false, nil, "error parsing")
+                        return }
+                    baseBlock(true, article, "")
+                case .failure(let error):
+                    baseBlock(false, nil, error.localizedDescription)
                 }
-            })
+            }
         } else {
             if isUseBase && account_id == "" {
                 baseBlock(false, nil, "You did not specify account_id")
@@ -291,17 +311,84 @@ public class UseDeskSDK: NSObject {
     
     @objc public func addViewsArticle(articleID: Int, count: Int, connectionStatus connectBlock: @escaping UDSConnectBlock) {
         if isUseBase && account_id != "" {
-            DispatchQueue.global(qos: .default).async(execute: { [weak self] in
-            guard let wSelf = self else {return}
-                request("https://api.usedesk.ru/support/\(wSelf.account_id)/articles/\(articleID)/add-views?api_token=\(wSelf.api_token)&count=\(count)").responseJSON{ responseJSON in
-                    switch responseJSON.result {
-                    case .success( _):
-                        connectBlock(true, "")
-                    case .failure(let error):
-                        connectBlock(false, error.localizedDescription)
-                    }
+            var url = "https://"
+            if self.urlAPI != "" {
+                url += self.urlAPI
+            } else {
+                url += "api.usedesk.ru"
+            }
+            url += "/support/\(self.account_id)/articles/\(articleID)/add-views?api_token=\(self.api_token)&count=\(count)"
+            request(url).responseJSON{ responseJSON in
+                switch responseJSON.result {
+                case .success( _):
+                    connectBlock(true, "")
+                case .failure(let error):
+                    connectBlock(false, error.localizedDescription)
                 }
-            })
+            }
+        } else {
+            if isUseBase && account_id == "" {
+                connectBlock(false, "You did not specify account_id")
+            } else {
+                connectBlock(false, "You specify isUseBase = false")
+            }
+        }
+    }
+    
+    @objc public func addReviewArticle(articleID: Int, countPositiv: Int = 0, countNegativ: Int = 0, connectionStatus connectBlock: @escaping UDSConnectBlock) {
+        if isUseBase && account_id != "" {
+            var url = "https://"
+            if self.urlAPI != "" {
+                url += self.urlAPI
+            } else {
+                url += "api.usedesk.ru"
+            }
+            url +=   "/support/\(self.account_id)/articles/\(articleID)/change-rating?api_token=\(self.api_token)"
+            url += countPositiv > 0 ? "&count_positive=\(countPositiv)" : ""
+            url += countNegativ > 0 ? "&count_negative=\(countNegativ)" : ""
+            request(url).responseJSON{ responseJSON in
+                switch responseJSON.result {
+                case .success( _):
+                    connectBlock(true, "")
+                case .failure(let error):
+                    connectBlock(false, error.localizedDescription)
+                }
+            }
+        } else {
+            if isUseBase && account_id == "" {
+                connectBlock(false, "You did not specify account_id")
+            } else {
+                connectBlock(false, "You specify isUseBase = false")
+            }
+        }
+    }
+    
+    @objc public func sendReviewArticleMesssage(articleID: Int, message: String, connectionStatus connectBlock: @escaping UDSConnectBlock) {
+        if isUseBase && account_id != "" {
+            var url = "https://"
+            if self.urlAPI != "" {
+                url += self.urlAPI
+            } else {
+                url += "api.usedesk.ru"
+            }
+            url += "/create/ticket?api_token=\(self.api_token)"
+            var parameters = [
+                "subject" : "Отзыв о статье",
+                "message" : message + "\n" + "id \(articleID)",
+                "tag" : "БЗ",
+                "client_email" : email
+            ]
+            if name != "" {
+                parameters["client_name"] = name
+            }
+            request(url, method: .post, parameters: parameters).responseJSON{ responseJSON in
+                switch responseJSON.result {
+                case .success( _):
+                    connectBlock(true, "")
+                case .failure(let error):
+                    connectBlock(false, error.localizedDescription)
+                }
+            }
         } else {
             if isUseBase && account_id == "" {
                 connectBlock(false, "You did not specify account_id")
@@ -313,7 +400,13 @@ public class UseDeskSDK: NSObject {
     
     @objc public func getSearchArticles(collection_ids:[Int], category_ids:[Int], article_ids:[Int], count: Int = 20, page: Int = 1, query: String, type: TypeArticle = .all, sort: SortArticle = .id, order: OrderArticle = .asc, connectionStatus searchBlock: @escaping UDSArticleSearchBlock) {
         if isUseBase && account_id != "" {
-            var url = "https://api.usedesk.ru/support/\(account_id)/articles/list?api_token=\(api_token)"
+            var url = "https://"
+            if self.urlAPI != "" {
+                url += self.urlAPI
+            } else {
+                url += "api.usedesk.ru"
+            }
+            url += "/support/\(account_id)/articles/list?api_token=\(api_token)"
             var urlForEncode = "&query=\(query)&count=\(count)&page=\(page)"
             switch type {
             case .close:
@@ -386,19 +479,17 @@ public class UseDeskSDK: NSObject {
 
             let escapedUrl = urlForEncode.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
             url += escapedUrl ?? ""
-            DispatchQueue.global(qos: .default).async(execute: {
-                request(url).responseJSON{ responseJSON in
-                    switch responseJSON.result {
-                    case .success(let value):
-                        guard let articles = SearchArticle(from: value) else {
-                            searchBlock(false, nil, "error parsing")
-                            return }
-                        searchBlock(true, articles, "")
-                    case .failure(let error):
-                        searchBlock(false, nil, error.localizedDescription)
-                    }
+            request(url).responseJSON{ responseJSON in
+                switch responseJSON.result {
+                case .success(let value):
+                    guard let articles = SearchArticle(from: value) else {
+                        searchBlock(false, nil, "error parsing")
+                        return }
+                    searchBlock(true, articles, "")
+                case .failure(let error):
+                    searchBlock(false, nil, error.localizedDescription)
                 }
-            })
+            }
         } else {
             if isUseBase && account_id == "" {
                 searchBlock(false, nil, "You did not specify account_id")
@@ -417,17 +508,15 @@ public class UseDeskSDK: NSObject {
             "message" : message
         ]
         
-        DispatchQueue.global(qos: .default).async(execute: {
-            let urlStr = "https://secure.usedesk.ru/widget.js/post"
-            request(urlStr, method: .post, parameters: param as Parameters).responseJSON{ responseJSON in
-                switch responseJSON.result {
-                case .success( _):
-                    resultBlock(true, nil)
-                case .failure(let error):
-                    resultBlock(false, error.localizedDescription)
-                }
+        let urlStr = "https://secure.usedesk.ru/widget.js/post"
+        request(urlStr, method: .post, parameters: param as Parameters).responseJSON{ responseJSON in
+            switch responseJSON.result {
+            case .success( _):
+                resultBlock(true, nil)
+            case .failure(let error):
+                resultBlock(false, error.localizedDescription)
             }
-        })
+        }
     }
     
     func action_INITED(_ data: [Any]?) {

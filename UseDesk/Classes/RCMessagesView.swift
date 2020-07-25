@@ -80,10 +80,7 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     deinit {
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardDidShow, object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardDidHide, object: nil)
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func viewDidLayoutSubviews() {
@@ -165,9 +162,9 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     // MARK: - Keyboard methods
-    @objc func keyboardShow(_ notification: Notification?) {
+    @objc func keyboardShow(_ notification: Notification) {
         if !isShowKeyboard {
-            let info = notification?.userInfo
+            let info = notification.userInfo
             let keyboard: CGRect? = (info?[UIKeyboardFrameEndUserInfoKey] as AnyObject).cgRectValue
             let duration = TimeInterval((info?[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
             

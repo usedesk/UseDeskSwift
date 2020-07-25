@@ -14,6 +14,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet var urlTextField: UITextField!
     @IBOutlet var portTextField: UITextField!
     @IBOutlet weak var accountIdTextField: UITextField!
+    @IBOutlet weak var urlBaseTextField: UITextField!
     @IBOutlet weak var apiTokenTextField: UITextField!
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var phoneTextField: UITextField!
