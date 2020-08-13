@@ -21,6 +21,11 @@ class UDArticlesView: UIViewController, UITableViewDelegate, UITableViewDataSour
     var isViewDidLayout: Bool = false
     var searchBar = UISearchBar()
     
+    convenience init() {
+        let nibName: String = "UDArticlesView"
+        self.init(nibName: nibName, bundle: BundleId.bundle(for: nibName))
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         

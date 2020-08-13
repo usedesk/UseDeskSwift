@@ -19,6 +19,11 @@ class UDBaseView: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     var searchArticles: SearchArticle? = nil
     var isSearch: Bool = false
     
+    convenience init() {
+        let nibName: String = "UDBaseView"
+        self.init(nibName: nibName, bundle: BundleId.bundle(for: nibName))
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.modalPresentationStyle = .fullScreen
