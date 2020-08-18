@@ -295,14 +295,18 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
             let takePhotoAction = UIAlertAction(title: "Камера", style: .default) { (_) -> Void in
                 RequestAuthorizationHelper.requestCameraAccess(showErrorIn: self) { [weak self] hasAccess in
                     if hasAccess {
-                        self?.takePhoto()
+                        DispatchQueue.main.async {
+                            self?.takePhoto()
+                        }
                     }
                 }
             }
             let selectFromPhotosAction = UIAlertAction(title: "Галерея", style: .default) { (_) -> Void in
                 RequestAuthorizationHelper.requestLibraryAccess(showErrorIn: self) { [weak self] hasAccess in
                     if hasAccess {
-                        self?.selectPhoto()
+                        DispatchQueue.main.async {
+                            self?.selectPhoto()
+                        }
                     }
                 }
             }
