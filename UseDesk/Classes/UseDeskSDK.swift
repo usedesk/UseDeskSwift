@@ -26,6 +26,7 @@ public class UseDeskSDK: NSObject {
     @objc public var feedbackMessageBlock: UDSFeedbackMessageBlock?
     @objc public var feedbackAnswerMessageBlock: UDSFeedbackAnswerMessageBlock?
     @objc public var historyMess: [RCMessage] = []
+    @objc public var maxCountAssets: Int = 10
     
     var manager: SocketManager?
     var socket: SocketIOClient?
@@ -44,7 +45,8 @@ public class UseDeskSDK: NSObject {
     var firstMessage = ""
     var isUseBase = false
     
-
+    private let dialogflowVC : DialogflowView = DialogflowView()
+    
     @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, urlAPI _urlAPI: String? = nil, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: UDSStartBlock) {
         
         let parentController: UIViewController? = parentController ?? RootView
@@ -109,15 +111,15 @@ public class UseDeskSDK: NSObject {
                 startWithoutGUICompanyID(companyID: companyID, isUseBase: isUseBase, account_id: account_id, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, nameChat: _nameChat, connectionStatus: { [weak self] success, error in
                     guard let wSelf = self else {return}
                     if success {
-                        let dialogflowVC : DialogflowView = DialogflowView()
-                        dialogflowVC.usedesk = wSelf
-                        let navController = UDNavigationController(rootViewController: dialogflowVC)
+                        wSelf.dialogflowVC.usedesk = wSelf
+                        let navController = UDNavigationController(rootViewController: wSelf.dialogflowVC)
                         navController.setTitleTextAttributes()
                         navController.modalPresentationStyle = .fullScreen
                         parentController?.present(navController, animated: true)
                         hud.hide(animated: true)
                     } else {
                         if (error == "noOperators") {
+                            wSelf.dialogflowVC.dismiss(animated: true)
                             let offlineVC = UDOfflineForm()
                             offlineVC.url = wSelf.url
                             offlineVC.usedesk = wSelf
@@ -230,26 +232,25 @@ public class UseDeskSDK: NSObject {
             if no_operators {
                 startBlock(false, "noOperators")
             } else {
-            
-            let auth_success = wSelf.action_ADD_INIT(data)
-            
-            if auth_success {
-                if wSelf.firstMessage != "" {
-                    wSelf.sendMessage(wSelf.firstMessage)
-                    wSelf.firstMessage = ""
+                let auth_success = wSelf.action_ADD_INIT(data)
+                
+                if auth_success {
+                    if wSelf.firstMessage != "" {
+                        wSelf.sendMessage(wSelf.firstMessage)
+                        wSelf.firstMessage = ""
+                    }
+                    startBlock(auth_success, "")
+                } else {
+                    startBlock(auth_success, "false inited")
                 }
-                startBlock(auth_success, "")
-            } else {
-                startBlock(auth_success, "false inited")
-            }
- 
-            if auth_success && (wSelf.connectBlock != nil) {
-                wSelf.connectBlock!(true, nil)
-            }
-            
-            wSelf.action_Feedback_Answer(data)
-            
-            wSelf.action_ADD_MESSAGE(data)
+     
+                if auth_success && (wSelf.connectBlock != nil) {
+                    wSelf.connectBlock!(true, nil)
+                }
+                
+                wSelf.action_Feedback_Answer(data)
+                
+                wSelf.action_ADD_MESSAGE(data)
             }
         })
     }
@@ -555,7 +556,7 @@ public class UseDeskSDK: NSObject {
     func parseMessageDic(_ mess: [AnyHashable : Any]?) -> RCMessage? {
         let m = RCMessage(text: "", incoming: false)
         
-        let createdAt = mess?["createdAt"] as! String
+        let createdAt = mess?["createdAt"] as? String ?? ""
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "ru")
         dateFormatter.timeZone = TimeZone(identifier: "Europe/Moscow")
@@ -563,12 +564,15 @@ public class UseDeskSDK: NSObject {
         if dateFormatter.date(from: createdAt) == nil {
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
         }
-        m.date = dateFormatter.date(from: createdAt)!
-        
-        m.messageId = Int(mess?["id"] as! Int)
+        if createdAt != "" {
+            m.date = dateFormatter.date(from: createdAt)!
+        }
+        if mess?["id"] != nil {
+            m.messageId = Int(mess?["id"] as? Int ?? 0)
+        }
         m.incoming = (mess?["type"] as! String == "operator_to_client" || mess?["type"] as! String == "bot_to_client") ? true : false
         m.outgoing = !m.incoming
-        m.text = mess?["text"] as! String
+        m.text = mess?["text"] as? String ?? ""
 
         if m.incoming {
             let stringsFromButtons = parseMessageFromButtons(text: m.text)
@@ -585,7 +589,7 @@ public class UseDeskSDK: NSObject {
                     m.text = m.rcButtons[invertIndex].title + " " + m.text
                 }
             }
-            m.name = mess?["name"] as! String
+            m.name = mess?["name"] as? String ?? ""
         }        
         
         let payload = mess?["payload"] //as? [AnyHashable : Any]
@@ -711,15 +715,24 @@ public class UseDeskSDK: NSObject {
         }
         
         let setup = dicServer?["setup"] as? [AnyHashable : Any]
-        
         if setup != nil {
-            
-            let noOperators = (setup?["noOperators"])
-
+            let noOperators = setup?["noOperators"]
             if noOperators != nil {
                 return true
             }
         }
+        
+        let message = dicServer?["message"] as? [AnyHashable : Any]
+        if message != nil {
+            let payload = message?["payload"] as? [AnyHashable : Any]
+            if payload != nil {
+                let noOperators = payload?["noOperators"]
+                if noOperators != nil {
+                    return true
+                }
+            }
+        }
+        
         return false
     }
     

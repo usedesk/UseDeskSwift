@@ -29,7 +29,9 @@ class RCSectionHeaderCell: UITableViewCell {
         super.layoutSubviews()
         let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
         if rcmessage != nil {
-            labelSectionHeader!.text = rcmessage!.date!.dateFromHeaderComments
+            if rcmessage!.date != nil {
+                labelSectionHeader!.text = rcmessage!.date!.dateFromHeaderComments
+            }
         }
         let width: CGFloat = SCREEN_WIDTH - RCMessages.sectionHeaderLeft() - RCMessages.sectionHeaderRight()
         let height: CGFloat = (labelSectionHeader?.text != nil) ? RCMessages.sectionHeaderHeight : 0

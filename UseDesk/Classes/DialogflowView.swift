@@ -115,7 +115,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     
     // MARK: - Message methods
     override func rcmessage(_ indexPath: IndexPath?) -> RCMessage? {
-        return (rcmessages[indexPath!.section] as! RCMessage)
+        return (rcmessages[indexPath!.section])
     }
     
     func addMessage(_ text: String?, incoming: Bool) {
@@ -126,7 +126,23 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     // MARK: - Message Button methods
     @objc func openUrlFromMessageButton(_ notification: NSNotification) {
         if let url = notification.userInfo?["url"] as? String {
-            UIApplication.shared.openURL(URL(string: url)!)
+            let url = URL(string: url)
+            if #available(iOS 10.0, *) {
+                if UIApplication.shared.responds(to: #selector(UIApplication.open(_:options:completionHandler:))) {
+                    if let anUrl = url {
+                        UIApplication.shared.open(anUrl, options: [:], completionHandler: nil)
+                    }
+                } else {
+                    // Fallback on earlier versions
+                    if let anUrl = url {
+                        UIApplication.shared.openURL(anUrl)
+                    }
+                }
+            } else {
+                if let anUrl = url {
+                    UIApplication.shared.openURL(anUrl)
+                }
+            }
         }
     }
     
@@ -289,20 +305,28 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     }
     
     override func actionAttachMessage() {
-        if sendAssets.count < Constants.maxCountAssets {
+        var maxCountAssets = Constants.maxCountAssets
+        if usedesk != nil {
+            maxCountAssets = usedesk!.maxCountAssets
+        }
+        if sendAssets.count < maxCountAssets {
             let alertController = UIAlertController(title: "Прикрепить файл", message: nil, preferredStyle: UIAlertController.Style.alert)
             let cancelAction = UIAlertAction(title: "Отмена", style: .destructive) { (_) -> Void in }
             let takePhotoAction = UIAlertAction(title: "Камера", style: .default) { (_) -> Void in
                 RequestAuthorizationHelper.requestCameraAccess(showErrorIn: self) { [weak self] hasAccess in
                     if hasAccess {
-                        self?.takePhoto()
+                        DispatchQueue.main.async {
+                            self?.takePhoto()
+                        }
                     }
                 }
             }
             let selectFromPhotosAction = UIAlertAction(title: "Галерея", style: .default) { (_) -> Void in
                 RequestAuthorizationHelper.requestLibraryAccess(showErrorIn: self) { [weak self] hasAccess in
                     if hasAccess {
-                        self?.selectPhoto()
+                        DispatchQueue.main.async {
+                            self?.selectPhoto()
+                        }
                     }
                 }
             }
@@ -330,7 +354,11 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         let imagePickerController = QBImagePickerController()
         imagePickerController.delegate = self
         imagePickerController.allowsMultipleSelection = true
-        imagePickerController.maximumNumberOfSelection = UInt(Constants.maxCountAssets - sendAssets.count)
+        var maxCountAssets = UInt(Constants.maxCountAssets - sendAssets.count)
+        if usedesk != nil {
+            maxCountAssets = UInt(usedesk!.maxCountAssets - sendAssets.count)
+        }
+        imagePickerController.maximumNumberOfSelection = maxCountAssets
         imagePickerController.showsNumberOfSelectedAssets = true
         switch supportedAttachmentTypes {
         case .onlyPhoto:
@@ -345,7 +373,6 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
     }
     
     func qb_imagePickerController(_ imagePickerController: QBImagePickerController?, didFinishPickingAssets assets: [Any]?) {
-        var countReturned: Int = 0
         if assets != nil {
             for asset in assets! {
                 if ((asset as? PHAsset) != nil) {
@@ -356,10 +383,8 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                 }
             }
             showAttachCollection(assets: sendAssets)
-            //                        }
         }
         buttonInputSend.isHidden = false
-        
         dismiss(animated: true)
     }
     
@@ -452,9 +477,10 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                     }
                 }
             } else {
-                // Fallback on earlier versions
+                if let anUrl = url {
+                    UIApplication.shared.openURL(anUrl)
+                }
             }
-            
             
         }
         

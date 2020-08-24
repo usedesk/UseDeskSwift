@@ -73,8 +73,6 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
             }
         }
         usedesk.start(withCompanyID: companyIdTextField.text!, isUseBase: isUseBase, account_id: accountId, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, nameChat: nameChat, firstMessage: firstMessageTextField.text != nil ? firstMessageTextField.text : nil, presentIn: self, connectionStatus: { success, error in
-            print("")
         })
-        
     }
 }
