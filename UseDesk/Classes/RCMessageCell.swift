@@ -74,7 +74,7 @@ class RCMessageCell: UITableViewCell {
         if rcmessage.incoming {
             xBubble = RCMessages.avatarIncomingHidden() ? RCMessages.bubbleMarginLeft() : (RCMessages.avatarDiameter() + RCMessages.avatarMarginLeft() + RCMessages.avatarMarginRight())
         } else {
-            xBubble = RCMessages.avatarOutgoingHidden() ? (SCREEN_WIDTH - RCMessages.bubbleMarginRight() - size.width) : (RCMessages.avatarDiameter() + RCMessages.avatarMarginLeft() + RCMessages.avatarMarginRight())
+            xBubble = RCMessages.avatarOutgoingHidden() ? (SCREEN_WIDTH - RCMessages.bubbleMarginRight() - size.width) : (SCREEN_WIDTH - size.width - (RCMessages.avatarDiameter() + RCMessages.avatarMarginLeft() + RCMessages.avatarMarginRight()))
         }
         if rcmessage.incoming {
             let widthLabel: CGFloat = size.width < 200 ? 200 : size.width
