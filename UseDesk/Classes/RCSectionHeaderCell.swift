@@ -36,6 +36,11 @@ class RCSectionHeaderCell: UITableViewCell {
         let width: CGFloat = SCREEN_WIDTH - RCMessages.sectionHeaderLeft() - RCMessages.sectionHeaderRight()
         let height: CGFloat = (labelSectionHeader?.text != nil) ? RCMessages.sectionHeaderHeight : 0
         labelSectionHeader?.frame = CGRect(x: RCMessages.sectionHeaderLeft(), y: 0, width: width, height: height)
+        if UIScreen.main.bounds.height < UIScreen.main.bounds.width {
+            if contentView.frame.origin.x > 0 {
+                labelSectionHeader?.frame.origin.x -= 22
+            }
+        }
     }
     
     // MARK: - Size methods

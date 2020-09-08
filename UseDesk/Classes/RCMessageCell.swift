@@ -75,7 +75,7 @@ class RCMessageCell: UITableViewCell {
             xBubble = RCMessages.avatarIncomingHidden() ? RCMessages.bubbleMarginLeft() : (RCMessages.avatarDiameter() + RCMessages.avatarMarginLeft() + RCMessages.avatarMarginRight())
         } else {
             xBubble = RCMessages.avatarOutgoingHidden() ? (SCREEN_WIDTH - RCMessages.bubbleMarginRight() - size.width) : (SCREEN_WIDTH - size.width - (RCMessages.avatarDiameter() + RCMessages.avatarMarginLeft() + RCMessages.avatarMarginRight()))
-        }
+        } 
         if rcmessage.incoming {
             let widthLabel: CGFloat = size.width < 200 ? 200 : size.width
             label.frame = CGRect(x: xBubble, y: 0, width: widthLabel, height: kHeightName)
@@ -91,7 +91,7 @@ class RCMessageCell: UITableViewCell {
         if rcmessage.incoming {
             if !RCMessages.avatarIncomingHidden() {
                 xAvatar = RCMessages.avatarMarginLeft()
-                yAvatar = size.height - diameter + 18
+                yAvatar = size.height - diameter 
             }
             imageAvatar.isHidden = RCMessages.avatarIncomingHidden()
             labelAvatar.isHidden = RCMessages.avatarIncomingHidden()
@@ -106,6 +106,14 @@ class RCMessageCell: UITableViewCell {
         if let x = xAvatar, let y = yAvatar {
             imageAvatar.frame = CGRect(x: x, y: y, width: diameter, height: diameter)
             labelAvatar.frame = CGRect(x: x, y: y, width: diameter, height: diameter)
+        }
+        if UIScreen.main.bounds.height < UIScreen.main.bounds.width {
+            if contentView.frame.origin.x > 0 {
+                viewBubble?.frame.origin.x -= 44
+                imageAvatar?.frame.origin.x -= 44
+                labelAvatar?.frame.origin.x -= 44
+                label?.frame.origin.x -= 44
+            }
         }
     }
     

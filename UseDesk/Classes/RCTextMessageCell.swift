@@ -66,7 +66,7 @@ class RCTextMessageCell: RCMessageCell, UICollectionViewDelegate, UICollectionVi
                 for _ in rcmessage!.rcButtons {
                     size = CGSize(width: size.width, height: size.height + 40)
                 }
-                size = CGSize(width: size.width, height: size.height + 10)
+                size = CGSize(width: size.width, height: size.height + 2)
                 super.layoutSubviews(size)
                 collectionView?.frame = CGRect(x: 0, y: textSize.height, width: size.width, height: size.height - textSize.height - 10)
                 let layout = UICollectionViewFlowLayout()

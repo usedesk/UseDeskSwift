@@ -251,8 +251,9 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         if isFromBase {
             navigationController?.popViewController(animated: true)
         } else {
-            dismiss(animated: true)
+            usedesk?.dialogNavController.dismiss(animated: true, completion: nil)
         }
+        self.view.removeFromSuperview()
     }
     
     override func actionSendMessage(_ text: String?) {
@@ -384,13 +385,11 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
             }
             showAttachCollection(assets: sendAssets)
         }
-        buttonInputSend.isHidden = false
+        buttonInputSend.isEnabled = true
         dismiss(animated: true)
     }
     
     func qb_imagePickerControllerDidCancel(_ imagePickerController: QBImagePickerController?) {
-        print("Canceled.")
-        
         dismiss(animated: true)
     }
     
@@ -403,6 +402,7 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
         
             showAttachCollection(assets: sendAssets)
         }
+        buttonInputSend.isEnabled = true
         picker.dismiss(animated: true)
     }
     

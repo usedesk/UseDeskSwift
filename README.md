@@ -189,7 +189,8 @@ usedesk.getCollections(connectionStatus: {success, collections, error in
 
 #### Пример:
 ```swift
-usedesk.getArticle(articleID: 1, connectionStatus baseBlock: @escaping UDSArticleBlock)
+usedesk?.getArticle(articleID: id, connectionStatus: { success, article, error in
+})
 ```
 ## Получение результатов поиска статьи:
 
@@ -303,7 +304,7 @@ usedesk.maxCountAssets = 5
 #### Пример:
 
 ```swift
-usedesk.connectBlock = (success, error){
+usedesk.connectBlock = { success, error in
 }
 ```
 #### Блок возвращает следующие параметры:
@@ -329,7 +330,7 @@ usedesk.connectBlock = (success, error){
 #### Пример:
 
 ```swift
-usedesk.newMessageBlock = (success, message){
+usedesk.newMessageBlock { success, message in
 }
 ```
 
@@ -350,8 +351,7 @@ usedesk!.sendMessageFeedBack(true)
 #### Пример:
 
 ```swift
-usedesk.errorBlock = (errors){
-    
+usedesk.errorBlock = {errors in
 }
 ```
 
@@ -373,7 +373,7 @@ usedesk.releaseChat()
 #### Пример:
 
 ```swift
-usedesk.feedbackMessageBlock = (message){
+usedesk.feedbackMessageBlock = { message in
 }
 ```
 ## Настройки

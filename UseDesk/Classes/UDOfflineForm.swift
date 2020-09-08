@@ -45,6 +45,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         usedesk!.sendOfflineForm(withMessage: messageTextField.text) { [weak self] (result, error) in
             guard let wSelf = self else {return}
             if result {
+                wSelf.usedesk?.releaseChat()
                 DispatchQueue.main.async(execute: {
                     hud.hide(animated: true)
                     wSelf.dismiss(animated: true)

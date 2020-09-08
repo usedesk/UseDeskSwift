@@ -45,7 +45,9 @@ public class UseDeskSDK: NSObject {
     var firstMessage = ""
     var isUseBase = false
     
-    private let dialogflowVC : DialogflowView = DialogflowView()
+    var dialogNavController = UDNavigationController()
+    
+    private var dialogflowVC : DialogflowView = DialogflowView()
     
     @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, urlAPI _urlAPI: String? = nil, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: UDSStartBlock) {
         
@@ -111,11 +113,14 @@ public class UseDeskSDK: NSObject {
                 startWithoutGUICompanyID(companyID: companyID, isUseBase: isUseBase, account_id: account_id, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, nameChat: _nameChat, connectionStatus: { [weak self] success, error in
                     guard let wSelf = self else {return}
                     if success {
+                        wSelf.dialogflowVC = DialogflowView()
                         wSelf.dialogflowVC.usedesk = wSelf
-                        let navController = UDNavigationController(rootViewController: wSelf.dialogflowVC)
-                        navController.setTitleTextAttributes()
-                        navController.modalPresentationStyle = .fullScreen
-                        parentController?.present(navController, animated: true)
+                        if wSelf.dialogNavController.presentingViewController == nil {
+                            wSelf.dialogNavController = UDNavigationController(rootViewController: wSelf.dialogflowVC)
+                            wSelf.dialogNavController.setTitleTextAttributes()
+                            wSelf.dialogNavController.modalPresentationStyle = .fullScreen
+                            parentController?.present(wSelf.dialogNavController, animated: true)
+                        }
                         hud.hide(animated: true)
                     } else {
                         if (error == "noOperators") {
@@ -513,7 +518,7 @@ public class UseDeskSDK: NSObject {
         ]
         
         let urlStr = "https://secure.usedesk.ru/widget.js/post"
-        request(urlStr, method: .post, parameters: param as Parameters).responseJSON{ responseJSON in
+        request(urlStr, method: .post, parameters: param as Parameters, encoding: JSONEncoding.default).responseJSON{ responseJSON in
             switch responseJSON.result {
             case .success( _):
                 resultBlock(true, nil)

@@ -14,7 +14,6 @@ class UDBaseView: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     var url: String?
     var arrayCollections: [BaseCollection] = []
     var navigationView = UIView()
-    var isViewDidLayout: Bool = false
     var searchBar = UISearchBar()
     var searchArticles: SearchArticle? = nil
     var isSearch: Bool = false
@@ -68,10 +67,7 @@ class UDBaseView: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        if !isViewDidLayout {
-            searchBar.frame = CGRect(origin: .zero, size: CGSize(width: navigationView.frame.width - 30, height: navigationView.frame.height)) 
-            isViewDidLayout = true
-        }
+        searchBar.frame = CGRect(origin: .zero, size: CGSize(width: navigationView.frame.width - 30, height: navigationView.frame.height))
     }
     
     // MARK: - User actions

@@ -27,9 +27,25 @@ extension UIColor {
         self.init(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: CGFloat(a) / 255)
     }
 }
-
-let SCREEN_WIDTH = UIScreen.main.bounds.size.width
-let SCREEN_HEIGHT = UIScreen.main.bounds.size.height
+var safeAreaInsetsLeftOrRight: CGFloat = 0
+var SCREEN_WIDTH: CGFloat {
+    get {
+        if UIScreen.main.bounds.height > UIScreen.main.bounds.width {
+            return UIScreen.main.bounds.size.width
+        } else {
+            if UIDevice.current.orientation == .landscapeLeft {
+                return UIScreen.main.bounds.size.width - safeAreaInsetsLeftOrRight
+            } else {
+                return UIScreen.main.bounds.size.width - (safeAreaInsetsLeftOrRight )
+            }
+        }
+    }
+}
+var SCREEN_HEIGHT: CGFloat {
+    get {
+        return UIScreen.main.bounds.size.height
+    }
+}
 
 let RC_TYPE_STATUS = 1
 let RC_TYPE_TEXT = 2
@@ -78,7 +94,6 @@ public class RCMessages: NSObject {
     public var bubbleFooterColor: UIColor?
     public var bubbleFooterFont: UIFont?
     // Avatar
-    
     public var avatarDiameter: CGFloat = 0.0
     public var avatarIncomingHidden: Bool = false
     public var avatarMarginLeft: CGFloat = 0.0
@@ -133,6 +148,11 @@ public class RCMessages: NSObject {
     // Emoji cell
     public var emojiBubbleWidthMin: CGFloat = 0.0
     public var emojiBubbleHeightMin: CGFloat = 0.0
+    public var emojiButtonWidth: CGFloat = 0.0
+    public var emojiButtonHeight: CGFloat = 0.0
+    public var emojiButtonInsetOfCenter: CGFloat = 0.0
+    public var emojiButtonInsetTop: CGFloat = 0.0
+    public var emojiButtonInsetBottom: CGFloat = 0.0
     public var emojiBubbleColorOutgoing: UIColor?
     public var emojiBubbleColorIncoming: UIColor?
     public var emojiFont: UIFont?
@@ -285,6 +305,12 @@ public class RCMessages: NSObject {
         emojiBubbleWidthMin = 45.0
         emojiBubbleHeightMin = 35.0
         
+        emojiButtonWidth = 90.0
+        emojiButtonHeight = 90.0
+        emojiButtonInsetTop = 5.0
+        emojiButtonInsetBottom = 5.0
+        emojiButtonInsetOfCenter = 5.0
+        
         emojiBubbleColorOutgoing = UIColor(hexString: "007affff")
         emojiBubbleColorIncoming = UIColor(hexString: "e6e5eaff")
         
@@ -352,7 +378,7 @@ public class RCMessages: NSObject {
         
         inputRadius = 5.0
         
-        inputInset = UIEdgeInsets(top: 5, left: 7, bottom: 5, right: 7)
+        inputInset = UIEdgeInsets(top: 4, left: 7, bottom: 4, right: 7)
         
     }
     
@@ -586,6 +612,26 @@ public class RCMessages: NSObject {
     
     class func emojiBubbleHeightMin() -> CGFloat {
         return self.shared.emojiBubbleHeightMin
+    }
+    
+    class func emojiButtonWidth() -> CGFloat {
+        return self.shared.emojiButtonWidth
+    }
+    
+    class func emojiButtonHeight() -> CGFloat {
+        return self.shared.emojiButtonHeight
+    }
+    
+    class func emojiButtonInsetTop() -> CGFloat {
+        return self.shared.emojiButtonInsetTop
+    }
+    
+    class func emojiButtonInsetBottom() -> CGFloat {
+        return self.shared.emojiButtonInsetBottom
+    }
+    
+    class func emojiButtonInsetOfCenter() -> CGFloat {
+        return self.shared.emojiButtonInsetOfCenter
     }
     
     class func emojiBubbleColorOutgoing() -> UIColor? {

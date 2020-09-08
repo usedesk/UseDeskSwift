@@ -37,7 +37,6 @@ class RCEmojiMessageCell: RCMessageCell {
         }
         
         if dislikeButton == nil {
-            
             dislikeButton = UIButton(type: .custom)
             dislikeButton!.setBackgroundImage(UIImage.named("dislike"), for: .normal)
             dislikeButton!.addTarget(self, action: #selector(self.dislikeButton_pressed(_:)), for: .touchUpInside)
@@ -45,7 +44,6 @@ class RCEmojiMessageCell: RCMessageCell {
         }
         
         if likeButton == nil {
-            
             likeButton = UIButton(type: .custom)
             likeButton!.setBackgroundImage(UIImage.named("like"), for: .normal)
             likeButton!.addTarget(self, action: #selector(self.likeButton_pressed(_:)), for: .touchUpInside)
@@ -57,7 +55,13 @@ class RCEmojiMessageCell: RCMessageCell {
     
     // MARK: - Size methods
     class func height(_ indexPath: IndexPath?, messagesView: RCMessagesView?) -> CGFloat {
-        let size: CGSize = self.size(indexPath, messagesView: messagesView)
+        var size: CGSize = self.size(indexPath, messagesView: messagesView)
+        let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
+        if rcmessage != nil {
+            if rcmessage!.incoming {
+                size = CGSize(width: size.width, height: size.height + 18)
+            }
+        }
         return size.height
     }
     
@@ -65,9 +69,10 @@ class RCEmojiMessageCell: RCMessageCell {
         let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
         if rcmessage != nil {
             let maxwidth: CGFloat = (0.6 * SCREEN_WIDTH) - RCMessages.emojiInsetLeft() - RCMessages.emojiInsetRight()
-            let rect: CGRect? = rcmessage?.text.boundingRect(with: CGSize(width: maxwidth, height: CGFloat(MAXFLOAT)), options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: RCMessages.emojiFont() as Any], context: nil)
-            let width: CGFloat = (rect?.size.width ?? 0.0) + RCMessages.emojiInsetLeft() + RCMessages.emojiInsetRight()
-            var height: CGFloat = (rect?.size.height ?? 0.0) + RCMessages.emojiInsetTop() + RCMessages.emojiInsetBottom()     
+            let rect: CGRect? = rcmessage?.text.boundingRect(with: CGSize(width: maxwidth, height: CGFloat(MAXFLOAT)), options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: RCMessages.textFont() as Any], context: nil)
+            let widthText = (rect?.size.width ?? 0.0) + RCMessages.emojiInsetLeft() + RCMessages.emojiInsetRight()
+            let width: CGFloat = CGFloat(fmaxf(Float(widthText), Float((RCMessages.emojiButtonWidth() * 2) + (RCMessages.emojiButtonInsetOfCenter() * 2))))
+            var height: CGFloat = (rect?.size.height ?? 0.0) + RCMessages.emojiInsetTop() + RCMessages.emojiInsetBottom() + RCMessages.emojiButtonHeight()
             return CGSize(width: CGFloat(fmaxf(Float(width), Float(RCMessages.emojiBubbleWidthMin()))), height: CGFloat(fmaxf(Float(height), Float(RCMessages.emojiBubbleHeightMin()))))
         } else {
             return CGSize(width: 0, height: 0)
@@ -84,11 +89,18 @@ class RCEmojiMessageCell: RCMessageCell {
     
     override func layoutSubviews() {
         let size: CGSize = RCEmojiMessageCell.size(indexPath, messagesView: messagesView)
-        
         super.layoutSubviews(size)
-        textView?.frame = CGRect(x: 0, y: size.height - 80, width: size.width, height: 80)
-        dislikeButton?.frame = CGRect(x: size.width * 1 / 10, y: size.height / 4, width: size.width / 4, height: size.height / 4)
-        likeButton?.frame = CGRect(x: size.width * 2 / 3, y: size.height / 4, width: size.width / 4, height: size.height / 4)        
+        let rcmessage: RCMessage? = messagesView?.rcmessage(indexPath)
+        if rcmessage != nil {
+            if rcmessage!.incoming {
+                imageAvatar.frame = CGRect(x: imageAvatar.frame.origin.x, y: imageAvatar.frame.origin.y + 18, width: imageAvatar.frame.size.width, height: imageAvatar.frame.size.height)
+            }
+        }
+        if textView != nil {
+            textView!.frame = CGRect(x: 0, y: RCMessages.emojiButtonHeight(), width: size.width, height: size.height - RCMessages.emojiInsetTop() + RCMessages.emojiInsetBottom() + RCMessages.emojiButtonHeight())
+        }
+        dislikeButton?.frame = CGRect(x: (size.width / 2) - RCMessages.emojiButtonWidth() - RCMessages.emojiButtonInsetOfCenter(), y: RCMessages.emojiButtonInsetTop(), width: RCMessages.emojiButtonWidth(), height: RCMessages.emojiButtonHeight() - RCMessages.emojiButtonInsetTop() - RCMessages.emojiButtonInsetBottom())
+        likeButton?.frame = CGRect(x: (size.width / 2) + RCMessages.emojiButtonInsetOfCenter(), y: RCMessages.emojiButtonInsetTop(), width: RCMessages.emojiButtonWidth(), height: RCMessages.emojiButtonHeight() - RCMessages.emojiButtonInsetTop() - RCMessages.emojiButtonInsetBottom())
     }
     
 }
