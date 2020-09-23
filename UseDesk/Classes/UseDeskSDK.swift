@@ -615,20 +615,22 @@ public class UseDeskSDK: NSObject {
             file.type = fileDic?["type"] as! String
             m.file = file
             m.status = RC_STATUS_LOADING
-            if (file.type == "image/png") || (file.name.contains(".png")) {
+            let type = URL.init(string: fileDic?["fullLink"] as? String ?? "")?.pathExtension ?? ""
+            if file.type.contains("image") || isImage(of: type) {
                 m.type = RC_TYPE_PICTURE
                 do {
                     if  URL(string: file.content) != nil {
                         let aContent = URL(string: file.content)
                         let aContent1 = try Data(contentsOf: aContent!)
                         m.picture_image = UIImage(data: aContent1)
-                        
                     }
                 } catch {                    
                 }
-            } else if (file.type.contains("video/")) || (file.name.contains(".mp4")) {
+            } else if file.type.contains("video") || isVideo(of: type) {
                 m.type = RC_TYPE_VIDEO
                 file.type = "video"
+            } else {
+                m.type = RC_TYPE_File
             }
             
             m.picture_width = Int(0.6 * SCREEN_WIDTH)
@@ -832,6 +834,16 @@ public class UseDeskSDK: NSObject {
     func loadToken(for email: String?) -> String? {
         let savedValue = UserDefaults.standard.string(forKey: email ?? "")
         return savedValue
+    }
+    
+    private func isImage(of type: String) -> Bool {
+        let typesImage = ["gif", "xbm", "jpeg", "jpg", "pct", "BMPf", "ico", "tif", "tiff", "cur", "bmp", "JPEG", "png"]
+        return typesImage.contains(type)
+    }
+    
+    private func isVideo(of type: String) -> Bool {
+        let typesImage = ["mpeg", "mp4", "webm", "quicktime", "ogg", "mov", "mpe", "mpg", "mvc", "flv", "avi", "3g2", "3gp2", "vfw", "MPG", "MPEG"]
+        return typesImage.contains(type)
     }
     
     public func releaseChat() {

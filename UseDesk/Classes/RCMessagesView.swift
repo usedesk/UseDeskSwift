@@ -287,7 +287,7 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         }
         viewInputHC.constant = isShowKeyboard ? heightInput + 14 : heightInput + safeAreaInsetsBottom + 14
         if isAttachFiles {
-            viewInputHC.constant += Constants.heightAssetsCollection
+            viewInputHC.constant += isShowKeyboard ? Constants.heightAssetsCollection : Constants.heightAssetsCollection - safeAreaInsetsBottom
             textInputBC.constant = 7 + Constants.heightAssetsCollection
         }
         if UIScreen.main.bounds.height > UIScreen.main.bounds.width {

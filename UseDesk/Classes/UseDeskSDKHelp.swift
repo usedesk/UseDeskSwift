@@ -87,15 +87,16 @@ class UseDeskSDKHelp {
             "content" : contentBase64 ?? ""
         ]
         
-        let message = [
+        let message: [String : Any] = [
             "text" : text ?? "",
             "file" : file
-            ] as [String : Any]
+            ]
         
-        let dic = [
+        let dic: [String : Any] = [
             "type" : "@@server/chat/SEND_MESSAGE",
             "message" : message
-            ] as [String : Any]
+            ]
+        
         return [dic]
     }
     

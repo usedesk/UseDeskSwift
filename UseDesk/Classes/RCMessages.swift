@@ -321,8 +321,8 @@ public class RCMessages: NSObject {
         
         pictureBubbleWidth = 200.0
         
-        pictureBubbleColorOutgoing = UIColor.lightGray
-        pictureBubbleColorIncoming = UIColor.lightGray
+        pictureBubbleColorOutgoing = UIColor(hexString: "9999ff")
+        pictureBubbleColorIncoming = UIColor(hexString: "e6e5eaff")
         
         pictureImageManual = UIImage.named("rcmessages_manual")
         
@@ -331,8 +331,8 @@ public class RCMessages: NSObject {
         videoBubbleWidth = 200.0
         videoBubbleHeight = 145.0
         
-        videoBubbleColorOutgoing = UIColor.lightGray
-        videoBubbleColorIncoming = UIColor.lightGray
+        videoBubbleColorOutgoing = UIColor(hexString: "9999ff")
+        videoBubbleColorIncoming = UIColor(hexString: "e6e5eaff")
         
         videoImagePlay = UIImage.named("rcmessages_videoplay")
         videoImageManual = UIImage.named("rcmessages_manual")
