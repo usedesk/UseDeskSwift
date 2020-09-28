@@ -74,7 +74,5 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
         }
         usedesk.start(withCompanyID: companyIdTextField.text!, isUseBase: isUseBase, urlAPI: urlBaseTextField.text != nil ? urlBaseTextField.text! : nil, account_id: accountId, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, nameChat: nameChat, firstMessage: firstMessageTextField.text != nil ? firstMessageTextField.text : nil, presentIn: self, connectionStatus: { success, error in
         })
-//        usedesk.start(withCompanyID: "153561"/*companyIdTextField.text!*/, isUseBase: isUseBase, urlAPI: "devsecure.usedesk.ru/uapi"/*urlBaseTextField.text != nil ? urlBaseTextField.text! : nil*/, account_id: accountId, api_token: "f0a4b9323d7f93218e244b836f4c1bec16188296"/*apiTokenTextField.text!*/, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: "pubsubtest.usedesk.ru"/*urlTextField.text!*/, port: "" /*portTextField.text!*/, name: nameTextField.text != nil ? nameTextField.text! : nil, nameChat: nameChat, firstMessage: firstMessageTextField.text != nil ? firstMessageTextField.text : nil, presentIn: self, connectionStatus: { success, error in
-//        })
     }
 }
