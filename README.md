@@ -407,6 +407,8 @@ usedesk.feedbackMessageBlock = { message in
 | 400 | Message is not defined | Не передали message |
 | 403 | Your token is fake | Передали несуществующий токен |
 
+| Ошибка | Описание |
+| ------------- | ------------- |
 | emailError | Введен не корректный email |
 | urlError | Введен не корректный параметр url |
 | urlAPIError | Введен не корректный параметр urlAPI |
