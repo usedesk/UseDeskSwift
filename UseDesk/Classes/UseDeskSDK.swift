@@ -70,6 +70,11 @@ public class UseDeskSDK: NSObject {
         
         if _urlAPI != nil {
             urlAPI = _urlAPI!
+            guard isValidSite(path: urlAPI) || urlAPI == "" else {
+                startBlock(false, "urlAPIError")
+                hud.hide(animated: true)
+                return
+            }
         }
         
         if _name != nil {
@@ -80,6 +85,11 @@ public class UseDeskSDK: NSObject {
         if _phone != nil {
             if _phone != "" {
                 phone = _phone!
+                guard isValidPhone(phone: _phone!) else {
+                    startBlock(false, "phoneError")
+                    hud.hide(animated: true)
+                    return
+                }
             }
         }
         if _nameChat != nil {
@@ -96,7 +106,17 @@ public class UseDeskSDK: NSObject {
                 firstMessage = _firstMessage!
             }
         }
-        
+        guard isValidEmail(email: _email) else {
+            startBlock(false, "emailError")
+            hud.hide(animated: true)
+            return
+        }
+        guard isValidSite(path: _url) else {
+            startBlock(false, "urlError")
+            hud.hide(animated: true)
+            return
+        }
+    
         if isUseBase && _account_id != nil {
             let baseView = UDBaseView()
             baseView.usedesk = self
@@ -193,6 +213,24 @@ public class UseDeskSDK: NSObject {
                 firstMessage = _firstMessage!
             }
         }
+        // validation
+        guard isValidEmail(email: _email) else {
+            startBlock(false, "emailError")
+            return
+        }
+        guard isValidSite(path: _url) else {
+            startBlock(false, "urlError")
+            return
+        }
+        guard isValidSite(path: urlAPI) || urlAPI == "" else {
+            startBlock(false, "urlAPIError")
+            return
+        }
+        guard isValidPhone(phone: phone) || phone == "" else {
+            startBlock(false, "phoneError")
+            return
+        }
+        
         let urlAdress = URL(string: url)
         
         let config = ["log": true]
@@ -269,7 +307,7 @@ public class UseDeskSDK: NSObject {
                 url += "api.usedesk.ru"
             }
             url += "/support/\(self.account_id)/list?api_token=\(self.api_token)"
-            request(url).responseJSON{  responseJSON in
+            AF.request(url).responseJSON{  responseJSON in
                 switch responseJSON.result {
                 case .success(let value):
                     guard let collections = BaseCollection.getArray(from: value) else {
@@ -298,7 +336,7 @@ public class UseDeskSDK: NSObject {
                 url += "api.usedesk.ru"
             }
             url += "/support/\(self.account_id)/articles/\(articleID)?api_token=\(self.api_token)"
-            request(url).responseJSON{ responseJSON in
+            AF.request(url).responseJSON{ responseJSON in
                 switch responseJSON.result {
                 case .success(let value):
                     guard let article = Article.get(from: value) else {
@@ -327,7 +365,7 @@ public class UseDeskSDK: NSObject {
                 url += "api.usedesk.ru"
             }
             url += "/support/\(self.account_id)/articles/\(articleID)/add-views?api_token=\(self.api_token)&count=\(count)"
-            request(url).responseJSON{ responseJSON in
+            AF.request(url).responseJSON{ responseJSON in
                 switch responseJSON.result {
                 case .success( _):
                     connectBlock(true, "")
@@ -355,7 +393,7 @@ public class UseDeskSDK: NSObject {
             url +=   "/support/\(self.account_id)/articles/\(articleID)/change-rating?api_token=\(self.api_token)"
             url += countPositiv > 0 ? "&count_positive=\(countPositiv)" : ""
             url += countNegativ > 0 ? "&count_negative=\(countNegativ)" : ""
-            request(url).responseJSON{ responseJSON in
+            AF.request(url).responseJSON{ responseJSON in
                 switch responseJSON.result {
                 case .success( _):
                     connectBlock(true, "")
@@ -390,7 +428,7 @@ public class UseDeskSDK: NSObject {
             if name != "" {
                 parameters["client_name"] = name
             }
-            request(url, method: .post, parameters: parameters).responseJSON{ responseJSON in
+            AF.request(url, method: .post, parameters: parameters).responseJSON{ responseJSON in
                 switch responseJSON.result {
                 case .success( _):
                     connectBlock(true, "")
@@ -488,7 +526,7 @@ public class UseDeskSDK: NSObject {
 
             let escapedUrl = urlForEncode.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
             url += escapedUrl ?? ""
-            request(url).responseJSON{ responseJSON in
+            AF.request(url).responseJSON{ responseJSON in
                 switch responseJSON.result {
                 case .success(let value):
                     guard let articles = SearchArticle(from: value) else {
@@ -518,7 +556,7 @@ public class UseDeskSDK: NSObject {
         ]
         
         let urlStr = "https://secure.usedesk.ru/widget.js/post"
-        request(urlStr, method: .post, parameters: param as Parameters, encoding: JSONEncoding.default).responseJSON{ responseJSON in
+        AF.request(urlStr, method: .post, parameters: param as Parameters, encoding: JSONEncoding.default).responseJSON{ responseJSON in
             switch responseJSON.result {
             case .success( _):
                 resultBlock(true, nil)
@@ -844,6 +882,31 @@ public class UseDeskSDK: NSObject {
     private func isVideo(of type: String) -> Bool {
         let typesImage = ["mpeg", "mp4", "webm", "quicktime", "ogg", "mov", "mpe", "mpg", "mvc", "flv", "avi", "3g2", "3gp2", "vfw", "MPG", "MPEG"]
         return typesImage.contains(type)
+    }
+    
+    private func isValidSite(path: String) -> Bool {
+        let urlRegEx = "^(https?://)?(www\\.)?([-a-z0-9]{1,63}\\.)*?[a-z0-9][-a-z0-9]{0,61}[a-z0-9]\\.[a-z]{2,6}(/[-\\w@\\+\\.~#\\?&/=%]*)?$"
+        return NSPredicate(format: "SELF MATCHES %@", urlRegEx).evaluate(with: path)
+    }
+    
+    func isValidEmail(email: String) -> Bool {
+        let emailRegEx = "^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{1,4}$"
+        let emailTest = NSPredicate(format:"SELF MATCHES[c] %@", emailRegEx)
+        return emailTest.evaluate(with: email)
+    }
+    
+    func isValidPhone(phone:String) -> Bool {
+        do {
+            let detector = try NSDataDetector(types: NSTextCheckingResult.CheckingType.phoneNumber.rawValue)
+            let matches = detector.matches(in: phone, options: [], range: NSMakeRange(0, phone.count))
+            if let res = matches.first {
+                return res.resultType == .phoneNumber && res.range.location == 0 && res.range.length == phone.count
+            } else {
+                return false
+            }
+        } catch {
+            return false
+        }
     }
     
     public func releaseChat() {

@@ -12,9 +12,8 @@ class UDFileManager: NSObject {
     class func downloadFile(indexPath: IndexPath, urlPath: String, successBlock: @escaping (IndexPath, URL)->(), errorBlock: (_ error: String) -> Void) {
         if let url = URL(string: urlPath) {
             let destination = DownloadRequest.suggestedDownloadDestination(for: .documentDirectory)
-            
-            Alamofire.download(url, to: destination).responseData { response in
-                if let destinationUrl = response.destinationURL {
+            AF.download(url, to: destination).responseData { response in
+                if let destinationUrl = response.fileURL {
                     successBlock(indexPath, destinationUrl)
                 }
             }

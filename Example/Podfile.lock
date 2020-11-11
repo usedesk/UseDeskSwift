@@ -1,5 +1,5 @@
 PODS:
-  - Alamofire (4.9.1)
+  - Alamofire (5.4.0)
   - FLAnimatedImage (1.0.12)
   - MBProgressHUD (1.2.0)
   - NYTPhotoViewer (1.2.0):
@@ -18,8 +18,8 @@ PODS:
     - Starscream (~> 3.0.6)
   - Starscream (3.0.6)
   - "UIAlertController+Blocks (0.9.2)"
-  - UseDesk_SDK_Swift (0.3.16):
-    - Alamofire (~> 4.0)
+  - UseDesk_SDK_Swift (0.3.17):
+    - Alamofire (~> 5)
     - MBProgressHUD (~> 1.0)
     - NYTPhotoViewer (= 1.2.0)
     - ProgressHUD
@@ -49,7 +49,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
+  Alamofire: 3b6a534a3df22db367e4dedeeca73d1ddfcf0e2f
   FLAnimatedImage: 4a0b56255d9b05f18b6dd7ee06871be5d3b89e31
   MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
   NYTPhotoViewer: 323217e4590a1586eb3c9674b3fefb0fb8b57896
@@ -59,7 +59,7 @@ SPEC CHECKSUMS:
   Socket.IO-Client-Swift: 21e6a8a23a7d367d5ddfab6cbbd3c679cf3c25d6
   Starscream: ef3ece99d765eeccb67de105bfa143f929026cf5
   "UIAlertController+Blocks": 80e28b92523fb58aba4d1bccec013d5a0b0bddb2
-  UseDesk_SDK_Swift: 9561aafe2dcb399861e062e21bc089584787abf1
+  UseDesk_SDK_Swift: 726f6289820db75cd5b627b9fb255d20d435e0e6
 
 PODFILE CHECKSUM: bbc3836925ebcc11f98b8ec2676c7a91e860d84a
 

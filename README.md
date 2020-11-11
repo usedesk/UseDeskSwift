@@ -44,10 +44,11 @@ pod 'UseDesk_SDK_Swift'
 | CompanyID | String | идентификатор компании |
 | isUseBase | Bool | использовать базу знаний |
 | Account ID | String | идентификатор базы знаний (опциональный) |
+| UrlAPI | String | адрес  - devsecure.usedesk.ru/uapi|
 | API Token | String | личный API ключ |
 | Email | String | почта клиента |
 | Phone | String | телефон клиента (опционально) |
-| URL | String | адрес сервера в формате - dev.company.ru|
+| Url | String | адрес сервера в формате - dev.company.ru|
 | Port | String | порт сервера |
 | Name | String | имя клиента (опционально) |
 | NameChat | String | имя чата (опционально). Отображается в шапке|
@@ -405,6 +406,11 @@ usedesk.feedbackMessageBlock = { message in
 | 400 | Data is not defined | Не передали data в set-действии |
 | 400 | Message is not defined | Не передали message |
 | 403 | Your token is fake | Передали несуществующий токен |
+
+| emailError | Введен не корректный email |
+| urlError | Введен не корректный параметр url |
+| urlAPIError | Введен не корректный параметр urlAPI |
+| phoneError | Введен не корректный номер телефона |
 
 # Кастомизация интерфейса
 Для кастомизации NavigationBar и SearchBar можно переопределить соответствующие переменные в классе [Settings](https://github.com/usedesk/UseDeskSwift/blob/master/UseDesk/Classes/Settings.swift)
