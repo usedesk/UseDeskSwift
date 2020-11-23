@@ -416,6 +416,13 @@ class RCMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if usedesk != nil {
+            if usedesk?.operatorName != "" {
+                if let rcmessage = self.rcmessage(indexPath) {
+                    rcmessage.operatorName = usedesk!.operatorName
+                }
+            }
+        }
         if indexPath.row == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "RCSectionHeaderCell", for: indexPath) as? RCSectionHeaderCell
             cell!.bindData(indexPath, messagesView: self)

@@ -12,7 +12,7 @@ class RCMessageButtonCell: UICollectionViewCell {
         titleLabel.text = titleButton
         titleLabel.textAlignment = .center
         self.addSubview(titleLabel)
-        self.backgroundColor = UIColor.red
+        self.backgroundColor = RCMessages().textButtonColor
     }
     
     override func layoutSubviews() {

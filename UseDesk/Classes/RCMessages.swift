@@ -128,8 +128,9 @@ public class RCMessages: NSObject {
     public var textBubbleColorOutgoing: UIColor?
     public var textBubbleColorIncoming: UIColor?
     public var textTextColorOutgoing: UIColor?
-    public var textTextColorIncoming: UIColor?
+    public var textButtonColor: UIColor?
     public var textFont: UIFont!
+    public var textTextColorIncoming: UIColor?
     public var textInsetLeft: CGFloat = 0.0
     public var textInsetRight: CGFloat = 0.0
     public var textInsetTop: CGFloat = 0.0
@@ -297,6 +298,8 @@ public class RCMessages: NSObject {
         textBubbleColorIncoming = UIColor(hexString: "e6e5eaff")
         textTextColorOutgoing = UIColor.white
         textTextColorIncoming = UIColor.black
+        
+        textButtonColor = UIColor.red
         
         textFont = UIFont.systemFont(ofSize: 16)
         textInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)

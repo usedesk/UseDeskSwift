@@ -38,6 +38,7 @@ public class RCMessage: NSObject {
     @objc public var ticket_id: Int = 0
     @objc public var createdAt = ""
     @objc public var name = ""
+    @objc public var operatorName = ""
     @objc public var avatar = ""
     @objc public var file: RCFile?
     

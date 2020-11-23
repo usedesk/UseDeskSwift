@@ -41,15 +41,15 @@ public class UseDeskSDK: NSObject {
     var api_token = ""
     var port = ""
     var name = ""
+    var operatorName = ""
     var nameChat = ""
     var firstMessage = ""
-    var isUseBase = false
     
     var dialogNavController = UDNavigationController()
     
     private var dialogflowVC : DialogflowView = DialogflowView()
     
-    @objc public func start(withCompanyID _companyID: String, isUseBase _isUseBase: Bool, urlAPI _urlAPI: String? = nil, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: UDSStartBlock) {
+    @objc public func start(withCompanyID _companyID: String, urlAPI _urlAPI: String? = nil, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: UDSStartBlock) {
         
         let parentController: UIViewController? = parentController ?? RootView
         
@@ -63,7 +63,6 @@ public class UseDeskSDK: NSObject {
         port = _port
         urlWithoutPort = _url
         url = "\(_url):\(port)"
-        isUseBase = _isUseBase
         if _account_id != nil {
             account_id = _account_id!
         }
@@ -76,10 +75,14 @@ public class UseDeskSDK: NSObject {
                 return
             }
         }
-        
         if _name != nil {
             if _name != "" {
                 name = _name!
+            }
+        }
+        if _operatorName != nil {
+            if _operatorName != "" {
+                operatorName = _operatorName!
             }
         }
         if _phone != nil {
@@ -117,7 +120,7 @@ public class UseDeskSDK: NSObject {
             return
         }
     
-        if isUseBase && _account_id != nil {
+        if account_id != "" {
             let baseView = UDBaseView()
             baseView.usedesk = self
             baseView.url = self.url
@@ -127,37 +130,32 @@ public class UseDeskSDK: NSObject {
             parentController?.present(navController, animated: true)
             hud.hide(animated: true)
         } else {
-            if isUseBase && _account_id == nil {
-                startBlock(false, "You did not specify account_id")
-            } else {
-                startWithoutGUICompanyID(companyID: companyID, isUseBase: isUseBase, account_id: account_id, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, nameChat: _nameChat, connectionStatus: { [weak self] success, error in
-                    guard let wSelf = self else {return}
-                    if success {
-                        wSelf.dialogflowVC = DialogflowView()
-                        wSelf.dialogflowVC.usedesk = wSelf
-                        if wSelf.dialogNavController.presentingViewController == nil {
-                            wSelf.dialogNavController = UDNavigationController(rootViewController: wSelf.dialogflowVC)
-                            wSelf.dialogNavController.setTitleTextAttributes()
-                            wSelf.dialogNavController.modalPresentationStyle = .fullScreen
-                            parentController?.present(wSelf.dialogNavController, animated: true)
-                        }
-                        hud.hide(animated: true)
-                    } else {
-                        if (error == "noOperators") {
-                            wSelf.dialogflowVC.dismiss(animated: true)
-                            let offlineVC = UDOfflineForm()
-                            offlineVC.url = wSelf.url
-                            offlineVC.usedesk = wSelf
-                            let navController = UDNavigationController(rootViewController: offlineVC)
-                            navController.modalPresentationStyle = .fullScreen
-                            parentController?.present(navController, animated: true)
-                            hud.hide(animated: true)
-                        }
+            startWithoutGUICompanyID(companyID: companyID, account_id: account_id, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, operatorName: operatorName, nameChat: _nameChat, connectionStatus: { [weak self] success, error in
+                guard let wSelf = self else {return}
+                if success {
+                    wSelf.dialogflowVC = DialogflowView()
+                    wSelf.dialogflowVC.usedesk = wSelf
+                    if wSelf.dialogNavController.presentingViewController == nil {
+                        wSelf.dialogNavController = UDNavigationController(rootViewController: wSelf.dialogflowVC)
+                        wSelf.dialogNavController.setTitleTextAttributes()
+                        wSelf.dialogNavController.modalPresentationStyle = .fullScreen
+                        parentController?.present(wSelf.dialogNavController, animated: true)
                     }
-                    
-                })
+                    hud.hide(animated: true)
+                } else {
+                    if (error == "noOperators") {
+                        wSelf.dialogflowVC.dismiss(animated: true)
+                        let offlineVC = UDOfflineForm()
+                        offlineVC.url = wSelf.url
+                        offlineVC.usedesk = wSelf
+                        let navController = UDNavigationController(rootViewController: offlineVC)
+                        navController.modalPresentationStyle = .fullScreen
+                        parentController?.present(navController, animated: true)
+                        hud.hide(animated: true)
+                    }
+                }
                 
-            }
+            })
         }       
     }
 
@@ -171,7 +169,7 @@ public class UseDeskSDK: NSObject {
         socket?.emit("dispatch", with: mess!)
     }
     
-     @objc public func startWithoutGUICompanyID(companyID _companyID: String, isUseBase _isUseBase: Bool, urlAPI _urlAPI: String? = nil, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
+     @objc public func startWithoutGUICompanyID(companyID _companyID: String, urlAPI _urlAPI: String? = nil, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
         
         companyID = _companyID
         email = _email
@@ -179,19 +177,21 @@ public class UseDeskSDK: NSObject {
         api_token = _api_token
         port = _port
         url = "https://" + "\(_url):\(port)"
-        isUseBase = _isUseBase
-        if isUseBase {
-            if _account_id != nil {
-                account_id = _account_id!
-            }
-            
-            if _urlAPI != nil {
-                urlAPI = "https://" + _urlAPI!
-            }
+        if _account_id != nil {
+            account_id = _account_id!
+        }
+        
+        if _urlAPI != nil {
+            urlAPI = "https://" + _urlAPI!
         }
         if _name != nil {
             if _name != "" {
                 name = _name!
+            }
+        }
+        if _operatorName != nil {
+            if _operatorName != "" {
+                operatorName = _operatorName!
             }
         }
         if _phone != nil {
@@ -299,7 +299,7 @@ public class UseDeskSDK: NSObject {
     }
     
     @objc public func getCollections(connectionStatus baseBlock: @escaping UDSBaseBlock) {
-        if isUseBase && account_id != "" {
+        if account_id != "" {
             var url = "https://"
             if self.urlAPI != "" {
                 url += self.urlAPI
@@ -319,16 +319,12 @@ public class UseDeskSDK: NSObject {
                 }
             }
         } else {
-            if isUseBase && account_id == "" {
-                baseBlock(false, nil, "You did not specify account_id")
-            } else {
-                baseBlock(false, nil, "You specify isUseBase = false")
-            }
+            baseBlock(false, nil, "You did not specify account_id")
         }
     }
     
     @objc public func getArticle(articleID: Int, connectionStatus baseBlock: @escaping UDSArticleBlock) {
-        if isUseBase && account_id != "" {
+        if account_id != "" {
             var url = "https://"
             if self.urlAPI != "" {
                 url += self.urlAPI
@@ -348,16 +344,12 @@ public class UseDeskSDK: NSObject {
                 }
             }
         } else {
-            if isUseBase && account_id == "" {
-                baseBlock(false, nil, "You did not specify account_id")
-            } else {
-                baseBlock(false, nil, "You specify isUseBase = false")
-            }
+            baseBlock(false, nil, "You did not specify account_id")
         }
     }
     
     @objc public func addViewsArticle(articleID: Int, count: Int, connectionStatus connectBlock: @escaping UDSConnectBlock) {
-        if isUseBase && account_id != "" {
+        if account_id != "" {
             var url = "https://"
             if self.urlAPI != "" {
                 url += self.urlAPI
@@ -374,16 +366,12 @@ public class UseDeskSDK: NSObject {
                 }
             }
         } else {
-            if isUseBase && account_id == "" {
-                connectBlock(false, "You did not specify account_id")
-            } else {
-                connectBlock(false, "You specify isUseBase = false")
-            }
+            connectBlock(false, "You did not specify account_id")
         }
     }
     
     @objc public func addReviewArticle(articleID: Int, countPositiv: Int = 0, countNegativ: Int = 0, connectionStatus connectBlock: @escaping UDSConnectBlock) {
-        if isUseBase && account_id != "" {
+        if account_id != "" {
             var url = "https://"
             if self.urlAPI != "" {
                 url += self.urlAPI
@@ -402,16 +390,12 @@ public class UseDeskSDK: NSObject {
                 }
             }
         } else {
-            if isUseBase && account_id == "" {
-                connectBlock(false, "You did not specify account_id")
-            } else {
-                connectBlock(false, "You specify isUseBase = false")
-            }
+            connectBlock(false, "You did not specify account_id")
         }
     }
     
     @objc public func sendReviewArticleMesssage(articleID: Int, message: String, connectionStatus connectBlock: @escaping UDSConnectBlock) {
-        if isUseBase && account_id != "" {
+        if account_id != "" {
             var url = "https://"
             if self.urlAPI != "" {
                 url += self.urlAPI
@@ -437,16 +421,12 @@ public class UseDeskSDK: NSObject {
                 }
             }
         } else {
-            if isUseBase && account_id == "" {
-                connectBlock(false, "You did not specify account_id")
-            } else {
-                connectBlock(false, "You specify isUseBase = false")
-            }
+            connectBlock(false, "You did not specify account_id")
         }
     }
     
     @objc public func getSearchArticles(collection_ids:[Int], category_ids:[Int], article_ids:[Int], count: Int = 20, page: Int = 1, query: String, type: TypeArticle = .all, sort: SortArticle = .id, order: OrderArticle = .asc, connectionStatus searchBlock: @escaping UDSArticleSearchBlock) {
-        if isUseBase && account_id != "" {
+        if account_id != "" {
             var url = "https://"
             if self.urlAPI != "" {
                 url += self.urlAPI
@@ -538,11 +518,7 @@ public class UseDeskSDK: NSObject {
                 }
             }
         } else {
-            if isUseBase && account_id == "" {
-                searchBlock(false, nil, "You did not specify account_id")
-            } else {
-                searchBlock(false, nil, "You specify isUseBase = false")
-            }
+            searchBlock(false, nil, "You did not specify account_id")
         }
         
     }
@@ -848,7 +824,7 @@ public class UseDeskSDK: NSObject {
             
             let mess: RCMessage? = parseMessageDic(message)
             
-            if mess?.feedback != nil && (feedbackMessageBlock != nil) {
+            if mess?.feedback == true && (feedbackMessageBlock != nil) {
                 feedbackMessageBlock!(mess)
                 return
             } else {

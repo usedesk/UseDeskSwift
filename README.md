@@ -42,8 +42,7 @@ pod 'UseDesk_SDK_Swift'
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
 | CompanyID | String | идентификатор компании |
-| isUseBase | Bool | использовать базу знаний |
-| Account ID | String | идентификатор базы знаний (опциональный) |
+| Account ID | String | идентификатор базы знаний (опциональный). Если не указан, база знаний не используется |
 | UrlAPI | String | адрес  - devsecure.usedesk.ru/uapi|
 | API Token | String | личный API ключ |
 | Email | String | почта клиента |
@@ -55,6 +54,8 @@ pod 'UseDesk_SDK_Swift'
 | FirstMessage | String | автоматическое сообщение (опционально). Отправиться сразу после иницилизации от имени клиента|
 | PresentIn | UIViewController | в каком контроллере открывать (опционально)|
 
+(Начиная с версии 0.3.19 параметр isUseBase не используется)
+
 ### Блок возвращает следующие параметры:
 
 | Переменная  | Тип | Описание |
@@ -65,7 +66,7 @@ pod 'UseDesk_SDK_Swift'
 #### Пример c использованием базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", isUseBase: true, account_id: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", nameChat: "NameChat", firstMessage: "message", presentIn: self, connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", account_id: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", nameChat: "NameChat", firstMessage: "message", presentIn: self, connectionStatus: { success, error in
 
 })
 ```
@@ -73,7 +74,7 @@ usedesk.start(withCompanyID: "1234567", isUseBase: true, account_id: "1", api_to
 #### Пример без использования базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", isUseBase: false, api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", nameChat: "NameChat", firstMessage: "message",  connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", nameChat: "NameChat", firstMessage: "message",  connectionStatus: { success, error in
 
 })
 ```
@@ -87,8 +88,7 @@ usedesk.start(withCompanyID: "1234567", isUseBase: false, api_token: "143ed59g90
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
 | CompanyID | String | идентификатор компании |
-| isUseBase | Bool | использовать базу знаний |
-| Account ID | String | идентификатор базы знаний (опциональный) |
+| Account ID | String | идентификатор базы знаний (опциональный). Если не указан, база знаний не используется |
 | API Token | String | личный API ключ |
 | Email | String | почта клиента |
 | Phone | String | телефон клиента (опционально) |
@@ -98,10 +98,12 @@ usedesk.start(withCompanyID: "1234567", isUseBase: false, api_token: "143ed59g90
 | NameChat | String | имя чата (опционально). Отображается в шапке|
 | FirstMessage | String | автоматическое сообщение (опционально). Отправиться сразу после иницилизации от имени клиента|
 
+(Начиная с версии 0.3.19 параметр isUseBase не используется)
+
 #### Пример:
 ```swift
 let usedesk = UseDeskSDK()
-usedesk.startWithoutGUICompanyID(companyID: "1234567", isUseBase: true, account_id: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", nameChat: "NameChat", firstMessage: "message", connectionStatus: { (success, error) in
+usedesk.startWithoutGUICompanyID(companyID: "1234567", account_id: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", nameChat: "NameChat", firstMessage: "message", connectionStatus: { (success, error) in
 
 })
 ```
@@ -169,7 +171,7 @@ usedesk.startWithoutGUICompanyID(companyID: "1234567", isUseBase: true, account_
 
 # Методы базы знаний:
 
-### Внимание: если при инициализации не был передан account_id или isUseBase указан false, следующие методы не будут работать. 
+### Внимание: если при инициализации не был передан account_id, следующие методы не будут работать. 
 
 ## Получение разделов базы знаний:
 

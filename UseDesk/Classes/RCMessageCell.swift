@@ -79,7 +79,7 @@ class RCMessageCell: UITableViewCell {
         if rcmessage.incoming {
             let widthLabel: CGFloat = size.width < 200 ? 200 : size.width
             label.frame = CGRect(x: xBubble, y: 0, width: widthLabel, height: kHeightName)
-            label.text = rcmessage.name
+            label.text = rcmessage.operatorName != "" ? rcmessage.operatorName : rcmessage.name
             label.textColor = UIColor(hexString: "828282")
             label.font = UIFont.systemFont(ofSize: 11, weight: .regular)
         }
