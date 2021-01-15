@@ -80,26 +80,6 @@ class UseDeskSDKHelp {
         return [dic]
     }
     
-    class func message(_ text: String?, withFileName fileName: String?, fileType: String?, contentBase64: String?) -> [Any]? {
-        let file = [
-            "name" : fileName ?? "",
-            "type" : fileType ?? "",
-            "content" : contentBase64 ?? ""
-        ]
-        
-        let message: [String : Any] = [
-            "text" : text ?? "",
-            "file" : file
-            ]
-        
-        let dic: [String : Any] = [
-            "type" : "@@server/chat/SEND_MESSAGE",
-            "message" : message
-            ]
-        
-        return [dic]
-    }
-    
     class func dict(toJson dict: [AnyHashable : Any]?) -> String? {
         var jsonData: Data? = nil
         if let aDict = dict {
@@ -113,10 +93,5 @@ class UseDeskSDKHelp {
             }
             return nil
         }
-    }
-    
-    class func image(toNSString image: UIImage) -> String {
-        let imageData: Data = UIImagePNGRepresentation(image)!
-        return imageData.base64EncodedString(options: .lineLength64Characters)
     }
 }

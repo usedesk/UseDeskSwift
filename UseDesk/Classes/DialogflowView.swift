@@ -269,12 +269,11 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                             guard let wSelf = self else {return}
                             if let avassetURL = avasset as? AVURLAsset {
                                 if let video = try? Data(contentsOf: avassetURL.url) {
-                                    let content = "data:video/mp4;base64,\(video.base64EncodedString())"
+                                    let content = "data:video/mp4;base64,\(video .base64EncodedString())"
                                     var fileName = String(format: "%ld", content.hash)
                                     fileName += ".mp4"
-                                    wSelf.usedesk?.sendMessage("", withFileName: fileName, fileType: "video/mp4", contentBase64: content)
+                                    wSelf.usedesk?.sendFile(fileName: fileName, data: video, status: {_,_ in })
                                 }
-                                
                             }
                         }
                     } else {
@@ -283,21 +282,23 @@ class DialogflowView: RCMessagesView, UIImagePickerControllerDelegate, UINavigat
                         PHCachingImageManager.default().requestImage(for: asset, targetSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight)), contentMode: .aspectFit, options: options, resultHandler: { [weak self] result, info in
                             guard let wSelf = self else {return}
                             if result != nil {
-                                let content = "data:image/png;base64,\(UseDeskSDKHelp.image(toNSString: result!))"
-                                var fileName = String(format: "%ld", content.hash)
-                                fileName += ".png"
-                                //self.dicLoadingBuffer.updateValue("1", forKey: fileName)
-                                //dicLoadingBuffer[fileName] = "1"
-                                wSelf.usedesk?.sendMessage("", withFileName: fileName, fileType: "image/png", contentBase64: content)
+                                if let imageData = UIImagePNGRepresentation(result!) {
+                                    let content = "data:image/png;base64,\(imageData)"
+                                    var fileName = String(format: "%ld", content.hash)
+                                    fileName += ".png"
+                                    wSelf.usedesk?.sendFile(fileName: fileName, data: imageData, status: {_,_ in })
+                                }
                             }
                         })
                     }
                 } else if sendAssets[i] as? UIImage != nil {
                     let pickerImage = sendAssets[i] as! UIImage
-                    let content = "data:image/png;base64,\(UseDeskSDKHelp.image(toNSString: pickerImage))"
-                    var fileName = String(format: "%ld", content.hash)
-                    fileName += ".png"
-                    usedesk?.sendMessage("", withFileName: fileName, fileType: "image/png", contentBase64: content)
+                    if let imageData = UIImagePNGRepresentation(pickerImage) {
+                        let content = "data:image/png;base64,\(imageData)"
+                        var fileName = String(format: "%ld", content.hash)
+                        fileName += ".png"
+                        usedesk?.sendFile(fileName: fileName, data: imageData, status: {success, error in })
+                    }
                 }
             }
             sendAssets = []

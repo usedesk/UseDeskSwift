@@ -36,7 +36,6 @@ public class UseDeskSDK: NSObject {
     var url = ""
     var urlWithoutPort = ""
     var urlAPI = ""
-    var token = ""
     var account_id = ""
     var api_token = ""
     var port = ""
@@ -47,6 +46,7 @@ public class UseDeskSDK: NSObject {
     
     var dialogNavController = UDNavigationController()
     
+    private var token = ""
     private var dialogflowVC : DialogflowView = DialogflowView()
     
     @objc public func start(withCompanyID _companyID: String, urlAPI _urlAPI: String? = nil, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: UDSStartBlock) {
@@ -164,12 +164,26 @@ public class UseDeskSDK: NSObject {
         socket?.emit("dispatch", with: mess!)
     }
     
-    @objc public func sendMessage(_ text: String?, withFileName fileName: String?, fileType: String?, contentBase64: String?) {
-        let mess = UseDeskSDKHelp.message(text, withFileName: fileName, fileType: fileType, contentBase64: contentBase64)
-        socket?.emit("dispatch", with: mess!)
+    @objc public func sendFile(fileName: String, data: Data, status: @escaping (Bool, String?) -> Void) {
+        AF.upload(multipartFormData: { multipartFormData in
+            multipartFormData.append(self.token.data(using: String.Encoding.utf8)!, withName: "chat_token")
+            multipartFormData.append(data, withName: "file", fileName: fileName)
+        }, to: "https://secure.usedesk.ru/uapi/v1/send_file").responseJSON { (responseJSON) in
+            switch responseJSON.result {
+            case .success(let value):
+                let valueJSON = value as! [String:Any]
+                if valueJSON["error"] == nil {
+                    status(true, nil)
+                } else {
+                    status(false, "Тhe file is not accepted by the server ")
+                }
+            case .failure(let error):
+                status(false, error.localizedDescription)
+            }
+        }
     }
     
-     @objc public func startWithoutGUICompanyID(companyID _companyID: String, urlAPI _urlAPI: String? = nil, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
+    @objc public func startWithoutGUICompanyID(companyID _companyID: String, urlAPI _urlAPI: String? = nil, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
         
         companyID = _companyID
         email = _email
@@ -762,6 +776,7 @@ public class UseDeskSDK: NSObject {
         let dicServer = data?[0] as? [AnyHashable : Any]
         
         let type = dicServer?["type"] as? String
+        
         if type == nil {
             return false
         }

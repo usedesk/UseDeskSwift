@@ -1,4 +1,6 @@
-# UseDesk_SDK_Swift
+# UseDesk_SDK_Swift (v. 0.4.0)
+
+v. 0.4.0 - Изменен метод опраки файлов, позволяющий отправлять файлы большего размера
 
 - [Образец](#образец)
 - [Добавление библиотеки в проект](#добавление-библиотеки-в-проект)
@@ -246,22 +248,28 @@ usedesk.addViewsArticle(articleID: id, count: 1, connectionStatus: { success, er
 usedesk.sendMessage("привет как дела?")
 ```
 
-## Отправка сообщения с вложением:
+## Отправка файла:
 
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
-| Message | String | тест сообщения |
-| FileName | String | имя файла |
-| fileType | String | тип файла (MIMO) |
-| contentBase64 | Base64 | данные |
+| fileName | String | имя файла |
+| data | Data | файл в формате Data |
 
 Несколько файлов отправляются отдельными сообщениями
 
 #### Пример:
 
 ```swift
-usedesk.sendMessage(text, withFileName: "file", fileType: "image/png", contentBase64: content)
+usedesk.sendFile(fileName: "file.png", data: imageData, status: {success, error in })
 ```
+#### Блок возвращает следующие параметры:
+
+| Тип переменной | Описание |
+| ------------- | ------------- |
+| Bool | статус отправки |
+| String | описание ошибки |
+
+Метод usedesk.sendMessage(_, withFileName: , fileType: , contentBase64: ) удален
 
 ## Отправка оффлайн формы на сервер:
 
