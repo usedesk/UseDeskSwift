@@ -22,13 +22,15 @@ import Foundation
     case desc 
 }
 
-@objc public class Article: NSObject {
+@objc public class UDArticle: NSObject {
     var title: String = ""
     var id: Int = 0
     var text: String = ""
     var open: Bool = true
     var category_id: Int = 0
     var collection_id: Int = 0
+    var category_title: String = ""
+    var section_title: String = ""
     var views: Int = 0
     var created_at: String = ""
     
@@ -41,6 +43,8 @@ import Foundation
             let open = json["public"] as? Int,
             let category_id = json["category_id"] as? Int,
             let collection_id = json["collection_id"] as? Int,
+            let category_title = json["category_title"] as? String,
+            let section_title = json["collection_title"] as? String,
             let views = json["views"] as? Int,
             let created_at = json["created_at"] as? String
             else { return nil }
@@ -50,6 +54,8 @@ import Foundation
         self.text = text
         self.category_id = category_id
         self.collection_id = collection_id
+        self.category_title = category_title
+        self.section_title = section_title
         self.views = views
         self.created_at = created_at
         if open == 1 {
@@ -59,20 +65,20 @@ import Foundation
         }
     }
     
-    static func get(from jsonObject: Any) -> Article? {
+    static func get(from jsonObject: Any) -> UDArticle? {
         guard let jsonObject = jsonObject as? [String: Any] else { return nil }
-        if let article = Article(json: jsonObject) {
+        if let article = UDArticle(json: jsonObject) {
             return article
         } else { return nil }
     }
 }
 
-@objc public class SearchArticle: NSObject {
+@objc public class UDSearchArticle: NSObject {
     var page: Int = 0
     var last_page: Int = 0
     var count: Int = 0
     var total_count: Int = 0
-    var articles: [Article] = []
+    var articles: [UDArticle] = []
     
     init?(from: Any) {
         guard let json = from as? [String: Any] else { return nil }
@@ -89,7 +95,7 @@ import Foundation
         self.total_count = total_count
 
         for atricleObject in articlesArray {
-            if let article = Article(json: atricleObject) {
+            if let article = UDArticle(json: atricleObject) {
                 self.articles.append(article)
             }
         }

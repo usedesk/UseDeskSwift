@@ -6,7 +6,8 @@ import Foundation
 class UseDeskSDKHelp {
     class func config_CompanyID(_ companyID: String?, email: String, phone: String?, name: String?, url: String?, token: String?) -> [Any]? {
         let payload = [
-            "sdk" : "iOS"
+            "sdk" : "iOS",
+            "type" : "sdk"
         ]
         var dic = [
             "type" : "@@server/chat/INIT",
@@ -15,31 +16,27 @@ class UseDeskSDKHelp {
             "url" : url ?? ""
             ] as [String : Any]
         if token != nil {
-            dic["token"] = token
+            if token != "" {
+                dic["token"] = token
+            }
         }
         
         return [dic]
     }
     
-    class func dataEmail(_ email: String?, phone: String?, name: String?) -> [Any]? {
+    class func dataClient(_ email: String = "", phone: String = "", name: String = "", note: String = "", additional_id: String? = nil) -> [Any]? {
         var dic: [String : Any] = [
-            "type" : "@@server/chat/SET_EMAIL",
-            "email" : email ?? ""
+            "type"  : "@@server/chat/SET_CLIENT"
         ]
-        var payload: [String : Any] = [:]
-        if name != nil {
-            if name != "" {
-                payload["name"] = name!
-            }
-        }
-        if phone != nil {
-            if phone != "" {
-                payload["phone"] = phone!
-            }
-        }
-        if email != nil {
-            if email != "" {
-                payload["email"] = email!
+        var payload: [String : Any] = [
+            "email"    : email,
+            "username" : name,
+            "phone"    : phone,
+            "note"     : note
+        ]
+        if additional_id != nil {
+            if additional_id != "" {
+                payload["additional_id"] = additional_id
             }
         }
         dic["payload"] = payload
@@ -80,6 +77,26 @@ class UseDeskSDKHelp {
         return [dic]
     }
     
+    class func message(_ text: String?, withFileName fileName: String?, fileType: String?, contentBase64: String?) -> [Any]? {
+        let file = [
+            "name" : fileName ?? "",
+            "type" : fileType ?? "",
+            "content" : contentBase64 ?? ""
+        ]
+        
+        let message: [String : Any] = [
+            "text" : text ?? "",
+            "file" : file
+            ]
+        
+        let dic: [String : Any] = [
+            "type" : "@@server/chat/SEND_MESSAGE",
+            "message" : message
+            ]
+        
+        return [dic]
+    }
+    
     class func dict(toJson dict: [AnyHashable : Any]?) -> String? {
         var jsonData: Data? = nil
         if let aDict = dict {
@@ -93,5 +110,10 @@ class UseDeskSDKHelp {
             }
             return nil
         }
+    }
+    
+    class func image(toNSString image: UIImage) -> String {
+        let imageData: Data = UIImagePNGRepresentation(image)!
+        return imageData.base64EncodedString(options: .lineLength64Characters)
     }
 }

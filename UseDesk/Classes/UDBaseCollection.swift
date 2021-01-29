@@ -5,35 +5,38 @@
 import Foundation
 import UIKit
 
-@objc public class BaseCategory: NSObject {
+@objc public class UDBaseCategory: NSObject {
     var title: String = ""
+    var descriptionCategory: String = ""
     var id: Int = 0
-    var articlesTitles: [ArticleTitle] = []
+    var articlesTitles: [UDArticleTitle] = []
     var open: Bool = true
     
     init?(json: [String: Any]) {
         guard
             let id = json["id"] as? Int,
             let title = json["title"] as? String,
+            let descriptionCategory = json["description"] as? String,
             let open = json["public"] as? Int,
             let articlesTitlesArray = json["articles"] as? Array<[String: Any]>
             else { return nil }
         self.id = id
         self.title = title
+        self.descriptionCategory = descriptionCategory
         if open == 1 {
             self.open = true
         } else {
             self.open = false
         }
         for atricleTitleObject in articlesTitlesArray {
-            if let articleTitle = ArticleTitle(json: atricleTitleObject) {
+            if let articleTitle = UDArticleTitle(json: atricleTitleObject) {
                 self.articlesTitles.append(articleTitle)
             }
         }
     }
 }
 
-@objc public class ArticleTitle: NSObject {
+@objc public class UDArticleTitle: NSObject {
     var title: String = ""
     var id: Int = 0
     var views: Int = 0
@@ -50,11 +53,12 @@ import UIKit
     }
 }
 
-@objc public class BaseCollection: NSObject {
+@objc public class UDBaseCollection: NSObject {
     var title: String = ""
     var id: Int = 0
-    var image: String = ""
-    var сategories: [BaseCategory] = []
+    var imageUrl: String = ""
+    var image: UIImage? = nil
+    var сategories: [UDBaseCategory] = []
     var open: Bool = true
     
     init?(json: [String: Any]) {
@@ -67,7 +71,7 @@ import UIKit
         self.id = id
         self.title = title
         if (json["image"] as? String) != nil {
-            self.image = json["image"] as! String
+            self.imageUrl = json["image"] as! String
         }
         if open == 1 {
             self.open = true
@@ -75,19 +79,19 @@ import UIKit
             self.open = false
         }
         for categoryObject in categoriesArray {
-            if let category = BaseCategory(json: categoryObject) {
+            if let category = UDBaseCategory(json: categoryObject) {
                 self.сategories.append(category)
             }
         }
     }
     
-    static func getArray(from jsonArray: Any) -> [BaseCollection]? {
+    static func getArray(from jsonArray: Any) -> [UDBaseCollection]? {
         
         guard let jsonArray = jsonArray as? Array<[String: Any]> else { return nil }
-        var collections: [BaseCollection] = []
+        var collections: [UDBaseCollection] = []
         
         for jsonObject in jsonArray {
-            if let collection = BaseCollection(json: jsonObject) {
+            if let collection = UDBaseCollection(json: jsonObject) {
                 collections.append(collection)
             }
         }

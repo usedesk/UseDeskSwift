@@ -1,0 +1,76 @@
+//
+//  UDBaseSearchCell.swift
+//  UseDesk_SDK_Swift
+
+
+import Foundation
+import UIKit
+
+class UDBaseSearchCell: UITableViewCell {
+    // Title
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var titleLabelHC: NSLayoutConstraint!
+    @IBOutlet weak var titleLabelLC: NSLayoutConstraint!
+    @IBOutlet weak var titleLabelTC: NSLayoutConstraint!
+    @IBOutlet weak var titleLabelTopC: NSLayoutConstraint!
+    @IBOutlet weak var titleLabelBC: NSLayoutConstraint!
+    // Text
+    @IBOutlet weak var labelText: UILabel!
+    @IBOutlet weak var labelTextLC: NSLayoutConstraint!
+    @IBOutlet weak var labelTextTC: NSLayoutConstraint!
+    @IBOutlet weak var labelTextBC: NSLayoutConstraint!
+    // Text
+    @IBOutlet weak var pathLabel: UILabel!
+    @IBOutlet weak var pathLabelLC: NSLayoutConstraint!
+    @IBOutlet weak var pathLabelTC: NSLayoutConstraint!
+    @IBOutlet weak var pathLabelBC: NSLayoutConstraint!
+    //
+    // Separator
+    @IBOutlet weak var separatorView: UIView!
+    @IBOutlet weak var separatorViewHC: NSLayoutConstraint!
+    @IBOutlet weak var separatorViewLC: NSLayoutConstraint!
+    
+    var configurationStyle = ConfigurationStyle()
+    var isDefaultImage = false
+    
+    func setCell(article: UDArticle?) {
+        let baseSearchStyle = configurationStyle.baseSearchStyle
+        
+        titleLabel.text = article?.title ?? "Ошибка загрузки"
+        titleLabel.font = baseSearchStyle.titleFont
+        titleLabel.textColor = baseSearchStyle.titleColor
+        titleLabelLC.constant = baseSearchStyle.titleMargin.left
+        titleLabelTC.constant = baseSearchStyle.titleMargin.right
+        titleLabelTopC.constant = baseSearchStyle.titleMargin.top
+        titleLabelBC.constant = baseSearchStyle.titleMargin.bottom
+        self.layoutIfNeeded()
+        let height = titleLabel.text!.size(availableWidth: labelText.frame.width, attributes: [NSAttributedString.Key.font : baseSearchStyle.titleFont], usesFontLeading: true).height + 2
+        titleLabelHC.constant = height
+        
+        var textWithoutHtmlTags = article?.text ?? "Ошибка загрузки"
+        textWithoutHtmlTags = textWithoutHtmlTags.replacingOccurrences(of: "<[^>]+>", with: "", options: String.CompareOptions.regularExpression, range: nil)
+        textWithoutHtmlTags = textWithoutHtmlTags.replacingOccurrences(of: "\r\n", with: "", options: String.CompareOptions.regularExpression, range: nil)
+        textWithoutHtmlTags = textWithoutHtmlTags.replacingOccurrences(of: "&nbsp;", with: "", options: String.CompareOptions.regularExpression, range: nil)
+        labelText.text = textWithoutHtmlTags
+        labelText.font = baseSearchStyle.textFont
+        labelText.textColor = baseSearchStyle.textColor
+        labelTextLC.constant = baseSearchStyle.textMargin.left
+        labelTextTC.constant = baseSearchStyle.textMargin.right
+        labelTextBC.constant = baseSearchStyle.textMargin.bottom
+        
+        pathLabel.text = "\(article?.section_title ?? "Ошибка загрузки") > \(article?.category_title ?? "Ошибка загрузки")"
+        pathLabel.font = baseSearchStyle.pathFont
+        pathLabel.textColor = baseSearchStyle.pathColor
+        pathLabelLC.constant = baseSearchStyle.pathMargin.left
+        pathLabelTC.constant = baseSearchStyle.pathMargin.right
+        pathLabelBC.constant = baseSearchStyle.pathMargin.bottom
+        
+        separatorView.backgroundColor = baseSearchStyle.separatorColor
+        separatorViewHC.constant = baseSearchStyle.separatorHeight
+        separatorViewLC.constant = baseSearchStyle.separatorLeftMargin
+        
+        self.layoutIfNeeded()
+        self.isUserInteractionEnabled = true
+        self.selectionStyle = .none
+    }
+}

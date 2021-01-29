@@ -8,13 +8,13 @@ import Alamofire
 import UserNotifications
 
 public typealias UDSStartBlock = (Bool, String?) -> Void
-public typealias UDSBaseBlock = (Bool, [BaseCollection]?, String?) -> Void
-public typealias UDSArticleBlock = (Bool, Article?, String?) -> Void
-public typealias UDSArticleSearchBlock = (Bool, SearchArticle?, String?) -> Void
+public typealias UDSBaseBlock = (Bool, [UDBaseCollection]?, String?) -> Void
+public typealias UDSArticleBlock = (Bool, UDArticle?, String?) -> Void
+public typealias UDSArticleSearchBlock = (Bool, UDSearchArticle?, String?) -> Void
 public typealias UDSConnectBlock = (Bool, String?) -> Void
-public typealias UDSNewMessageBlock = (Bool, RCMessage?) -> Void
+public typealias UDSNewMessageBlock = (Bool, UDMessage?) -> Void
 public typealias UDSErrorBlock = ([Any]?) -> Void
-public typealias UDSFeedbackMessageBlock = (RCMessage?) -> Void
+public typealias UDSFeedbackMessageBlock = (UDMessage?) -> Void
 public typealias UDSFeedbackAnswerMessageBlock = (Bool) -> Void
 
 let RootView = UIApplication.shared.keyWindow?.rootViewController
@@ -25,46 +25,74 @@ public class UseDeskSDK: NSObject {
     @objc public var errorBlock: UDSErrorBlock?
     @objc public var feedbackMessageBlock: UDSFeedbackMessageBlock?
     @objc public var feedbackAnswerMessageBlock: UDSFeedbackAnswerMessageBlock?
-    @objc public var historyMess: [RCMessage] = []
+    @objc public var historyMess: [UDMessage] = []
     @objc public var maxCountAssets: Int = 10
-    
+    @objc public var isSupportedAttachmentOnlyPhoto: Bool = false
+    @objc public var isSupportedAttachmentOnlyVideo: Bool = false
+    // Style
+    public var configurationStyle = ConfigurationStyle()
+    // Socket
     var manager: SocketManager?
     var socket: SocketIOClient?
+    // Configutation
     var companyID = ""
     var email = ""
     var phone = ""
     var url = ""
+    var urlToSendFile = ""
     var urlWithoutPort = ""
     var urlAPI = ""
-    var account_id = ""
+    var knowledgeBaseID = ""
     var api_token = ""
     var port = ""
     var name = ""
     var operatorName = ""
     var nameChat = ""
     var firstMessage = ""
+    var note = ""
+    var additional_id = ""
     
     var dialogNavController = UDNavigationController()
     
     private var token = ""
     private var dialogflowVC : DialogflowView = DialogflowView()
     
-    @objc public func start(withCompanyID _companyID: String, urlAPI _urlAPI: String? = nil, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: UDSStartBlock) {
+    @objc public func start(withCompanyID _companyID: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: UDSStartBlock) {
         
         let parentController: UIViewController? = parentController ?? RootView
         
         let hud = MBProgressHUD.showAdded(to: (parentController?.view ?? UIView()), animated: true)
         hud.mode = MBProgressHUDMode.indeterminate
-        hud.label.text = "Loading"
+        hud.label.text = "Загрузка"
         
         companyID = _companyID
-        email = _email
         api_token = _api_token
-        port = _port
+        
+        if _port != nil {
+            if _port != "" {
+                port = _port!
+            }
+        }
+        
         urlWithoutPort = _url
         url = "\(_url):\(port)"
-        if _account_id != nil {
-            account_id = _account_id!
+        
+        if _email != nil {
+            if _email != "" {
+                email = _email!
+                if !email.isValidEmail() {
+                    startBlock(false, "emailError")
+                    hud.hide(animated: true)
+                    return
+                }
+            }
+        }
+        if _urlToSendFile != nil {
+            urlToSendFile = _urlToSendFile!
+        }
+        
+        if _knowledgeBaseID != nil {
+            knowledgeBaseID = _knowledgeBaseID!
         }
         
         if _urlAPI != nil {
@@ -109,10 +137,10 @@ public class UseDeskSDK: NSObject {
                 firstMessage = _firstMessage!
             }
         }
-        guard isValidEmail(email: _email) else {
-            startBlock(false, "emailError")
-            hud.hide(animated: true)
-            return
+        if _note != nil {
+            if _note != "" {
+                note = _note!
+            }
         }
         guard isValidSite(path: _url) else {
             startBlock(false, "urlError")
@@ -120,23 +148,24 @@ public class UseDeskSDK: NSObject {
             return
         }
     
-        if account_id != "" {
-            let baseView = UDBaseView()
+        if knowledgeBaseID != "" {
+            let baseView = UDBaseSectionsView()
             baseView.usedesk = self
             baseView.url = self.url
             let navController = UDNavigationController(rootViewController: baseView)
+            navController.configurationStyle = configurationStyle
             navController.setTitleTextAttributes()
             navController.modalPresentationStyle = .fullScreen
             parentController?.present(navController, animated: true)
             hud.hide(animated: true)
         } else {
-            startWithoutGUICompanyID(companyID: companyID, account_id: account_id, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, operatorName: operatorName, nameChat: _nameChat, connectionStatus: { [weak self] success, error in
+            startWithoutGUICompanyID(companyID: companyID, knowledgeBaseID: knowledgeBaseID, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, operatorName: operatorName, nameChat: _nameChat, connectionStatus: { [weak self] success, error in
                 guard let wSelf = self else {return}
                 if success {
-                    wSelf.dialogflowVC = DialogflowView()
                     wSelf.dialogflowVC.usedesk = wSelf
                     if wSelf.dialogNavController.presentingViewController == nil {
                         wSelf.dialogNavController = UDNavigationController(rootViewController: wSelf.dialogflowVC)
+                        wSelf.dialogNavController.configurationStyle = wSelf.configurationStyle
                         wSelf.dialogNavController.setTitleTextAttributes()
                         wSelf.dialogNavController.modalPresentationStyle = .fullScreen
                         parentController?.present(wSelf.dialogNavController, animated: true)
@@ -149,12 +178,12 @@ public class UseDeskSDK: NSObject {
                         offlineVC.url = wSelf.url
                         offlineVC.usedesk = wSelf
                         let navController = UDNavigationController(rootViewController: offlineVC)
+                        navController.configurationStyle = wSelf.configurationStyle
                         navController.modalPresentationStyle = .fullScreen
                         parentController?.present(navController, animated: true)
                         hud.hide(animated: true)
                     }
                 }
-                
             })
         }       
     }
@@ -165,10 +194,11 @@ public class UseDeskSDK: NSObject {
     }
     
     @objc public func sendFile(fileName: String, data: Data, status: @escaping (Bool, String?) -> Void) {
+        let url = urlToSendFile != "" ? urlToSendFile : "https://secure.usedesk.ru/uapi/v1/send_file"
         AF.upload(multipartFormData: { multipartFormData in
             multipartFormData.append(self.token.data(using: String.Encoding.utf8)!, withName: "chat_token")
             multipartFormData.append(data, withName: "file", fileName: fileName)
-        }, to: "https://secure.usedesk.ru/uapi/v1/send_file").responseJSON { (responseJSON) in
+        }, to: url).responseJSON { (responseJSON) in
             switch responseJSON.result {
             case .success(let value):
                 let valueJSON = value as! [String:Any]
@@ -183,16 +213,37 @@ public class UseDeskSDK: NSObject {
         }
     }
     
-    @objc public func startWithoutGUICompanyID(companyID _companyID: String, urlAPI _urlAPI: String? = nil, account_id _account_id: String? = nil, api_token _api_token: String, email _email: String, phone _phone: String? = nil, url _url: String, port _port: String, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
+    @objc public func startWithoutGUICompanyID(companyID _companyID: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
+        
+        var isAuthInited = false
         
         companyID = _companyID
-        email = _email
-        
         api_token = _api_token
-        port = _port
+        
+        if _port != nil {
+            if _port != "" {
+                port = _port!
+            }
+        }
+        
         url = "https://" + "\(_url):\(port)"
-        if _account_id != nil {
-            account_id = _account_id!
+        
+        if _email != nil {
+            if _email != "" {
+                email = _email!
+                if !email.isValidEmail() {
+                    startBlock(false, "emailError")
+                    return
+                }
+            }
+        }
+        
+        if _urlToSendFile != nil {
+            urlToSendFile = _urlToSendFile!
+        }
+        
+        if _knowledgeBaseID != nil {
+            knowledgeBaseID = _knowledgeBaseID!
         }
         
         if _urlAPI != nil {
@@ -227,11 +278,12 @@ public class UseDeskSDK: NSObject {
                 firstMessage = _firstMessage!
             }
         }
-        // validation
-        guard isValidEmail(email: _email) else {
-            startBlock(false, "emailError")
-            return
+        if _note != nil {
+            if _note != "" {
+                note = _note!
+            }
         }
+        // validation
         guard isValidSite(path: _url) else {
             startBlock(false, "urlError")
             return
@@ -246,7 +298,10 @@ public class UseDeskSDK: NSObject {
         }
         
         let urlAdress = URL(string: url)
-        
+        guard urlAdress != nil else {
+            startBlock(false, "urlError")
+            return
+        }
         let config = ["log": true]
         manager = SocketManager(socketURL: urlAdress!, config: config)
         
@@ -257,8 +312,7 @@ public class UseDeskSDK: NSObject {
         socket?.on("connect", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
             print("socket connected")
-            let token = wSelf.loadToken(for: wSelf.email)
-            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: token)
+            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: wSelf.token)
             wSelf.socket?.emit("dispatch", with: arrConfStart!)
         })
         
@@ -266,13 +320,15 @@ public class UseDeskSDK: NSObject {
             guard let wSelf = self else {return}
             if (wSelf.errorBlock != nil) {
                 wSelf.errorBlock!(data)
+                if !isAuthInited {
+                    startBlock(false, "false inited")
+                }
             }
         })
         socket?.on("disconnect", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
             print("socket disconnect")
-            let token = wSelf.loadToken(for: wSelf.email)
-            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: token)
+            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: wSelf.token)
             wSelf.socket?.emit("dispatch", with: arrConfStart!)
         })
         
@@ -296,13 +352,8 @@ public class UseDeskSDK: NSObject {
                         wSelf.sendMessage(wSelf.firstMessage)
                         wSelf.firstMessage = ""
                     }
+                    isAuthInited = true
                     startBlock(auth_success, "")
-                } else {
-                    startBlock(auth_success, "false inited")
-                }
-     
-                if auth_success && (wSelf.connectBlock != nil) {
-                    wSelf.connectBlock!(true, nil)
                 }
                 
                 wSelf.action_Feedback_Answer(data)
@@ -313,18 +364,18 @@ public class UseDeskSDK: NSObject {
     }
     
     @objc public func getCollections(connectionStatus baseBlock: @escaping UDSBaseBlock) {
-        if account_id != "" {
+        if knowledgeBaseID != "" {
             var url = "https://"
             if self.urlAPI != "" {
-                url += self.urlAPI
+                url += self.urlAPI + "/uapi"
             } else {
                 url += "api.usedesk.ru"
             }
-            url += "/support/\(self.account_id)/list?api_token=\(self.api_token)"
+            url += "/support/\(self.knowledgeBaseID)/list?api_token=\(self.api_token)"
             AF.request(url).responseJSON{  responseJSON in
                 switch responseJSON.result {
                 case .success(let value):
-                    guard let collections = BaseCollection.getArray(from: value) else {
+                    guard let collections = UDBaseCollection.getArray(from: value) else {
                         baseBlock(false, nil, "error parsing")
                         return }
                     baseBlock(true, collections, "")
@@ -333,23 +384,23 @@ public class UseDeskSDK: NSObject {
                 }
             }
         } else {
-            baseBlock(false, nil, "You did not specify account_id")
+            baseBlock(false, nil, "You did not specify knowledgeBaseID")
         }
     }
     
     @objc public func getArticle(articleID: Int, connectionStatus baseBlock: @escaping UDSArticleBlock) {
-        if account_id != "" {
+        if knowledgeBaseID != "" {
             var url = "https://"
             if self.urlAPI != "" {
-                url += self.urlAPI
+                url += self.urlAPI + "/uapi"
             } else {
                 url += "api.usedesk.ru"
             }
-            url += "/support/\(self.account_id)/articles/\(articleID)?api_token=\(self.api_token)"
+            url += "/support/\(self.knowledgeBaseID)/articles/\(articleID)?api_token=\(self.api_token)"
             AF.request(url).responseJSON{ responseJSON in
                 switch responseJSON.result {
                 case .success(let value):
-                    guard let article = Article.get(from: value) else {
+                    guard let article = UDArticle.get(from: value) else {
                         baseBlock(false, nil, "error parsing")
                         return }
                     baseBlock(true, article, "")
@@ -358,19 +409,19 @@ public class UseDeskSDK: NSObject {
                 }
             }
         } else {
-            baseBlock(false, nil, "You did not specify account_id")
+            baseBlock(false, nil, "You did not specify knowledgeBaseID")
         }
     }
     
     @objc public func addViewsArticle(articleID: Int, count: Int, connectionStatus connectBlock: @escaping UDSConnectBlock) {
-        if account_id != "" {
+        if knowledgeBaseID != "" {
             var url = "https://"
             if self.urlAPI != "" {
-                url += self.urlAPI
+                url += self.urlAPI + "/uapi"
             } else {
                 url += "api.usedesk.ru"
             }
-            url += "/support/\(self.account_id)/articles/\(articleID)/add-views?api_token=\(self.api_token)&count=\(count)"
+            url += "/support/\(self.knowledgeBaseID)/articles/\(articleID)/add-views?api_token=\(self.api_token)&count=\(count)"
             AF.request(url).responseJSON{ responseJSON in
                 switch responseJSON.result {
                 case .success( _):
@@ -380,19 +431,19 @@ public class UseDeskSDK: NSObject {
                 }
             }
         } else {
-            connectBlock(false, "You did not specify account_id")
+            connectBlock(false, "You did not specify knowledgeBaseID")
         }
     }
     
     @objc public func addReviewArticle(articleID: Int, countPositiv: Int = 0, countNegativ: Int = 0, connectionStatus connectBlock: @escaping UDSConnectBlock) {
-        if account_id != "" {
+        if knowledgeBaseID != "" {
             var url = "https://"
             if self.urlAPI != "" {
-                url += self.urlAPI
+                url += self.urlAPI + "/uapi"
             } else {
                 url += "api.usedesk.ru"
             }
-            url +=   "/support/\(self.account_id)/articles/\(articleID)/change-rating?api_token=\(self.api_token)"
+            url += "/support/\(self.knowledgeBaseID)/articles/\(articleID)/change-rating?api_token=\(self.api_token)"
             url += countPositiv > 0 ? "&count_positive=\(countPositiv)" : ""
             url += countNegativ > 0 ? "&count_negative=\(countNegativ)" : ""
             AF.request(url).responseJSON{ responseJSON in
@@ -404,15 +455,15 @@ public class UseDeskSDK: NSObject {
                 }
             }
         } else {
-            connectBlock(false, "You did not specify account_id")
+            connectBlock(false, "You did not specify knowledgeBaseID")
         }
     }
     
     @objc public func sendReviewArticleMesssage(articleID: Int, message: String, connectionStatus connectBlock: @escaping UDSConnectBlock) {
-        if account_id != "" {
+        if knowledgeBaseID != "" {
             var url = "https://"
             if self.urlAPI != "" {
-                url += self.urlAPI
+                url += self.urlAPI + "/uapi"
             } else {
                 url += "api.usedesk.ru"
             }
@@ -435,20 +486,20 @@ public class UseDeskSDK: NSObject {
                 }
             }
         } else {
-            connectBlock(false, "You did not specify account_id")
+            connectBlock(false, "You did not specify knowledgeBaseID")
         }
     }
     
     @objc public func getSearchArticles(collection_ids:[Int], category_ids:[Int], article_ids:[Int], count: Int = 20, page: Int = 1, query: String, type: TypeArticle = .all, sort: SortArticle = .id, order: OrderArticle = .asc, connectionStatus searchBlock: @escaping UDSArticleSearchBlock) {
-        if account_id != "" {
+        if knowledgeBaseID != "" {
             var url = "https://"
             if self.urlAPI != "" {
-                url += self.urlAPI
+                url += self.urlAPI + "/uapi"
             } else {
                 url += "api.usedesk.ru"
             }
-            url += "/support/\(account_id)/articles/list?api_token=\(api_token)"
-            var urlForEncode = "&query=\(query)&count=\(count)&page=\(page)"
+            url += "/support/\(knowledgeBaseID)/articles/list?api_token=\(api_token)"
+            var urlForEncode = "&query=\(query)&count=\(count)&page=\(page)&short_text=\(1)"
             switch type {
             case .close:
                 urlForEncode += "&type=public"
@@ -523,7 +574,7 @@ public class UseDeskSDK: NSObject {
             AF.request(url).responseJSON{ responseJSON in
                 switch responseJSON.result {
                 case .success(let value):
-                    guard let articles = SearchArticle(from: value) else {
+                    guard let articles = UDSearchArticle(from: value) else {
                         searchBlock(false, nil, "error parsing")
                         return }
                     searchBlock(true, articles, "")
@@ -532,18 +583,18 @@ public class UseDeskSDK: NSObject {
                 }
             }
         } else {
-            searchBlock(false, nil, "You did not specify account_id")
+            searchBlock(false, nil, "You did not specify knowledgeBaseID")
         }
         
     }
     
-    func sendOfflineForm(withMessage message: String?, callback resultBlock: @escaping UDSStartBlock) {
-        let param = [
+    func sendOfflineForm(name nameClient: String?, email emailClient: String?, message: String, callback resultBlock: @escaping UDSStartBlock) {
+        var param = [
             "company_id" : companyID,
-            "name" : name,
-            "email" : email,
             "message" : message
         ]
+        param["name"] = nameClient != nil ? nameClient : name
+        param["email"] = emailClient != nil ? emailClient : email
         
         let urlStr = "https://secure.usedesk.ru/widget.js/post"
         AF.request(urlStr, method: .post, parameters: param as Parameters, encoding: JSONEncoding.default).responseJSON{ responseJSON in
@@ -560,34 +611,37 @@ public class UseDeskSDK: NSObject {
         let dicServer = data?[0] as? [AnyHashable : Any]
         
         if dicServer?["token"] != nil {
-            token = dicServer?["token"] as! String
-            save(email, token: token)
+            token = dicServer?["token"] as? String ?? ""
         }
         
         let setup = dicServer?["setup"] as? [AnyHashable : Any]
         
         if setup != nil {
             let messages = setup?["messages"] as? [Any]
-            historyMess = [RCMessage]()
+            historyMess = [UDMessage]()
             if messages != nil {
                 for mess in messages!  {
-                    let m: RCMessage? = parseMessageDic(mess as? [AnyHashable : Any])
-                    if let aM = m {
-                        historyMess.append(aM)
+                    var m: UDMessage? = nil
+                    var messageFile: UDMessage? = nil
+                    if let message = mess as? [AnyHashable : Any] {
+                        if (message["file"] as? [AnyHashable : Any] ) != nil {
+                            messageFile = parseFileMessageDic(message)
+                        }
+                        m = parseMessageDic(message)
+                    }
+                    if m != nil {
+                        historyMess.append(m!)
+                    }
+                    if messageFile != nil {
+                        historyMess.append(messageFile!)
                     }
                 }
             }
-            //let waitingEmail = Bool(setup?["waitingEmail"] as! Bool )
-            
-            //if waitingEmail {
-            socket?.emit("dispatch", with: UseDeskSDKHelp.dataEmail(email, phone: phone, name: name)!)
-            //}
+            socket?.emit("dispatch", with: UseDeskSDKHelp.dataClient(email, phone: phone, name: name, note: note, additional_id: additional_id)!)
         }
-        
     }
-    
-    func parseMessageDic(_ mess: [AnyHashable : Any]?) -> RCMessage? {
-        let m = RCMessage(text: "", incoming: false)
+    func parseFileMessageDic(_ mess: [AnyHashable : Any]?) -> UDMessage? {
+        let m = UDMessage(text: "", incoming: false)
         
         let createdAt = mess?["createdAt"] as? String ?? ""
         let dateFormatter = DateFormatter()
@@ -603,106 +657,160 @@ public class UseDeskSDK: NSObject {
         if mess?["id"] != nil {
             m.messageId = Int(mess?["id"] as? Int ?? 0)
         }
-        m.incoming = (mess?["type"] as! String == "operator_to_client" || mess?["type"] as! String == "bot_to_client") ? true : false
+        if let type = mess?["type"] as? String {
+            m.typeSenderMessageString = type
+        }
+        m.incoming = (m.typeSenderMessage == .operator_to_client || m.typeSenderMessage == .bot_to_client) ? true : false
         m.outgoing = !m.incoming
-        m.text = mess?["text"] as? String ?? ""
-
-        if m.incoming {
-            let stringsFromButtons = parseMessageFromButtons(text: m.text)
-            for stringFromButton in stringsFromButtons {
-                let rsButton = buttonFromString(stringButton: stringFromButton)
-                if rsButton != nil {
-                    m.rcButtons.append(rsButton!)
-                }
-                m.text = m.text.replacingOccurrences(of: stringFromButton, with: "")
-            }
-            for index in 0..<m.rcButtons.count {
-                let invertIndex = (m.rcButtons.count - 1) - index
-                if m.rcButtons[invertIndex].visible {
-                    m.text = m.rcButtons[invertIndex].title + " " + m.text
-                }
-            }
-            m.name = mess?["name"] as? String ?? ""
-        }        
-        
-        let payload = mess?["payload"] //as? [AnyHashable : Any]
-        
-        if payload != nil && (payload is [AnyHashable : Any]){
-            let payload1 = mess?["payload"] as! [AnyHashable : Any]
-            let avatar = payload1["avatar"]
-            if avatar != nil {
-                m.avatar = payload1["avatar"] as! String
+        if m.typeSenderMessage == .operator_to_client {
+            if let operatorId = mess?["type"] as? Int {
+                m.operatorId = operatorId
             }
         }
-        
+        if let payload = mess?["payload"] as? [AnyHashable : Any] {
+            let avatar = payload["avatar"]
+            if avatar != nil {
+                m.avatar = payload["avatar"] as! String
+            }
+        }
         let fileDic = mess?["file"] as? [AnyHashable : Any]
         if fileDic != nil {
-            let file = RCFile()
+            let file = UDFile()
             file.content = fileDic?["content"] as! String
             file.name = fileDic?["name"] as! String
             file.type = fileDic?["type"] as! String
+            file.size = fileDic?["size"] as? String ?? ""
             m.file = file
             m.status = RC_STATUS_LOADING
-            let type = URL.init(string: fileDic?["fullLink"] as? String ?? "")?.pathExtension ?? ""
+            var type = ""
+            if (fileDic?["file_name"] as? String ?? "") != "" {
+                type = URL.init(string: fileDic?["file_name"] as? String ?? "")?.pathExtension ?? ""
+            }
+            if (fileDic?["fullLink"] as? String ?? "") != "" {
+                type = URL.init(string: fileDic?["fullLink"] as? String ?? "")?.pathExtension ?? ""
+            }
             if file.type.contains("image") || isImage(of: type) {
                 m.type = RC_TYPE_PICTURE
                 do {
                     if  URL(string: file.content) != nil {
                         let aContent = URL(string: file.content)
                         let aContent1 = try Data(contentsOf: aContent!)
-                        m.picture_image = UIImage(data: aContent1)
+                        m.file.picture = UIImage(data: aContent1)
                     }
-                } catch {                    
+                } catch {
                 }
             } else if file.type.contains("video") || isVideo(of: type) {
                 m.type = RC_TYPE_VIDEO
+                m.file.typeExtension = type
                 file.type = "video"
             } else {
                 m.type = RC_TYPE_File
             }
-            
-            m.picture_width = Int(0.6 * SCREEN_WIDTH)
-            m.picture_height = Int(0.6 * SCREEN_WIDTH)
         }
+        return m
+    }
+    
+    func parseMessageDic(_ mess: [AnyHashable : Any]?) -> UDMessage? {
+        let m = UDMessage(text: "", incoming: false)
         
-        if payload != nil && (payload is [AnyHashable : Any]) {
-            if ((payload as! [AnyHashable : Any])["csi"] != nil) {
-                m.feedback = true
-                m.type = 9
+        let createdAt = mess?["createdAt"] as? String ?? ""
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "ru")
+        dateFormatter.timeZone = TimeZone(identifier: "Europe/Moscow")
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        if dateFormatter.date(from: createdAt) == nil {
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+        }
+        if createdAt != "" {
+            m.date = dateFormatter.date(from: createdAt)!
+        }
+        if mess?["id"] != nil {
+            m.messageId = Int(mess?["id"] as? Int ?? 0)
+        }
+        if let type = mess?["type"] as? String {
+            m.typeSenderMessageString = type
+        }
+        m.incoming = (m.typeSenderMessage == .operator_to_client || m.typeSenderMessage == .bot_to_client) ? true : false
+        m.outgoing = !m.incoming
+        if m.typeSenderMessage == .operator_to_client {
+            if let operatorId = mess?["type"] as? Int {
+                m.operatorId = operatorId
             }
         }
-
+        m.text = mess?["text"] as? String ?? ""
+        if m.incoming {
+            let stringsFromButtons = parseMessageFromButtons(text: m.text)
+            for stringFromButton in stringsFromButtons {
+                let rsButton = buttonFromString(stringButton: stringFromButton)
+                if rsButton != nil {
+                    m.buttons.append(rsButton!)
+                }
+                m.text = m.text.replacingOccurrences(of: stringFromButton, with: "")
+            }
+            for index in 0..<m.buttons.count {
+                let invertIndex = (m.buttons.count - 1) - index
+                if m.buttons[invertIndex].visible {
+                    m.text = m.buttons[invertIndex].title + " " + m.text
+                }
+            }
+            m.name = mess?["name"] as? String ?? ""
+        }
+        
+        if m.text == "" && m.buttons.count == 0 {
+            return nil
+        }
+        
+        if let payload = mess?["payload"] as? [AnyHashable : Any] {
+            let avatar = payload["avatar"]
+            if avatar != nil {
+                m.avatar = payload["avatar"] as! String
+            }
+            if payload["csi"] != nil {
+                m.type = RC_TYPE_Feedback
+            } else {
+                if let userRating = payload["userRating"] as? String {
+                    m.type = RC_TYPE_Feedback
+                    m.text = configurationStyle.feedbackMessageStyle.textFinished
+                    if userRating == "LIKE" {
+                        m.feedbackActionInt = 1
+                    }
+                    if userRating == "DISLIKE" {
+                        m.feedbackActionInt = 0
+                    }
+                }
+            }
+        }
         return m
     }
     
     func parseMessageFromButtons(text: String) -> [String] {
         var isAddingButton: Bool = false
-        var characterArrayFromRCButton = [Character]()
-        var stringsFromRCButton = [String]()
+        var characterArrayFromButton = [Character]()
+        var stringsFromButton = [String]()
         if text.count > 2 {
             for index in 0..<text.count - 1 {
                 let indexString = text.index(text.startIndex, offsetBy: index)
                 let secondIndexString = text.index(text.startIndex, offsetBy: index + 1)
                 if isAddingButton {
-                    characterArrayFromRCButton.append(text[indexString])
+                    characterArrayFromButton.append(text[indexString])
                     if (text[indexString] == "}") && (text[secondIndexString] == "}") {
-                        characterArrayFromRCButton.append(text[secondIndexString])
+                        characterArrayFromButton.append(text[secondIndexString])
                         isAddingButton = false
-                        stringsFromRCButton.append(String(characterArrayFromRCButton))
-                        characterArrayFromRCButton = []
+                        stringsFromButton.append(String(characterArrayFromButton))
+                        characterArrayFromButton = []
                     }
                 } else {
                     if (text[indexString] == "{") && (text[secondIndexString] == "{") {
-                        characterArrayFromRCButton.append(text[indexString])
+                        characterArrayFromButton.append(text[indexString])
                         isAddingButton = true
                     }
                 }
             }
         }
-        return stringsFromRCButton
+        return stringsFromButton
     }
     
-    func buttonFromString(stringButton: String) -> RCMessageButton? {
+    func buttonFromString(stringButton: String) -> UDMessageButton? {
         var stringsParameters = [String]()
         var charactersFromParameter = [Character]()
         var index = 9
@@ -726,15 +834,15 @@ public class UseDeskSDK: NSObject {
 
         if isNameExists && (stringsParameters.count == 3) {
             stringsParameters.append(String(charactersFromParameter))
-            let rcButton = RCMessageButton()
-            rcButton.title = stringsParameters[0]
-            rcButton.url = stringsParameters[1]
+            let button = UDMessageButton()
+            button.title = stringsParameters[0]
+            button.url = stringsParameters[1]
             if stringsParameters[3] == "show" {
-                rcButton.visible = true
+                button.visible = true
             } else {
-                rcButton.visible = false
+                button.visible = false
             }
-            return rcButton
+            return button
         } else {
             return nil
         }
@@ -746,14 +854,20 @@ public class UseDeskSDK: NSObject {
         let dicServer = data?[0] as? [AnyHashable : Any]
         
         if dicServer?["token"] != nil {
-            token = dicServer?["token"] as! String
+            token = dicServer?["token"] as? String ?? ""
         }
-        
+
         let setup = dicServer?["setup"] as? [AnyHashable : Any]
         if setup != nil {
             let noOperators = setup?["noOperators"]
-            if noOperators != nil {
-                return true
+            if let noOperatorsBool = noOperators as? Bool {
+                if noOperatorsBool == true {
+                    return true
+                }
+            } else if let noOperatorsInt = noOperators as? Int {
+                if noOperatorsInt == 1 {
+                    return true
+                }
             }
         }
         
@@ -776,23 +890,13 @@ public class UseDeskSDK: NSObject {
         let dicServer = data?[0] as? [AnyHashable : Any]
         
         let type = dicServer?["type"] as? String
-        
         if type == nil {
             return false
         }
-        if (type == "@@chat/current/INITED") { //ADD_MESSAGE
+        if (type == "@@chat/current/INITED") {
             return true
         }
-        
-//        let message = dicServer?["message"] as? [AnyHashable : Any]
-//
-//        if message != nil {
-//            if (message?["chat"] is NSNull) {
-//                return true
-//            }
-//        }
         return false
-        
     }
     
     func action_Feedback_Answer(_ data: [Any]?) {
@@ -821,13 +925,6 @@ public class UseDeskSDK: NSObject {
         if type == nil {
             return
         }
-        if !(type == "@@chat/current/ADD_MESSAGE") {
-           // return
-        }
-        
-        if (type == "bot_to_client") {
-            
-        }
         
         let message = dicServer?["message"] as? [AnyHashable : Any]
         
@@ -836,18 +933,27 @@ public class UseDeskSDK: NSObject {
             if (message?["chat"] is NSNull) {
                 return
             }
+            var m: UDMessage? = nil
+            var messageFile: UDMessage? = nil
+
+            if (message!["file"] as? [AnyHashable : Any] ) != nil {
+                messageFile = parseFileMessageDic(message)
+            }
+            m = parseMessageDic(message)
             
-            let mess: RCMessage? = parseMessageDic(message)
-            
-            if mess?.feedback == true && (feedbackMessageBlock != nil) {
-                feedbackMessageBlock!(mess)
-                return
-            } else {
-                if (newMessageBlock != nil) {
-                    newMessageBlock!(true, mess)
+            if m != nil {
+                if m?.type == RC_TYPE_Feedback && (feedbackMessageBlock != nil) {
+                    feedbackMessageBlock!(m)
+                    return
+                } else {
+                    if newMessageBlock != nil {
+                        newMessageBlock!(true, m)
+                    }
                 }
             }
-            
+            if messageFile != nil {
+                newMessageBlock!(true, messageFile!)
+            }
         }
     }
     
@@ -855,35 +961,21 @@ public class UseDeskSDK: NSObject {
         socket?.emit("dispatch", with: UseDeskSDKHelp.feedback(status)!)
     }
     
-    func save(_ email: String?, token: String?) {
-        UserDefaults.standard.set(token, forKey: email ?? "")
-        UserDefaults.standard.synchronize()
+    func isImage(of type: String) -> Bool {
+        let typeLowercased = type.lowercased()
+        let typesImage = ["gif", "xbm", "jpeg", "jpg", "pct", "bmpf", "ico", "tif", "tiff", "cur", "bmp", "png"]
+        return typesImage.contains(typeLowercased)
     }
     
-    func loadToken(for email: String?) -> String? {
-        let savedValue = UserDefaults.standard.string(forKey: email ?? "")
-        return savedValue
-    }
-    
-    private func isImage(of type: String) -> Bool {
-        let typesImage = ["gif", "xbm", "jpeg", "jpg", "pct", "BMPf", "ico", "tif", "tiff", "cur", "bmp", "JPEG", "png"]
-        return typesImage.contains(type)
-    }
-    
-    private func isVideo(of type: String) -> Bool {
-        let typesImage = ["mpeg", "mp4", "webm", "quicktime", "ogg", "mov", "mpe", "mpg", "mvc", "flv", "avi", "3g2", "3gp2", "vfw", "MPG", "MPEG"]
-        return typesImage.contains(type)
+    func isVideo(of type: String) -> Bool {
+        let typeLowercased = type.lowercased()
+        let typesImage = ["mpeg", "mp4", "webm", "quicktime", "ogg", "mov", "mpe", "mpg", "mvc", "flv", "avi", "3g2", "3gp2", "vfw", "mpg", "mpeg"]
+        return typesImage.contains(typeLowercased)
     }
     
     private func isValidSite(path: String) -> Bool {
         let urlRegEx = "^(https?://)?(www\\.)?([-a-z0-9]{1,63}\\.)*?[a-z0-9][-a-z0-9]{0,61}[a-z0-9]\\.[a-z]{2,6}(/[-\\w@\\+\\.~#\\?&/=%]*)?$"
         return NSPredicate(format: "SELF MATCHES %@", urlRegEx).evaluate(with: path)
-    }
-    
-    func isValidEmail(email: String) -> Bool {
-        let emailRegEx = "^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{1,4}$"
-        let emailTest = NSPredicate(format:"SELF MATCHES[c] %@", emailRegEx)
-        return emailTest.evaluate(with: email)
     }
     
     func isValidPhone(phone:String) -> Bool {
@@ -900,7 +992,8 @@ public class UseDeskSDK: NSObject {
         }
     }
     
-    public func releaseChat() {
+    @objc public func releaseChat() {
+        dialogflowVC = DialogflowView()
         socket = manager?.defaultSocket
         socket?.disconnect()
     }

@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
 	s.name             = 'UseDesk_SDK_Swift'
-	s.version          = '0.4.0'
+	s.version          = '1.0.0'
 	s.summary          = 'A short description of UseDesk.'
 
 	s.description      = <<-DESC
@@ -19,9 +19,11 @@ Pod::Spec.new do |s|
 
 	s.ios.source_files = 'UseDesk/Classes/*.{m,h,swift}'
 
-	s.resource_bundles = {
-		'UseDesk' => ['UseDesk/Assets/*.{png,xcassets,imageset,jpeg,jpg}', 'UseDesk/Classes/*.{storyboard,xib,bundle}']
-	}
+#	s.resource_bundles = {
+#		'UseDesk' => ['UseDesk/Assets/*.{png,xcassets,imageset,jpeg,jpg}', 'UseDesk/Classes/*.{storyboard,xib,bundle}']
+#	}
+  
+  s.resource = ['UseDesk/**/*.{png,xcassets,imageset,jpeg,jpg,storyboard,xib,bundle,strings}']
 
 	s.frameworks = 'UIKit', 'MapKit' ,'AVFoundation'
 
@@ -32,6 +34,6 @@ Pod::Spec.new do |s|
 	s.dependency 'Alamofire', '~> 5'
 	s.dependency 'QBImagePickerController', '~> 3.4'
 	s.dependency 'UIAlertController+Blocks'
-	s.dependency 'SDWebImage', '~> 4.0'
+  s.dependency 'Swime'
 
 end

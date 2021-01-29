@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="UDTextAnimateTableViewCell" id="G5G-ui-tcn" customClass="UDTextAnimateTableViewCell" customModule="UseDesk_SDK_Swift">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="64"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="G5G-ui-tcn" id="QRZ-w0-trh">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="64"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="8OA-Fi-shZ">
+                        <rect key="frame" x="11" y="34" width="393" height="18"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences" returnKeyType="done"/>
+                        <dataDetectorType key="dataDetectorTypes" lookupSuggestion="YES"/>
+                    </textView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mQP-pW-tAs">
+                        <rect key="frame" x="16" y="34" width="388" height="18"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="18" id="gpz-V7-lpM"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                        <color key="textColor" red="0.74117647060000003" green="0.74117647060000003" blue="0.74117647060000003" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="db6-X7-NFw" customClass="UDSeparatorView">
+                        <rect key="frame" x="16" y="63" width="398" height="1"/>
+                        <color key="backgroundColor" red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="1" id="uL1-v9-oib"/>
+                        </constraints>
+                    </view>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KAI-15-6Al" customClass="UDSeparatorView">
+                        <rect key="frame" x="0.0" y="63" width="414" height="1"/>
+                        <color key="backgroundColor" red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="1" id="ago-rh-Dzy"/>
+                        </constraints>
+                    </view>
+                </subviews>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="8OA-Fi-shZ" secondAttribute="trailing" constant="10" id="56j-PS-Qi8"/>
+                    <constraint firstItem="db6-X7-NFw" firstAttribute="leading" secondItem="QRZ-w0-trh" secondAttribute="leading" constant="16" id="9xQ-in-lTE"/>
+                    <constraint firstItem="KAI-15-6Al" firstAttribute="leading" secondItem="QRZ-w0-trh" secondAttribute="leading" id="HSE-Oa-fhw"/>
+                    <constraint firstItem="8OA-Fi-shZ" firstAttribute="top" secondItem="QRZ-w0-trh" secondAttribute="top" constant="34" id="K4Y-aS-PtX"/>
+                    <constraint firstAttribute="trailing" secondItem="KAI-15-6Al" secondAttribute="trailing" id="QZa-eE-Z7n"/>
+                    <constraint firstItem="mQP-pW-tAs" firstAttribute="top" secondItem="QRZ-w0-trh" secondAttribute="top" constant="34" id="cVm-89-tky"/>
+                    <constraint firstItem="db6-X7-NFw" firstAttribute="top" secondItem="8OA-Fi-shZ" secondAttribute="bottom" constant="11" id="dq5-H5-bwo"/>
+                    <constraint firstAttribute="bottom" secondItem="db6-X7-NFw" secondAttribute="bottom" id="e7W-mc-cgk"/>
+                    <constraint firstItem="8OA-Fi-shZ" firstAttribute="leading" secondItem="QRZ-w0-trh" secondAttribute="leading" constant="11" id="elp-mZ-uEc"/>
+                    <constraint firstAttribute="bottom" secondItem="KAI-15-6Al" secondAttribute="bottom" id="fUG-WF-b7p"/>
+                    <constraint firstItem="mQP-pW-tAs" firstAttribute="leading" secondItem="QRZ-w0-trh" secondAttribute="leading" constant="16" id="hr4-GC-X4x"/>
+                    <constraint firstAttribute="trailing" secondItem="mQP-pW-tAs" secondAttribute="trailing" constant="10" id="sF9-to-jWX"/>
+                    <constraint firstAttribute="trailing" secondItem="db6-X7-NFw" secondAttribute="trailing" id="tKc-M8-woa"/>
+                </constraints>
+            </tableViewCellContentView>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <connections>
+                <outlet property="lastLineView" destination="KAI-15-6Al" id="MtU-0b-cuc"/>
+                <outlet property="lineView" destination="db6-X7-NFw" id="MLc-6u-MmM"/>
+                <outlet property="myTextView" destination="8OA-Fi-shZ" id="ta9-Ou-8j0"/>
+                <outlet property="titleLabel" destination="mQP-pW-tAs" id="e16-0o-ZRA"/>
+                <outlet property="titleLabelTopC" destination="cVm-89-tky" id="d3C-X3-p5w"/>
+            </connections>
+            <point key="canvasLocation" x="128.98550724637681" y="178.79464285714286"/>
+        </tableViewCell>
+    </objects>
+</document>

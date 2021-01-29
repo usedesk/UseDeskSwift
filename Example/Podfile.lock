@@ -11,12 +11,10 @@ PODS:
   - NYTPhotoViewer/Core (1.2.0)
   - ProgressHUD (2.70)
   - QBImagePickerController (3.4.0)
-  - SDWebImage (4.4.8):
-    - SDWebImage/Core (= 4.4.8)
-  - SDWebImage/Core (4.4.8)
   - Socket.IO-Client-Swift (14.0.0):
     - Starscream (~> 3.0.6)
   - Starscream (3.0.6)
+  - Swime (3.0.6)
   - "UIAlertController+Blocks (0.9.2)"
   - UseDesk_SDK_Swift (0.3.19):
     - Alamofire (~> 5)
@@ -24,8 +22,8 @@ PODS:
     - NYTPhotoViewer (= 1.2.0)
     - ProgressHUD
     - QBImagePickerController (~> 3.4)
-    - SDWebImage (~> 4.0)
     - Socket.IO-Client-Swift (~> 14.0)
+    - Swime
     - "UIAlertController+Blocks"
 
 DEPENDENCIES:
@@ -39,9 +37,9 @@ SPEC REPOS:
     - NYTPhotoViewer
     - ProgressHUD
     - QBImagePickerController
-    - SDWebImage
     - Socket.IO-Client-Swift
     - Starscream
+    - Swime
     - "UIAlertController+Blocks"
 
 EXTERNAL SOURCES:
@@ -55,11 +53,11 @@ SPEC CHECKSUMS:
   NYTPhotoViewer: 323217e4590a1586eb3c9674b3fefb0fb8b57896
   ProgressHUD: e603e8b8622c47d8818b9fb38b3cfe9d3e7ca421
   QBImagePickerController: d54cf93db6decf26baf6ed3472f336ef35cae022
-  SDWebImage: 783af2c3fa36291a250030c4752ee370a9a51d13
   Socket.IO-Client-Swift: 21e6a8a23a7d367d5ddfab6cbbd3c679cf3c25d6
   Starscream: ef3ece99d765eeccb67de105bfa143f929026cf5
+  Swime: d7b2c277503b6cea317774aedc2dce05613f8b0b
   "UIAlertController+Blocks": 80e28b92523fb58aba4d1bccec013d5a0b0bddb2
-  UseDesk_SDK_Swift: 3ba200d541eae18dfce11a3a621405ab5881b6f2
+  UseDesk_SDK_Swift: e00b873b88594147affd50eaae48300d7ceb7158
 
 PODFILE CHECKSUM: bbc3836925ebcc11f98b8ec2676c7a91e860d84a
 
