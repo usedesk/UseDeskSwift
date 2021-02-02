@@ -31,7 +31,7 @@ class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFie
     var isTitleErrorState = false
     var isLimitLengthText = true
     
-    func setCell(title: String, text: String, indexPath indexPathCell: IndexPath, isValid isValidText: Bool = true, isTitleErrorState isTitleError: Bool = false, isLast isLastText: Bool = false, isNeedLastLine: Bool = false, isLimitLengthText isLimitLength: Bool = true, isOneLine: Bool = false) {
+    func setCell(title: String, text: String, indexPath indexPathCell: IndexPath, isValid isValidText: Bool = true, isTitleErrorState isTitleError: Bool = false, isLast isLastText: Bool = false, isNeedLastLine: Bool = false, isLimitLengthText isLimitLength: Bool = true, isOneLine: Bool = false, backgroundColor: UIColor? = nil) {
         indexPath = indexPathCell
         isValid = isValidText
         isLast = isLastText
@@ -60,6 +60,9 @@ class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFie
         lastLineView.alpha = isNeedLastLine ? 1 : 0
         lineView.alpha = isLast && isValid ? 0 : 1
         lineView.backgroundColor = isValid ? feedbackFormStyle.lineSeparatorColor : feedbackFormStyle.errorColor
+        if backgroundColor != nil {
+            self.backgroundColor = backgroundColor!
+        }
         self.selectionStyle = .none
     }
     
@@ -118,7 +121,6 @@ class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFie
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "\n" {
             textView.resignFirstResponder()
-//            delegate?.newValue(indexPath: indexPath, value: myTextView.text!, isValid: isValid, positionCursorY: 0)
             return false
         }
         if titleLabel.text != defaultTitle {

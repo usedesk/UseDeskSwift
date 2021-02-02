@@ -9,6 +9,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var scrollViewBC: NSLayoutConstraint!
+    @IBOutlet weak var contentView: UIView!
     @IBOutlet weak var textLabel: UILabel!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var tableViewHC: NSLayoutConstraint!
@@ -70,6 +71,8 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
     // MARK: - Private
     func firstState() {
         scrollView.delegate = self
+        contentView.backgroundColor = configurationStyle.chatStyle.backgroundColor
+        scrollView.backgroundColor = configurationStyle.chatStyle.backgroundColor
         sendLoader.alpha = 0
         configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         title = usedesk?.nameChat ?? "Чат"
@@ -80,6 +83,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         tableView.estimatedRowHeight = 64
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.backgroundColor = configurationStyle.chatStyle.backgroundColor
         textLabel.textColor = feedbackFormStyle.textColor
         textLabel.font = feedbackFormStyle.textFont
         textLabel.text = "Все операторы заняты. Оставьте сообщение, мы ответим вам на почту в течение 1 рабочего дня."
@@ -93,7 +97,8 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         
         sendedViewBC.constant = -400
         sendedCornerRadiusView.layer.cornerRadius = 13
-        sendedView.backgroundColor = .clear
+        sendedCornerRadiusView.backgroundColor = configurationStyle.chatStyle.backgroundColor
+        sendedView.backgroundColor = configurationStyle.chatStyle.backgroundColor
         sendedView.layer.masksToBounds = false
         sendedView.layer.shadowColor = UIColor.black.cgColor
         sendedView.layer.shadowOpacity = 0.6
@@ -122,6 +127,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                 keyboardHeight = keyboardSize.height
                 UIView.animate(withDuration: 0.4) {
                     self.scrollViewBC.constant = self.keyboardHeight
+                    self.view.layoutIfNeeded()
                 }
             }
         }
@@ -299,7 +305,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                         fields[indexPath.row].values[0] = TextItem(text: nameClient.text, isValid: false)
                         isValid = false
                     }
-                    cell.setCell(title: title, text: nameClient.text, indexPath: indexPath, isValid: isValid, isTitleErrorState: !isValid, isLimitLengthText: false)
+                    cell.setCell(title: title, text: nameClient.text, indexPath: indexPath, isValid: isValid, isTitleErrorState: !isValid, isLimitLengthText: false, backgroundColor: configurationStyle.chatStyle.backgroundColor)
                 }
             }
             if indexFieldsForType(.email) == indexPath.row {
@@ -314,7 +320,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                         fields[indexPath.row].values[0] = ContactItem(contact: emailClient.contact, isValid: false)
                         isValid = false
                     }
-                    cell.setCell(title: title, text: emailClient.contact, indexPath: indexPath, isValid: isValid, isTitleErrorState: !isValid, isLimitLengthText: false)
+                    cell.setCell(title: title, text: emailClient.contact, indexPath: indexPath, isValid: isValid, isTitleErrorState: !isValid, isLimitLengthText: false, backgroundColor: configurationStyle.chatStyle.backgroundColor)
                 }
             }
             cell.setNotSelectedAnimate()
@@ -331,7 +337,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                 fields[indexPath.row].values[0] = TextItem(text: nameClient.text, isValid: false)
                 isValid = false
             }
-            cell.setCell(title: title, text: nameClient.text, indexPath: indexPath, isValid: isValid, isTitleErrorState: !isValid, isLimitLengthText: false)
+            cell.setCell(title: title, text: nameClient.text, indexPath: indexPath, isValid: isValid, isTitleErrorState: !isValid, isLimitLengthText: false, backgroundColor: configurationStyle.chatStyle.backgroundColor)
         }
         cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         cell.delegate = self
@@ -356,7 +362,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                 fields[indexPath.row].values[0] = ContactItem(contact: emailClient.contact, isValid: false)
                 isValid = false
             }
-            cell.setCell(title: title, text: emailClient.contact, indexPath: indexPath, isValid: isValid, isTitleErrorState: !isValid, isLimitLengthText: false)
+            cell.setCell(title: title, text: emailClient.contact, indexPath: indexPath, isValid: isValid, isTitleErrorState: !isValid, isLimitLengthText: false, backgroundColor: configurationStyle.chatStyle.backgroundColor)
         }
         cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         cell.delegate = self
@@ -372,7 +378,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: "UDTextAnimateTableViewCell", for: indexPath) as! UDTextAnimateTableViewCell
         if let message = fields[indexPath.row].values[0] as? TextItem {
             let title = "Сообщение"
-            cell.setCell(title: title, text: message.text, indexPath: indexPath, isLimitLengthText: false)
+            cell.setCell(title: title, text: message.text, indexPath: indexPath, isLimitLengthText: false, backgroundColor: configurationStyle.chatStyle.backgroundColor)
         }
         cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         cell.delegate = self

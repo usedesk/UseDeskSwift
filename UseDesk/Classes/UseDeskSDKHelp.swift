@@ -4,11 +4,14 @@
 import Foundation
 
 class UseDeskSDKHelp {
-    class func config_CompanyID(_ companyID: String?, email: String, phone: String?, name: String?, url: String?, token: String?) -> [Any]? {
-        let payload = [
+    class func config_CompanyID(_ companyID: String?, email: String, phone: String?, name: String?, url: String?, token: String?,  signature: String = "") -> [Any]? {
+        var payload = [
             "sdk" : "iOS",
             "type" : "sdk"
         ]
+        if signature != "" {
+            payload["signature"] = signature
+        }
         var dic = [
             "type" : "@@server/chat/INIT",
             "payload" : payload,
@@ -24,7 +27,7 @@ class UseDeskSDKHelp {
         return [dic]
     }
     
-    class func dataClient(_ email: String = "", phone: String = "", name: String = "", note: String = "", additional_id: String? = nil) -> [Any]? {
+    class func dataClient(_ email: String = "", phone: String = "", name: String = "", note: String = "", signature: String = "", additional_id: String? = nil) -> [Any]? {
         var dic: [String : Any] = [
             "type"  : "@@server/chat/SET_CLIENT"
         ]
@@ -34,10 +37,13 @@ class UseDeskSDKHelp {
             "phone"    : phone,
             "note"     : note
         ]
-        if additional_id != nil {
-            if additional_id != "" {
-                payload["additional_id"] = additional_id
-            }
+//        if additional_id != nil {
+//            if additional_id != "" {
+//                payload["additional_id"] = additional_id
+//            }
+//        }
+        if signature != "" {
+            payload["signature"] = signature
         }
         dic["payload"] = payload
         return [dic]

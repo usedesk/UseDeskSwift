@@ -234,7 +234,6 @@ class DialogflowView: UDMessagesView {
                 } catch {}
             }
         }
-        usedesk?.releaseChat()
         if isFromBase {
             navigationController?.popViewController(animated: true)
         } else {

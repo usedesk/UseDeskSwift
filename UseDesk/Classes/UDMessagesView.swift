@@ -182,6 +182,8 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func configurationViews() {
+        tableView.backgroundColor = configurationStyle.chatStyle.backgroundColor
+        
         buttonAttach.setBackgroundImage(configurationStyle.attachButtonStyle.image, for: .normal)
         buttonAttachLC.constant = configurationStyle.attachButtonStyle.margin.left
         buttonAttachBC.constant = -configurationStyle.attachButtonStyle.margin.bottom

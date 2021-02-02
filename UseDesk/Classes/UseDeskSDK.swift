@@ -50,14 +50,14 @@ public class UseDeskSDK: NSObject {
     var nameChat = ""
     var firstMessage = ""
     var note = ""
-    var additional_id = ""
+    var signature = ""
     
     var dialogNavController = UDNavigationController()
     
     private var token = ""
     private var dialogflowVC : DialogflowView = DialogflowView()
     
-    @objc public func start(withCompanyID _companyID: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: UDSStartBlock) {
+    @objc public func start(withCompanyID _companyID: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, signature _signature: String? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: UDSStartBlock) {
         
         let parentController: UIViewController? = parentController ?? RootView
         
@@ -142,6 +142,11 @@ public class UseDeskSDK: NSObject {
                 note = _note!
             }
         }
+        if _signature != nil {
+            if _signature != "" {
+                signature = _signature!
+            }
+        }
         guard isValidSite(path: _url) else {
             startBlock(false, "urlError")
             hud.hide(animated: true)
@@ -213,7 +218,7 @@ public class UseDeskSDK: NSObject {
         }
     }
     
-    @objc public func startWithoutGUICompanyID(companyID _companyID: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
+    @objc public func startWithoutGUICompanyID(companyID _companyID: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, signature _signature: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
         
         var isAuthInited = false
         
@@ -283,6 +288,11 @@ public class UseDeskSDK: NSObject {
                 note = _note!
             }
         }
+        if _signature != nil {
+            if _signature != "" {
+                signature = _signature!
+            }
+        }
         // validation
         guard isValidSite(path: _url) else {
             startBlock(false, "urlError")
@@ -312,7 +322,8 @@ public class UseDeskSDK: NSObject {
         socket?.on("connect", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
             print("socket connected")
-            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: wSelf.token)
+            let token = wSelf.signature != "" ? wSelf.signature : wSelf.loadToken()
+            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: token)
             wSelf.socket?.emit("dispatch", with: arrConfStart!)
         })
         
@@ -328,7 +339,8 @@ public class UseDeskSDK: NSObject {
         socket?.on("disconnect", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
             print("socket disconnect")
-            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: wSelf.token)
+            let token = wSelf.signature != "" ? wSelf.signature : wSelf.loadToken()
+            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: token)
             wSelf.socket?.emit("dispatch", with: arrConfStart!)
         })
         
@@ -610,8 +622,9 @@ public class UseDeskSDK: NSObject {
     func action_INITED(_ data: [Any]?) {
         let dicServer = data?[0] as? [AnyHashable : Any]
         
-        if dicServer?["token"] != nil {
+        if dicServer?["token"] != nil && signature == "" {
             token = dicServer?["token"] as? String ?? ""
+            save(token: token)
         }
         
         let setup = dicServer?["setup"] as? [AnyHashable : Any]
@@ -637,7 +650,7 @@ public class UseDeskSDK: NSObject {
                     }
                 }
             }
-            socket?.emit("dispatch", with: UseDeskSDKHelp.dataClient(email, phone: phone, name: name, note: note, additional_id: additional_id)!)
+            socket?.emit("dispatch", with: UseDeskSDKHelp.dataClient(email, phone: phone, name: name, note: note, signature: signature)!)
         }
     }
     func parseFileMessageDic(_ mess: [AnyHashable : Any]?) -> UDMessage? {
@@ -853,8 +866,9 @@ public class UseDeskSDK: NSObject {
         
         let dicServer = data?[0] as? [AnyHashable : Any]
         
-        if dicServer?["token"] != nil {
+        if dicServer?["token"] != nil && signature == "" {
             token = dicServer?["token"] as? String ?? ""
+            save(token: token)
         }
 
         let setup = dicServer?["setup"] as? [AnyHashable : Any]
@@ -961,6 +975,14 @@ public class UseDeskSDK: NSObject {
         socket?.emit("dispatch", with: UseDeskSDKHelp.feedback(status)!)
     }
     
+    func save(token: String) {
+        UserDefaults.standard.set(token, forKey: "usedeskTokenClient")
+    }
+    
+    func loadToken() -> String? {
+        return UserDefaults.standard.string(forKey: "usedeskTokenClient")
+    }
+    
     func isImage(of type: String) -> Bool {
         let typeLowercased = type.lowercased()
         let typesImage = ["gif", "xbm", "jpeg", "jpg", "pct", "bmpf", "ico", "tif", "tiff", "cur", "bmp", "png"]
@@ -996,6 +1018,23 @@ public class UseDeskSDK: NSObject {
         dialogflowVC = DialogflowView()
         socket = manager?.defaultSocket
         socket?.disconnect()
+        historyMess = []
+        companyID = ""
+        email = ""
+        phone = ""
+        url = ""
+        urlToSendFile = ""
+        urlWithoutPort = ""
+        urlAPI = ""
+        knowledgeBaseID = ""
+        api_token = ""
+        port = ""
+        name = ""
+        operatorName = ""
+        nameChat = ""
+        firstMessage = ""
+        note = ""
+        signature = ""
     }
     
 }

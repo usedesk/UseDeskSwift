@@ -50,6 +50,7 @@ let RC_AUDIOSTATUS_PLAYING = 2
 // MARK: - Configuration desigen
 public struct ConfigurationStyle {
     public var navigationBarStyle: NavigationBarStyle
+    public var chatStyle: ChatStyle
     public var sectionHeaderStyle: SectionHeaderStyle
     public var bubbleStyle: BubbleStyle
     public var avatarStyle: AvatarStyle
@@ -71,6 +72,7 @@ public struct ConfigurationStyle {
     public var baseArticleStyle: BaseArticleStyle
     
     public init(navigationBarStyle: NavigationBarStyle = NavigationBarStyle(),
+                chatStyle: ChatStyle = ChatStyle(),
                 sectionHeaderStyle: SectionHeaderStyle = SectionHeaderStyle(),
                 bubbleStyle: BubbleStyle = BubbleStyle(),
                 avatarStyle: AvatarStyle = AvatarStyle(),
@@ -91,6 +93,7 @@ public struct ConfigurationStyle {
                 baseSearchStyle: BaseSearchStyle = BaseSearchStyle(),
                 baseArticleStyle: BaseArticleStyle = BaseArticleStyle()) {
         self.navigationBarStyle = navigationBarStyle
+        self.chatStyle = chatStyle
         self.sectionHeaderStyle = sectionHeaderStyle
         self.bubbleStyle = bubbleStyle
         self.avatarStyle = avatarStyle
@@ -140,6 +143,15 @@ public struct NavigationBarStyle {
         self.searchButtonImage = searchButtonImage != nil ? searchButtonImage! : UIImage.named("search")
     }
 }
+// MARK: -  ChatStyle
+public struct ChatStyle {
+    public var backgroundColor: UIColor
+    
+    public init(backgroundColor: UIColor? = nil) {
+        self.backgroundColor = backgroundColor != nil ? backgroundColor! : UIColor(hexString: "FFFFFF")
+    }
+}
+
 // MARK: -  Date messages section
 public struct SectionHeaderStyle {
     public var margin: UIEdgeInsets
