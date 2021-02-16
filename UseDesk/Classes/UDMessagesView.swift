@@ -407,7 +407,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         if !((textInput.text == "Написать..." && textInput.textColor == configurationStyle.inputViewStyle.placeholderTextColor)) {
             buttonSend.isEnabled = textInput.text.count != 0 || sendAssets.count > 0
         } else {
-            buttonSend.isEnabled = false
+            buttonSend.isEnabled = sendAssets.count > 0 ? true : false
         }
     }
     
@@ -427,7 +427,11 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     @IBAction func actionInputSend(_ sender: Any) {
-        actionSendMessage(textInput.text)
+        if ((textInput.text == "Написать..." && textInput.textColor == configurationStyle.inputViewStyle.placeholderTextColor)) {
+            actionSendMessage()
+        } else {
+            actionSendMessage(textInput.text)
+        }
         dismissKeyboard()
         sendCommentEnd()
         inputPanelUpdate()
@@ -501,7 +505,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     func actionSendAudio(_ path: String?) {
     }
     
-    func actionSendMessage(_ text: String?) {
+    func actionSendMessage(_ text: String? = nil) {
     }
     
     // MARK: - UIScrollViewDelegate
@@ -826,33 +830,26 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                         if error == nil {
                             let udMineType = UDMimeType()
                             let mimeType = udMineType.typeString(for: data)
-                            if let indexPathPicture = wSelf.indexPathForMessage(at: message!.messageId) {
-                                if (mimeType == "image") {
-                                    message!.file.picture = UIImage(data: data!)
-                                    message!.file.path = FileManager.default.writeDataToCacheDirectory(data: data!) ?? ""
-                                    message!.file.name = message!.file.path != "" ? (URL(fileURLWithPath: message!.file.path).localizedName ?? "Image") : "Image"
-                                    message!.status = RC_STATUS_SUCCEED
-                                    message!.file.type = "image"
-                                    wSelf.messagesWithSection[indexPathPicture.section][indexPathPicture.row] = message!
-                                    DispatchQueue.main.async(execute: { [weak self] in
-                                        guard let wSelf = self else {return}
-                                        if let cellPicture = wSelf.tableView.cellForRow(at: indexPathPicture) as? UDPictureMessageCell {
-                                            cellPicture.bindData(indexPathPicture, messagesView: self)
-                                        }
-                                    })
-                                } else {
-                                    message!.file.picture = UIImage.named( "icon_file.png")
-                                    message!.status = RC_STATUS_SUCCEED
-                                    message!.file.type = mimeType
-                                    wSelf.messagesWithSection[indexPathPicture.section][indexPathPicture.row] = message!
-                                    DispatchQueue.main.async(execute: { [weak self] in
-                                        guard let wSelf = self else {return}
-                                        if let cellPicture = wSelf.tableView.cellForRow(at: indexPathPicture) as? UDPictureMessageCell {
-                                            cellPicture.bindData(indexPathPicture, messagesView: self)
-                                        }
-                                    })
+                            DispatchQueue.main.async(execute: { [weak self] in
+                                guard let wSelf = self else {return}
+                                if let indexPathPicture = wSelf.indexPathForMessage(at: message!.messageId) {
+                                    if (mimeType == "image") {
+                                        message!.file.picture = UIImage(data: data!)
+                                        message!.file.path = FileManager.default.writeDataToCacheDirectory(data: data!) ?? ""
+                                        message!.file.name = message!.file.path != "" ? (URL(fileURLWithPath: message!.file.path).localizedName ?? "Image") : "Image"
+                                        message!.status = RC_STATUS_SUCCEED
+                                        message!.file.type = "image"
+                                        wSelf.messagesWithSection[indexPathPicture.section][indexPathPicture.row] = message!
+                                        wSelf.tableView.reloadRows(at: [indexPathPicture], with: .none)
+                                    } else {
+                                        message!.file.picture = UIImage.named( "icon_file.png")
+                                        message!.status = RC_STATUS_SUCCEED
+                                        message!.file.type = mimeType
+                                        wSelf.messagesWithSection[indexPathPicture.section][indexPathPicture.row] = message!
+                                        wSelf.tableView.reloadRows(at: [indexPathPicture], with: .none)
+                                    }
                                 }
-                            }
+                            })
                         }
                     })).resume()
                 }
@@ -875,9 +872,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                                 message!.file.name = URL(fileURLWithPath: message!.file.path).localizedName ?? "Video"
                                 message!.status = RC_STATUS_SUCCEED
                                 wSelf.messagesWithSection[indexPathVideo.section][indexPathVideo.row] = message!
-                                if let cellVideo = wSelf.tableView.cellForRow(at: indexPathVideo) as? UDVideoMessageCell {
-                                    cellVideo.addVideo(previewImage: message!.file.picture!)
-                                }
+                                wSelf.tableView.reloadRows(at: [indexPathVideo], with: .none)
                             }
                         })
                     } errorBlock: { _ in}
@@ -935,9 +930,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                                         message!.file.type = "file"
                                         message!.file.sizeInt = data!.count
                                         wSelf.messagesWithSection[indexPathFile.section][indexPathFile.row] = message!
-                                        if let cellFile = wSelf.tableView.cellForRow(at: indexPathFile) as? UDFileMessageCell {
-                                            cellFile.bindData(indexPathFile, messagesView: self)
-                                        }
+                                        wSelf.tableView.reloadRows(at: [indexPathFile], with: .none)
                                     }
                                 }
                             })

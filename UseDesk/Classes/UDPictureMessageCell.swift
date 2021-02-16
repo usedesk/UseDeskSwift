@@ -14,11 +14,10 @@ class UDPictureMessageCell: UDMessageCell {
     private weak var messagesView: UDMessagesView?
     
     override func bindData(_ indexPath_: IndexPath?, messagesView messagesView_: UDMessagesView?) {
-        
         indexPath = indexPath_
         messagesView = messagesView_
-        let message: UDMessage? = messagesView!.getMessage(indexPath)
-        if message?.status == RC_STATUS_OPENIMAGE {
+        guard let message: UDMessage = messagesView!.getMessage(indexPath) else { return }
+        if message.status == RC_STATUS_OPENIMAGE {
             spinner.startAnimating()
         } else {
             super.bindData(indexPath, messagesView: messagesView)
@@ -26,7 +25,8 @@ class UDPictureMessageCell: UDMessageCell {
             if imageDefault.superview == nil {
                 viewBubble.addSubview(imageDefault)
             }
-
+            imageDefault.alpha = 1
+            
             pictureImage.layer.masksToBounds = true
             pictureImage.layer.cornerRadius = configurationStyle.bubbleStyle.bubbleRadius
             if pictureImage.superview == nil {
@@ -36,8 +36,8 @@ class UDPictureMessageCell: UDMessageCell {
                 viewBubble.addSubview(spinner)
             }
             
-            timeLabel.textColor = message!.incoming ? configurationStyle.messageStyle.timeIncomingPictureColor : configurationStyle.messageStyle.timeOutgoingPictureColor
-            timeBackView.backgroundColor = message!.incoming ? configurationStyle.messageStyle.timeBackViewIncomingColor : configurationStyle.messageStyle.timeBackViewOutgoingColor
+            timeLabel.textColor = message.incoming ? configurationStyle.messageStyle.timeIncomingPictureColor : configurationStyle.messageStyle.timeOutgoingPictureColor
+            timeBackView.backgroundColor = message.incoming ? configurationStyle.messageStyle.timeBackViewIncomingColor : configurationStyle.messageStyle.timeBackViewOutgoingColor
             timeBackView.layer.masksToBounds = true
             timeBackView.layer.cornerRadius = configurationStyle.messageStyle.timeBackViewCornerRadius
             timeBackView.alpha = configurationStyle.messageStyle.timeBackViewOpacity
@@ -47,14 +47,15 @@ class UDPictureMessageCell: UDMessageCell {
                 viewBubble.addSubview(timeLabel)
             }
             
-            if message?.status == RC_STATUS_LOADING {
+            if message.file.picture == nil {
                 pictureImage.image = nil
                 pictureImage.alpha = 0
                 spinner.startAnimating()
+                imageDefault.alpha = 1
             }
             
-            if message?.status == RC_STATUS_SUCCEED {
-                pictureImage.image = message!.file.picture
+            if message.status == RC_STATUS_SUCCEED {
+                pictureImage.image = message.file.picture
                 pictureImage.alpha = 1
                 spinner.stopAnimating()
             }

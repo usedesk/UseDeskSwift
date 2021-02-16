@@ -200,21 +200,25 @@ public class UseDeskSDK: NSObject {
     
     @objc public func sendFile(fileName: String, data: Data, status: @escaping (Bool, String?) -> Void) {
         let url = urlToSendFile != "" ? urlToSendFile : "https://secure.usedesk.ru/uapi/v1/send_file"
-        AF.upload(multipartFormData: { multipartFormData in
-            multipartFormData.append(self.token.data(using: String.Encoding.utf8)!, withName: "chat_token")
-            multipartFormData.append(data, withName: "file", fileName: fileName)
-        }, to: url).responseJSON { (responseJSON) in
-            switch responseJSON.result {
-            case .success(let value):
-                let valueJSON = value as! [String:Any]
-                if valueJSON["error"] == nil {
-                    status(true, nil)
-                } else {
-                    status(false, "Тhe file is not accepted by the server ")
+        if let currentToken = signature != "" ? signature : loadToken() {
+            AF.upload(multipartFormData: { multipartFormData in
+                multipartFormData.append(currentToken.data(using: String.Encoding.utf8)!, withName: "chat_token")
+                multipartFormData.append(data, withName: "file", fileName: fileName)
+            }, to: url).responseJSON { (responseJSON) in
+                switch responseJSON.result {
+                case .success(let value):
+                    let valueJSON = value as! [String:Any]
+                    if valueJSON["error"] == nil {
+                        status(true, nil)
+                    } else {
+                        status(false, "Тhe file is not accepted by the server ")
+                    }
+                case .failure(let error):
+                    status(false, error.localizedDescription)
                 }
-            case .failure(let error):
-                status(false, error.localizedDescription)
             }
+        } else {
+            status(false, "Тhe file is not accepted by the server ")
         }
     }
     
@@ -369,8 +373,9 @@ public class UseDeskSDK: NSObject {
                 }
                 
                 wSelf.action_Feedback_Answer(data)
-                
-                wSelf.action_ADD_MESSAGE(data)
+                DispatchQueue.global(qos: .userInitiated).async {
+                    wSelf.action_ADD_MESSAGE(data)
+                }
             }
         })
     }
@@ -704,14 +709,6 @@ public class UseDeskSDK: NSObject {
             }
             if file.type.contains("image") || isImage(of: type) {
                 m.type = RC_TYPE_PICTURE
-                do {
-                    if  URL(string: file.content) != nil {
-                        let aContent = URL(string: file.content)
-                        let aContent1 = try Data(contentsOf: aContent!)
-                        m.file.picture = UIImage(data: aContent1)
-                    }
-                } catch {
-                }
             } else if file.type.contains("video") || isVideo(of: type) {
                 m.type = RC_TYPE_VIDEO
                 m.file.typeExtension = type
