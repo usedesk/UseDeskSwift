@@ -33,7 +33,7 @@ class UDBaseCategoriesCell: UITableViewCell {
     @IBOutlet weak var separatorViewHC: NSLayoutConstraint!
     @IBOutlet weak var separatorViewLC: NSLayoutConstraint!
     
-    var configurationStyle = ConfigurationStyle()
+    var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     
     func setCell(category: UDBaseCategory) {
         let baseCategoriesStyle = configurationStyle.baseCategoriesStyle

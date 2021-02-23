@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="UDFileViewingVC" customModule="UseDesk" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="UDFileViewingVC" customModule="UseDesk_SDK_Swift" customModuleProvider="target">
             <connections>
                 <outlet property="bottomViewHC" destination="cvI-rd-taQ" id="cKi-PM-vWq"/>
                 <outlet property="fileNameLabel" destination="214-La-BnH" id="qJ6-ay-eY0"/>
@@ -62,7 +62,7 @@
                             <constraints>
                                 <constraint firstAttribute="width" secondItem="YFf-xO-nLm" secondAttribute="height" multiplier="1:1" id="Xeq-ui-Hyg"/>
                             </constraints>
-                            <state key="normal" backgroundImage="videoPlay"/>
+                            <state key="normal" backgroundImage="udVideoPlay"/>
                             <connections>
                                 <action selector="playVideo:" destination="-1" eventType="touchUpInside" id="9wY-Wv-Pco"/>
                             </connections>
@@ -84,7 +84,7 @@
                 <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UqP-k2-Hsu">
                     <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                     <subviews>
-                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="unknownFile" translatesAutoresizingMaskIntoConstraints="NO" id="lX8-d0-2Cl">
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="udUnknownFile" translatesAutoresizingMaskIntoConstraints="NO" id="lX8-d0-2Cl">
                             <rect key="frame" x="147.5" y="293.5" width="80" height="80"/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="80" id="WZU-Ca-6yW"/>
@@ -125,7 +125,7 @@
                                 <constraint firstAttribute="width" constant="30" id="U6G-4Z-9nX"/>
                                 <constraint firstAttribute="height" constant="30" id="rVj-aK-uwU"/>
                             </constraints>
-                            <state key="normal" backgroundImage="share"/>
+                            <state key="normal" backgroundImage="udShare"/>
                             <connections>
                                 <action selector="shareButtonAction:" destination="-1" eventType="touchUpInside" id="yjr-JB-n6P"/>
                             </connections>
@@ -168,8 +168,8 @@
         </view>
     </objects>
     <resources>
-        <image name="share" width="30" height="30"/>
-        <image name="unknownFile" width="80" height="80"/>
-        <image name="videoPlay" width="48" height="48"/>
+        <image name="udShare" width="30" height="30"/>
+        <image name="udUnknownFile" width="80" height="80"/>
+        <image name="udVideoPlay" width="48" height="48"/>
     </resources>
 </document>

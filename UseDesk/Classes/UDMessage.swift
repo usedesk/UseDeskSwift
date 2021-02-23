@@ -59,6 +59,7 @@ enum TypeSenderMessage: Int {
 public class UDMessage: NSObject {
     // MARK: - Properties
     @objc public var type: Int = 0
+    @objc public var data: Data?
     @objc public var typeSenderMessageString = ""
     @objc public var incoming = false
     @objc public var outgoing = false
@@ -69,6 +70,8 @@ public class UDMessage: NSObject {
     @objc public var status: Int = 0
     @objc public var chat: Int = 0
     @objc public var messageId: Int = 0
+    @objc public var loadingMessageId = ""
+    @objc public var isNotSent: Bool = false
     @objc public var ticket_id: Int = 0
     @objc public var createdAt = ""
     @objc public var name = ""
@@ -106,13 +109,15 @@ public class UDMessage: NSObject {
     
     // MARK: - Initialization methods
     
-    init(text: String?, incoming: Bool) {
+    init(text: String? = nil, incoming: Bool? = nil) {
         super.init()
         
         type = RC_TYPE_TEXT
         
-        self.incoming = incoming
-        outgoing = !incoming
+        if incoming != nil {
+            self.incoming = incoming!
+            outgoing = !incoming!
+        }
         
         self.text = text ?? ""
     }

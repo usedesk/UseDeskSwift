@@ -26,7 +26,7 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
     private var isOpenOther = false
     private var openedArticle: UDArticle?
     private var indexOpenedArticle: Int = 0
-    private var configurationStyle = ConfigurationStyle()
+    private var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     private var previousOrientation: Orientation = .portrait
     private var landscapeOrientation: LandscapeOrientation? = nil
     
@@ -79,6 +79,7 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        searchBar.frame = CGRect(origin: .zero, size: CGSize(width: navigationView.frame.width - 30, height: navigationView.frame.height))
         if UIScreen.main.bounds.height > UIScreen.main.bounds.width {
             if previousOrientation != .portrait {
                 safeAreaInsetsLeftOrRight = 0
@@ -109,6 +110,8 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
     
     // MARK: - Private
     private func firstState() {
+        guard usedesk != nil else {return}
+
         self.modalPresentationStyle = .fullScreen
         articles = сategory?.articlesTitles ?? []
         configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
@@ -125,7 +128,7 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
         if let searchButtonImage = configurationStyle.navigationBarStyle.searchButtonImage {
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: searchButtonImage, style: .plain, target: self, action: #selector(self.searchAction))
         }
-        navigationItem.title = сategory?.title ?? "Статья"
+        navigationItem.title = сategory?.title ?? usedesk!.stringFor("Article")
         
         tableView.register(UINib(nibName: "UDBaseArticleViewCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDBaseArticleViewCell")
         tableView.register(UINib(nibName: "UDBaseSearchCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDBaseSearchCell")
@@ -137,11 +140,6 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
         let xPointChatButton = self.view.frame.width - baseStyle.chatButtonSize.width - baseStyle.chatButtonMargin.right
         let yPointChatButton = self.view.frame.height - baseStyle.chatButtonSize.height - baseStyle.chatButtonMargin.bottom
         chatButton.frame = CGRect(x: xPointChatButton, y: yPointChatButton, width: baseStyle.chatButtonSize.width, height: baseStyle.chatButtonSize.height)
-        if previousOrientation == .landscape {
-            if landscapeOrientation != .left {
-                chatButton.frame.origin.x -= safeAreaInsetsLeftOrRight
-            }
-        }
         chatButton.addTarget(self, action: #selector(actionChat), for: .touchUpInside)
         chatButton.setImage(baseStyle.chatIconImage, for: .normal)
         chatButton.backgroundColor = baseStyle.chatButtonBackColor
@@ -163,6 +161,7 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
             self.view.addSubview(loaderChatButton)
         }
     }
+    
     // MARK: - User actions
     @objc func actionChat() {
         guard usedesk != nil else {return}
@@ -178,7 +177,7 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
                     DispatchQueue.main.async(execute: {
                         wSelf.dialogflowVC.usedesk = wSelf.usedesk
                         wSelf.dialogflowVC.isFromBase = true
-                        wSelf.navigationController?.pushViewController(wSelf.dialogflowVC, animated: true)
+                        wSelf.usedesk?.navController.pushViewController(wSelf.dialogflowVC, animated: true)
                         UIView.animate(withDuration: 0.3) {
                             wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
                             wSelf.loaderChatButton.alpha = 0
@@ -187,13 +186,15 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
                     })
                 }
             } else {
-                if (error == "noOperators") {
+                if error == "feedback_form" || error == "feedback_form_and_chat" {
                     if wSelf.navigationController?.visibleViewController != wSelf.offlineVC {
+                        wSelf.offlineVC = UDOfflineForm()
                         if wSelf.url != nil {
                             wSelf.offlineVC.url = wSelf.url!
                         }
                         wSelf.offlineVC.usedesk = wSelf.usedesk
-                        wSelf.navigationController?.pushViewController(wSelf.offlineVC, animated: true)
+                        wSelf.offlineVC.isFromBase = true
+                        wSelf.usedesk?.navController.pushViewController(wSelf.offlineVC, animated: true)
                         UIView.animate(withDuration: 0.3) {
                             wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
                             wSelf.loaderChatButton.alpha = 0
@@ -206,25 +207,27 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     @objc func searchAction() {
+        guard usedesk != nil else {return}
         navigationView = UIView(frame: navigationController?.navigationBar.bounds ?? .zero)
         navigationItem.titleView = navigationView
         searchBar = UISearchBar()
-        searchBar.placeholder = "Поиск"
+        searchBar.placeholder = usedesk!.stringFor("Search")
         searchBar.delegate = self
         let textFieldInsideSearchBar = searchBar.value(forKey: "searchField") as? UITextField
         textFieldInsideSearchBar?.backgroundColor = configurationStyle.baseStyle.searchBarTextBackgroundColor
         textFieldInsideSearchBar?.textColor = configurationStyle.baseStyle.searchBarTextColor
         navigationItem.leftBarButtonItem = nil
         navigationItem.setHidesBackButton(true, animated: false)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Отменить", style: .plain, target: self, action: #selector(self.cancelSearchAction))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: usedesk!.stringFor("Cancel"), style: .plain, target: self, action: #selector(self.cancelSearchAction))
         navigationItem.rightBarButtonItem?.tintColor = configurationStyle.baseStyle.searchCancelButtonColor
-        let widthCancel = "Отменить".size(attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 17)], usesFontLeading: true).width + 2
+        let widthCancel = usedesk!.stringFor("Cancel").size(attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 17)], usesFontLeading: true).width + 2
         searchBar.frame = CGRect(x: 8, y: 0, width: navigationView.frame.width - 38 - widthCancel, height: navigationView.frame.height)
         navigationView.addSubview(searchBar)
         searchBar.becomeFirstResponder()
     }
     
     @objc func cancelSearchAction() {
+        guard usedesk != nil else {return}
         isSearch = false
         searchBar.removeFromSuperview()
         if let backButtonImage = configurationStyle.navigationBarStyle.backButtonImage {
@@ -234,7 +237,8 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: searchButtonImage, style: .plain, target: self, action: #selector(self.searchAction))
         }
         navigationItem.titleView = nil
-        navigationItem.title = "База знаний"
+        navigationItem.title = сategory?.title ?? usedesk!.stringFor("Article")
+
         tableView.reloadData()
     }
     
@@ -259,6 +263,7 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
         if isSearch {
             let cell = tableView.dequeueReusableCell(withIdentifier: "UDBaseSearchCell", for: indexPath) as! UDBaseSearchCell
             cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
+            cell.usedesk = usedesk
             cell.setCell(article: searchArticles?.articles[indexPath.row])
             return cell
         } else {
@@ -356,6 +361,7 @@ extension UDBaseArticlesView: UDBaseArticleViewDelegate {
     func openOfflineForm() {
         if navigationController?.visibleViewController != offlineVC {
             isOpenOther = true
+            offlineVC = UDOfflineForm()
             if url != nil {
                 offlineVC.url = url!
             }

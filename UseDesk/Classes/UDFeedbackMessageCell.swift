@@ -89,9 +89,13 @@ class UDFeedbackMessageCell: UDMessageCell {
     
     func size(_ indexPath: IndexPath?, messagesView: UDMessagesView?) -> CGSize {
         let message: UDMessage? = messagesView?.getMessage(indexPath)
+        let messageStyle = configurationStyle.messageStyle
+        let labelTime = UILabel()
+        labelTime.text = message?.date?.time ?? ""
+        let widthTime: CGFloat = labelTime.text?.size(attributes: [NSAttributedString.Key.font : configurationStyle.messageStyle.timeFont]).width ?? 0
         if message != nil {
             let feedbackMessageStyle = configurationStyle.feedbackMessageStyle
-            let width: CGFloat = SCREEN_WIDTH - configurationStyle.avatarStyle.margin.left - configurationStyle.avatarStyle.margin.right - configurationStyle.avatarStyle.avatarDiameter - 40
+            let width: CGFloat = SCREEN_WIDTH - configurationStyle.avatarStyle.margin.left - configurationStyle.avatarStyle.margin.right - configurationStyle.avatarStyle.avatarDiameter - widthTime - messageStyle.timeMargin.right - messageStyle.sendedStatusMargin.right - messageStyle.sendedStatusSize.width
             let heightText: CGFloat = message?.text.size(availableWidth: width - feedbackMessageStyle.textMargin.left - feedbackMessageStyle.textMargin.right, attributes: [NSAttributedString.Key.font : feedbackMessageStyle.font]).height ?? 0
             let height: CGFloat = feedbackMessageStyle.buttonsMargin.top + feedbackMessageStyle.buttonSize.height + heightText + feedbackMessageStyle.textMargin.top + feedbackMessageStyle.textMargin.bottom
             
@@ -114,7 +118,8 @@ class UDFeedbackMessageCell: UDMessageCell {
             if self.indexPath != nil {
                 self.delegate?.feedbackAction(indexPath: self.indexPath!, feedback: false)
             }
-            self.usedesk.self?.sendMessageFeedBack(false)
+            let message: UDMessage? = self.messagesView?.getMessage(self.indexPath)
+            self.usedesk.self?.sendMessageFeedBack(false, message_id: message?.messageId ?? 0)
         }
     }
     
@@ -131,7 +136,8 @@ class UDFeedbackMessageCell: UDMessageCell {
             if self.indexPath != nil {
                 self.delegate?.feedbackAction(indexPath: self.indexPath!, feedback: true)
             }
-            self.usedesk.self?.sendMessageFeedBack(true)
+            let message: UDMessage? = self.messagesView?.getMessage(self.indexPath)
+            self.usedesk.self?.sendMessageFeedBack(true, message_id: message?.messageId ?? 0)
         }
     }
     

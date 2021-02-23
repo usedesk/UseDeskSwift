@@ -12,7 +12,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="UDOfflineForm">
             <connections>
                 <outlet property="closeButton" destination="ett-Pt-eay" id="amU-yF-KTc"/>
-                <outlet property="contentView" destination="JRI-Mh-w4Z" id="F1M-La-zC8"/>
+                <outlet property="contentView" destination="JRI-Mh-w4Z" id="q2Q-1t-heV"/>
                 <outlet property="scrollView" destination="wBO-VK-gTR" id="2eC-0L-DQP"/>
                 <outlet property="scrollViewBC" destination="Cn4-kI-5oD" id="Att-dC-5Re"/>
                 <outlet property="sendLoader" destination="4P4-nR-9OJ" id="l4u-Ea-nYU"/>

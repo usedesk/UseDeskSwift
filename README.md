@@ -51,7 +51,9 @@ pod 'UseDesk_SDK_Swift'
 | NameChat | String | имя чата (опционально). Отображается в шапке |
 | FirstMessage | String | автоматическое сообщение (опционально). Отправиться сразу после иницилизации от имени клиента |
 | Note | String | текст заметки (опционально) |
-| Signature | String | подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах (опционально). Для сохранения истории переписки. Сигнатура должна быть уникальной для клиента-чата. Если клиент меняет имя, номер телефона или емэйл, то это не должно влиять на сигнатуру. Если сигнатура не указана, то будет всегда открываться один и тот же чат для конкретного приложения, пока оно не будет удалено. |
+| Signature | String | подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах (опционально). Для сохранения истории переписки. Сигнатура должна быть уникальной для клиента-чата. Если клиент меняет имя, номер телефона или емэйл, то это не должно влиять на сигнатуру. Если сигнатура не указана, то будет всегда открываться один и тот же чат для конкретного приложения, пока оно не будет удалено |
+| LocaleIdentifier | String | Идентификатор языка (опционально). Если данный язык не поддерживается, будет выбран русский язык |
+| CustomLocale | [String : String] | Можно передать свой словарь переводов (опционально). |
 | PresentIn | UIViewController | в каком контроллере открывать (опционально) |
 
 (Начиная с версии 0.3.19 параметр isUseBase не используется)
@@ -66,7 +68,7 @@ pod 'UseDesk_SDK_Swift'
 #### Пример c использованием базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", presentIn: self, connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", localeIdentifier: "en", customLocale: customLocaleDictionary, presentIn: self, connectionStatus: { success, error in
 
 })
 ```
@@ -74,7 +76,7 @@ usedesk.start(withCompanyID: "1234567", knowledgeBaseID: "1", api_token: "143ed5
 #### Пример без использования базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", localeIdentifier: "en", customLocale: customLocaleDictionary, connectionStatus: { success, error in
 
 })
 ```

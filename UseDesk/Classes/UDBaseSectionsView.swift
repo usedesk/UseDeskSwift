@@ -29,7 +29,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
     private var openedArticle: UDArticle?
     private var indexOpenedArticle: Int = 0
     private var isFirstLoaded = true
-    private var configurationStyle = ConfigurationStyle()
+    private var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     private var previousOrientation: Orientation = .portrait
     private var landscapeOrientation: LandscapeOrientation? = nil
     
@@ -111,6 +111,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
     // MARK: - Private
     
     private func firstState() {
+        guard usedesk != nil else {return}
         self.modalPresentationStyle = .fullScreen
         UIView.animate(withDuration: 0.3) {
             self.loadingView.alpha = 1
@@ -143,7 +144,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
         if let searchButtonImage = configurationStyle.navigationBarStyle.searchButtonImage {
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: searchButtonImage, style: .plain, target: self, action: #selector(self.searchAction))
         }
-        navigationItem.title = "База знаний"
+        navigationItem.title = usedesk!.stringFor("KnowlengeBase")
       
         tableView.register(UINib(nibName: "UDBaseSearchCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDBaseSearchCell")
         tableView.register(UINib(nibName: "UDBaseSectionViewCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDBaseSectionViewCell")
@@ -155,11 +156,6 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
         let xPointChatButton = self.view.frame.width - baseStyle.chatButtonSize.width - baseStyle.chatButtonMargin.right
         let yPointChatButton = self.view.frame.height - baseStyle.chatButtonSize.height - baseStyle.chatButtonMargin.bottom
         chatButton.frame = CGRect(x: xPointChatButton, y: yPointChatButton, width: baseStyle.chatButtonSize.width, height: baseStyle.chatButtonSize.height)
-        if previousOrientation == .landscape {
-            if landscapeOrientation != .left {
-                chatButton.frame.origin.x -= safeAreaInsetsLeftOrRight
-            }
-        }
         chatButton.addTarget(self, action: #selector(actionChat), for: .touchUpInside)
         chatButton.setImage(baseStyle.chatIconImage, for: .normal)
         chatButton.backgroundColor = baseStyle.chatButtonBackColor
@@ -182,27 +178,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
         if loaderChatButton.superview == nil {
             self.view.addSubview(loaderChatButton)
         }
-//        updatePositionChatButton()
     }
-    
-//    private func updatePositionChatButton() {
-//        let baseStyle = configurationStyle.baseStyle
-//        if self.view.frame.height >= self.view.contentSize.height {
-//            chatButton.frame.origin = CGPoint(x: chatButton.frame.origin.x, y: self.view.frame.height - baseStyle.chatButtonSize.height - baseStyle.chatButtonMargin.bottom)
-//            loaderChatButton.frame.origin = CGPoint(x: loaderChatButton.frame.origin.x, y: chatButton.frame.origin.y + (chatButton.frame.height / 2) - (loaderChatButton.frame.height / 2))
-//        } else {
-//            chatButton.frame.origin = CGPoint(x: chatButton.frame.origin.x, y: self.view.frame.height - baseStyle.chatButtonSize.height - baseStyle.chatButtonMargin.bottom)
-//            loaderChatButton.frame.origin = CGPoint(x: loaderChatButton.frame.origin.x, y: chatButton.frame.origin.y + (chatButton.frame.height / 2) - (loaderChatButton.frame.height / 2))
-////            let differentHeight = scrollView.contentSize.height - scrollView.frame.height
-////            if scrollView.contentOffset.y > differentHeight - transitionsView.frame.height {
-////                chatButton.frame.origin = CGPoint(x: chatButton.frame.origin.x, y: self.view.frame.height - baseStyle.chatButtonSize.height - baseStyle.chatButtonMargin.bottom - (scrollView.contentOffset.y - (differentHeight - transitionsView.frame.height)))
-////                loaderChatButton.frame.origin = CGPoint(x: loaderChatButton.frame.origin.x, y: chatButton.frame.origin.y + (chatButton.frame.height / 2) - (loaderChatButton.frame.height / 2))
-////            } else {
-////                chatButton.frame.origin = CGPoint(x: chatButton.frame.origin.x, y: self.view.frame.height - baseStyle.chatButtonSize.height - baseStyle.chatButtonMargin.bottom)
-////                loaderChatButton.frame.origin = CGPoint(x: loaderChatButton.frame.origin.x, y: chatButton.frame.origin.y + (chatButton.frame.height / 2) - (loaderChatButton.frame.height / 2))
-////            }
-//        }
-//    }
     
     private func getData(from url: URL, index: Int, completion: @escaping (Data?, URLResponse?, Int, Error?) -> ()) {
         (URLSession.shared.dataTask(with: url, completionHandler: {data, response, error in
@@ -249,7 +225,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
                     DispatchQueue.main.async(execute: {
                         wSelf.dialogflowVC.usedesk = wSelf.usedesk
                         wSelf.dialogflowVC.isFromBase = true
-                        wSelf.navigationController?.pushViewController(wSelf.dialogflowVC, animated: true)
+                        wSelf.usedesk?.navController.pushViewController(wSelf.dialogflowVC, animated: true)
                         UIView.animate(withDuration: 0.3) {
                             wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
                             wSelf.loaderChatButton.alpha = 0
@@ -258,12 +234,14 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
                     })
                 }
             } else {
-                if (error == "noOperators") {
-                    if wSelf.navigationController?.visibleViewController != wSelf.dialogflowVC {
+                if error == "feedback_form" || error == "feedback_form_and_chat" {
+                    if wSelf.navigationController?.visibleViewController != wSelf.offlineVC {
+                        wSelf.offlineVC = UDOfflineForm()
                         if wSelf.url != nil {
                             wSelf.offlineVC.url = wSelf.url!
                         }
                         wSelf.offlineVC.usedesk = wSelf.usedesk
+                        wSelf.offlineVC.isFromBase = true
                         wSelf.navigationController?.pushViewController(wSelf.offlineVC, animated: true)
                         UIView.animate(withDuration: 0.3) {
                             wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
@@ -278,18 +256,19 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     @objc func searchAction() {
+        guard usedesk != nil else {return}
         navigationView = UIView(frame: navigationController?.navigationBar.bounds ?? .zero)
         navigationItem.titleView = navigationView
         searchBar = UISearchBar()
-        searchBar.placeholder = "Поиск"
+        searchBar.placeholder = usedesk!.stringFor("Search")
         searchBar.delegate = self
         let textFieldInsideSearchBar = searchBar.value(forKey: "searchField") as? UITextField
         textFieldInsideSearchBar?.backgroundColor = configurationStyle.baseStyle.searchBarTextBackgroundColor
         textFieldInsideSearchBar?.textColor = configurationStyle.baseStyle.searchBarTextColor
         navigationItem.leftBarButtonItem = nil
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Отменить", style: .plain, target: self, action: #selector(self.cancelSearchAction))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: usedesk!.stringFor("Cancel"), style: .plain, target: self, action: #selector(self.cancelSearchAction))
         navigationItem.rightBarButtonItem?.tintColor = configurationStyle.baseStyle.searchCancelButtonColor
-        let widthCancel = "Отменить".size(attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 17)], usesFontLeading: true).width + 2
+        let widthCancel = usedesk!.stringFor("Cancel").size(attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 17)], usesFontLeading: true).width + 2
         searchBar.frame = CGRect(x: 8, y: 0, width: navigationView.frame.width - 38 - widthCancel, height: navigationView.frame.height)
         navigationView.addSubview(searchBar)
         searchBar.becomeFirstResponder()
@@ -329,6 +308,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if isSearch {
             let cell = tableView.dequeueReusableCell(withIdentifier: "UDBaseSearchCell", for: indexPath) as! UDBaseSearchCell
+            cell.usedesk = usedesk
             cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
             cell.setCell(article: searchArticles?.articles[indexPath.row])
             return cell
@@ -378,7 +358,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
             baseCategoriesVC.usedesk = usedesk!
             baseCategoriesVC.baseCollection = arrayCollections[indexPath.row]
             baseCategoriesVC.arrayCollections = arrayCollections
-            self.navigationController?.pushViewController(baseCategoriesVC, animated: true)
+            usedesk!.navController.pushViewController(baseCategoriesVC, animated: true)
             if let cell = tableView.cellForRow(at: indexPath) as? UDBaseSectionViewCell {
                 cell.isSelected = false
                 cell.selectionStyle = .none
@@ -431,6 +411,7 @@ extension UDBaseSectionsView: UDBaseArticleViewDelegate {
     func openOfflineForm() {
         if navigationController?.visibleViewController != dialogflowVC {
             isOpenOther = true
+            offlineVC = UDOfflineForm()
             if url != nil {
                 offlineVC.url = url!
             }

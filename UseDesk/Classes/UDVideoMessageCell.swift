@@ -23,48 +23,61 @@ class UDVideoMessageCell: UDMessageCell {
     func setData(_ indexPath_: IndexPath?, messagesView messagesView_: UDMessagesView?) {
         indexPath = indexPath_
         messagesView = messagesView_
-        
-        let message: UDMessage? = messagesView?.getMessage(indexPath)
+        guard let message: UDMessage = messagesView!.getMessage(indexPath) else { return }
+        let messageStyle = configurationStyle.messageStyle
         
         super.bindData(indexPath, messagesView: messagesView)
         
-        imageDefault.image = configurationStyle.videoStyle.imageDefault
-        viewBubble.addSubview(imageDefault)
+        if imageDefault.superview == nil {
+            viewBubble.addSubview(imageDefault)
+        }
+        imageDefault.alpha = 0
         
         videoImage.layer.masksToBounds = true
         videoImage.layer.cornerRadius = configurationStyle.bubbleStyle.bubbleRadius
-        viewBubble.addSubview(videoImage)
+        if videoImage.superview == nil {
+            viewBubble.addSubview(videoImage)
+        }
         
-        viewBubble.addSubview(spinner)
+        if spinner.superview == nil {
+            viewBubble.addSubview(spinner)
+        }
                 
-        imagePlay.image = UIImage.named("videoPlay")
+        imagePlay.image = UIImage.named("udVideoPlay")
         imagePlay.alpha = 0
-        viewBubble.addSubview(imagePlay)
+        if imagePlay.superview == nil {
+            viewBubble.addSubview(imagePlay)
+        }
         
-        timeLabel.textColor = message!.incoming ? configurationStyle.messageStyle.timeIncomingPictureColor : configurationStyle.messageStyle.timeOutgoingPictureColor
-        timeBackView.backgroundColor = message!.incoming ? configurationStyle.messageStyle.timeBackViewIncomingColor : configurationStyle.messageStyle.timeBackViewOutgoingColor
+        timeLabel.textColor = message.incoming ? messageStyle.timeIncomingPictureColor : messageStyle.timeOutgoingPictureColor
+        timeBackView.backgroundColor = message.incoming ? messageStyle.timeBackViewIncomingColor : messageStyle.timeBackViewOutgoingColor
         timeBackView.layer.masksToBounds = true
-        timeBackView.layer.cornerRadius = configurationStyle.messageStyle.timeBackViewCornerRadius
-        timeBackView.alpha = configurationStyle.messageStyle.timeBackViewOpacity
+        timeBackView.layer.cornerRadius = messageStyle.timeBackViewCornerRadius
+        timeBackView.alpha = messageStyle.timeBackViewOpacity
         if timeBackView.superview == nil {
             viewBubble.addSubview(timeBackView)
-            timeLabel.removeFromSuperview()
-            viewBubble.addSubview(timeLabel)
         }
+        timeLabel.removeFromSuperview()
+        viewBubble.addSubview(timeLabel)
+        imageSendedStatus.removeFromSuperview()
+        imageSendedStatus.image = message.loadingMessageId != "" ? messageStyle.sendStatusImageForImageMessage : messageStyle.sendedStatusImageForImageMessage
+        viewBubble.addSubview(imageSendedStatus)
         
-        if message?.status == RC_STATUS_LOADING {
+        if message.file.path == "" {
             videoImage.alpha = 0
             spinner.startAnimating()
+            imageDefault.image = configurationStyle.videoStyle.imageDefault
+            imageDefault.alpha = 1
         }
         
-        if message?.status == RC_STATUS_SUCCEED {
+        if message.status == RC_STATUS_SUCCEED {
             spinner.stopAnimating()
             videoImage.alpha = 1
         }
     }
     
     func addVideo(previewImage: UIImage) {
-        videoImage.image = previewImage//UIImageView(image: previewImage)
+        videoImage.image = previewImage
         videoImage.alpha = 1
         imagePlay.alpha = 1
         self.layoutSubviews()
@@ -94,7 +107,14 @@ class UDVideoMessageCell: UDMessageCell {
         imageDefault.frame = CGRect(x: videoStyle.margin.left, y: videoStyle.margin.top, width: sizeVideo.width - videoStyle.margin.left - videoStyle.margin.right, height: sizeVideo.height - videoStyle.margin.top - videoStyle.margin.bottom)
         
         let messageStyle = configurationStyle.messageStyle
-        let widthTimeBackView = timeLabel.frame.size.width + messageStyle.timeBackViewPadding.left + messageStyle.timeBackViewPadding.right
+        var widthTimeBackView = timeLabel.frame.size.width + messageStyle.timeBackViewPadding.left
+        if let message = messagesView?.getMessage(indexPath) {
+            if message.outgoing {
+                widthTimeBackView += messageStyle.timeMarginRightForStatus + messageStyle.sendedStatusSize.width + messageStyle.timeBackViewPaddingRightForStatus
+            } else {
+                widthTimeBackView += messageStyle.timeMargin.right
+            }
+        }
         let heightTimeBackView = timeLabel.frame.size.height + messageStyle.timeBackViewPadding.top + messageStyle.timeBackViewPadding.bottom
         let xTimeBackView: CGFloat = timeLabel.frame.origin.x - messageStyle.timeBackViewPadding.left
         let yTimeBackView: CGFloat = timeLabel.frame.origin.y - messageStyle.timeBackViewPadding.top

@@ -68,7 +68,12 @@ class UDTextMessageCell: UDMessageCell, UICollectionViewDelegate, UICollectionVi
                 let heightItem = heightTextButton + messageButtonStyle.padding.top + messageButtonStyle.padding.bottom
                 size = CGSize(width: size.width, height: size.height)
                 super.layoutSubviews(size)
-                let collectionViewWidth = size.width - messageButtonStyle.margin.left - widthTime - messageStyle.timeMargin.right - messageButtonStyle.margin.right
+                var collectionViewWidth = size.width - messageButtonStyle.margin.left - widthTime - messageButtonStyle.margin.right
+                if message!.outgoing {
+                    collectionViewWidth -= messageStyle.sendedStatusMargin.right - messageStyle.sendedStatusSize.width - messageStyle.timeMarginRightForStatus
+                } else {
+                    collectionViewWidth -= messageStyle.timeMargin.right
+                }
                 let yPosition = bubbleSize.height - (heightButtonsBlock - messageButtonStyle.margin.top)
                 collectionView.frame = CGRect(x: messageButtonStyle.margin.left, y: yPosition, width: collectionViewWidth, height: heightButtonsBlock - messageButtonStyle.margin.top - messageButtonStyle.margin.bottom)
                 let layout = UICollectionViewFlowLayout()
@@ -77,13 +82,17 @@ class UDTextMessageCell: UDMessageCell, UICollectionViewDelegate, UICollectionVi
             } else {
                 super.layoutSubviews(size)
             }
-        }
         
-        var widthText: CGFloat = message?.text.size(attributes: [NSAttributedString.Key.font : messageStyle.font]).width ?? 0
-        let maxwidthText = size.width - messageStyle.textMargin.left - messageStyle.textMargin.right - widthTime - messageStyle.timeMargin.right
-        widthText = widthText > maxwidthText ? maxwidthText : widthText
-        let heightText: CGFloat = message?.text.size(availableWidth: widthText, attributes: [NSAttributedString.Key.font : messageStyle.font]).height ?? 0
-        textView.frame = CGRect(x: messageStyle.textMargin.left, y: messageStyle.textMargin.top, width: widthText, height: heightText)
+        
+            var widthText: CGFloat = message?.text.size(attributes: [NSAttributedString.Key.font : messageStyle.font]).width ?? 0
+            var maxwidthText = size.width - messageStyle.textMargin.left - messageStyle.textMargin.right - widthTime - messageStyle.timeMargin.right
+            if message!.outgoing {
+                maxwidthText -= messageStyle.sendedStatusMargin.right - messageStyle.sendedStatusSize.width
+            }
+            widthText = widthText > maxwidthText ? maxwidthText : widthText
+            let heightText: CGFloat = message?.text.size(availableWidth: widthText, attributes: [NSAttributedString.Key.font : messageStyle.font]).height ?? 0
+            textView.frame = CGRect(x: messageStyle.textMargin.left, y: messageStyle.textMargin.top, width: widthText, height: heightText)
+        }
     }
     
     override func prepareForReuse() {
@@ -111,10 +120,13 @@ class UDTextMessageCell: UDMessageCell, UICollectionViewDelegate, UICollectionVi
         var width: CGFloat = 0
         var isExistButtons = false
         if message!.buttons.count > 0 {
-            width =  maxwidth
+            width = maxwidth
             isExistButtons = true
         } else {
             width = widthText + messageStyle.textMargin.left + messageStyle.textMargin.right + widthTime + messageStyle.timeMargin.right
+            if message!.outgoing {
+                width += messageStyle.sendedStatusMargin.right + messageStyle.sendedStatusSize.width
+            }
             width = width > maxwidth ? maxwidth : width
         }
         let heightText: CGFloat = message!.text.size(availableWidth: width - (messageStyle.textMargin.left + messageStyle.textMargin.right + widthTime + messageStyle.timeMargin.right), attributes: [NSAttributedString.Key.font : messageStyle.font], usesFontLeading: true).height

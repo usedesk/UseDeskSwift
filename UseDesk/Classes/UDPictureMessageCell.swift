@@ -21,31 +21,38 @@ class UDPictureMessageCell: UDMessageCell {
             spinner.startAnimating()
         } else {
             super.bindData(indexPath, messagesView: messagesView)
+            let messageStyle = configurationStyle.messageStyle
+            
             imageDefault.image = configurationStyle.pictureStyle.imageDefault
             if imageDefault.superview == nil {
                 viewBubble.addSubview(imageDefault)
             }
             imageDefault.alpha = 1
-            
+
             pictureImage.layer.masksToBounds = true
             pictureImage.layer.cornerRadius = configurationStyle.bubbleStyle.bubbleRadius
+            pictureImage.alpha = 0
             if pictureImage.superview == nil {
                 viewBubble.addSubview(pictureImage)
             }
             if spinner.superview == nil {
                 viewBubble.addSubview(spinner)
             }
+            spinner.startAnimating()
             
-            timeLabel.textColor = message.incoming ? configurationStyle.messageStyle.timeIncomingPictureColor : configurationStyle.messageStyle.timeOutgoingPictureColor
-            timeBackView.backgroundColor = message.incoming ? configurationStyle.messageStyle.timeBackViewIncomingColor : configurationStyle.messageStyle.timeBackViewOutgoingColor
+            timeLabel.textColor = message.incoming ? messageStyle.timeIncomingPictureColor : messageStyle.timeOutgoingPictureColor
+            timeBackView.backgroundColor = message.incoming ? messageStyle.timeBackViewIncomingColor : messageStyle.timeBackViewOutgoingColor
             timeBackView.layer.masksToBounds = true
-            timeBackView.layer.cornerRadius = configurationStyle.messageStyle.timeBackViewCornerRadius
-            timeBackView.alpha = configurationStyle.messageStyle.timeBackViewOpacity
+            timeBackView.layer.cornerRadius = messageStyle.timeBackViewCornerRadius
+            timeBackView.alpha = messageStyle.timeBackViewOpacity
             if timeBackView.superview == nil {
                 viewBubble.addSubview(timeBackView)
-                timeLabel.removeFromSuperview()
-                viewBubble.addSubview(timeLabel)
             }
+            timeLabel.removeFromSuperview()
+            viewBubble.addSubview(timeLabel)
+            imageSendedStatus.removeFromSuperview()
+            imageSendedStatus.image = message.loadingMessageId != "" ? messageStyle.sendStatusImageForImageMessage : messageStyle.sendedStatusImageForImageMessage
+            viewBubble.addSubview(imageSendedStatus)
             
             if message.file.picture == nil {
                 pictureImage.image = nil
@@ -77,7 +84,14 @@ class UDPictureMessageCell: UDMessageCell {
         imageDefault.frame = CGRect(x: pictureStyle.margin.left, y: pictureStyle.margin.top, width: sizePicture.width - pictureStyle.margin.left - pictureStyle.margin.right, height: sizePicture.height - pictureStyle.margin.top - pictureStyle.margin.bottom)
         
         let messageStyle = configurationStyle.messageStyle
-        let widthTimeBackView = timeLabel.frame.size.width + messageStyle.timeBackViewPadding.left + messageStyle.timeBackViewPadding.right
+        var widthTimeBackView = timeLabel.frame.size.width + messageStyle.timeBackViewPadding.left
+        if let message = messagesView?.getMessage(indexPath) {
+            if message.outgoing {
+                widthTimeBackView += messageStyle.timeMarginRightForStatus + messageStyle.sendedStatusSize.width + messageStyle.timeBackViewPaddingRightForStatus
+            } else {
+                widthTimeBackView += messageStyle.timeMargin.right
+            }
+        }
         let heightTimeBackView = timeLabel.frame.size.height + messageStyle.timeBackViewPadding.top + messageStyle.timeBackViewPadding.bottom
         let xTimeBackView: CGFloat = timeLabel.frame.origin.x - messageStyle.timeBackViewPadding.left
         let yTimeBackView: CGFloat = timeLabel.frame.origin.y - messageStyle.timeBackViewPadding.top

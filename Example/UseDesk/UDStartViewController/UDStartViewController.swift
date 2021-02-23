@@ -9,6 +9,7 @@ import UseDesk_SDK_Swift
 
 class UDStartViewController: UIViewController, UITextFieldDelegate {
     
+    @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet var companyIdTextField: UITextField!
     @IBOutlet var emailTextField: UITextField!
     @IBOutlet var urlTextField: UITextField!
@@ -24,6 +25,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var urlToSendFileTextField: UITextField!
     @IBOutlet weak var noteTextField: UITextField!
     @IBOutlet weak var signatureTextField: UITextField!
+    @IBOutlet weak var localeIdTextField: UITextField!
     @IBOutlet weak var lastViewBC: NSLayoutConstraint!
     
     var collection: UDBaseCollection? = nil
@@ -94,7 +96,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
             }
         }
         
-        usedesk.start(withCompanyID: companyIdTextField.text!, urlAPI: urlBaseTextField.text != nil ? urlBaseTextField.text! : nil, knowledgeBaseID: knowledgeBaseID, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, urlToSendFile: urlToSendFileTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, operatorName: operatorNameTextField.text != nil ? operatorNameTextField.text! : nil, nameChat: nameChat, firstMessage: firstMessageTextField.text != nil ? firstMessageTextField.text : nil, note: noteTextField.text != nil ? noteTextField.text : nil, signature: signatureTextField.text != nil ? signatureTextField.text : nil, presentIn: self, connectionStatus: { success, error in
+    usedesk.start(withCompanyID: companyIdTextField.text!, urlAPI: urlBaseTextField.text != nil ? urlBaseTextField.text! : nil, knowledgeBaseID: knowledgeBaseID, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, urlToSendFile: urlToSendFileTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, operatorName: operatorNameTextField.text != nil ? operatorNameTextField.text! : nil, nameChat: nameChat, firstMessage: firstMessageTextField.text != nil ? firstMessageTextField.text : nil, note: noteTextField.text != nil ? noteTextField.text : nil, signature: signatureTextField.text != nil ? signatureTextField.text : nil, localeIdentifier: localeIdTextField.text != nil ? localeIdTextField.text : nil, presentIn: self, connectionStatus: { success, error in
         
     })
     }

@@ -16,29 +16,28 @@ class UDFileMessageCell: UDMessageCell {
     private weak var messagesView: UDMessagesView?
     
     override func bindData(_ indexPath_: IndexPath?, messagesView messagesView_: UDMessagesView?) {
-        
         indexPath = indexPath_
         messagesView = messagesView_
-        let message: UDMessage? = messagesView!.getMessage(indexPath)
+        guard let message: UDMessage = messagesView!.getMessage(indexPath) else { return }
         super.bindData(indexPath, messagesView: messagesView)
         let fileStyle = configurationStyle.fileStyle
+        nameFileLabel.text = message.file.name != "" ? message.file.name : "file"
+        nameFileLabel.font = fileStyle.fontName
+        nameFileLabel.textColor = fileStyle.nameColor
+        nameFileLabel.lineBreakMode = .byTruncatingMiddle
         if nameFileLabel.superview == nil {
-            nameFileLabel.text = message?.file.name != "" ? message!.file.name : "file"
-            nameFileLabel.font = fileStyle.fontName
-            nameFileLabel.textColor = fileStyle.nameColor
-            nameFileLabel.lineBreakMode = .byTruncatingMiddle
             viewBubble.addSubview(nameFileLabel)
         }
+        sizeFileLabel.text = message.file.sizeString
+        sizeFileLabel.font = fileStyle.fontSize
+        sizeFileLabel.textColor = fileStyle.sizeColor
         if sizeFileLabel.superview == nil {
-            sizeFileLabel.text = message?.file.sizeString
-            sizeFileLabel.font = fileStyle.fontSize
-            sizeFileLabel.textColor = fileStyle.sizeColor
             viewBubble.addSubview(sizeFileLabel)
         }
         if spinner.superview == nil {
             viewBubble.addSubview(spinner)
         }
-        if message?.status == RC_STATUS_LOADING {
+        if message.file.path == "" {
             iconImage.alpha = 0
             spinner.startAnimating()
         } else {
@@ -46,7 +45,7 @@ class UDFileMessageCell: UDMessageCell {
             if iconImage.superview == nil {
                 viewBubble.addSubview(iconImage)
             }
-            if message?.status == RC_STATUS_SUCCEED {
+            if message.status == RC_STATUS_SUCCEED {
                 iconImage.alpha = 1
                 spinner.stopAnimating()
             }

@@ -17,14 +17,14 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="8OA-Fi-shZ">
-                        <rect key="frame" x="11" y="34" width="393" height="18"/>
+                        <rect key="frame" x="11" y="34" width="366" height="18"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" returnKeyType="done"/>
                         <dataDetectorType key="dataDetectorTypes" lookupSuggestion="YES"/>
                     </textView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mQP-pW-tAs">
-                        <rect key="frame" x="16" y="34" width="388" height="18"/>
+                        <rect key="frame" x="16" y="34" width="361" height="18"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="18" id="gpz-V7-lpM"/>
                         </constraints>
@@ -32,6 +32,13 @@
                         <color key="textColor" red="0.74117647060000003" green="0.74117647060000003" blue="0.74117647060000003" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="NIz-HG-hAV">
+                        <rect key="frame" x="382" y="27" width="32" height="32"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="32" id="bFb-Tg-5rZ"/>
+                            <constraint firstAttribute="width" constant="32" id="xv8-tT-Gva"/>
+                        </constraints>
+                    </imageView>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="db6-X7-NFw" customClass="UDSeparatorView">
                         <rect key="frame" x="16" y="63" width="398" height="1"/>
                         <color key="backgroundColor" red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -49,27 +56,44 @@
                 </subviews>
                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
+                    <constraint firstItem="db6-X7-NFw" firstAttribute="top" secondItem="NIz-HG-hAV" secondAttribute="bottom" constant="4" id="0Nl-G1-GCX"/>
                     <constraint firstAttribute="trailing" secondItem="8OA-Fi-shZ" secondAttribute="trailing" constant="10" id="56j-PS-Qi8"/>
                     <constraint firstItem="db6-X7-NFw" firstAttribute="leading" secondItem="QRZ-w0-trh" secondAttribute="leading" constant="16" id="9xQ-in-lTE"/>
                     <constraint firstItem="KAI-15-6Al" firstAttribute="leading" secondItem="QRZ-w0-trh" secondAttribute="leading" id="HSE-Oa-fhw"/>
                     <constraint firstItem="8OA-Fi-shZ" firstAttribute="top" secondItem="QRZ-w0-trh" secondAttribute="top" constant="34" id="K4Y-aS-PtX"/>
                     <constraint firstAttribute="trailing" secondItem="KAI-15-6Al" secondAttribute="trailing" id="QZa-eE-Z7n"/>
+                    <constraint firstAttribute="trailing" secondItem="NIz-HG-hAV" secondAttribute="trailing" id="RnO-0p-iO9"/>
                     <constraint firstItem="mQP-pW-tAs" firstAttribute="top" secondItem="QRZ-w0-trh" secondAttribute="top" constant="34" id="cVm-89-tky"/>
                     <constraint firstItem="db6-X7-NFw" firstAttribute="top" secondItem="8OA-Fi-shZ" secondAttribute="bottom" constant="11" id="dq5-H5-bwo"/>
                     <constraint firstAttribute="bottom" secondItem="db6-X7-NFw" secondAttribute="bottom" id="e7W-mc-cgk"/>
+                    <constraint firstItem="NIz-HG-hAV" firstAttribute="leading" secondItem="8OA-Fi-shZ" secondAttribute="trailing" constant="5" id="edy-lg-aik"/>
                     <constraint firstItem="8OA-Fi-shZ" firstAttribute="leading" secondItem="QRZ-w0-trh" secondAttribute="leading" constant="11" id="elp-mZ-uEc"/>
                     <constraint firstAttribute="bottom" secondItem="KAI-15-6Al" secondAttribute="bottom" id="fUG-WF-b7p"/>
                     <constraint firstItem="mQP-pW-tAs" firstAttribute="leading" secondItem="QRZ-w0-trh" secondAttribute="leading" constant="16" id="hr4-GC-X4x"/>
+                    <constraint firstItem="NIz-HG-hAV" firstAttribute="leading" secondItem="mQP-pW-tAs" secondAttribute="trailing" constant="5" id="rVz-bF-2q8"/>
                     <constraint firstAttribute="trailing" secondItem="mQP-pW-tAs" secondAttribute="trailing" constant="10" id="sF9-to-jWX"/>
                     <constraint firstAttribute="trailing" secondItem="db6-X7-NFw" secondAttribute="trailing" id="tKc-M8-woa"/>
                 </constraints>
+                <variation key="default">
+                    <mask key="constraints">
+                        <exclude reference="56j-PS-Qi8"/>
+                        <exclude reference="sF9-to-jWX"/>
+                    </mask>
+                </variation>
             </tableViewCellContentView>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <connections>
                 <outlet property="lastLineView" destination="KAI-15-6Al" id="MtU-0b-cuc"/>
                 <outlet property="lineView" destination="db6-X7-NFw" id="MLc-6u-MmM"/>
                 <outlet property="myTextView" destination="8OA-Fi-shZ" id="ta9-Ou-8j0"/>
+                <outlet property="myTextViewTC" destination="56j-PS-Qi8" id="Gu0-Id-nP4"/>
+                <outlet property="myTextViewTCFromSelectImage" destination="edy-lg-aik" id="p4d-1d-usc"/>
+                <outlet property="selectImageView" destination="NIz-HG-hAV" id="fAq-43-r9E"/>
+                <outlet property="selectImageViewHC" destination="bFb-Tg-5rZ" id="Qtn-TB-P9e"/>
+                <outlet property="selectImageViewWC" destination="xv8-tT-Gva" id="7u2-pb-A0E"/>
                 <outlet property="titleLabel" destination="mQP-pW-tAs" id="e16-0o-ZRA"/>
+                <outlet property="titleLabelTC" destination="sF9-to-jWX" id="yB3-Ai-NSo"/>
+                <outlet property="titleLabelTCFromSelectImage" destination="rVz-bF-2q8" id="w1i-mk-yjy"/>
                 <outlet property="titleLabelTopC" destination="cVm-89-tky" id="d3C-X3-p5w"/>
             </connections>
             <point key="canvasLocation" x="128.98550724637681" y="178.79464285714286"/>

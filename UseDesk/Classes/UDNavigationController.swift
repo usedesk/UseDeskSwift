@@ -9,7 +9,7 @@ class UDNavigationController: UINavigationController {
     var titleTextColor: UIColor?
     var titleTextFont: UIFont?
     
-    var configurationStyle = ConfigurationStyle()
+    var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     var isDark = false
     
     override var preferredStatusBarStyle: UIStatusBarStyle {

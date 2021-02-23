@@ -17,19 +17,20 @@ extension Double {
 }
 
 extension Int {
-     func countFilesString() -> String {
-        var fileString: String = "файл".lowercased()
+    func countFilesString(_ usedesk: UseDeskSDK) -> String {
+        var fileString: String = usedesk.stringFor("File").lowercased()
+
         if "1".contains("\(self % 10)") {
-            fileString = "файл".lowercased()
+            fileString = usedesk.stringFor("File").lowercased()
         }
         if "234".contains("\(self % 10)") {
-            fileString = "файла".lowercased()
+            fileString = usedesk.stringFor("File2").lowercased()
         }
         if "567890".contains("\(self % 10)") {
-            fileString = "файлов".lowercased()
+            fileString = usedesk.stringFor("File3").lowercased()
         }
         if 11...14 ~= self % 100 {
-            fileString = "файлов".lowercased()
+            fileString = usedesk.stringFor("File3").lowercased()
         }
         return "\(self) " + fileString
     }

@@ -10,7 +10,8 @@ class UDSectionHeaderCell: UITableViewCell {
     private var indexPath: IndexPath?
     private weak var messagesView: UDMessagesView?
     
-    var configurationStyle = ConfigurationStyle()
+    weak var usedesk: UseDeskSDK?
+    var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     
     func bindData(_ indexPath_: IndexPath?, messagesView messagesView_: UDMessagesView?) {
         indexPath = indexPath_
@@ -31,7 +32,9 @@ class UDSectionHeaderCell: UITableViewCell {
         let message: UDMessage? = messagesView?.getMessage(indexPath)
         if message != nil {
             if message!.date != nil {
-                labelSectionHeader.text = message!.date!.dateFromHeaderChat
+                if usedesk != nil {
+                    labelSectionHeader.text = message!.date!.dateFromHeaderChat(usedesk!)
+                }
                 widthText = labelSectionHeader.text?.size(attributes: [NSAttributedString.Key.font : sectionHeaderStyle.font]).width  ?? widthText
             }
         }

@@ -23,7 +23,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var viewInput: UIView!
     @IBOutlet weak var viewInputHC: NSLayoutConstraint!
     // TextView input
-    @IBOutlet weak var textInput: UITextView!
+    @IBOutlet weak var textInput: UDTextView!
     @IBOutlet weak var textInputHC: NSLayoutConstraint!
     @IBOutlet weak var textInputBC: NSLayoutConstraint!
     @IBOutlet weak var textInputLC: NSLayoutConstraint!
@@ -60,7 +60,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     
     public var sendAssets: [Any] = []
     public var messagesWithSection: [[UDMessage]] = []
-    public var configurationStyle = ConfigurationStyle()
+    public var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     public var safeAreaInsetsBottom: CGFloat = 0.0   
     
     private var isFirstOpen = true
@@ -182,6 +182,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func configurationViews() {
+        guard usedesk != nil else {return}
         tableView.backgroundColor = configurationStyle.chatStyle.backgroundColor
         
         buttonAttach.setBackgroundImage(configurationStyle.attachButtonStyle.image, for: .normal)
@@ -195,19 +196,24 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         buttonSendWC.constant = configurationStyle.sendButtonStyle.size.width
         buttonSendHC.constant = configurationStyle.sendButtonStyle.size.height
         
-        textInput.text = "Написать..."
+        textInput.text = usedesk!.stringFor("Write") + "..."
         textInput.textColor = configurationStyle.inputViewStyle.placeholderTextColor
          
-        textInput.textContainerInset.left = configurationStyle.inputViewStyle.textMargin.left
-        textInput.textContainerInset.right = configurationStyle.inputViewStyle.textMargin.right
+        textInput.isNeedCustomTextContainerInset = true
+        textInput.customTextContainerInset = configurationStyle.inputViewStyle.textMargin
         
-        attachFirstButton.setTitle("Галерея", for: .normal)
-        attachFileButton.setTitle("Файл", for: .normal)
+        attachFirstButton.setTitle(usedesk!.stringFor("Gallery"), for: .normal)
+        attachFileButton.setTitle(usedesk!.stringFor("File"), for: .normal)
+        attachCancelButton.setTitle(usedesk!.stringFor("Cancel"), for: .normal)
+        
         attachFirstButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
         attachFileButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
         
         attachCollectionMessageViewTopC.constant = configurationStyle.inputViewStyle.topMarginAssetsCollection
         attachCollectionMessageViewHC.constant = configurationStyle.inputViewStyle.heightAssetsCollection
+        
+        tableView.dataSource = self
+        tableView.delegate = self
     }
     
     func loadAssets() {
@@ -373,6 +379,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
 
     func inputPanelUpdate() {
+        guard usedesk != nil else {return}
         let inputViewStyle = configurationStyle.inputViewStyle
         var heightText: CGFloat
         heightText = textInput.contentSize.height
@@ -383,6 +390,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             heightInput = heightText < inputViewStyle.textHeightMin ? inputViewStyle.textHeightMin : heightText
             previousTextInputHeight = heightText
         }
+        heightInput += inputViewStyle.textMargin.top + inputViewStyle.textMargin.bottom
         if safeAreaInsetsBottom != 0 {
             textInputBC.constant = isShowKeyboard ? inputViewStyle.inputTextViewMargin.bottom : safeAreaInsetsBottom + inputViewStyle.inputTextViewMargin.bottom
         }
@@ -404,7 +412,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             textInputLC.constant = textInputLC.constant + safeAreaInsetsLeftOrRight
         }
         textInputHC.constant = heightInput
-        if !((textInput.text == "Написать..." && textInput.textColor == configurationStyle.inputViewStyle.placeholderTextColor)) {
+        if !((textInput.text == usedesk!.stringFor("Write") + "..." && textInput.textColor == configurationStyle.inputViewStyle.placeholderTextColor)) {
             buttonSend.isEnabled = textInput.text.count != 0 || sendAssets.count > 0
         } else {
             buttonSend.isEnabled = sendAssets.count > 0 ? true : false
@@ -412,7 +420,8 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func sendCommentEnd() {
-        textInput.text = "Написать..."
+        guard usedesk != nil else {return}
+        textInput.text = usedesk!.stringFor("Write") + "..."
         textInput.textColor = configurationStyle.inputViewStyle.placeholderTextColor
     }
     
@@ -427,7 +436,8 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     @IBAction func actionInputSend(_ sender: Any) {
-        if ((textInput.text == "Написать..." && textInput.textColor == configurationStyle.inputViewStyle.placeholderTextColor)) {
+        guard usedesk != nil else {return}
+        if ((textInput.text == usedesk!.stringFor("Write") + "..." && textInput.textColor == configurationStyle.inputViewStyle.placeholderTextColor)) {
             actionSendMessage()
         } else {
             actionSendMessage(textInput.text)
@@ -473,17 +483,18 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func actionAttachMessage() {
+        guard usedesk != nil else {return}
         //Photos
         let photos = PHPhotoLibrary.authorizationStatus()
         if photos == .notDetermined || photos == .denied {
-            let alert = UIAlertController(title: "Разрешите доступ к фото и видео в настройках", message: "Для отправки фото или видео", preferredStyle: .alert)
-            let goToSettingsAction = UIAlertAction(title: "Перейти в настройки", style: .default) { (action) in
+            let alert = UIAlertController(title: usedesk!.stringFor("AllowMedia"), message: usedesk!.stringFor("ToSendMedia"), preferredStyle: .alert)
+            let goToSettingsAction = UIAlertAction(title: usedesk!.stringFor("GoToSettings"), style: .default) { (action) in
                 DispatchQueue.main.async {
                     let url = URL(string: UIApplicationOpenSettingsURLString)
                     UIApplication.shared.open(url!, options:[:])
                 }
             }
-            let canselAction = UIAlertAction(title: "Отмена", style: .cancel)
+            let canselAction = UIAlertAction(title: usedesk!.stringFor("Cancel"), style: .cancel)
             alert.addAction(goToSettingsAction)
             alert.addAction(canselAction)
             self.present(alert, animated: true)
@@ -500,9 +511,6 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                 showAlertMaxCountAttach()
             }
         }
-    }
-    
-    func actionSendAudio(_ path: String?) {
     }
     
     func actionSendMessage(_ text: String? = nil) {
@@ -546,9 +554,10 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func showAttachView() {
+        guard usedesk != nil else {return}
         selectedAssets = []
         isAttachmentActive = true
-        attachFirstButton.setTitle("Галерея", for: .normal)
+        attachFirstButton.setTitle(usedesk!.stringFor("Gallery"), for: .normal)
         if assetsGallery.count > 0 {
             attachCollectionView.reloadData()
             attachCollectionView.contentOffset.x = 0
@@ -565,6 +574,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     @objc func closeAttachView() {
+        guard usedesk != nil else {return}
         selectedAssets = []
         isAttachmentActive = false
         isSelectAttachment = false
@@ -576,7 +586,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             self.attachViewBC.constant = -self.kHeightAttachView
             self.view.layoutIfNeeded()
         }) { (_) in
-            self.attachFirstButton.setTitle("Галерея", for: .normal)
+            self.attachFirstButton.setTitle(self.usedesk!.stringFor("Gallery"), for: .normal)
             self.attachCollectionView.contentOffset.x = 0
             self.attachCollectionView.reloadData()
         }
@@ -621,6 +631,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                     }
                 }
             }
+            closeAttachView()
             showAttachCollection()
         }
         buttonSend.isEnabled = true
@@ -637,7 +648,8 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             sendAssets.append(chosenImage!)
             
             buttonSend.isHidden = false
-        
+            
+            closeAttachView()
             showAttachCollection()
         }
         buttonSend.isEnabled = true
@@ -673,8 +685,9 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func showAlertMaxCountAttach() {
-        let alertController = UIAlertController(title: "Прикреплено максимальное колличество файлов", message: nil, preferredStyle: UIAlertController.Style.alert)
-        let okAction = UIAlertAction(title: "Ок", style: .default) { (_) -> Void in }
+        guard usedesk != nil else {return}
+        let alertController = UIAlertController(title: usedesk!.stringFor("AttachmentLimit"), message: nil, preferredStyle: UIAlertController.Style.alert)
+        let okAction = UIAlertAction(title: usedesk!.stringFor("Ok"), style: .default) { (_) -> Void in }
         alertController.addAction(okAction)
         self.present(alertController, animated: true, completion: nil)
     }
@@ -691,8 +704,9 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
+        guard usedesk != nil else {return}
         if textView == textInput {
-            if (textView.text == "Написать..." && textView.textColor == configurationStyle.inputViewStyle.placeholderTextColor) {
+            if (textView.text == usedesk!.stringFor("Write") + "..." && textView.textColor == configurationStyle.inputViewStyle.placeholderTextColor) {
                 textInput.text = ""
                 textInput.textColor = .black
             }
@@ -700,9 +714,10 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
 
     func textViewDidEndEditing(_ textView: UITextView) {
+        guard usedesk != nil else {return}
         if textView == textInput {
             if (textView.text == "") {
-                textInput.text = "Написать..."
+                textInput.text = usedesk!.stringFor("Write") + "..."
                 textInput.textColor = configurationStyle.inputViewStyle.placeholderTextColor
             }
         }
@@ -719,6 +734,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         let cell = UDSectionHeaderCell()
+        cell.usedesk = usedesk
         cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         cell.bindData(IndexPath(row: 0, section: section), messagesView: self)
         cell.transform = CGAffineTransform(scaleX: 1, y: -1)
@@ -801,6 +817,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
             cell.bindData(indexPath, messagesView: self)
             cell.transform = CGAffineTransform(scaleX: 1, y: -1)
+            cell.selectionStyle = .none
             return cell
         } else if message?.type == RC_TYPE_Feedback {
             let cell = tableView.dequeueReusableCell(withIdentifier: "UDFeedbackMessageCell", for: indexPath) as! UDFeedbackMessageCell
@@ -812,6 +829,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             cell.feedbackAction = message!.feedbackAction
             cell.bindData(indexPath, messagesView: self)
             cell.transform = CGAffineTransform(scaleX: 1, y: -1)
+            cell.selectionStyle = .none
             cell.delegate = self
             return cell
         } else if message?.type == RC_TYPE_PICTURE {
@@ -819,10 +837,12 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             cell.isNeedShowSender = isNeedShowSender
             cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
             cell.transform = CGAffineTransform(scaleX: 1, y: -1)
+            cell.selectionStyle = .none
             cell.bindData(indexPath, messagesView: self)
             if message!.file.path == "" {
                 // download image
                 cell.bindData(indexPath, messagesView: self)
+                DispatchQueue.global(qos: .userInitiated).async {
                 let session = URLSession.shared
                 if let url = URL(string: message!.file.content) {
                     (session.dataTask(with: url, completionHandler: { [weak self] data, response, error in
@@ -852,6 +872,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                             })
                         }
                     })).resume()
+                }
                 }
             }
             return cell
@@ -884,6 +905,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                 }
             }
             cell.transform = CGAffineTransform(scaleX: 1, y: -1)
+            cell.selectionStyle = .none
             return cell
         } else { //message?.type == RC_TYPE_File
             let cell = tableView.dequeueReusableCell(withIdentifier: "UDFileMessageCell", for: indexPath) as! UDFileMessageCell
@@ -909,7 +931,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                                             message!.file.type = "video"
                                             wSelf.messagesWithSection[indexPathVideo.section][indexPathVideo.row] = message!
                                             isFile = false
-                                            wSelf.tableView.reloadRows(at: [indexPathVideo], with: .automatic)
+                                            wSelf.tableView.reloadRows(at: [indexPathVideo], with: .none)
                                         }
                                     } else if mimeType.mime.contains("image") {
                                         if let indexPathPicture = wSelf.indexPathForMessage(at: message!.messageId) {
@@ -919,7 +941,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                                             message!.file.type = "image"
                                             wSelf.messagesWithSection[indexPathPicture.section][indexPathPicture.row] = message!
                                             isFile = false
-                                            wSelf.tableView.reloadRows(at: [indexPathPicture], with: .automatic)
+                                            wSelf.tableView.reloadRows(at: [indexPathPicture], with: .none)
                                         }
                                     }
                                 }
@@ -939,10 +961,10 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
                 }
             }
             cell.transform = CGAffineTransform(scaleX: 1, y: -1)
+            cell.selectionStyle = .none
             return cell
         }
     }
-    
 }
 
 // MARK: - UICollectionViewDelegate
@@ -1024,6 +1046,7 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard usedesk != nil else {return}
         if collectionView == attachCollectionView {
             var maxCountAssets = 10
             if usedesk != nil {
@@ -1045,7 +1068,7 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
                     }
                     if selectedAssets.count > 0 {
                         isSelectAttachment = true
-                        attachFirstButton.setTitle("\("Прикрепить") \(selectedAssets.count.countFilesString())", for: .normal)
+                        attachFirstButton.setTitle("\(usedesk!.stringFor("Attach")) \(selectedAssets.count.countFilesString(usedesk!))", for: .normal)
                         if let cell = attachCollectionView.cellForItem(at: indexPath) as? UDAttachSmallCollectionViewCell {
                             if selectedAssets.contains(assetsGallery[indexPath.row - 1]) {
                                 cell.setSelected(number: selectedAssets.index(of: assetsGallery[indexPath.row - 1])! + 1)
@@ -1055,7 +1078,6 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
                         }
                         updateAttachCollectionViewLayout()
                         selectedAttachmentStatesViews()
-                        var indexPathsVisibleCells:[IndexPath] = []
                         for visibleCell in attachCollectionView.visibleCells {
                             if let cell = visibleCell as? UDAttachSmallCollectionViewCell {
                                 if selectedAssets.contains(assetsGallery[cell.indexPath.row - 1]) {
@@ -1070,13 +1092,12 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
                         }
                     } else {
                         isSelectAttachment = false
-                        attachFirstButton.setTitle("Галерея", for: .normal)
+                        attachFirstButton.setTitle(usedesk!.stringFor("Gallery"), for: .normal)
                         if let cell = attachCollectionView.cellForItem(at: indexPath) as? UDAttachSmallCollectionViewCell {
                             cell.notSelected()
                         }
                         updateAttachCollectionViewLayout()
                         notSelectedAttachmentStatesViews()
-                        var indexPathsVisibleCells:[IndexPath] = []
                         for visibleCell in attachCollectionView.visibleCells {
                             if let cell = visibleCell as? UDAttachSmallCollectionViewCell {
                                 if selectedAssets.contains(assetsGallery[cell.indexPath.row - 1]) {
@@ -1134,8 +1155,9 @@ extension UDMessagesView: UDVideoMessageCellDelegate {
 // MARK: - UDFeedbackMessageCellDelegate
 extension UDMessagesView: UDFeedbackMessageCellDElegate {
     func feedbackAction(indexPath: IndexPath, feedback: Bool) {
+        guard usedesk != nil else {return}
         if getMessage(indexPath) != nil {
-            messagesWithSection[indexPath.section][indexPath.row].text = "Спасибо за вашу оценку"
+            messagesWithSection[indexPath.section][indexPath.row].text = usedesk!.stringFor("ArticleReviewSendedTitle")
             var feedbackActionInt = -1
             switch feedback {
             case false:

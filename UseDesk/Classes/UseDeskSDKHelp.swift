@@ -4,14 +4,11 @@
 import Foundation
 
 class UseDeskSDKHelp {
-    class func config_CompanyID(_ companyID: String?, email: String, phone: String?, name: String?, url: String?, token: String?,  signature: String = "") -> [Any]? {
-        var payload = [
+    class func config_CompanyID(_ companyID: String?, email: String, phone: String?, name: String?, url: String?, token: String?) -> [Any]? {
+        let payload = [
             "sdk" : "iOS",
             "type" : "sdk"
         ]
-        if signature != "" {
-            payload["signature"] = signature
-        }
         var dic = [
             "type" : "@@server/chat/INIT",
             "payload" : payload,
@@ -49,11 +46,18 @@ class UseDeskSDKHelp {
         return [dic]
     }
     
-    class func messageText(_ text: String?) -> [Any]? {
+    class func messageText(_ text: String, messageId: String? = nil) -> [Any]? {
         
-        let message = [
-            "text" : text ?? ""
+        var message: [String : Any] = [
+            "text" : text
         ]
+        
+        if messageId != nil {
+            let payload = [
+                "message_id" : messageId!
+            ]
+            message["payload"] = payload
+        }
         
         let dic = [
             "type" : "@@server/chat/SEND_MESSAGE",
@@ -62,7 +66,7 @@ class UseDeskSDKHelp {
         return [dic]
     }
     
-    class func feedback(_ fb: Bool) -> [Any]? {
+    class func feedback(_ fb: Bool, message_id: Int) -> [Any]? {
         var data: String
         
         if fb {
@@ -71,10 +75,13 @@ class UseDeskSDKHelp {
             data = "DISLIKE"
         }
 
-        let payload = [
+        var payload: [String : Any] = [
             "data" : data,
             "type" : "action"
         ]
+        if message_id != 0 {
+            payload["messageId"] = String(message_id)
+        }
         
         let dic = [
             "type" : "@@server/chat/CALLBACK",

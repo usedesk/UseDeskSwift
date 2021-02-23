@@ -45,7 +45,7 @@ class UDFileViewingVC: UIViewController, UIScrollViewDelegate {
     
     func updateState() {
         if videoImage == nil {
-            videoImage = UIImage(named: "videoDefault")
+            videoImage = UIImage(named: "udVideoDefault")
         }
         switch typeFile {
         case .image:

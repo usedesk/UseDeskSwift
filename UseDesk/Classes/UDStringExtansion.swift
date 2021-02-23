@@ -13,6 +13,24 @@ let udEmailRegex = "(?:[\\p{L}0-9!#$%\\&'*+/=?\\^_`{|}~-]+(?:\\.[\\p{L}0-9!#$%\\
 let udEmailPredicate = NSPredicate(format: "SELF MATCHES %@", udEmailRegex)
 
 extension String {
+    public var udIsContainEmoji: Bool
+    {
+        for ucode in unicodeScalars
+        {
+            switch ucode.value
+            {
+            case 0x3030, 0x00AE, 0x00A9,
+            0x1D000...0x1F77F,
+            0x2100...0x27BF,
+            0xFE00...0xFE0F,
+            0x1F900...0x1F9FF:
+                return true
+            default:
+                continue
+            }
+        }
+        return false
+    }
 
     func size(availableWidth: CGFloat? = nil, attributes: [NSAttributedString.Key : Any]? = nil, usesFontLeading: Bool = false) -> CGSize {
         var attributes = attributes
@@ -53,8 +71,15 @@ extension String {
         return size
     }
     
-    func isValidEmail() -> Bool {
+    func udIsValidEmail() -> Bool {
         return udEmailPredicate.evaluate(with: self)
+    }
+    
+    func udIsValidSignature() -> Bool {
+        if self.udIsContainEmoji || self.contains(" ") || self.contains("&#") || self.count < 8 {
+            return false
+        }
+        return true
     }
 
     private func singleLineHeight(attributes: [NSAttributedString.Key : Any]) -> CGFloat {

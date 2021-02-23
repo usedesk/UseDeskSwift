@@ -7,7 +7,7 @@ import UIKit
 class UDMessageButtonCell: UICollectionViewCell {
     
     var titleLabel = UILabel()
-    var configurationStyle = ConfigurationStyle()
+    var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     
     func setingCell(titleButton: String) {
         titleLabel.text = titleButton

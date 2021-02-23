@@ -21,7 +21,7 @@ class UDAttachCollectionViewCell: UICollectionViewCell {
     weak var delegate: UDAttachCVCellDelegate?
     
     var index: Int = 0
-    var configurationStyle = ConfigurationStyle()
+    var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     var button: UIButton? = nil
     var backView = UIView()
     var videoView = UIView()
@@ -46,7 +46,7 @@ class UDAttachCollectionViewCell: UICollectionViewCell {
             button = UIButton(frame: CGRect(x: self.frame.width - 24, y: 0, width: 24, height: 24))
         }
         button!.setTitle("", for: .normal)
-        button!.setBackgroundImage(UIImage.named("attachClose"), for: .normal)
+        button!.setBackgroundImage(UIImage.named("udAttachClose"), for: .normal)
         button!.addTarget(self, action: #selector(deleteAction), for: .touchUpInside)
         if button!.superview == nil {
             self.addSubview(button!)
@@ -79,7 +79,7 @@ class UDAttachCollectionViewCell: UICollectionViewCell {
                     }
                 }
                 
-                videoIndicatorView.image = UIImage.named("videoIndicator")
+                videoIndicatorView.image = UIImage.named("udVideoIndicator")
                 videoIndicatorView.frame = CGRect(x: 2, y: 0, width: 12, height: 12)
                 if videoIndicatorView.superview == nil {
                     videoView.addSubview(videoIndicatorView)
@@ -93,7 +93,7 @@ class UDAttachCollectionViewCell: UICollectionViewCell {
         }
         if type == .file {
             imageAttachView.backgroundColor = UIColor(hexString: "F0F0F0")
-            imageIconFileView.image = UIImage(named: "fileIconCircle")
+            imageIconFileView.image = UIImage(named: "udFileIconCircle")
             imageIconFileView.frame = CGRect(x: imageAttachView.frame.origin.x + 6, y: imageAttachView.frame.origin.y + 6, width: self.frame.width * 0.47, height: self.frame.height * 0.47)
             if imageIconFileView.superview == nil {
                 self.addSubview(imageIconFileView)

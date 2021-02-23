@@ -8,14 +8,17 @@ class UDMessageCell: UITableViewCell {
 
     let viewBubble = UIView()
     let imageAvatar = UIImageView()
+    let imageSendedStatus = UIImageView()
+    let notSentImage = UIImageView()
     let labelSender = UILabel()
     let timeLabel = UILabel()
     
     var isNeedShowSender = true
-    var configurationStyle = ConfigurationStyle()
+    var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     
     private var indexPath: IndexPath?
     private weak var messagesView: UDMessagesView?
+    
     
     func bindData(_ indexPath_: IndexPath?, messagesView messagesView_: UDMessagesView?) {
         indexPath = indexPath_
@@ -37,6 +40,9 @@ class UDMessageCell: UITableViewCell {
             viewBubble.addSubview(timeLabel)
         }
         
+        notSentImage.image = configurationStyle.messageStyle.notSentImage
+        notSentImage.isUserInteractionEnabled = false
+        
         if message!.incoming {
             if isNeedShowSender {
                 if labelSender.superview == nil {
@@ -49,17 +55,30 @@ class UDMessageCell: UITableViewCell {
             imageAvatar.layer.cornerRadius = configurationStyle.avatarStyle.avatarDiameter / 2
             imageAvatar.backgroundColor = configurationStyle.avatarStyle.avatarBackColor
             imageAvatar.isUserInteractionEnabled = true
-            contentView.addSubview(imageAvatar)
+            if imageAvatar.superview == nil {
+                contentView.addSubview(imageAvatar)
+            }
             imageAvatar.image = messagesView?.avatarImage(indexPath)
+            imageSendedStatus.removeFromSuperview()
+            notSentImage.removeFromSuperview()
         } else {
             labelSender.removeFromSuperview()
             imageAvatar.removeFromSuperview()
+            if imageSendedStatus.superview == nil {
+                viewBubble.addSubview(imageSendedStatus)
+            }
+            imageSendedStatus.image = message!.loadingMessageId != "" ? configurationStyle.messageStyle.sendStatusImage : configurationStyle.messageStyle.sendedStatusImage
+            if notSentImage.superview == nil && message!.isNotSent {
+                contentView.addSubview(notSentImage)
+            } else if !message!.isNotSent {
+                notSentImage.removeFromSuperview()
+            }
         }
     }
 
     func layoutSubviews(_ size: CGSize) {
         super.layoutSubviews()
-        
+        let messageStyle = configurationStyle.messageStyle
         guard let message: UDMessage = messagesView?.getMessage(indexPath) else { return }
         
         var xBubble: CGFloat = 0
@@ -78,7 +97,7 @@ class UDMessageCell: UITableViewCell {
         }
         
         let heightSenderText = "Tept".size(attributes: [NSAttributedString.Key.font : configurationStyle.messageStyle.senderTextFont]).height
-        viewBubble.frame = CGRect(x: xBubble, y: message.incoming && isNeedShowSender ? configurationStyle.messageStyle.senderTextMarginBottom + heightSenderText : 0, width: size.width, height: size.height)
+        viewBubble.frame = CGRect(x: xBubble, y: message.incoming && isNeedShowSender ? messageStyle.senderTextMarginBottom + heightSenderText : 0, width: size.width, height: size.height)
         
         let diameter = configurationStyle.avatarStyle.avatarDiameter
         var xAvatar: CGFloat?
@@ -91,8 +110,15 @@ class UDMessageCell: UITableViewCell {
         if let x = xAvatar, let y = yAvatar {
             imageAvatar.frame = CGRect(x: x, y: y, width: diameter, height: diameter)
         }
-        let sizeTime: CGSize = timeLabel.text?.size(attributes: [NSAttributedString.Key.font : configurationStyle.messageStyle.timeFont]) ?? CGSize.zero
-        timeLabel.frame = CGRect(x: viewBubble.frame.width - sizeTime.width - configurationStyle.messageStyle.timeMargin.right, y: viewBubble.frame.height - sizeTime.height - configurationStyle.messageStyle.timeMargin.bottom, width: sizeTime.width, height: sizeTime.height)
+        
+        let sizeTime: CGSize = timeLabel.text?.size(attributes: [NSAttributedString.Key.font : messageStyle.timeFont]) ?? CGSize.zero
+        if message.outgoing {
+            imageSendedStatus.frame = CGRect(x: viewBubble.frame.width - messageStyle.sendedStatusSize.width - messageStyle.sendedStatusMargin.right, y: viewBubble.frame.height - messageStyle.sendedStatusSize.height - messageStyle.sendedStatusMargin.bottom, width: messageStyle.sendedStatusSize.width, height: messageStyle.sendedStatusSize.height)
+            timeLabel.frame = CGRect(x: viewBubble.frame.width - messageStyle.timeMarginRightForStatus - imageSendedStatus.frame.width - sizeTime.width - messageStyle.timeMargin.right, y: viewBubble.frame.height - sizeTime.height - messageStyle.timeMargin.bottom, width: sizeTime.width, height: sizeTime.height)
+        } else {
+            timeLabel.frame = CGRect(x: viewBubble.frame.width - sizeTime.width - messageStyle.timeMargin.right, y: viewBubble.frame.height - sizeTime.height - messageStyle.timeMargin.bottom, width: sizeTime.width, height: sizeTime.height)
+        }
+        
         if UIScreen.main.bounds.height < UIScreen.main.bounds.width {
             if message.outgoing {
                 if contentView.frame.origin.x > 0 {
@@ -102,6 +128,11 @@ class UDMessageCell: UITableViewCell {
                 }
             } 
         }
+        
+        let xNotSentButton: CGFloat = viewBubble.frame.origin.x - messageStyle.notSentImageMarginToBubble - messageStyle.notSentImageSize.width
+        let yNotSentButton = (viewBubble.frame.origin.y + (viewBubble.frame.height / 2)) - (messageStyle.notSentImageSize.height / 2)
+        notSentImage.frame = CGRect(x: xNotSentButton, y: yNotSentButton, width: messageStyle.notSentImageSize.width, height: messageStyle.notSentImageSize.height)
+        
         if message.incoming {
             viewBubble.cornerRadiusFromChatWithoutBottomLeft(cornerRadius: configurationStyle.bubbleStyle.bubbleRadius)
         } else {

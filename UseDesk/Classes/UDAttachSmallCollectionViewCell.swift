@@ -23,13 +23,13 @@ class UDAttachSmallCollectionViewCell: UICollectionViewCell {
     func setSelected(number: Int) {
         self.isActive = true
         selectedNumberLabel.text = String(number)
-        selectedIndicator.image = UIImage(named: "selectedAsset")
+        selectedIndicator.image = UIImage(named: "udSelectedAsset")
         selectedNumberLabel.alpha = 1
     }
     
     func notSelected() {
         self.isActive = false
-        selectedIndicator.image = UIImage(named: "selectAsset")
+        selectedIndicator.image = UIImage(named: "udSelectAsset")
         selectedNumberLabel.alpha = 0
     }
     

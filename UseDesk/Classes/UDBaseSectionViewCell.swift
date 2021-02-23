@@ -30,7 +30,7 @@ class UDBaseSectionViewCell: UITableViewCell {
     @IBOutlet weak var separatorViewHC: NSLayoutConstraint!
     @IBOutlet weak var separatorViewLC: NSLayoutConstraint!
     
-    var configurationStyle = ConfigurationStyle()
+    var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     var isDefaultImage = false
     
     func setCell(text: String, image: UIImage? = nil) {

@@ -64,6 +64,7 @@ public struct ConfigurationStyle {
     public var sendButtonStyle: SendButtonStyle
     public var messageButtonStyle: MessageButtonStyle
     public var feedbackFormStyle: FeedbackFormStyle
+    public var selectTopicFeedbackFormStyle: SelectTopicFeedbackFormStyle
     public var baseStyle: BaseStyle
     public var baseSectionsStyle: BaseSectionsStyle
     public var baseCategoriesStyle: BaseCategoriesStyle
@@ -86,12 +87,14 @@ public struct ConfigurationStyle {
                 sendButtonStyle: SendButtonStyle = SendButtonStyle(),
                 messageButtonStyle: MessageButtonStyle = MessageButtonStyle(),
                 feedbackFormStyle: FeedbackFormStyle = FeedbackFormStyle(),
+                selectTopicFeedbackFormStyle: SelectTopicFeedbackFormStyle = SelectTopicFeedbackFormStyle(),
                 baseStyle: BaseStyle = BaseStyle(),
                 baseSectionsStyle: BaseSectionsStyle = BaseSectionsStyle(),
                 baseCategoriesStyle: BaseCategoriesStyle = BaseCategoriesStyle(),
                 articlesListStyle: BaseArticlesListStyle = BaseArticlesListStyle(),
                 baseSearchStyle: BaseSearchStyle = BaseSearchStyle(),
                 baseArticleStyle: BaseArticleStyle = BaseArticleStyle()) {
+        
         self.navigationBarStyle = navigationBarStyle
         self.chatStyle = chatStyle
         self.sectionHeaderStyle = sectionHeaderStyle
@@ -108,6 +111,7 @@ public struct ConfigurationStyle {
         self.messageButtonStyle = messageButtonStyle
         self.navigationBarStyle = navigationBarStyle
         self.feedbackFormStyle = feedbackFormStyle
+        self.selectTopicFeedbackFormStyle = selectTopicFeedbackFormStyle
         self.baseStyle = baseStyle
         self.baseSectionsStyle = baseSectionsStyle
         self.baseCategoriesStyle = baseCategoriesStyle
@@ -129,7 +133,7 @@ public struct NavigationBarStyle {
     
     public init(backgroundColor: UIColor? = nil,
                 textColor: UIColor? = nil,
-                font: UIFont = UIFont.boldSystemFont(ofSize: 20),
+                font: UIFont = UIFont.boldSystemFont(ofSize: 19),
                 statusBarStyle: UIStatusBarStyle = .default,
                 backButtonImage: UIImage? = nil,
                 backButtonInFileImage: UIImage? = nil,
@@ -138,9 +142,9 @@ public struct NavigationBarStyle {
         self.textColor = textColor != nil ? textColor! : UIColor(hexString: "333333")
         self.font = font
         self.statusBarStyle = statusBarStyle
-        self.backButtonImage = backButtonImage != nil ? backButtonImage! : UIImage.named("backButton")
-        self.backButtonInFileImage = backButtonInFileImage != nil ? backButtonInFileImage! : UIImage.named("backInFileButton")
-        self.searchButtonImage = searchButtonImage != nil ? searchButtonImage! : UIImage.named("search")
+        self.backButtonImage = backButtonImage != nil ? backButtonImage! : UIImage.named("udBackButton")
+        self.backButtonInFileImage = backButtonInFileImage != nil ? backButtonInFileImage! : UIImage.named("udBackInFileButton")
+        self.searchButtonImage = searchButtonImage != nil ? searchButtonImage! : UIImage.named("udSearch")
     }
 }
 // MARK: -  ChatStyle
@@ -151,7 +155,6 @@ public struct ChatStyle {
         self.backgroundColor = backgroundColor != nil ? backgroundColor! : UIColor(hexString: "FFFFFF")
     }
 }
-
 // MARK: -  Date messages section
 public struct SectionHeaderStyle {
     public var margin: UIEdgeInsets
@@ -253,6 +256,7 @@ public struct MessageStyle {
     public var timeIncomingColor: UIColor
     public var timeFont: UIFont
     public var timeMargin: UIEdgeInsets
+    public var timeMarginRightForStatus: CGFloat
     public var timeOutgoingPictureColor: UIColor
     public var timeIncomingPictureColor: UIColor
     // Time Back View
@@ -261,6 +265,18 @@ public struct MessageStyle {
     public var timeBackViewOpacity: CGFloat
     public var timeBackViewCornerRadius: CGFloat
     public var timeBackViewPadding: UIEdgeInsets
+    public var timeBackViewPaddingRightForStatus: CGFloat
+    // Sended Status
+    public var sendStatusImage: UIImage
+    public var sendedStatusImage: UIImage
+    public var sendStatusImageForImageMessage: UIImage
+    public var sendedStatusImageForImageMessage: UIImage
+    public var sendedStatusSize: CGSize
+    public var sendedStatusMargin: UIEdgeInsets
+    // Not Sent Message
+    public var notSentImage: UIImage
+    public var notSentImageSize: CGSize
+    public var notSentImageMarginToBubble: CGFloat
     // Sender Text
     public var senderTextColor: UIColor
     public var senderTextFont: UIFont
@@ -273,7 +289,8 @@ public struct MessageStyle {
                 timeOutgoingColor: UIColor? = nil,
                 timeIncomingColor: UIColor? = nil,
                 timeFont: UIFont = UIFont.systemFont(ofSize: 11),
-                timeMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 6),
+                timeMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 6, right: 4),
+                timeMarginRightForStatus: CGFloat = 0,
                 timeOutgoingPictureColor: UIColor? = nil,
                 timeIncomingPictureColor: UIColor? = nil,
                 timeBackViewOutgoingColor: UIColor? = nil,
@@ -281,6 +298,16 @@ public struct MessageStyle {
                 timeBackViewOpacity: CGFloat = 0.6,
                 timeBackViewCornerRadius: CGFloat = 7,
                 timeBackViewPadding: UIEdgeInsets = UIEdgeInsets(top: 1, left: 4, bottom: 0, right: 4),
+                timeBackViewPaddingRightForStatus: CGFloat = 2,
+                sendStatusImage: UIImage? = nil,
+                sendedStatusImage: UIImage? = nil,
+                sendStatusImageForImageMessage: UIImage? = nil,
+                sendedStatusImageForImageMessage: UIImage? = nil,
+                sendedStatusSize: CGSize = CGSize(width: 12, height: 12),
+                sendedStatusMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 6.5, right: 4),
+                notSentImage: UIImage? = nil,
+                notSentImageSize: CGSize = CGSize(width: 24, height: 24),
+                notSentImageMarginToBubble: CGFloat = 8,
                 senderTextColor: UIColor? = nil,
                 senderTextFont: UIFont = UIFont.systemFont(ofSize: 11),
                 senderTextMarginBottom: CGFloat = 4) {
@@ -294,11 +321,22 @@ public struct MessageStyle {
         self.timeIncomingColor = timeIncomingColor != nil ? timeIncomingColor! : UIColor(hexString: "989FB3")
         self.timeFont = timeFont
         self.timeMargin = timeMargin
+        self.timeMarginRightForStatus = timeMarginRightForStatus
         self.timeBackViewOutgoingColor = timeBackViewOutgoingColor != nil ? timeBackViewOutgoingColor! : UIColor(hexString: "333333")
         self.timeBackViewIncomingColor = timeBackViewIncomingColor != nil ? timeBackViewIncomingColor! : UIColor(hexString: "333333")
         self.timeBackViewOpacity = timeBackViewOpacity
         self.timeBackViewCornerRadius = timeBackViewCornerRadius
         self.timeBackViewPadding = timeBackViewPadding
+        self.timeBackViewPaddingRightForStatus = timeBackViewPaddingRightForStatus
+        self.sendStatusImage = sendStatusImage != nil ? sendStatusImage! : UIImage.named("udSendStatusImage")
+        self.sendedStatusImage = sendedStatusImage != nil ? sendedStatusImage! : UIImage.named("udSendedStatusImage")
+        self.sendStatusImageForImageMessage = sendStatusImage != nil ? sendStatusImage! : UIImage.named("udSendStatusImageWhite")
+        self.sendedStatusImageForImageMessage = sendStatusImage != nil ? sendStatusImage! : UIImage.named("udSendedStatusImageWhite")
+        self.sendedStatusSize = sendedStatusSize
+        self.sendedStatusMargin = sendedStatusMargin
+        self.notSentImage = notSentImage != nil ? notSentImage! : UIImage.named("udNotSentImage")
+        self.notSentImageSize = notSentImageSize
+        self.notSentImageMarginToBubble = notSentImageMarginToBubble
         self.senderTextColor = senderTextColor != nil ? senderTextColor! : UIColor(hexString: "989FB3")
         self.senderTextFont = senderTextFont
         self.senderTextMarginBottom = senderTextMarginBottom
@@ -315,7 +353,6 @@ public struct FeedbackMessageStyle {
     public var textColor: UIColor
     public var font: UIFont
     public var textMargin: UIEdgeInsets
-    public var textFinished: String
     
     public init(buttonSize: CGSize = CGSize(width: 56, height: 56),
                 buttonsMargin: UIEdgeInsets = UIEdgeInsets(top: 25, left: 12, bottom: 0, right: 12),
@@ -325,18 +362,16 @@ public struct FeedbackMessageStyle {
                 dislikeOffImage: UIImage? = nil,
                 textColor: UIColor? = nil,
                 font: UIFont = UIFont.systemFont(ofSize: 17),
-                textMargin: UIEdgeInsets = UIEdgeInsets(top: 17, left: 28, bottom: 14, right: 28),
-                textFinished: String = "Спасибо за вашу оценку") {
+                textMargin: UIEdgeInsets = UIEdgeInsets(top: 17, left: 28, bottom: 14, right: 28)) {
         self.buttonSize = buttonSize
         self.buttonsMargin = buttonsMargin
-        self.likeOnImage = likeOnImage != nil ? likeOnImage! : UIImage.named("likeOn")
-        self.likeOffImage = likeOffImage != nil ? likeOffImage! : UIImage.named("likeOff")
-        self.dislikeOnImage = dislikeOnImage != nil ? dislikeOnImage! : UIImage.named("dislikeOn")
-        self.dislikeOffImage = dislikeOffImage != nil ? dislikeOffImage! : UIImage.named("dislikeOff")
+        self.likeOnImage = likeOnImage != nil ? likeOnImage! : UIImage.named("udLikeOn")
+        self.likeOffImage = likeOffImage != nil ? likeOffImage! : UIImage.named("udLikeOff")
+        self.dislikeOnImage = dislikeOnImage != nil ? dislikeOnImage! : UIImage.named("udDislikeOn")
+        self.dislikeOffImage = dislikeOffImage != nil ? dislikeOffImage! : UIImage.named("udDislikeOff")
         self.textColor = textColor != nil ? textColor! : UIColor(hexString: "333333")
         self.font = font
         self.textMargin = textMargin
-        self.textFinished = textFinished
     }
 }
 // MARK: -  Picture cell
@@ -349,7 +384,7 @@ public struct PictureStyle {
                 imageDefault: UIImage? = nil,
                 sizeDefault: CGSize = CGSize(width: 150, height: 170)) {
         self.margin = margin
-        self.imageDefault = imageDefault != nil ? imageDefault! : UIImage.named("pictureDefault")
+        self.imageDefault = imageDefault != nil ? imageDefault! : UIImage.named("udPictureDefault")
         self.sizeDefault = sizeDefault
     }
 }
@@ -363,7 +398,7 @@ public struct VideoStyle {
                 imageDefault: UIImage? = nil,
                 sizeDefault: CGSize = CGSize(width: 150, height: 170)) {
         self.margin = margin
-        self.imageDefault = imageDefault != nil ? imageDefault! : UIImage.named("videoDefault")
+        self.imageDefault = imageDefault != nil ? imageDefault! : UIImage.named("udVideoDefault")
         self.sizeDefault = sizeDefault
     }
 }
@@ -389,7 +424,7 @@ public struct FileStyle {
                 sizeMargin: UIEdgeInsets = UIEdgeInsets(top: 2, left: 0, bottom: 0, right: 20),
                 sizeColor: UIColor? = nil) {
         self.iconMargin = iconMargin
-        self.imageIcon = imageIcon != nil ? imageIcon! : UIImage.named("fileIcon")
+        self.imageIcon = imageIcon != nil ? imageIcon! : UIImage.named("udFileIcon")
         self.iconSize = iconSize
         self.fontName = fontName
         self.nameMargin = nameMargin
@@ -423,7 +458,7 @@ public struct InputViewStyle {
                 font: UIFont = UIFont.systemFont(ofSize: 17),
                 textHeightMin: CGFloat = 30,
                 textHeightMax: CGFloat = 98,
-                textMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16),
+                textMargin: UIEdgeInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16),
                 inputTextViewBorderWidth: CGFloat = 0,
                 inputTextViewBorderColor: CGColor = UIColor.clear.cgColor,
                 inputTextViewRadius: CGFloat = 18,
@@ -455,7 +490,7 @@ public struct AttachButtonStyle {
     public init(margin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 7, right: 12),
                 size: CGSize = CGSize(width: 24, height: 24),
                 image: UIImage? = nil) {
-        self.image = (image != nil) ? image! : UIImage.named("attachButton")
+        self.image = (image != nil) ? image! : UIImage.named("udAttachButton")
         self.margin = margin
         self.size = size
     }
@@ -470,7 +505,7 @@ public struct SendButtonStyle {
     public init(margin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 9, bottom: 0, right: 12),
                 size: CGSize = CGSize(width: 32, height: 32),
                 image: UIImage? = nil) {
-        self.image = (image != nil) ? image! : UIImage.named("sendButton")
+        self.image = (image != nil) ? image! : UIImage.named("udSendButton")
         self.margin = margin
         self.size = size
     }
@@ -511,8 +546,11 @@ public struct FeedbackFormStyle {
     public var textFont: UIFont
     public var headerFont: UIFont
     public var headerColor: UIColor
+    public var headerSelectedColor: UIColor
     public var valueFont: UIFont
     public var valueColor: UIColor
+    public var arrowImage: UIImage
+    public var arrowImageSize: CGSize
     public var lineSeparatorColor: UIColor
     public var lineSeparatorActiveColor: UIColor
     public var errorColor: UIColor
@@ -527,8 +565,11 @@ public struct FeedbackFormStyle {
                 textFont: UIFont = UIFont.systemFont(ofSize: 16),
                 headerFont: UIFont = UIFont.systemFont(ofSize: 15),
                 headerColor: UIColor? = nil,
+                headerSelectedColor: UIColor? = nil,
                 valueFont: UIFont = UIFont.systemFont(ofSize: 16),
                 valueColor: UIColor? = nil,
+                arrowImage: UIImage? = nil,
+                arrowImageSize: CGSize = CGSize(width: 20, height: 22),
                 lineSeparatorColor: UIColor? = nil,
                 lineSeparatorActiveColor: UIColor? = nil,
                 errorColor: UIColor? = nil,
@@ -542,14 +583,48 @@ public struct FeedbackFormStyle {
         self.textFont = textFont
         self.headerFont = headerFont
         self.headerColor = headerColor != nil ? headerColor! : UIColor(hexString: "BDBDBD")
+        self.headerSelectedColor = headerSelectedColor != nil ? headerSelectedColor! : UIColor(hexString: "EB5757")
         self.valueFont = valueFont
         self.valueColor = valueColor != nil ? valueColor! : UIColor(hexString: "333333")
+        self.arrowImage =  (arrowImage != nil) ? arrowImage! : UIImage.named("udArrow")
+        self.arrowImageSize = arrowImageSize
         self.lineSeparatorColor = lineSeparatorColor != nil ? lineSeparatorColor! : UIColor(hexString: "E0E0E0")
-        self.lineSeparatorActiveColor = lineSeparatorActiveColor != nil ? lineSeparatorActiveColor! : UIColor(hexString: "333333")
+        self.lineSeparatorActiveColor = lineSeparatorActiveColor != nil ? lineSeparatorActiveColor! : UIColor(hexString: "EB5757")
         self.errorColor = errorColor != nil ? errorColor! : UIColor(hexString: "EB5757")
-        self.sendedImage = (sendedImage != nil) ? sendedImage! : UIImage.named("sended")
+        self.sendedImage = (sendedImage != nil) ? sendedImage! : UIImage.named("udSended")
     }
 }
+
+// MARK: -  SelectTopicFeedbackFormStyle
+public struct SelectTopicFeedbackFormStyle {
+    public var titleTopicFont: UIFont
+    public var titleTopicColor: UIColor
+    public var titleTopicMargin: UIEdgeInsets
+    public var lineSeparatorColor: UIColor
+    public var selectImage: UIImage
+    public var selectedImage: UIImage
+    public var selectImageSize: CGSize
+    public var selectImageMarginRight: CGFloat
+    
+    public init(titleTopicFont: UIFont = UIFont.systemFont(ofSize: 16),
+                titleTopicColor: UIColor? = nil,
+                titleTopicMargin: UIEdgeInsets = UIEdgeInsets(top: 13, left: 16, bottom: 13, right: 4),
+                lineSeparatorColor: UIColor? = nil,
+                selectImage: UIImage? = nil,
+                selectedImage: UIImage? = nil,
+                selectImageSize: CGSize = CGSize(width: 28, height: 30),
+                selectImageMarginRight: CGFloat = 8) {
+        self.titleTopicFont = titleTopicFont
+        self.titleTopicColor = titleTopicColor != nil ? titleTopicColor! : UIColor(hexString: "333333")
+        self.titleTopicMargin = titleTopicMargin
+        self.lineSeparatorColor = lineSeparatorColor != nil ? lineSeparatorColor! : UIColor(hexString: "E0E0E0")
+        self.selectImage = (selectImage != nil) ? selectImage! : UIImage.named("udSelectCircle")
+        self.selectedImage = (selectedImage != nil) ? selectedImage! : UIImage.named("udSelectedCircle")
+        self.selectImageSize = selectImageSize
+        self.selectImageMarginRight = selectImageMarginRight
+    }
+}
+
 
 // MARK: -  Base
 public struct BaseStyle {
@@ -583,7 +658,7 @@ public struct BaseStyle {
                 searchBarTintColor: UIColor = .red,
                 searchCancelButtonColor: UIColor? = nil) {
         self.backColor = backColor != nil ? backColor! : .white
-        self.chatIconImage = (chatIconImage != nil) ? chatIconImage! : UIImage.named("chatIcon")
+        self.chatIconImage = (chatIconImage != nil) ? chatIconImage! : UIImage.named("udChatIcon")
         self.chatButtonBackColor = chatButtonBackColor != nil ? chatButtonBackColor! : UIColor(hexString: "333333")
         self.chatButtonCornerRadius = chatButtonCornerRadius
         self.chatButtonSize = chatButtonSize
@@ -633,12 +708,12 @@ public struct BaseSectionsStyle {
         self.textFont = textFont
         self.textColor = textColor
         self.textMargin = textMargin
-        self.iconDefaultImage = (iconDefaultImage != nil) ? iconDefaultImage! : UIImage.named("iconBaseSection")
+        self.iconDefaultImage = (iconDefaultImage != nil) ? iconDefaultImage! : UIImage.named("udIconBaseSection")
         self.iconFont = iconFont
         self.iconTextColor = iconTextColor != nil ? iconTextColor! : UIColor(hexString: "989FB3")
         self.iconSize = iconSize
         self.iconMargin = iconMargin
-        self.arrowImage = (arrowImage != nil) ? arrowImage! : UIImage.named("arrow")
+        self.arrowImage = (arrowImage != nil) ? arrowImage! : UIImage.named("udArrow")
         self.arrowSize = arrowSize
         self.arrowMargin = arrowMargin
         self.separatorColor = separatorColor != nil ? separatorColor! : UIColor(hexString: "D2D7E5")
@@ -689,7 +764,7 @@ public struct BaseCategoriesStyle {
         self.descriptionFont = descriptionFont
         self.descriptionColor = descriptionColor != nil ? descriptionColor! : UIColor(hexString: "989FB3")
         self.descriptionMargin = descriptionMargin
-        self.arrowImage = (arrowImage != nil) ? arrowImage! : UIImage.named("arrow")
+        self.arrowImage = (arrowImage != nil) ? arrowImage! : UIImage.named("udArrow")
         self.arrowSize = arrowSize
         self.arrowMargin = arrowMargin
         self.separatorColor = separatorColor != nil ? separatorColor! : UIColor(hexString: "D2D7E5")
@@ -891,7 +966,7 @@ public struct BaseArticleStyle {
         self.titleBigFont = titleBigFont
         self.titleBigColor = titleBigColor != nil ? titleBigColor! : UIColor(hexString: "333333")
         self.titleBigMargin = titleMargin
-        self.closeButtonImage = (closeButtonImage != nil) ? closeButtonImage! : UIImage.named("closeArticle")
+        self.closeButtonImage = (closeButtonImage != nil) ? closeButtonImage! : UIImage.named("udCloseArticle")
         self.closeButtonSize = closeButtonSize
         self.closeButtonMargin = closeButtonMargin
         self.topSeparatorViewColor = topSeparatorViewColor != nil ? topSeparatorViewColor! : UIColor(hexString: "D2D7E5")
@@ -922,10 +997,10 @@ public struct BaseArticleStyle {
         self.reviewSendColor = reviewSendColor != nil ? reviewSendColor! : UIColor(hexString: "26BC00")
         self.reviewSendButtonTextMargin = reviewSendButtonTextMargin
         self.reviewSendButtonMargin = reviewSendButtonMargin
-        self.previousArticleImage = (previousArticleImage != nil) ? previousArticleImage! : UIImage.named("previousArticle")
+        self.previousArticleImage = (previousArticleImage != nil) ? previousArticleImage! : UIImage.named("udPreviousArticle")
         self.previousArticleImageSize = previousArticleImageSize
         self.previousArticleImageMargin = previousArticleImageMargin
-        self.nextArticleImage = (nextArticleImage != nil) ? nextArticleImage! : UIImage.named("nextArticle")
+        self.nextArticleImage = (nextArticleImage != nil) ? nextArticleImage! : UIImage.named("udNextArticle")
         self.nextArticleImageSize = nextArticleImageSize
         self.nextArticleImageMargin = nextArticleImageMargin
         self.articlePreviousFont = articlePreviousFont

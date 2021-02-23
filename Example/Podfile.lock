@@ -16,7 +16,7 @@ PODS:
   - Starscream (3.0.6)
   - Swime (3.0.6)
   - "UIAlertController+Blocks (0.9.2)"
-  - UseDesk_SDK_Swift (1.0.2):
+  - UseDesk_SDK_Swift (1.0.0):
     - Alamofire (~> 5)
     - MBProgressHUD (~> 1.0)
     - NYTPhotoViewer (= 1.2.0)
@@ -57,7 +57,7 @@ SPEC CHECKSUMS:
   Starscream: ef3ece99d765eeccb67de105bfa143f929026cf5
   Swime: d7b2c277503b6cea317774aedc2dce05613f8b0b
   "UIAlertController+Blocks": 80e28b92523fb58aba4d1bccec013d5a0b0bddb2
-  UseDesk_SDK_Swift: 8b978c96a40b4afe6eb194b6e2cc97005813ead5
+  UseDesk_SDK_Swift: 198e94025de4dfd59062fd06742941d829fde1dc
 
 PODFILE CHECKSUM: bbc3836925ebcc11f98b8ec2676c7a91e860d84a
 
