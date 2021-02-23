@@ -31,8 +31,6 @@ public class UseDeskSDK: NSObject {
     @objc public var isSupportedAttachmentOnlyVideo: Bool = false
     // Style
     public var configurationStyle: ConfigurationStyle = ConfigurationStyle()
-    // UDCallbackSettings
-    public var callbackSettings = UDCallbackSettings()
     // isOpenSDKUI
     public var isOpenSDKUI: Bool = false
     // Socket
@@ -58,11 +56,12 @@ public class UseDeskSDK: NSObject {
     // Lolace
     var locale: [String:String] = [:]
     
+    var callbackSettings = UDCallbackSettings()
     var navController = UDNavigationController()
     var idLoadingMessages: [String] = []
     
     private var token = ""
-    private var dialogflowVC: DialogflowView = DialogflowView()
+    private var dialogflowVC: DialogflowView = DialogflowView() 
     private var offlineVC: UDOfflineForm = UDOfflineForm()
     
     @objc public func start(withCompanyID _companyID: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, signature _signature: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: UDSStartBlock) {
@@ -224,7 +223,7 @@ public class UseDeskSDK: NSObject {
                     }
                 }
             })
-        }
+        }       
     }
 
     @objc public func sendMessage(_ text: String, messageId: String? = nil) {
@@ -334,10 +333,6 @@ public class UseDeskSDK: NSObject {
         }
         if _signature != nil {
             if _signature != "" {
-                if !_signature!.udIsValidSignature() {
-                    startBlock(false, "signatureError")
-                    return
-                }
                 signature = _signature!
             }
         }
