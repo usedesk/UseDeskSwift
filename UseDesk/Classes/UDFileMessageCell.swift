@@ -10,7 +10,7 @@ class UDFileMessageCell: UDMessageCell {
     let iconImage = UIImageView()
     let nameFileLabel = UILabel()
     let sizeFileLabel = UILabel()
-    let spinner = UIActivityIndicatorView(activityIndicatorStyle: .white)
+    let spinner = UIActivityIndicatorView(style: .white)
     
     private var indexPath: IndexPath?
     private weak var messagesView: UDMessagesView?

@@ -22,7 +22,7 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
     private var searchArticles: UDSearchArticle? = nil
     private var isSearch: Bool = false
     private var chatButton = UIButton()
-    private var loaderChatButton = UIActivityIndicatorView(activityIndicatorStyle: .white)
+    private var loaderChatButton = UIActivityIndicatorView(style: .white)
     private var isFirstLoaded = true
     private var isOpenOther = false
     private var openedArticle: UDArticle?
@@ -62,7 +62,7 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
                     if let collection = arrayCollections.filter({ $0.id == openedArticle?.collection_id}).first {
                         if let category = collection.сategories.filter({ $0.id == openedArticle?.category_id}).first {
                             if let selectedArticle = category.articlesTitles.filter({ $0.id == openedArticle?.id}).first {
-                                if let selectedIndex =  category.articlesTitles.index(of: selectedArticle) {
+                                if let selectedIndex =  category.articlesTitles.firstIndex(of: selectedArticle) {
                                     articleVC.indexSelectedArticle = selectedIndex
                                     articleVC.articles = category.articlesTitles
                                 }
@@ -116,7 +116,7 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
         tableView.backgroundColor = configurationStyle.baseStyle.backColor
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 56
         navigationItem.leftBarButtonItems = nil
         if let backButtonImage = configurationStyle.navigationBarStyle.backButtonImage {
@@ -134,6 +134,11 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     private func setChatButton() {
+        guard configurationStyle.baseStyle.isNeedChat else {
+            chatButton.alpha = 0
+            loaderChatButton.alpha = 0
+            return
+        }
         let baseStyle = configurationStyle.baseStyle
         let xPointChatButton = self.view.frame.width - baseStyle.chatButtonSize.width - baseStyle.chatButtonMargin.right
         let yPointChatButton = self.view.frame.height - baseStyle.chatButtonSize.height - baseStyle.chatButtonMargin.bottom
@@ -291,7 +296,7 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
                     if let collection = wSelf.arrayCollections.filter({ $0.id == article?.collection_id}).first {
                         if let category = collection.сategories.filter({ $0.id == article?.category_id}).first {
                             if let selectedArticle = category.articlesTitles.filter({ $0.id == article?.id}).first {
-                                if let selectedIndex =  category.articlesTitles.index(of: selectedArticle) {
+                                if let selectedIndex =  category.articlesTitles.firstIndex(of: selectedArticle) {
                                     articleVC.indexSelectedArticle = selectedIndex
                                     articleVC.articles = category.articlesTitles
                                 }

@@ -7,7 +7,7 @@ class UDPictureMessageCell: UDMessageCell {
 
     let pictureImage = UIImageView()
     let imageDefault = UIImageView()
-    let spinner = UIActivityIndicatorView(activityIndicatorStyle: .white)
+    let spinner = UIActivityIndicatorView(style: .white)
     let timeBackView = UIView()
     
     private var indexPath: IndexPath?

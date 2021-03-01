@@ -12,7 +12,7 @@ class UDVideoMessageCell: UDMessageCell {
     var videoImage = UIImageView()
     var imagePlay = UIImageView()
     var imageDefault = UIImageView()
-    var spinner = UIActivityIndicatorView(activityIndicatorStyle: .white)
+    var spinner = UIActivityIndicatorView(style: .white)
     let timeBackView = UIView()
     
     weak var delegate: UDVideoMessageCellDelegate?

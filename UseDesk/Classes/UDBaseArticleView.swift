@@ -59,7 +59,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
     private var transitionsRightButton = UIButton()
     // Chat Button
     private var chatButton = UIButton()
-    private var loaderChatButton = UIActivityIndicatorView(activityIndicatorStyle: .white)
+    private var loaderChatButton = UIActivityIndicatorView(style: .white)
     
     private var gestureCommentTable: UIGestureRecognizer!
     private var keyboardHeight: CGFloat = 336
@@ -92,10 +92,10 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
         
         gestureCommentTable = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard))
         // Notification
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardShow(_:)), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardHide(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardHide(_:)), name: NSNotification.Name.UIKeyboardDidHide, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardShow(_:)), name: UIResponder.keyboardDidShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardHide(_:)), name: UIResponder.keyboardDidHideNotification, object: nil)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -149,9 +149,9 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
     @objc func keyboardShow(_ notification: NSNotification) {
         if !isShowKeyboard {
             let info = notification.userInfo
-            let keyboard: CGRect? = (info?[UIKeyboardFrameEndUserInfoKey] as AnyObject).cgRectValue
+            let keyboard: CGRect? = (info?[UIResponder.keyboardFrameEndUserInfoKey] as AnyObject).cgRectValue
             keyboardHeight = keyboard?.size.height ?? 336
-            keyboardAnimateDuration = CGFloat(TimeInterval((info?[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0))
+            keyboardAnimateDuration = CGFloat(TimeInterval((info?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0))
             scrollView.addGestureRecognizer(gestureCommentTable)
             let yPointMax = reviewView.frame.origin.y - scrollView.contentOffset.y + reviewSendButton.frame.origin.y + configurationStyle.baseArticleStyle.reviewSendButtonMargin.bottom
             UIView.animate(withDuration: TimeInterval(keyboardAnimateDuration), animations: {
@@ -401,6 +401,11 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
     }
     
     private func setChatButton() {
+        guard configurationStyle.baseStyle.isNeedChat else {
+            chatButton.alpha = 0
+            loaderChatButton.alpha = 0
+            return
+        }
         let baseStyle = configurationStyle.baseStyle
         let xPointChatButton = self.view.frame.width - baseStyle.chatButtonSize.width - baseStyle.chatButtonMargin.right
         let yPointChatButton = self.view.frame.height - baseStyle.chatButtonSize.height - baseStyle.chatButtonMargin.bottom
@@ -437,6 +442,11 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
     
     func setReviewView() {
         guard usedesk != nil else {return}
+        guard configurationStyle.baseArticleStyle.isNeedReview else {
+            reviewView.frame.size = CGSize(width: 0, height: 0)
+            reviewView.alpha = 0
+            return
+        }
         if reviewTextView.text.count > 0 || isSendReviewState {
             if !isSendReviewState {
                 showSendedReviewState()
@@ -626,6 +636,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
     }
     
     private func updatePositionChatButton() {
+        guard configurationStyle.baseStyle.isNeedChat else { return }
         let baseStyle = configurationStyle.baseStyle
         if scrollView.frame.height >= scrollView.contentSize.height {
             chatButton.frame.origin = CGPoint(x: chatButton.frame.origin.x, y: self.view.frame.height - baseStyle.chatButtonSize.height - baseStyle.chatButtonMargin.bottom - transitionsView.frame.height)

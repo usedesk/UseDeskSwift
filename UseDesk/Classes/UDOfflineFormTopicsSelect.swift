@@ -60,7 +60,7 @@ class UDOfflineFormTopicsSelect: UIViewController {
         title = usedesk?.callbackSettings.titleTopics ?? "Тема обращения"
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: configurationStyle.navigationBarStyle.backButtonImage, style: .plain, target: self, action: #selector(self.backAction))
         tableView.register(UINib(nibName: "UDSimpleSelectCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDSimpleSelectCell")
-        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 64
         tableView.delegate = self
         tableView.dataSource = self

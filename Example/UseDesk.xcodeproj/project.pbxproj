@@ -22,7 +22,6 @@
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		A5238CF02208D9F100C2D6EC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5238CEF2208D9F100C2D6EC /* AppDelegate.swift */; };
 		A5238CF22208DAFA00C2D6EC /* UDStartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5238CF12208DAFA00C2D6EC /* UDStartViewController.swift */; };
-		A5238CF42208DBD600C2D6EC /* UseDeskViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5238CF32208DBD600C2D6EC /* UseDeskViewController.swift */; };
 		AAF918858C9698C004E6C76D /* Pods_UseDesk_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 12F0F64C5BF4CFEE4B563881 /* Pods_UseDesk_Example.framework */; };
 		EA3D4942E92FC77AE8287D93 /* Pods_UseDesk_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D53DFFC3E18E1278D438D89 /* Pods_UseDesk_Tests.framework */; };
 /* End PBXBuildFile section */
@@ -62,7 +61,6 @@
 		8D53DFFC3E18E1278D438D89 /* Pods_UseDesk_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UseDesk_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5238CEF2208D9F100C2D6EC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A5238CF12208DAFA00C2D6EC /* UDStartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDStartViewController.swift; sourceTree = "<group>"; };
-		A5238CF32208DBD600C2D6EC /* UseDeskViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UseDeskViewController.swift; sourceTree = "<group>"; };
 		A5E0A5D623B4DA0800A73A89 /* UseDesk_Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UseDesk_Example-Bridging-Header.h"; sourceTree = "<group>"; };
 		F1D5C1762542B161E39D85FA /* Pods-UseDesk_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UseDesk_Tests.release.xcconfig"; path = "Target Support Files/Pods-UseDesk_Tests/Pods-UseDesk_Tests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -141,7 +139,6 @@
 			children = (
 				500D7FD820DA4491000F5100 /* UDStartViewController */,
 				A5238CEF2208D9F100C2D6EC /* AppDelegate.swift */,
-				A5238CF32208DBD600C2D6EC /* UseDeskViewController.swift */,
 				71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */,
 				A5E0A5D623B4DA0800A73A89 /* UseDesk_Example-Bridging-Header.h */,
 				6003F5A8195388D20070C39A /* Images.xcassets */,
@@ -248,12 +245,12 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = UseDesk;
-				LastUpgradeCheck = 1110;
+				LastUpgradeCheck = 1240;
 				ORGANIZATIONNAME = "serega@budyakov.com";
 				TargetAttributes = {
 					6003F589195388D20070C39A = {
 						DevelopmentTeam = HTC25B4YP8;
-						LastSwiftMigration = 1010;
+						LastSwiftMigration = 1240;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
@@ -338,242 +335,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-UseDesk_Example/Pods-UseDesk_Example-resources.sh",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udArrow.imageset/ic-keyboard-arrow@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udArrow.imageset/ic-keyboard-arrow@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udAssetCamera.imageset/Untitled@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udAttachButton.imageset/attachment@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udAttachClose.imageset/Float.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udAttachClose.imageset/Float@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udAttachClose.imageset/Float@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udAvatarOperator.imageset/Avatar agenta 32px.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udAvatarOperator.imageset/Avatar agenta 32px@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udAvatarOperator.imageset/Avatar agenta 32px@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udBackButton.imageset/back@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udBackInFileButton.imageset/baseline-more_horiz-24px@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udChatIcon.imageset/messages-bubble 1.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udChatIcon.imageset/messages-bubble 1@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udChatIcon.imageset/messages-bubble 1@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udCloseArticle.imageset/ic_close@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udCloseArticle.imageset/ic_close@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udDislikeOff.imageset/sad.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udDislikeOff.imageset/sad@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udDislikeOff.imageset/sad@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udDislikeOn.imageset/sad.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udDislikeOn.imageset/sad@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udDislikeOn.imageset/sad@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udFileIcon.imageset/mdi-file@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udFileIcon.imageset/mdi-file@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udFileIconCircle.imageset/ic_file.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udFileIconCircle.imageset/ic_file@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udIconBaseSection.imageset/▪︎ Bitmap@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udIconBaseSection.imageset/▪︎ Bitmap@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udLikeOff.imageset/happy.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udLikeOff.imageset/happy@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udLikeOff.imageset/happy@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udLikeOn.imageset/happy.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udLikeOn.imageset/happy@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udLikeOn.imageset/happy@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udNextArticle.imageset/keyboard-arrow-right@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udNotSentImage.imageset/ic-round-error@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udPictureDefault.imageset/Заглушка_фото.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udPictureDefault.imageset/Заглушка_фото@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udPictureDefault.imageset/Заглушка_фото@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udPreviousArticle.imageset/keyboard-arrow-left 1@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSearch.imageset/ic_filter@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSearch.imageset/ic_filter@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSelectAsset.imageset/Mask@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSelectCircle.imageset/Empty@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSelectedAsset.imageset/Circle@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSelectedCircle.imageset/Ok@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSendButton.imageset/sendActive@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSended.imageset/ic_done@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSended.imageset/ic_done@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSendedStatusImage.imageset/check-double@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSendedStatusImageWhite.imageset/check-double@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSendStatusImage.imageset/check@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSendStatusImageWhite.imageset/check@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udShare.imageset/Share@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udUnknownFile.imageset/flat-color-icons_file@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udUnknownFile.imageset/flat-color-icons_file@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udVideoDefault.imageset/Заглушка_видео.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udVideoDefault.imageset/Заглушка_видео@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udVideoDefault.imageset/Заглушка_видео@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udVideoIndicator.imageset/ic_video.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udVideoIndicator.imageset/ic_video@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udVideoIndicator.imageset/ic_video@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udVideoPlay.imageset/ic-round-play-arrow.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udVideoPlay.imageset/ic-round-play-arrow@2x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udVideoPlay.imageset/ic-round-play-arrow@3x.png",
-				"${PODS_ROOT}/../../UseDesk/Assets/Russian.strings",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDAttachSmallCameraCollectionViewCell.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDAttachSmallCollectionViewCell.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDBaseArticle.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDBaseArticlesView.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDBaseArticleViewCell.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDBaseCategoriesCell.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDBaseCategoriesView.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDBaseSearchCell.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDBaseSectionsView.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDBaseSectionViewCell.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDFileViewingVC.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDMessagesView.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDOfflineForm.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDOfflineFormTopicsSelect.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDSimpleSelectCell.xib",
-				"${PODS_ROOT}/../../UseDesk/Classes/UDTextAnimateTableViewCell.xib",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udArrow.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udAssetCamera.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udAttachButton.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udAttachClose.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udAvatarOperator.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udBackButton.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udBackInFileButton.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udChatIcon.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udCloseArticle.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udDislikeOff.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udDislikeOn.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udFileIcon.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udFileIconCircle.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udIconBaseSection.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udLikeOff.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udLikeOn.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udNextArticle.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udNotSentImage.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udPictureDefault.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udPreviousArticle.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSearch.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSelectAsset.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSelectCircle.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSelectedAsset.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSelectedCircle.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSendButton.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSended.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSendedStatusImage.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSendedStatusImageWhite.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSendStatusImage.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udSendStatusImageWhite.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udShare.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udUnknownFile.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udVideoDefault.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udVideoIndicator.imageset",
-				"${PODS_ROOT}/../../UseDesk/Assets/Assets.xcassets/udVideoPlay.imageset",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic-keyboard-arrow@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic-keyboard-arrow@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Untitled@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/attachment@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Float.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Float@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Float@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Avatar agenta 32px.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Avatar agenta 32px@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Avatar agenta 32px@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/back@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/baseline-more_horiz-24px@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/messages-bubble 1.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/messages-bubble 1@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/messages-bubble 1@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_close@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_close@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/sad.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/sad@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/sad@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/mdi-file@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/mdi-file@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_file.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_file@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/▪︎ Bitmap@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/▪︎ Bitmap@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/happy.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/happy@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/happy@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/keyboard-arrow-right@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic-round-error@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Заглушка_фото.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Заглушка_фото@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Заглушка_фото@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/keyboard-arrow-left 1@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_filter@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_filter@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Mask@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Empty@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Circle@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Ok@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/sendActive@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_done@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_done@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/check-double@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/check@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Share@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/flat-color-icons_file@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/flat-color-icons_file@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Заглушка_видео.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Заглушка_видео@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Заглушка_видео@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_video.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_video@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_video@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic-round-play-arrow.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic-round-play-arrow@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic-round-play-arrow@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Russian.strings",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDAttachSmallCameraCollectionViewCell.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDAttachSmallCollectionViewCell.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDBaseArticle.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDBaseArticlesView.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDBaseArticleViewCell.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDBaseCategoriesCell.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDBaseCategoriesView.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDBaseSearchCell.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDBaseSectionsView.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDBaseSectionViewCell.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDFileViewingVC.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDMessagesView.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDOfflineForm.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDOfflineFormTopicsSelect.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDSimpleSelectCell.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UDTextAnimateTableViewCell.nib",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Assets.car",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udArrow.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udAssetCamera.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udAttachButton.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udAttachClose.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udAvatarOperator.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udBackButton.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udBackInFileButton.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udChatIcon.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udCloseArticle.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udDislikeOff.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udDislikeOn.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udFileIcon.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udFileIconCircle.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udIconBaseSection.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udLikeOff.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udLikeOn.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udNextArticle.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udNotSentImage.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udPictureDefault.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udPreviousArticle.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udSearch.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udSelectAsset.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udSelectCircle.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udSelectedAsset.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udSelectedCircle.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udSendButton.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udSended.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udSendedStatusImage.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udSendedStatusImageWhite.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udSendStatusImage.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udSendStatusImageWhite.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udShare.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udUnknownFile.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udVideoDefault.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udVideoIndicator.imageset",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/udVideoPlay.imageset",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -608,30 +372,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-UseDesk_Example/Pods-UseDesk_Example-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
-				"${BUILT_PRODUCTS_DIR}/FLAnimatedImage/FLAnimatedImage.framework",
-				"${BUILT_PRODUCTS_DIR}/MBProgressHUD/MBProgressHUD.framework",
-				"${BUILT_PRODUCTS_DIR}/NYTPhotoViewer/NYTPhotoViewer.framework",
-				"${BUILT_PRODUCTS_DIR}/ProgressHUD/ProgressHUD.framework",
-				"${BUILT_PRODUCTS_DIR}/QBImagePickerController/QBImagePickerController.framework",
-				"${BUILT_PRODUCTS_DIR}/Socket.IO-Client-Swift/SocketIO.framework",
-				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
-				"${BUILT_PRODUCTS_DIR}/Swime/Swime.framework",
-				"${BUILT_PRODUCTS_DIR}/UIAlertController+Blocks/UIAlertController_Blocks.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FLAnimatedImage.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MBProgressHUD.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/NYTPhotoViewer.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ProgressHUD.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/QBImagePickerController.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SocketIO.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Swime.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/UIAlertController_Blocks.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -646,7 +389,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A5238CF22208DAFA00C2D6EC /* UDStartViewController.swift in Sources */,
-				A5238CF42208DBD600C2D6EC /* UseDeskViewController.swift in Sources */,
 				A5238CF02208D9F100C2D6EC /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -720,6 +462,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -744,7 +487,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -775,6 +518,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -793,9 +537,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				SDKROOT = iphoneos;
-				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -811,21 +554,21 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4.0;
+				CURRENT_PROJECT_VERSION = 1.0;
 				DEVELOPMENT_TEAM = HTC25B4YP8;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "UseDesk/UseDesk-Prefix.pch";
 				INFOPLIST_FILE = "UseDesk/UseDesk-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.1.1;
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = UseDeskExampleSDK.ru;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "UseDesk/UseDesk_Example-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
@@ -840,20 +583,20 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4.0;
+				CURRENT_PROJECT_VERSION = 1.0;
 				DEVELOPMENT_TEAM = HTC25B4YP8;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "UseDesk/UseDesk-Prefix.pch";
 				INFOPLIST_FILE = "UseDesk/UseDesk-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.1.1;
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = UseDeskExampleSDK.ru;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "UseDesk/UseDesk_Example-Bridging-Header.h";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};

@@ -629,6 +629,7 @@ public struct SelectTopicFeedbackFormStyle {
 // MARK: -  Base
 public struct BaseStyle {
     public var backColor: UIColor
+    public var isNeedChat: Bool
     public var chatIconImage: UIImage
     public var chatButtonBackColor: UIColor
     public var chatButtonCornerRadius: CGFloat
@@ -644,6 +645,7 @@ public struct BaseStyle {
     public var searchCancelButtonColor: UIColor
     
     public init(backColor: UIColor? = nil,
+                isNeedChat: Bool = true,
                 chatIconImage: UIImage? = nil,
                 chatButtonBackColor: UIColor? = nil,
                 chatButtonCornerRadius: CGFloat = 28,
@@ -658,6 +660,7 @@ public struct BaseStyle {
                 searchBarTintColor: UIColor = .red,
                 searchCancelButtonColor: UIColor? = nil) {
         self.backColor = backColor != nil ? backColor! : .white
+        self.isNeedChat = isNeedChat
         self.chatIconImage = (chatIconImage != nil) ? chatIconImage! : UIImage.named("udChatIcon")
         self.chatButtonBackColor = chatButtonBackColor != nil ? chatButtonBackColor! : UIColor(hexString: "333333")
         self.chatButtonCornerRadius = chatButtonCornerRadius
@@ -838,7 +841,7 @@ public struct BaseSearchStyle {
         self.separatorHeight = separatorHeight
     }
 }
-// MARK: -  Base Search
+// MARK: -  Base Article
 public struct BaseArticleStyle {
 
     public var titleFont: UIFont
@@ -855,6 +858,7 @@ public struct BaseArticleStyle {
     
     public var topSeparatorViewColor: UIColor
     // Review Style
+    public var isNeedReview: Bool
     public var reviewFont: UIFont
     public var reviewColor: UIColor
     public var reviewMargin: UIEdgeInsets
@@ -908,7 +912,8 @@ public struct BaseArticleStyle {
     public var separatorViewMargin: UIEdgeInsets
     public var separatorViewHeight: CGFloat
     
-    public init(titleFont: UIFont = UIFont.boldSystemFont(ofSize: 17),
+    public init(isNeedReview: Bool = true,
+                titleFont: UIFont = UIFont.boldSystemFont(ofSize: 17),
                 titleColor: UIColor? = nil,
                 titleMargin: UIEdgeInsets = UIEdgeInsets(top: 22, left: 55, bottom: 0, right: 8),
                 titleBigFont: UIFont = UIFont.boldSystemFont(ofSize: 22),
@@ -960,6 +965,7 @@ public struct BaseArticleStyle {
                 separatorViewColor: UIColor? = nil,
                 separatorViewMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16),
                 separatorViewHeight: CGFloat = 1) {
+        self.isNeedReview = isNeedReview
         self.titleFont = titleFont
         self.titleColor = titleColor != nil ? titleColor! : UIColor(hexString: "333333")
         self.titleMargin = titleMargin

@@ -79,7 +79,7 @@ class DialogflowView: UDMessagesView {
                         indexSection += 1
                     }
                     if let replaceMessage = wSelf.messages.filter({ $0.loadingMessageId == loadingMessageId}).first {
-                        if let index = wSelf.messages.index(of: replaceMessage) {
+                        if let index = wSelf.messages.firstIndex(of: replaceMessage) {
                             wSelf.messages[index] = message
                         }
                     }
@@ -177,7 +177,7 @@ class DialogflowView: UDMessagesView {
                         if wSelf.messagesWithSection[indexSection][index].loadingMessageId != "" {
                             wSelf.messagesWithSection[indexSection][index] = message
                             if let replaceMessage = wSelf.messages.filter({ $0.loadingMessageId == loadingMessageId}).first {
-                                if let index = wSelf.messages.index(of: replaceMessage) {
+                                if let index = wSelf.messages.firstIndex(of: replaceMessage) {
                                     wSelf.messages[index] = message
                                 }
                             }
@@ -198,7 +198,7 @@ class DialogflowView: UDMessagesView {
             if #available(iOS 10.0, *) {
                 if UIApplication.shared.responds(to: #selector(UIApplication.open(_:options:completionHandler:))) {
                     if let anUrl = url {
-                        UIApplication.shared.open(anUrl, options: [:], completionHandler: nil)
+                        UIApplication.shared.open(anUrl, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
                     }
                 } else {
                     // Fallback on earlier versions
@@ -365,7 +365,7 @@ class DialogflowView: UDMessagesView {
                         PHCachingImageManager.default().requestImage(for: asset, targetSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight)), contentMode: .aspectFit, options: options, resultHandler: { [weak self] resultImage, info in
                             guard let wSelf = self else {return}
                             if resultImage != nil {
-                                if let imageData = UIImagePNGRepresentation(resultImage!) {
+                                if let imageData = resultImage!.pngData() {
                                     let content = "data:image/png;base64,\(imageData)"
                                     var fileName = String(format: "%ld", content.hash)
                                     fileName += ".png"
@@ -395,7 +395,7 @@ class DialogflowView: UDMessagesView {
                     }
                 } else if sendAssets[i] as? UIImage != nil {
                     let pickerImage = sendAssets[i] as! UIImage
-                    if let imageData = UIImagePNGRepresentation(pickerImage) {
+                    if let imageData = pickerImage.pngData() {
                         let content = "data:image/png;base64,\(imageData)"
                         var fileName = String(format: "%ld", content.hash)
                         fileName += ".png"
@@ -472,7 +472,7 @@ class DialogflowView: UDMessagesView {
             let removeAction = UIAlertAction(title: usedesk!.stringFor("DeleteMessage"), style: .destructive, handler: { [weak self] (alert: UIAlertAction!)  in
                 guard let wSelf = self else {return}
                 if let removeMessage = wSelf.messages.filter({ $0.loadingMessageId == wSelf.messagesWithSection[indexPath.section][indexPath.row].loadingMessageId}).first {
-                    if let index = wSelf.messages.index(of: removeMessage) {
+                    if let index = wSelf.messages.firstIndex(of: removeMessage) {
                         wSelf.messages.remove(at: index)
                     }
                 }
@@ -487,7 +487,7 @@ class DialogflowView: UDMessagesView {
                 guard let wSelf = self else {return}
                 let message = wSelf.messagesWithSection[indexPath.section][indexPath.row]
                 if let removeMessage = wSelf.messages.filter({ $0.loadingMessageId == wSelf.messagesWithSection[indexPath.section][indexPath.row].loadingMessageId}).first {
-                    if let index = wSelf.messages.index(of: removeMessage) {
+                    if let index = wSelf.messages.firstIndex(of: removeMessage) {
                         wSelf.messages.remove(at: index)
                     }
                 }
@@ -539,7 +539,7 @@ class DialogflowView: UDMessagesView {
             (navigationController as? UDNavigationController)?.isDark = true
             navigationController?.navigationBar.layoutSubviews()
             fileViewingVC = UDFileViewingVC()
-            self.addChildViewController(self.fileViewingVC)
+            self.addChild(self.fileViewingVC)
             self.view.addSubview(self.fileViewingVC.view)
             fileViewingVC.setBottomViewHC(safeAreaInsetsBottom)
             var width: CGFloat = self.view.frame.width
@@ -621,4 +621,9 @@ extension Date {
         dateFormatter.timeZone = TimeZone.current
         return dateFormatter.string(from: self)
     }
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
+	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
 }

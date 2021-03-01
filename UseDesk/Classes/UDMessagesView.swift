@@ -126,10 +126,10 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         
         attachBlackView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.closeAttachView)))
         
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardShow(_:)), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardHide(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardHide(_:)), name: NSNotification.Name.UIKeyboardDidHide, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardShow(_:)), name: UIResponder.keyboardDidShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardHide(_:)), name: UIResponder.keyboardDidHideNotification, object: nil)
         
         configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
 
@@ -315,8 +315,8 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     @objc func keyboardShow(_ notification: Notification) {
         if !isShowKeyboard {
             let info = notification.userInfo
-            let keyboard: CGRect? = (info?[UIKeyboardFrameEndUserInfoKey] as AnyObject).cgRectValue
-            let duration = TimeInterval((info?[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
+            let keyboard: CGRect? = (info?[UIResponder.keyboardFrameEndUserInfoKey] as AnyObject).cgRectValue
+            let duration = TimeInterval((info?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
             
             UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {          if UIScreen.main.bounds.height > UIScreen.main.bounds.width {
                     if self.keyboardHeightPortait == 0 {
@@ -343,7 +343,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     @objc func keyboardHide(_ notification: Notification?) {
         if isShowKeyboard {
             let info = notification?.userInfo
-            let duration = TimeInterval((info?[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
+            let duration = TimeInterval((info?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
             UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
                 if UIScreen.main.bounds.height > UIScreen.main.bounds.width {
                     self.view.center = self.centerPortait
@@ -490,8 +490,8 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             let alert = UIAlertController(title: usedesk!.stringFor("AllowMedia"), message: usedesk!.stringFor("ToSendMedia"), preferredStyle: .alert)
             let goToSettingsAction = UIAlertAction(title: usedesk!.stringFor("GoToSettings"), style: .default) { (action) in
                 DispatchQueue.main.async {
-                    let url = URL(string: UIApplicationOpenSettingsURLString)
-                    UIApplication.shared.open(url!, options:[:])
+                    let url = URL(string: UIApplication.openSettingsURLString)
+                    UIApplication.shared.open(url!, options:convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]))
                 }
             }
             let canselAction = UIAlertAction(title: usedesk!.stringFor("Cancel"), style: .cancel)
@@ -642,8 +642,12 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         dismiss(animated: true)
     }
     
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        let chosenImage = info[UIImagePickerControllerEditedImage] as? UIImage
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        // Local variable inserted by Swift 4.2 migrator.
+//        let info = convertFromUIImagePickerControllerInfoKeyDictionary(info)
+        let chosenImage = info[.editedImage] as? UIImage
+
+//        let chosenImage = infoconvertFromUIImagePickerControllerInfoKey(UIImagePickerController.InfoKey.editedImage) as? UIImage
         if chosenImage != nil {
             sendAssets.append(chosenImage!)
             
@@ -1007,7 +1011,7 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
                     cell.videoView.alpha = 0
                 }
                 if selectedAssets.contains(assetsGallery[indexPath.row - 1]) {
-                    cell.setSelected(number: selectedAssets.index(of: assetsGallery[indexPath.row - 1])! + 1)
+                    cell.setSelected(number: selectedAssets.firstIndex(of: assetsGallery[indexPath.row - 1])! + 1)
                 } else {
                     cell.notSelected()
                 }
@@ -1062,7 +1066,7 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
                 let cell = collectionView.cellForItem(at: indexPath) as! UDAttachSmallCollectionViewCell
                 if (sendAssets.count + selectedAssets.count < maxCountAssets) || cell.isActive {
                     if cell.isActive {
-                        selectedAssets.remove(at: selectedAssets.index(of: assetsGallery[indexPath.row - 1])!)
+                        selectedAssets.remove(at: selectedAssets.firstIndex(of: assetsGallery[indexPath.row - 1])!)
                     } else {
                         selectedAssets.append(assetsGallery[indexPath.row - 1])
                     }
@@ -1071,7 +1075,7 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
                         attachFirstButton.setTitle("\(usedesk!.stringFor("Attach")) \(selectedAssets.count.countFilesString(usedesk!))", for: .normal)
                         if let cell = attachCollectionView.cellForItem(at: indexPath) as? UDAttachSmallCollectionViewCell {
                             if selectedAssets.contains(assetsGallery[indexPath.row - 1]) {
-                                cell.setSelected(number: selectedAssets.index(of: assetsGallery[indexPath.row - 1])! + 1)
+                                cell.setSelected(number: selectedAssets.firstIndex(of: assetsGallery[indexPath.row - 1])! + 1)
                             } else {
                                 cell.notSelected()
                             }
@@ -1081,7 +1085,7 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
                         for visibleCell in attachCollectionView.visibleCells {
                             if let cell = visibleCell as? UDAttachSmallCollectionViewCell {
                                 if selectedAssets.contains(assetsGallery[cell.indexPath.row - 1]) {
-                                    cell.setSelected(number: selectedAssets.index(of: assetsGallery[cell.indexPath.row - 1])! + 1)
+                                    cell.setSelected(number: selectedAssets.firstIndex(of: assetsGallery[cell.indexPath.row - 1])! + 1)
                                 } else {
                                     cell.notSelected()
                                 }
@@ -1101,7 +1105,7 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
                         for visibleCell in attachCollectionView.visibleCells {
                             if let cell = visibleCell as? UDAttachSmallCollectionViewCell {
                                 if selectedAssets.contains(assetsGallery[cell.indexPath.row - 1]) {
-                                    cell.setSelected(number: selectedAssets.index(of: assetsGallery[cell.indexPath.row - 1])! + 1)
+                                    cell.setSelected(number: selectedAssets.firstIndex(of: assetsGallery[cell.indexPath.row - 1])! + 1)
                                 } else {
                                     cell.notSelected()
                                 }
@@ -1169,4 +1173,19 @@ extension UDMessagesView: UDFeedbackMessageCellDElegate {
             tableView.reloadRows(at: [indexPath], with: .automatic)
         }
     }
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromUIImagePickerControllerInfoKeyDictionary(_ input: [UIImagePickerController.InfoKey: Any]) -> [String: Any] {
+	return Dictionary(uniqueKeysWithValues: input.map {key, value in (key.rawValue, value)})
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
+	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromUIImagePickerControllerInfoKey(_ input: UIImagePickerController.InfoKey) -> String {
+	return input.rawValue
 }
