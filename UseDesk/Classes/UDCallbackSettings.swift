@@ -62,6 +62,12 @@ public class UDCallbackCustomField: NSObject {
     @objc public var isChecked = false
     @objc public var isValid = true
     
+    init(title: String = "", text: String = "", isRequired: Bool = false, isChecked: Bool = false) {
+        self.title = title
+        self.text = text
+        self.isRequired = isRequired
+        self.isChecked = isChecked
+    }
 }
 
 public enum UDCallbackType {

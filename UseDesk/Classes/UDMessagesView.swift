@@ -643,11 +643,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        // Local variable inserted by Swift 4.2 migrator.
-//        let info = convertFromUIImagePickerControllerInfoKeyDictionary(info)
         let chosenImage = info[.editedImage] as? UIImage
-
-//        let chosenImage = infoconvertFromUIImagePickerControllerInfoKey(UIImagePickerController.InfoKey.editedImage) as? UIImage
         if chosenImage != nil {
             sendAssets.append(chosenImage!)
             

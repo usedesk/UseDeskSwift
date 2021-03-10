@@ -168,7 +168,6 @@ class DialogflowView: UDMessagesView {
             var indexSection = 0
             var index = 0
             var isFind = false
-            message.isNotSent = true
             while !isFind && indexSection < wSelf.messagesWithSection.count {
                 index = 0
                 while !isFind && index < wSelf.messagesWithSection[indexSection].count {
