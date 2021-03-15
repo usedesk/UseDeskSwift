@@ -64,7 +64,6 @@
                                 <constraint firstAttribute="width" constant="24" id="TdM-ns-r9m"/>
                                 <constraint firstAttribute="height" constant="24" id="WAZ-qa-fCd"/>
                             </constraints>
-                            <state key="normal" image="attach"/>
                             <connections>
                                 <action selector="actionInputAttach:" destination="-1" eventType="touchUpInside" id="kU6-3K-VMe"/>
                             </connections>
@@ -72,7 +71,7 @@
                         <activityIndicatorView opaque="NO" alpha="0.0" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="yEt-FB-L4p">
                             <rect key="frame" x="14" y="14" width="20" height="20"/>
                         </activityIndicatorView>
-                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WF4-Ti-KqT" customClass="UDTextView" customModule="UseDesk_SDK_Swift" customModuleProvider="target">
+                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WF4-Ti-KqT" customClass="UDTextView" customModule="UseDesk" customModuleProvider="target">
                             <rect key="frame" x="48" y="7" width="219" height="36"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <constraints>
@@ -90,7 +89,6 @@
                                 <constraint firstAttribute="width" constant="32" id="mFz-Hz-yj8"/>
                                 <constraint firstAttribute="height" constant="32" id="r6R-KT-PQr"/>
                             </constraints>
-                            <state key="normal" image="send"/>
                             <connections>
                                 <action selector="actionInputSend:" destination="-1" eventType="touchUpInside" id="AKj-eb-WYm"/>
                             </connections>
@@ -268,8 +266,6 @@
         </collectionViewCell>
     </objects>
     <resources>
-        <image name="attach" width="24" height="24"/>
-        <image name="send" width="32" height="32"/>
         <systemColor name="groupTableViewBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

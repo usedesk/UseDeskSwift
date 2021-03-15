@@ -9,4 +9,3 @@ target 'UseDesk_Example' do
     inherit! :search_paths
   end
 end
-install! 'cocoapods', :disable_input_output_paths => true
