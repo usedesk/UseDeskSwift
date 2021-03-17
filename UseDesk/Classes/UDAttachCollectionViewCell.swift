@@ -93,7 +93,7 @@ class UDAttachCollectionViewCell: UICollectionViewCell {
         }
         if type == .file {
             imageAttachView.backgroundColor = UIColor(hexString: "F0F0F0")
-            imageIconFileView.image = UIImage(named: "udFileIconCircle")
+            imageIconFileView.image = UIImage.named("udFileIconCircle")
             imageIconFileView.frame = CGRect(x: imageAttachView.frame.origin.x + 6, y: imageAttachView.frame.origin.y + 6, width: self.frame.width * 0.47, height: self.frame.height * 0.47)
             if imageIconFileView.superview == nil {
                 self.addSubview(imageIconFileView)

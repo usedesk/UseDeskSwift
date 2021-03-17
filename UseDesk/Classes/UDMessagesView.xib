@@ -32,7 +32,7 @@
                 <outlet property="buttonSendTC" destination="Wny-R1-Wnx" id="G4k-MO-knW"/>
                 <outlet property="buttonSendWC" destination="mFz-Hz-yj8" id="lhe-gX-5Sh"/>
                 <outlet property="tableView" destination="i5M-Pr-FkT" id="lyD-HE-CdL"/>
-                <outlet property="textInput" destination="WF4-Ti-KqT" id="hVj-KH-2Wi"/>
+                <outlet property="textInput" destination="WF4-Ti-KqT" id="FSc-Lc-lva"/>
                 <outlet property="textInputBC" destination="0QF-3K-Leo" id="kGo-RE-VxI"/>
                 <outlet property="textInputHC" destination="VTd-c8-c4g" id="knR-oc-TMc"/>
                 <outlet property="textInputLC" destination="02r-Nl-wYU" id="J0i-C0-Qzn"/>
@@ -71,7 +71,7 @@
                         <activityIndicatorView opaque="NO" alpha="0.0" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="yEt-FB-L4p">
                             <rect key="frame" x="14" y="14" width="20" height="20"/>
                         </activityIndicatorView>
-                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WF4-Ti-KqT" customClass="UDTextView" customModule="UseDesk" customModuleProvider="target">
+                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WF4-Ti-KqT" customClass="UDTextView" customModule="UseDesk_SDK_Swift">
                             <rect key="frame" x="48" y="7" width="219" height="36"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <constraints>
@@ -79,9 +79,6 @@
                             </constraints>
                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                             <textInputTraits key="textInputTraits"/>
-                            <connections>
-                                <outlet property="delegate" destination="-1" id="ysY-ng-J5m"/>
-                            </connections>
                         </textView>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aaP-dQ-ykO">
                             <rect key="frame" x="276" y="8" width="32" height="32"/>

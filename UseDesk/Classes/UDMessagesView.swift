@@ -196,9 +196,10 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         buttonSendWC.constant = configurationStyle.sendButtonStyle.size.width
         buttonSendHC.constant = configurationStyle.sendButtonStyle.size.height
         
+        textInput.delegate = self
         textInput.text = usedesk!.stringFor("Write") + "..."
         textInput.textColor = configurationStyle.inputViewStyle.placeholderTextColor
-         
+        
         textInput.isNeedCustomTextContainerInset = true
         textInput.customTextContainerInset = configurationStyle.inputViewStyle.textMargin
         
