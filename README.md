@@ -39,12 +39,13 @@ pod 'UseDesk_SDK_Swift'
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
 | CompanyID | String | идентификатор компании |
-| UrlAPI | String | адрес  - devsecure.usedesk.ru/uapi |
+| UrlAPI | String | Адрес API. Стандартное значение `secure.usedesk.ru/` |
 | Knowledge Base ID | String | идентификатор базы знаний (опциональный). Если не указан, база знаний не используется |
 | API Token | String | личный API ключ |
 | Email | String | почта клиента (опционально) |
 | Phone | String | телефон клиента (опционально) |
 | Url | String | адрес сервера в формате - dev.company.ru |
+| UrlToSendFile | String | Адрес для отправки файлов. Стандартное значение `https://secure.usedesk.ru/uapi/v1/`  |
 | Port | String | порт сервера (опционально) |
 | Name | String | имя клиента (опционально) |
 | NameOperator | String | имя оператора (опционально) |
@@ -56,7 +57,7 @@ pod 'UseDesk_SDK_Swift'
 | CustomLocale | [String : String] | Можно передать свой словарь переводов (опционально) |
 | PresentIn | UIViewController | в каком контроллере открывать (опционально) |
 
-(Начиная с версии 0.3.19 параметр isUseBase не используется)
+(Начиная с версии 0.3.19 параметр isUseBase не используется) 
 
 ### Блок возвращает следующие параметры:
 
@@ -68,7 +69,7 @@ pod 'UseDesk_SDK_Swift'
 #### Пример c использованием базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", localeIdentifier: "en", customLocale: customLocaleDictionary, presentIn: self, connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", localeIdentifier: "en", customLocale: customLocaleDictionary, presentIn: self, connectionStatus: { success, error in
 
 })
 ```
@@ -76,7 +77,7 @@ usedesk.start(withCompanyID: "1234567", knowledgeBaseID: "1", api_token: "143ed5
 #### Пример без использования базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", localeIdentifier: "en", customLocale: customLocaleDictionary, connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", localeIdentifier: "en", customLocale: customLocaleDictionary, connectionStatus: { success, error in
 
 })
 ```
@@ -96,6 +97,7 @@ usedesk.start(withCompanyID: "1234567", api_token: "143ed59g90ef093s", email: "l
 | Email | String | почта клиента (опционально) |
 | Phone | String | телефон клиента (опционально) |
 | Url | String | адрес сервера в формате - dev.company.ru |
+| UrlToSendFile | String | Адрес для отправки файлов. Стандартное значение `https://secure.usedesk.ru/uapi/v1/`  |
 | Port | String | порт сервера (опционально) |
 | Name | String | имя клиента (опционально) |
 | NameOperator | String | имя оператора (опционально) |
@@ -109,7 +111,7 @@ usedesk.start(withCompanyID: "1234567", api_token: "143ed59g90ef093s", email: "l
 #### Пример:
 ```swift
 let usedesk = UseDeskSDK()
-usedesk.startWithoutGUICompanyID(companyID: "1234567", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", connectionStatus: { (success, error) in
+usedesk.startWithoutGUICompanyID(companyID: "1234567", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", connectionStatus: { (success, error) in
 
 })
 ```
