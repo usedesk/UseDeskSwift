@@ -57,7 +57,7 @@ SPEC CHECKSUMS:
   Starscream: ef3ece99d765eeccb67de105bfa143f929026cf5
   Swime: d7b2c277503b6cea317774aedc2dce05613f8b0b
   "UIAlertController+Blocks": 80e28b92523fb58aba4d1bccec013d5a0b0bddb2
-  UseDesk_SDK_Swift: d351db20adbc5c2493a2c936562a402c4e4edd0c
+  UseDesk_SDK_Swift: 611fd84452073379bc24ba3c05f7d3f863beac6f
 
 PODFILE CHECKSUM: 06473a34d829d02e32f611b837c8eb34f4866fb0
 

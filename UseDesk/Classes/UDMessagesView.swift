@@ -121,8 +121,8 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         
         attachCollectionView.delegate = self
         attachCollectionView.dataSource = self
-        attachCollectionView.register(UINib(nibName: "UDAttachSmallCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "UDAttachSmallCollectionViewCell")
-        attachCollectionView.register(UINib(nibName: "UDAttachSmallCameraCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "UDAttachSmallCameraCollectionViewCell")
+        attachCollectionView.register(UINib(nibName: "UDAttachSmallCollectionViewCell", bundle: BundleId.thisBundle), forCellWithReuseIdentifier: "UDAttachSmallCollectionViewCell")
+        attachCollectionView.register(UINib(nibName: "UDAttachSmallCameraCollectionViewCell", bundle: BundleId.thisBundle), forCellWithReuseIdentifier: "UDAttachSmallCameraCollectionViewCell")
         
         attachBlackView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.closeAttachView)))
         
