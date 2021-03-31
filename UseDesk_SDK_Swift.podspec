@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
 	s.name             = 'UseDesk_SDK_Swift'
-	s.version          = '1.1.5'
+	s.version          = '1.2.0'
 	s.summary          = 'A short description of UseDesk.'
 
 	s.description      = <<-DESC
