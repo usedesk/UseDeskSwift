@@ -40,6 +40,7 @@ public class UseDeskSDK: NSObject {
     var socket: SocketIOClient?
     // Configutation
     var companyID = ""
+    var chanelId = ""
     var email = ""
     var phone = ""
     var url = ""
@@ -65,7 +66,7 @@ public class UseDeskSDK: NSObject {
     private var dialogflowVC: DialogflowView = DialogflowView()
     private var offlineVC: UDOfflineForm = UDOfflineForm()
     
-    @objc public func start(withCompanyID _companyID: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, signature _signature: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: UDSStartBlock) {
+    @objc public func start(withCompanyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, signature _signature: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: UDSStartBlock) {
         
         let parentController: UIViewController? = parentController ?? RootView
         
@@ -74,6 +75,11 @@ public class UseDeskSDK: NSObject {
         hud.label.text = stringFor("Loading")
         
         companyID = _companyID
+        guard _chanelId.trimmingCharacters(in: .whitespaces).count > 0 && Int(_chanelId) != nil else {
+            startBlock(false, "chanelIdError")
+            return
+        }
+        chanelId = _chanelId
         api_token = _api_token
        
         if _port != nil {
@@ -82,8 +88,18 @@ public class UseDeskSDK: NSObject {
             }
         }
         
+        guard isValidSite(path: _url) else {
+            startBlock(false, "urlError")
+            return
+        }
         urlWithoutPort = _url
-        url = "\(_url):\(port)"
+        
+        if isExistProtocol(url: _url) {
+            url = "\(_url):\(port)"
+        } else {
+            url = "https://" + "\(_url):\(port)"
+        }
+        
         
         if _email != nil {
             if _email != "" {
@@ -95,8 +111,19 @@ public class UseDeskSDK: NSObject {
                 }
             }
         }
+        
         if _urlToSendFile != nil {
-            urlToSendFile = _urlToSendFile!
+            if _urlToSendFile != "" {
+                guard isValidSite(path: _urlToSendFile!) else {
+                    startBlock(false, "urlToSendFileError")
+                    return
+                }
+                if isExistProtocol(url: _urlToSendFile!) {
+                    urlToSendFile = _urlToSendFile!
+                } else {
+                    urlToSendFile = "https://" + _urlToSendFile!
+                }
+            }
         }
         
         if _knowledgeBaseID != nil {
@@ -104,13 +131,19 @@ public class UseDeskSDK: NSObject {
         }
         
         if _urlAPI != nil {
-            urlAPI = _urlAPI!
-            guard isValidSite(path: urlAPI) || urlAPI == "" else {
-                startBlock(false, "urlAPIError")
-                hud.hide(animated: true)
-                return
+            if _urlAPI != "" {
+                if isExistProtocol(url: _urlAPI!) {
+                    urlAPI = _urlAPI!
+                } else {
+                    urlAPI = "https://" + _urlAPI!
+                }
+                guard isValidSite(path: urlAPI) else {
+                    startBlock(false, "urlAPIError")
+                    return
+                }
             }
         }
+        
         if _name != nil {
             if _name != "" {
                 name = _name!
@@ -177,12 +210,7 @@ public class UseDeskSDK: NSObject {
         } else {
             locale = UDLocalizeManager().getLocaleFor(localeId: "ru")!
         }
-
-        guard isValidSite(path: _url) else {
-            startBlock(false, "urlError")
-            hud.hide(animated: true)
-            return
-        }
+        
         isOpenSDKUI = true
         if knowledgeBaseID != "" {
             let baseView = UDBaseSectionsView()
@@ -195,7 +223,7 @@ public class UseDeskSDK: NSObject {
             parentController?.present(navController, animated: true)
             hud.hide(animated: true)
         } else {
-            startWithoutGUICompanyID(companyID: companyID, knowledgeBaseID: knowledgeBaseID, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, operatorName: operatorName, nameChat: _nameChat, connectionStatus: { [weak self] success, error in
+            startWithoutGUICompanyID(companyID: companyID, chanelId: chanelId, knowledgeBaseID: knowledgeBaseID, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, operatorName: operatorName, nameChat: _nameChat, connectionStatus: { [weak self] success, error in
                 guard let wSelf = self else {return}
                 if success {
                     wSelf.dialogflowVC.usedesk = wSelf
@@ -261,12 +289,16 @@ public class UseDeskSDK: NSObject {
         }
     }
     
-    @objc public func startWithoutGUICompanyID(companyID _companyID: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, signature _signature: String? = nil, isBeforeFeedbackForm: Bool = false, connectionStatus startBlock: @escaping UDSStartBlock) {
+    @objc public func startWithoutGUICompanyID(companyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, signature _signature: String? = nil, isBeforeFeedbackForm: Bool = false, connectionStatus startBlock: @escaping UDSStartBlock) {
         
         var isAuthInited = false
         
         companyID = _companyID
-        
+        guard _chanelId.trimmingCharacters(in: .whitespaces).count > 0 && Int(_chanelId) != nil else {
+            startBlock(false, "chanelIdError")
+            return
+        }
+        chanelId = _chanelId
         api_token = _api_token
         
         if _port != nil {
@@ -275,7 +307,15 @@ public class UseDeskSDK: NSObject {
             }
         }
         
-        url = "https://" + "\(_url):\(port)"
+        guard isValidSite(path: _url) else {
+            startBlock(false, "urlError")
+            return
+        }
+        if isExistProtocol(url: _url) {
+            url = "\(_url):\(port)"
+        } else {
+            url = "https://" + "\(_url):\(port)"
+        }
         
         if _email != nil {
             if _email != "" {
@@ -288,7 +328,17 @@ public class UseDeskSDK: NSObject {
         }
         
         if _urlToSendFile != nil {
-            urlToSendFile = _urlToSendFile!
+            if _urlToSendFile != "" {
+                guard isValidSite(path: _urlToSendFile!) else {
+                    startBlock(false, "urlToSendFileError")
+                    return
+                }
+                if isExistProtocol(url: _urlToSendFile!) {
+                    urlToSendFile = _urlToSendFile!
+                } else {
+                    urlToSendFile = "https://" + _urlToSendFile!
+                }
+            }
         }
         
         if _knowledgeBaseID != nil {
@@ -296,8 +346,19 @@ public class UseDeskSDK: NSObject {
         }
         
         if _urlAPI != nil {
-            urlAPI = "https://" + _urlAPI!
+            if _urlAPI != "" {
+                if isExistProtocol(url: _urlAPI!) {
+                    urlAPI = _urlAPI!
+                } else {
+                    urlAPI = "https://" + _urlAPI!
+                }
+                guard isValidSite(path: urlAPI) else {
+                    startBlock(false, "urlAPIError")
+                    return
+                }
+            }
         }
+        
         if _name != nil {
             if _name != "" {
                 name = _name!
@@ -347,14 +408,6 @@ public class UseDeskSDK: NSObject {
 //            }
 //        }
         // validation
-        guard isValidSite(path: _url) else {
-            startBlock(false, "urlError")
-            return
-        }
-        guard isValidSite(path: urlAPI) || urlAPI == "" else {
-            startBlock(false, "urlAPIError")
-            return
-        }
         guard isValidPhone(phone: phone) || phone == "" else {
             startBlock(false, "phoneError")
             return
@@ -376,7 +429,7 @@ public class UseDeskSDK: NSObject {
             guard let wSelf = self else {return}
             print("socket connected")
             let token = wSelf.signature != "" ? wSelf.signature : wSelf.loadToken()
-            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: token)
+            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, chanelId: wSelf.chanelId, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: token)
             wSelf.socket?.emit("dispatch", with: arrConfStart!)
         })
         
@@ -393,7 +446,7 @@ public class UseDeskSDK: NSObject {
             guard let wSelf = self else {return}
             print("socket disconnect")
             let token = wSelf.signature != "" ? wSelf.signature : wSelf.loadToken()
-            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: token)
+            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, chanelId: wSelf.chanelId, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: token)
             wSelf.socket?.emit("dispatch", with: arrConfStart!)
         })
         
@@ -433,13 +486,12 @@ public class UseDeskSDK: NSObject {
                     wSelf.action_ADD_MESSAGE(data)
                 }
             }
-            
         })
     }
     
     @objc public func getCollections(connectionStatus baseBlock: @escaping UDSBaseBlock) {
         if knowledgeBaseID != "" {
-            var url = "https://"
+            var url = ""
             if self.urlAPI != "" {
                 url += self.urlAPI + "/uapi"
             } else {
@@ -464,7 +516,7 @@ public class UseDeskSDK: NSObject {
     
     @objc public func getArticle(articleID: Int, connectionStatus baseBlock: @escaping UDSArticleBlock) {
         if knowledgeBaseID != "" {
-            var url = "https://"
+            var url = ""
             if self.urlAPI != "" {
                 url += self.urlAPI + "/uapi"
             } else {
@@ -489,7 +541,7 @@ public class UseDeskSDK: NSObject {
     
     @objc public func addViewsArticle(articleID: Int, count: Int, connectionStatus connectBlock: @escaping UDSConnectBlock) {
         if knowledgeBaseID != "" {
-            var url = "https://"
+            var url = ""
             if self.urlAPI != "" {
                 url += self.urlAPI + "/uapi"
             } else {
@@ -511,7 +563,7 @@ public class UseDeskSDK: NSObject {
     
     @objc public func addReviewArticle(articleID: Int, countPositiv: Int = 0, countNegativ: Int = 0, connectionStatus connectBlock: @escaping UDSConnectBlock) {
         if knowledgeBaseID != "" {
-            var url = "https://"
+            var url = ""
             if self.urlAPI != "" {
                 url += self.urlAPI + "/uapi"
             } else {
@@ -535,7 +587,7 @@ public class UseDeskSDK: NSObject {
     
     @objc public func sendReviewArticleMesssage(articleID: Int, message: String, connectionStatus connectBlock: @escaping UDSConnectBlock) {
         if knowledgeBaseID != "" {
-            var url = "https://"
+            var url = ""
             if self.urlAPI != "" {
                 url += self.urlAPI + "/uapi"
             } else {
@@ -566,7 +618,7 @@ public class UseDeskSDK: NSObject {
     
     @objc public func getSearchArticles(collection_ids:[Int], category_ids:[Int], article_ids:[Int], count: Int = 20, page: Int = 1, query: String, type: TypeArticle = .all, sort: SortArticle = .id, order: OrderArticle = .asc, connectionStatus searchBlock: @escaping UDSArticleSearchBlock) {
         if knowledgeBaseID != "" {
-            var url = "https://"
+            var url = ""
             if self.urlAPI != "" {
                 url += self.urlAPI + "/uapi"
             } else {
@@ -1156,10 +1208,23 @@ public class UseDeskSDK: NSObject {
         }
     }
     
+    private func isExistProtocol(url: String) -> Bool {
+        if url.count > 8 {
+            let indexEndHttps = url.index(url.startIndex, offsetBy: 7)
+            let indexEndHttp = url.index(url.startIndex, offsetBy: 6)
+            if url[url.startIndex...indexEndHttps] != "https://" && url[url.startIndex...indexEndHttp] != "http://" {
+                return false
+            } else {
+                return true
+            }
+        } else {
+            return false
+        }
+    }
+    
     @objc public func closeChat() {
         dialogflowVC = DialogflowView()
         offlineVC = UDOfflineForm()
-        socket = manager?.defaultSocket
         socket?.disconnect()
         historyMess = []
     }
@@ -1168,10 +1233,10 @@ public class UseDeskSDK: NSObject {
         dialogflowVC = DialogflowView()
         offlineVC = UDOfflineForm()
         idLoadingMessages = []
-        socket = manager?.defaultSocket
         socket?.disconnect()
         historyMess = []
         companyID = ""
+        chanelId = ""
         email = ""
         phone = ""
         url = ""

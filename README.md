@@ -22,7 +22,7 @@
 
 # Добавление библиотеки в проект:
 
-Библиотека UseDesk_SDK_Swift доступна через систему управления зависимостями [CocoaPods](http://cocoapods.org).
+Библиотека UseDesk_SDK_Swift доступна только через систему управления зависимостями [CocoaPods](http://cocoapods.org).
 
 -Добавьте строчку в Podfile вашего приложения
 
@@ -38,26 +38,28 @@ pod 'UseDesk_SDK_Swift'
 
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
-| CompanyID | String | идентификатор компании |
-| UrlAPI | String | Адрес API. Стандартное значение `secure.usedesk.ru/` |
-| Knowledge Base ID | String | идентификатор базы знаний (опциональный). Если не указан, база знаний не используется |
-| API Token | String | личный API ключ |
-| Email | String | почта клиента (опционально) |
-| Phone | String | телефон клиента (опционально) |
-| Url | String | адрес сервера в формате - dev.company.ru |
-| UrlToSendFile | String | Адрес для отправки файлов. Стандартное значение `https://secure.usedesk.ru/uapi/v1/`  |
-| Port | String | порт сервера (опционально) |
-| Name | String | имя клиента (опционально) |
-| NameOperator | String | имя оператора (опционально) |
-| NameChat | String | имя чата (опционально). Отображается в шапке |
-| FirstMessage | String | автоматическое сообщение (опционально). Отправиться сразу после иницилизации от имени клиента |
-| Note | String | текст заметки (опционально) |
-| Signature | String | подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах (опционально). Для сохранения истории переписки. Сигнатура должна быть уникальной для клиента-чата. Если клиент меняет имя, номер телефона или емэйл, то это не должно влиять на сигнатуру. Если сигнатура не указана, то будет всегда открываться один и тот же чат для конкретного приложения, пока оно не будет удалено. Не должна содержать пробелов и эмодзи |
-| LocaleIdentifier | String | идентификатор языка (опционально). Доступные языки: русский ("ru"), английский ("en"), португальский ("pt"), испанский ("es"). Если переданный идентификатор не поддерживается, будет выбран русский язык. |
-| CustomLocale | [String : String] | Можно передать свой словарь переводов (опционально) |
-| PresentIn | UIViewController | в каком контроллере открывать (опционально) |
+| CompanyID\* | String | идентификатор компании |
+| ChanelId\* | String | идентификатор канала (добавлен  в v1.1.5) |
+| UrlAPI\* | String | Адрес API. Стандартное значение `secure.usedesk.ru/` |
+| API Token\* | String | личный API ключ |
+| Url\* | String | адрес сервера в формате - dev.company.ru |
+| Knowledge Base ID | String | идентификатор базы знаний. Если не указан, база знаний не используется |
+| Email | String | почта клиента |
+| Phone | String | телефон клиента |
+| UrlToSendFile | String | Адрес для отправки файлов. Стандартное значение `https://secure.usedesk.ru/uapi/v1/send_file`  |
+| Port | String | порт сервера |
+| Name | String | имя клиента |
+| NameOperator | String | имя оператора |
+| NameChat | String | имя чата. Отображается в шапке |
+| FirstMessage | String | автоматическое сообщение. Отправиться сразу после иницилизации от имени клиента |
+| Note | String | текст заметки |
+| Signature | String | подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах. Для сохранения истории переписки. Сигнатура должна быть уникальной для клиента-чата. Если клиент меняет имя, номер телефона или емэйл, то это не должно влиять на сигнатуру. Если сигнатура не указана, то будет всегда открываться один и тот же чат для конкретного приложения, пока оно не будет удалено. Не должна содержать пробелов и эмодзи, минимум 8 символов |
+| LocaleIdentifier | String | идентификатор языка. Доступные языки: русский ("ru"), английский ("en"), португальский ("pt"), испанский ("es"). Если переданный идентификатор не поддерживается, будет выбран русский язык. |
+| CustomLocale | [String : String] | Можно передать свой словарь переводов |
+| PresentIn | UIViewController | в каком контроллере открывать |
+| isUseBase | Bool | Начиная с версии 0.3.19 не используется |
 
-(Начиная с версии 0.3.19 параметр isUseBase не используется) 
+\* - обязательный параметр
 
 ### Блок возвращает следующие параметры:
 
@@ -69,7 +71,7 @@ pod 'UseDesk_SDK_Swift'
 #### Пример c использованием базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", localeIdentifier: "en", customLocale: customLocaleDictionary, presentIn: self, connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", chanelId: "1234", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", localeIdentifier: "en", customLocale: customLocaleDictionary, presentIn: self, connectionStatus: { success, error in
 
 })
 ```
@@ -77,7 +79,7 @@ usedesk.start(withCompanyID: "1234567", knowledgeBaseID: "1", api_token: "143ed5
 #### Пример без использования базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", localeIdentifier: "en", customLocale: customLocaleDictionary, connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", chanelId: "1234", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", localeIdentifier: "en", customLocale: customLocaleDictionary, connectionStatus: { success, error in
 
 })
 ```
@@ -90,28 +92,30 @@ usedesk.start(withCompanyID: "1234567", api_token: "143ed59g90ef093s", email: "l
 
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
-| CompanyID | String | идентификатор компании |
-| UrlAPI | String | адрес  - devsecure.usedesk.ru/uapi |
-| Knowledge Base ID | String | идентификатор базы знаний (опциональный). Если не указан, база знаний не используется |
-| API Token | String | личный API ключ |
-| Email | String | почта клиента (опционально) |
-| Phone | String | телефон клиента (опционально) |
-| Url | String | адрес сервера в формате - dev.company.ru |
-| UrlToSendFile | String | Адрес для отправки файлов. Стандартное значение `https://secure.usedesk.ru/uapi/v1/`  |
-| Port | String | порт сервера (опционально) |
-| Name | String | имя клиента (опционально) |
-| NameOperator | String | имя оператора (опционально) |
-| NameChat | String | имя чата (опционально). Отображается в шапке |
-| FirstMessage | String | автоматическое сообщение (опционально). Отправиться сразу после иницилизации от имени клиента |
-| Note | String | текст заметки (опционально) |
-| Signature | String | подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах (опционально). Для сохранения истории переписки. Сигнатура должна быть уникальной для клиента-чата. Если клиент меняет имя, номер телефона или емэйл, то это не должно влиять на сигнатуру. Не должна содержать пробелов и эмодзи |
+| CompanyID\* | String | идентификатор компании |
+| ChanelId\* | String | идентификатор канала (добавлен  в v1.1.5) |
+| UrlAPI\* | String | адрес  - devsecure.usedesk.ru/uapi |
+| API Token\* | String | личный API ключ |
+| Url\* | String | адрес сервера в формате - dev.company.ru |
+| Knowledge Base ID | String | идентификатор базы знаний. Если не указан, база знаний не используется |
+| Email | String | почта клиента |
+| Phone | String | телефон клиента |
+| UrlToSendFile | String | Адрес для отправки файлов. Стандартное значение `https://secure.usedesk.ru/uapi/v1/send_file`  |
+| Port | String | порт сервера  |
+| Name | String | имя клиента |
+| NameOperator | String | имя оператора |
+| NameChat | String | имя чата. Отображается в шапке |
+| FirstMessage | String | автоматическое сообщение. Отправиться сразу после иницилизации от имени клиента |
+| Note | String | текст заметки |
+| Signature | String | подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах. Для сохранения истории переписки. Сигнатура должна быть уникальной для клиента-чата. Если клиент меняет имя, номер телефона или емэйл, то это не должно влиять на сигнатуру. Не должна содержать пробелов и эмодзи, минимум 8 символов |
+| isUseBase | Bool | Начиная с версии 0.3.19 не используется |
 
-(Начиная с версии 0.3.19 параметр isUseBase не используется)
+\* - обязательный параметр
 
 #### Пример:
 ```swift
 let usedesk = UseDeskSDK()
-usedesk.startWithoutGUICompanyID(companyID: "1234567", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", connectionStatus: { (success, error) in
+usedesk.startWithoutGUICompanyID(companyID: "1234567", chanelId: "1234", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "dev.company.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", signature: "SignatureString", connectionStatus: { (success, error) in
 
 })
 ```
@@ -128,7 +132,7 @@ usedesk.startWithoutGUICompanyID(companyID: "1234567", knowledgeBaseID: "1", api
 
 # Документация:
 
-Документация находится по адресу - http://sdk.usedocs.com/
+Документация находится по адресу - http://sdk.usedocs.ru/
 
 ## Author
 

@@ -36,6 +36,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
     weak var usedesk: UseDeskSDK?
     weak var delegate: UDBaseArticleViewDelegate?
     
+    private var fileViewingVC: UDFileViewingVC!
     private var webView: WKWebView!
     // Title View
     private var titleView = UIView()
@@ -175,7 +176,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
                 contentViewHC.constant = scrollView.frame.height
             }
             titleView.frame.origin = CGPoint(x: 0, y: 0)
-            webView.frame.origin = CGPoint(x: 0, y: titleView.frame.height)
+            webView.frame.origin = CGPoint(x: 8, y: titleView.frame.height)
             reviewView.frame.origin = CGPoint(x: 0, y: titleView.frame.height + heightWebView)
             transitionsView.frame.origin = CGPoint(x: 0, y: contentViewHC.constant - transitionsView.frame.height)
             updatePositionChatButton()
@@ -382,7 +383,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
     func setWebView() {
         let source: String = "var meta = document.createElement('meta');" +
         "meta.name = 'viewport';" +
-        "meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes';" +
+        "meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=4.0, user-scalable=yes';" +
         "var head = document.getElementsByTagName('head')[0];" + "head.appendChild(meta);";
         let script: WKUserScript = WKUserScript(source: source, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
         let userContentController: WKUserContentController = WKUserContentController()
@@ -392,12 +393,31 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
         if webView != nil {
             webView.removeFromSuperview()
         }
-        webView = WKWebView(frame: CGRect(origin: CGPoint(x: 0, y: titleView.frame.height), size: CGSize(width: self.view.frame.width, height: 1)), configuration: conf)
+        webView = WKWebView(frame: CGRect(origin: CGPoint(x: 8, y: titleView.frame.height), size: CGSize(width: self.view.frame.width - 16, height: 1)), configuration: conf)
         contentView.addSubview(webView)
         webView.navigationDelegate = self
         webView.contentMode = .left
-        webView.uiDelegate = self
-        webView.loadHTMLString(selectedArticle?.text ?? "", baseURL: nil)
+        webView.uiDelegate = self//selectedArticle?.text
+        var correctoredHtml = HTMLImageCorrector(HTMLString:selectedArticle?.text ?? "")
+        let styleContent = "<html><head><style>img{max-width:100%;height: auto;};</style></head>"
+            + "<body style='margin:0; padding:0;'>" + correctoredHtml + "</body></html>"
+        webView.loadHTMLString(styleContent, baseURL: nil)
+    }
+    
+    func HTMLImageCorrector(HTMLString: String) -> String {
+        var HTMLToBeReturned = HTMLString
+        while HTMLToBeReturned.range(of: "(?<=width=\")[^\" height]+", options: .regularExpression) != nil {
+            if let match = HTMLToBeReturned.range(of:"(?<=width=\")[^\" height]+", options: .regularExpression) {
+                HTMLToBeReturned.removeSubrange(match)
+                if let match2 = HTMLToBeReturned.range(of:"(?<=height=\")[^\"]+", options: .regularExpression) {
+                    HTMLToBeReturned.removeSubrange(match2)
+                    let string2del = "width=\"\" height=\"\""
+                    HTMLToBeReturned = HTMLToBeReturned.replacingOccurrences(of:string2del, with: "")
+                }
+            }
+        }
+
+        return HTMLToBeReturned
     }
     
     private func setChatButton() {
@@ -609,9 +629,10 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
         reviewLineSendBottomView.alpha = 1
         reviewSendButton.alpha = 1
         heightReviewView += reviewSendButton.frame.height + baseArticleStyle.reviewSendButtonMargin.bottom
-        reviewView.frame.origin = CGPoint(x: reviewView.frame.origin.x, y: reviewView.frame.origin.y - (heightReviewView - reviewView.frame.height))
+        reviewView.frame.origin = CGPoint(x: reviewView.frame.origin.x, y: reviewView.frame.origin.y)
         reviewView.frame.size = CGSize(width: reviewView.frame.width, height: heightReviewView)
-        contentViewHC.constant = heightWebView + heightReviewView + transitionsView.frame.height
+        contentViewHC.constant = titleView.frame.height + heightWebView + heightReviewView + transitionsView.frame.height
+        transitionsView.frame.origin = CGPoint(x: 0, y: contentViewHC.constant - transitionsView.frame.height)
         self.view.layoutIfNeeded()
     }
     
@@ -782,7 +803,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
             self.loaderChatButton.alpha = 1
             self.loaderChatButton.startAnimating()
         }
-        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, signature: usedesk!.signature, connectionStatus: { [weak self] success, error in
+        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, signature: usedesk!.signature, connectionStatus: { [weak self] success, error in
             guard let wSelf = self else {return}
             guard wSelf.usedesk != nil else {return}
             if success {
@@ -851,7 +872,7 @@ extension UDBaseArticleView: WKNavigationDelegate {
                     wSelf.contentViewHC.constant = wSelf.view.frame.height - wSelf.topView.frame.height
                 }
                 wSelf.titleView.frame.origin = CGPoint(x: 0, y: 0)
-                wSelf.webView.frame.origin = CGPoint(x: 0, y: wSelf.titleView.frame.height)
+                wSelf.webView.frame.origin = CGPoint(x: 8, y: wSelf.titleView.frame.height)
                 wSelf.reviewView.frame.origin = CGPoint(x: 0, y: wSelf.titleView.frame.height + wSelf.webView.frame.height)
                 wSelf.transitionsView.frame.origin = CGPoint(x: 0, y: wSelf.contentViewHC.constant - wSelf.transitionsView.frame.height)
                 if wSelf.reviewView.superview == nil {

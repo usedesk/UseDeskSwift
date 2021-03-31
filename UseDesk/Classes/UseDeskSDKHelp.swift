@@ -4,7 +4,7 @@
 import Foundation
 
 class UseDeskSDKHelp {
-    class func config_CompanyID(_ companyID: String?, email: String, phone: String?, name: String?, url: String?, token: String?) -> [Any]? {
+    class func config_CompanyID(_ companyID: String, chanelId: String, email: String, phone: String?, name: String?, url: String?, token: String?) -> [Any]? {
         let payload = [
             "sdk" : "iOS",
             "type" : "sdk"
@@ -12,7 +12,7 @@ class UseDeskSDKHelp {
         var dic = [
             "type" : "@@server/chat/INIT",
             "payload" : payload,
-            "company_id" : companyID ?? "",
+            "company_id" : chanelId != "" ? "\(companyID)_\(chanelId)" : companyID,
             "url" : url ?? ""
             ] as [String : Any]
         if token != nil {

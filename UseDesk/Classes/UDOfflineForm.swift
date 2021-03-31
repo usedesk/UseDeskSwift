@@ -258,7 +258,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
             showSendedView()
             return
         }
-        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, phone: usedesk!.phone, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, signature: usedesk!.signature, isBeforeFeedbackForm: true, connectionStatus: { [weak self] success, error in
+        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, phone: usedesk!.phone, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, signature: usedesk!.signature, isBeforeFeedbackForm: true, connectionStatus: { [weak self] success, error in
             guard let wSelf = self else {return}
             guard wSelf.usedesk != nil else {return}
             if !success && error == "feedback_form" {
@@ -339,14 +339,14 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                             } else {
                                 wSelf.sendLoader.alpha = 0
                                 wSelf.sendLoader.stopAnimating()
-                                wSelf.sendMessageButton.setTitle(wSelf.usedesk!.stringFor("Close"), for: .normal)
+//                                wSelf.sendMessageButton.setTitle(wSelf.usedesk!.stringFor("Close"), for: .normal)
                                 wSelf.showSendedView()
                             }
                         }
                     } else {
                         wSelf.sendLoader.alpha = 0
                         wSelf.sendLoader.stopAnimating()
-                        wSelf.sendMessageButton.setTitle(wSelf.usedesk!.stringFor("Close"), for: .normal)
+//                        wSelf.sendMessageButton.setTitle(wSelf.usedesk!.stringFor("Close"), for: .normal)
                         wSelf.showAlert(wSelf.usedesk!.stringFor("Error"), text: wSelf.usedesk!.stringFor("ServerError"))
                     }
                 }
@@ -376,48 +376,14 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
     @IBAction func close(_ sender: Any) {
         if isFromBase {
             usedesk?.closeChat()
+            navigationController?.popViewController(animated: true)
         } else {
             usedesk?.releaseChat()
+            self.dismiss(animated: true)
         }
-        self.dismiss(animated: true)
     }
     
     // MARK: - Methods Cells
-    
-//    func setNotSelectedCellFirstTable(indexPath: IndexPath) {
-//        guard usedesk != nil else {return}
-//        if let cell = tableView.cellForRow(at:indexPath) as? UDTextAnimateTableViewCell {
-//            if indexFieldsForType(.name) == indexPath.row {
-//                if let nameClient = fields[indexPath.row].value as? TextItem {
-//                    var title = usedesk!.stringFor("Name")
-//                    var isValid = nameClient.isValid
-//                    if nameClient.text == "" {
-//                        title = usedesk!.stringFor("Name") + " - " + usedesk!.stringFor("MandatoryField")
-//                        fields[indexPath.row].value = TextItem(text: nameClient.text, isValid: false)
-//                        isValid = false
-//                    }
-//                    cell.setCell(title: title, text: nameClient.text, indexPath: indexPath, isValid: isValid, isTitleErrorState: !isValid, isLimitLengthText: false)
-//                }
-//            }
-//            if indexFieldsForType(.email) == indexPath.row {
-//                if let emailClient = fields[indexPath.row].value as? ContactItem {
-//                    var title = usedesk!.stringFor("Email")
-//                    var isValid = emailClient.isValid
-//                    if !isValid {
-//                        title = usedesk!.stringFor("ErrorEmail")
-//                    }
-//                    if emailClient.contact == "" {
-//                        title = usedesk!.stringFor("Email") + " - " + usedesk!.stringFor("MandatoryField")
-//                        fields[indexPath.row].value = ContactItem(contact: emailClient.contact, isValid: false)
-//                        isValid = false
-//                    }
-//                    cell.setCell(title: title, text: emailClient.contact, indexPath: indexPath, isValid: isValid, isTitleErrorState: !isValid, isLimitLengthText: false)
-//                }
-//            }
-//            cell.setNotSelectedAnimate()
-//        }
-//    }
-    
     func createNameCell(indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "UDTextAnimateTableViewCell", for: indexPath) as! UDTextAnimateTableViewCell
         cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
