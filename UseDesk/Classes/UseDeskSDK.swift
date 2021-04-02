@@ -7,6 +7,7 @@ import MBProgressHUD
 import Alamofire
 import UserNotifications
 
+
 public typealias UDSStartBlock = (Bool, String?) -> Void
 public typealias UDSBaseBlock = (Bool, [UDBaseCollection]?, String?) -> Void
 public typealias UDSArticleBlock = (Bool, UDArticle?, String?) -> Void
@@ -762,14 +763,30 @@ public class UseDeskSDK: NSObject {
                 for mess in messages!  {
                     var m: UDMessage? = nil
                     var messageFile: UDMessage? = nil
+                    var messagesImageLink: [UDMessage] = []
                     if let message = mess as? [AnyHashable : Any] {
+                        var textWithoutLinkImage: String? = nil
+                        if var text = message["text"] as? String {
+                            let links = text.udGetLinks()
+                            for link in links {
+                                text = text.replacingOccurrences(of: link, with: "")
+                                if let messageImageLink = parseFileMessageDic(message, withImageUrl: link) {
+                                    messagesImageLink.append(messageImageLink)
+                                }
+                            }
+                            text.udRemoveMarkdownUrls()
+                            textWithoutLinkImage = text
+                        }
                         if (message["file"] as? [AnyHashable : Any] ) != nil {
                             messageFile = parseFileMessageDic(message)
                         }
-                        m = parseMessageDic(message)
+                        m = parseMessageDic(message, text: textWithoutLinkImage)
                     }
                     if m != nil {
                         historyMess.append(m!)
+                    }
+                    for m in messagesImageLink {
+                        historyMess.append(m)
                     }
                     if messageFile != nil {
                         historyMess.append(messageFile!)
@@ -780,7 +797,7 @@ public class UseDeskSDK: NSObject {
         }
     }
     
-    func parseFileMessageDic(_ mess: [AnyHashable : Any]?) -> UDMessage? {
+    func parseFileMessageDic(_ mess: [AnyHashable : Any]?, withImageUrl imageUrl: String? = nil) -> UDMessage? {
         let m = UDMessage(text: "", incoming: false)
         
         let createdAt = mess?["createdAt"] as? String ?? ""
@@ -817,7 +834,16 @@ public class UseDeskSDK: NSObject {
             }
         }
         let fileDic = mess?["file"] as? [AnyHashable : Any]
-        if fileDic != nil {
+        if imageUrl != nil {
+            if imageUrl!.contains(".png") || imageUrl!.contains(".gif") || imageUrl!.contains(".jpg") || imageUrl!.contains(".jpeg") {
+                m.type = RC_TYPE_PICTURE
+                let file = UDFile()
+                file.content = imageUrl!
+                m.file = file
+            } else {
+                return nil
+            }
+        } else if fileDic != nil {
             let file = UDFile()
             file.content = fileDic?["content"] as! String
             file.name = fileDic?["name"] as! String
@@ -841,11 +867,13 @@ public class UseDeskSDK: NSObject {
             } else {
                 m.type = RC_TYPE_File
             }
+        } else {
+            return nil
         }
         return m
     }
     
-    func parseMessageDic(_ mess: [AnyHashable : Any]?) -> UDMessage? {
+    func parseMessageDic(_ mess: [AnyHashable : Any]?, text: String? = nil) -> UDMessage? {
         let m = UDMessage(text: "", incoming: false)
         
         let createdAt = mess?["createdAt"] as? String ?? ""
@@ -872,7 +900,7 @@ public class UseDeskSDK: NSObject {
                 m.operatorId = operatorId
             }
         }
-        m.text = mess?["text"] as? String ?? ""
+        m.text = text != nil ? text! : (mess?["text"] as? String ?? "")
         if m.incoming {
             let stringsFromButtons = parseMessageFromButtons(text: m.text)
             for stringFromButton in stringsFromButtons {
@@ -1134,11 +1162,26 @@ public class UseDeskSDK: NSObject {
             }
             var m: UDMessage? = nil
             var messageFile: UDMessage? = nil
-
+            var messagesImageLink: [UDMessage] = []
+            
+            var textWithoutLinkImage: String? = nil
+            if var text = message!["text"] as? String {
+                let links = text.udGetLinks()
+                for link in links {
+                    text = text.replacingOccurrences(of: link, with: "")
+                    if let messageImageLink = parseFileMessageDic(message, withImageUrl: link) {
+                        messagesImageLink.append(messageImageLink)
+                    }
+                }
+                if links.count > 0 {
+                    text.udRemoveMarkdownUrls()
+                    textWithoutLinkImage = text
+                }
+            }
             if (message!["file"] as? [AnyHashable : Any] ) != nil {
                 messageFile = parseFileMessageDic(message)
             }
-            m = parseMessageDic(message)
+            m = parseMessageDic(message, text: textWithoutLinkImage)
             
             if m != nil {
                 if m?.type == RC_TYPE_Feedback && (feedbackMessageBlock != nil) {
@@ -1152,6 +1195,9 @@ public class UseDeskSDK: NSObject {
             }
             if messageFile != nil {
                 newMessageBlock!(true, messageFile!)
+            }
+            for m in messagesImageLink {
+                newMessageBlock!(true, m)
             }
         }
     }

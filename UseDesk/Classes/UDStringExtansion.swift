@@ -32,7 +32,7 @@ extension String {
         return false
     }
 
-    func size(availableWidth: CGFloat? = nil, attributes: [NSAttributedString.Key : Any]? = nil, usesFontLeading: Bool = false) -> CGSize {
+    func size(availableWidth: CGFloat? = nil, attributes: [NSAttributedString.Key : Any]? = nil, usesFontLeading: Bool = true) -> CGSize {
         var attributes = attributes
         let systemFont = UIFont.systemFont(ofSize: UIFont.systemFontSize)
         let font: UIFont = (attributes?[.font] as? UIFont) ?? systemFont
@@ -61,12 +61,8 @@ extension String {
             sizeWithAttributedString.height = totalHeight
         }
         
-        // Emojis corner case
-        let frameSetter = CTFramesetterCreateWithAttributedString(attributedString)
-        let frameSetterSize = CTFramesetterSuggestFrameSizeWithConstraints(frameSetter, CFRange(location: 0, length: 0), nil, availableSize, nil)
-        
-        let size = CGSize(width: max(sizeWithAttributedString.width, frameSetterSize.width),
-                          height: max(sizeWithAttributedString.height, frameSetterSize.height))
+        let size = CGSize(width: sizeWithAttributedString.width,
+                          height: sizeWithAttributedString.height)
         
         return size
     }
@@ -80,6 +76,64 @@ extension String {
             return false
         }
         return true
+    }
+    
+    func udGetLinks() -> [String] {
+        var links: [String] = []
+        let detector = try! NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+        let matches = detector.matches(in: self, options: [], range: NSRange(location: 0, length: self.utf16.count))
+
+        for match in matches {
+            if let range = Range(match.range, in: self) {
+                links.append(String(self[range]))
+            }
+        }
+        return links
+    }
+    
+    mutating func udRemoveMarkdownUrls() {
+        var count = 0
+        var flag = true
+        while count < 100 && flag {
+            if let range = self.range(of: "![") {
+                let startIndex = range.lowerBound
+                var isFindEnd = false
+                var index = 0
+                while !isFindEnd {
+                    if let searchStartIndex = self.index(startIndex, offsetBy: index, limitedBy: self.endIndex) {
+                        if let searchEndIndex = self.index(searchStartIndex, offsetBy: 1, limitedBy: self.endIndex) {
+                            if self[searchStartIndex...searchEndIndex] == "](" {
+                                var indexSearchEndLink = 0
+                                while !isFindEnd {
+                                    if let searchIndex = self.index(searchEndIndex, offsetBy: indexSearchEndLink, limitedBy: self.endIndex) {
+                                        if self[searchIndex] == ")" {
+                                            isFindEnd = true
+                                            self = self.replacingOccurrences(of: self[startIndex...searchIndex], with: "")
+                                            if let enterIndex = self.index(startIndex, offsetBy: -1, limitedBy: self.startIndex) {
+                                                if self[enterIndex] == "\n" {
+                                                    self.remove(at: enterIndex)
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        isFindEnd = true
+                                    }
+                                    indexSearchEndLink += 1
+                                }
+                            }
+                        } else {
+                            isFindEnd = true
+                        }
+                    } else {
+                        isFindEnd = true
+                    }
+                    index += 1
+                }
+            } else {
+                flag = false
+            }
+            count += 1
+        }
     }
 
     private func singleLineHeight(attributes: [NSAttributedString.Key : Any]) -> CGFloat {
