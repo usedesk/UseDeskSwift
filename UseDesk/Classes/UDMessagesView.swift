@@ -204,7 +204,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         textInput.customTextContainerInset = configurationStyle.inputViewStyle.textMargin
         
         attachFirstButton.setTitle(usedesk!.stringFor("Gallery"), for: .normal)
-        attachFileButton.setTitle(usedesk!.stringFor("File"), for: .normal)
+        attachFileButton.setTitle(usedesk!.stringFor("File").capitalized, for: .normal)
         attachCancelButton.setTitle(usedesk!.stringFor("Cancel"), for: .normal)
         
         attachFirstButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)

@@ -6,6 +6,7 @@ import SocketIO
 import MBProgressHUD
 import Alamofire
 import UserNotifications
+import Down
 
 
 public typealias UDSStartBlock = (Bool, String?) -> Void
@@ -765,22 +766,29 @@ public class UseDeskSDK: NSObject {
                     var messageFile: UDMessage? = nil
                     var messagesImageLink: [UDMessage] = []
                     if let message = mess as? [AnyHashable : Any] {
+                        var mutableAttributedString: NSMutableAttributedString? = nil
                         var textWithoutLinkImage: String? = nil
                         if var text = message["text"] as? String {
-                            let links = text.udGetLinks()
-                            for link in links {
+                            let linksImage = text.udRemoveMarkdownUrlsAndReturnLinks()
+                            for link in linksImage {
                                 text = text.replacingOccurrences(of: link, with: "")
                                 if let messageImageLink = parseFileMessageDic(message, withImageUrl: link) {
                                     messagesImageLink.append(messageImageLink)
                                 }
                             }
-                            text.udRemoveMarkdownUrls()
                             textWithoutLinkImage = text
+                            if text.count > 0 {
+                                let down = Down(markdownString: text)
+                                if let attributedString = try? down.toAttributedString() {
+                                    mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
+                                    mutableAttributedString!.mutableString.replaceCharacters(in: NSRange(location: mutableAttributedString!.length - 1, length: 1), with: "")
+                                }
+                            }
                         }
                         if (message["file"] as? [AnyHashable : Any] ) != nil {
                             messageFile = parseFileMessageDic(message)
                         }
-                        m = parseMessageDic(message, text: textWithoutLinkImage)
+                        m = parseMessageDic(message, textWithoutLinkImage: textWithoutLinkImage, attributedString: mutableAttributedString)
                     }
                     if m != nil {
                         historyMess.append(m!)
@@ -873,7 +881,7 @@ public class UseDeskSDK: NSObject {
         return m
     }
     
-    func parseMessageDic(_ mess: [AnyHashable : Any]?, text: String? = nil) -> UDMessage? {
+    func parseMessageDic(_ mess: [AnyHashable : Any]?, textWithoutLinkImage: String? = nil, attributedString: NSMutableAttributedString? = nil) -> UDMessage? {
         let m = UDMessage(text: "", incoming: false)
         
         let createdAt = mess?["createdAt"] as? String ?? ""
@@ -900,15 +908,20 @@ public class UseDeskSDK: NSObject {
                 m.operatorId = operatorId
             }
         }
-        m.text = text != nil ? text! : (mess?["text"] as? String ?? "")
+        m.text = textWithoutLinkImage != nil ? textWithoutLinkImage! : mess?["text"] as? String ?? ""
+        m.attributedString = attributedString
         if m.incoming {
-            let stringsFromButtons = parseMessageFromButtons(text: m.text)
+            let stringsFromButtons = parseMessageFromButtons(text: m.attributedString != nil ? m.attributedString!.string : m.text)
             for stringFromButton in stringsFromButtons {
                 let rsButton = buttonFromString(stringButton: stringFromButton)
                 if rsButton != nil {
                     m.buttons.append(rsButton!)
                 }
-                m.text = m.text.replacingOccurrences(of: stringFromButton, with: "")
+                if m.attributedString != nil {
+                    m.attributedString!.mutableString.replaceOccurrences(of: stringFromButton, with: "", options: .caseInsensitive, range: NSRange(location: 0, length: m.attributedString!.length))
+                } else {
+                    m.text = m.text.replacingOccurrences(of: stringFromButton, with: "")
+                }
             }
             for index in 0..<m.buttons.count {
                 let invertIndex = (m.buttons.count - 1) - index
@@ -1164,24 +1177,29 @@ public class UseDeskSDK: NSObject {
             var messageFile: UDMessage? = nil
             var messagesImageLink: [UDMessage] = []
             
+            var mutableAttributedString: NSMutableAttributedString? = nil
             var textWithoutLinkImage: String? = nil
             if var text = message!["text"] as? String {
-                let links = text.udGetLinks()
-                for link in links {
+                let linksImage = text.udRemoveMarkdownUrlsAndReturnLinks()
+                for link in linksImage {
                     text = text.replacingOccurrences(of: link, with: "")
                     if let messageImageLink = parseFileMessageDic(message, withImageUrl: link) {
                         messagesImageLink.append(messageImageLink)
                     }
                 }
-                if links.count > 0 {
-                    text.udRemoveMarkdownUrls()
-                    textWithoutLinkImage = text
+                textWithoutLinkImage = text
+                if text.count > 0 {
+                    let down = Down(markdownString: text)
+                    if let attributedString = try? down.toAttributedString() {
+                        mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
+                        mutableAttributedString!.mutableString.replaceCharacters(in: NSRange(location: mutableAttributedString!.length - 1, length: 1), with: "")
+                    }
                 }
             }
             if (message!["file"] as? [AnyHashable : Any] ) != nil {
                 messageFile = parseFileMessageDic(message)
             }
-            m = parseMessageDic(message, text: textWithoutLinkImage)
+            m = parseMessageDic(message, textWithoutLinkImage: textWithoutLinkImage, attributedString: mutableAttributedString)
             
             if m != nil {
                 if m?.type == RC_TYPE_Feedback && (feedbackMessageBlock != nil) {

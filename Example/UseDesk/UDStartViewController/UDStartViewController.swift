@@ -58,7 +58,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     @objc func keyboardWillShow(notification: Notification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             UIView.animate(withDuration: 0.4) {
-                self.lastViewBC.constant = keyboardSize.height + 40
+                self.lastViewBC.constant = keyboardSize.height + 70
                 self.loadViewIfNeeded()
             }
         }
@@ -67,7 +67,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
 
     @objc func keyboardWillHide(notification: Notification) {
         UIView.animate(withDuration: 0.4) {
-            self.lastViewBC.constant = 40
+            self.lastViewBC.constant = 70
             self.loadViewIfNeeded()
         }
     }

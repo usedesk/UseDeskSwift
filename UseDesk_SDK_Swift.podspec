@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
 	s.name             = 'UseDesk_SDK_Swift'
-	s.version          = '1.2.1'
+	s.version          = '1.2.2'
 	s.summary          = 'A short description of UseDesk.'
 
 	s.description      = <<-DESC
@@ -33,5 +33,6 @@ Pod::Spec.new do |s|
 	s.dependency 'QBImagePickerController', '~> 3.4'
 	s.dependency 'UIAlertController+Blocks'
   s.dependency 'Swime'
+  s.dependency 'Down'
   
 end

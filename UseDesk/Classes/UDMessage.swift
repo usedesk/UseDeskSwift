@@ -80,6 +80,8 @@ public class UDMessage: NSObject {
     @objc public var avatar = ""
     @objc public var file = UDFile()
     
+    var attributedString: NSMutableAttributedString? = nil
+    
     var feedbackAction: Bool? {
         switch feedbackActionInt {
         case 0:

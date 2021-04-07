@@ -30,7 +30,13 @@ class UDTextMessageCell: UDMessageCell, UICollectionViewDelegate, UICollectionVi
         textView.textContainer.lineFragmentPadding = 0
         textView.textContainerInset = UIEdgeInsets.zero
         textView.textColor = message?.incoming != false ? messageStyle.textIncomingColor : messageStyle.textOutgoingColor
-        textView.text = message?.text
+        if message?.attributedString != nil {
+            let attributedString = message!.attributedString!
+            attributedString.addAttributes([NSAttributedString.Key.font : messageStyle.font], range: NSRange(location: 0, length: attributedString.length))
+            textView.attributedText = attributedString
+        } else {
+            textView.text = message?.text
+        }
         if textView.superview == nil {
             viewBubble.addSubview(textView)
         }
@@ -82,15 +88,19 @@ class UDTextMessageCell: UDMessageCell, UICollectionViewDelegate, UICollectionVi
             } else {
                 super.layoutSubviews(size)
             }
+            var text = message!.text
+            if message!.attributedString != nil {
+                text = message!.attributedString!.string
+            }
         
-        
-            var widthText: CGFloat = message?.text.size(attributes: [NSAttributedString.Key.font : messageStyle.font]).width ?? 0
+            var widthText: CGFloat = text.size(attributes: [NSAttributedString.Key.font : messageStyle.font]).width + 2
             var maxwidthText = size.width - messageStyle.textMargin.left - messageStyle.textMargin.right - widthTime - messageStyle.timeMargin.right
             if message!.outgoing {
                 maxwidthText -= messageStyle.sendedStatusMargin.right - messageStyle.sendedStatusSize.width
             }
             widthText = widthText > maxwidthText ? maxwidthText : widthText
-            let heightText: CGFloat = message?.text.size(availableWidth: widthText, attributes: [NSAttributedString.Key.font : messageStyle.font]).height ?? 0
+
+            let heightText: CGFloat = text.size(availableWidth: widthText, attributes: [NSAttributedString.Key.font : messageStyle.font]).height
             textView.frame = CGRect(x: messageStyle.textMargin.left, y: messageStyle.textMargin.top, width: widthText, height: heightText)
         }
     }
@@ -113,7 +123,11 @@ class UDTextMessageCell: UDMessageCell, UICollectionViewDelegate, UICollectionVi
         let messageStyle = configurationStyle.messageStyle
 
         let maxwidth: CGFloat = SCREEN_WIDTH - configurationStyle.avatarStyle.margin.left - configurationStyle.avatarStyle.margin.right - configurationStyle.avatarStyle.avatarDiameter - 40
-        let widthText: CGFloat = message?.text.size(attributes: [NSAttributedString.Key.font : messageStyle.font]).width ?? 0
+        var text = message!.text
+        if message!.attributedString != nil {
+            text = message!.attributedString!.string
+        }
+        let widthText: CGFloat = text.size(attributes: [NSAttributedString.Key.font : messageStyle.font]).width
         let labelTime = UILabel()
         labelTime.text = message?.date?.time ?? ""
         let widthTime: CGFloat = labelTime.text?.size(attributes: [NSAttributedString.Key.font : messageStyle.timeFont]).width ?? 0
@@ -123,13 +137,13 @@ class UDTextMessageCell: UDMessageCell, UICollectionViewDelegate, UICollectionVi
             width = maxwidth
             isExistButtons = true
         } else {
-            width = widthText + messageStyle.textMargin.left + messageStyle.textMargin.right + widthTime + messageStyle.timeMargin.right
+            width = widthText + messageStyle.textMargin.left + messageStyle.textMargin.right + widthTime + messageStyle.timeMargin.right + 2
             if message!.outgoing {
                 width += messageStyle.sendedStatusMargin.right + messageStyle.sendedStatusSize.width
             }
             width = width > maxwidth ? maxwidth : width
         }
-        let heightText: CGFloat = message!.text.size(availableWidth: width - (messageStyle.textMargin.left + messageStyle.textMargin.right + widthTime + messageStyle.timeMargin.right), attributes: [NSAttributedString.Key.font : messageStyle.font], usesFontLeading: true).height
+        let heightText: CGFloat = text.size(availableWidth: width - (messageStyle.textMargin.left + messageStyle.textMargin.right + widthTime + messageStyle.timeMargin.right), attributes: [NSAttributedString.Key.font : messageStyle.font], usesFontLeading: true).height
         var height: CGFloat = message!.text.count > 0 ? heightText + messageStyle.textMargin.top : 0
         let heightButtonsBlock = heightButtons(message: message!)
         height += isExistButtons ? heightButtonsBlock : (message!.text.count > 0 ? messageStyle.textMargin.bottom : 0)
