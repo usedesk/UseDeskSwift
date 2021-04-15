@@ -22,8 +22,8 @@ class UDTextMessageCell: UDMessageCell, UICollectionViewDelegate, UICollectionVi
         
         textView.font = messageStyle.font
         textView.isEditable = false
-        textView.isSelectable = true
         textView.dataDetectorTypes = .all
+        textView.isSelectable = true
         textView.backgroundColor = .clear
         textView.isScrollEnabled = false
         textView.isUserInteractionEnabled = true
@@ -32,16 +32,18 @@ class UDTextMessageCell: UDMessageCell, UICollectionViewDelegate, UICollectionVi
         textView.textColor = message?.incoming != false ? messageStyle.textIncomingColor : messageStyle.textOutgoingColor
         if message?.attributedString != nil {
             let attributedString = message!.attributedString!
-            attributedString.addAttributes([NSAttributedString.Key.font : messageStyle.font], range: NSRange(location: 0, length: attributedString.length))
+            attributedString.addAttributes([NSAttributedString.Key.font : messageStyle.font, .foregroundColor : message!.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor], range: NSRange(location: 0, length: attributedString.length))
             textView.attributedText = attributedString
         } else {
             textView.text = message?.text
         }
+        
         if textView.superview == nil {
             viewBubble.addSubview(textView)
         }
         
         if message != nil {
+            textView.linkTextAttributes = [NSAttributedString.Key.font : messageStyle.font, .foregroundColor : message!.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor]
             if message!.buttons.count > 0 {
                 let layout = UICollectionViewFlowLayout()
                 collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
@@ -89,11 +91,12 @@ class UDTextMessageCell: UDMessageCell, UICollectionViewDelegate, UICollectionVi
                 super.layoutSubviews(size)
             }
             var text = message!.text
+            var widthText: CGFloat = text.size(attributes: [NSAttributedString.Key.font : messageStyle.font]).width + 2
             if message!.attributedString != nil {
                 text = message!.attributedString!.string
+                widthText = message!.attributedString!.size().width
             }
-        
-            var widthText: CGFloat = text.size(attributes: [NSAttributedString.Key.font : messageStyle.font]).width + 2
+            
             var maxwidthText = size.width - messageStyle.textMargin.left - messageStyle.textMargin.right - widthTime - messageStyle.timeMargin.right
             if message!.outgoing {
                 maxwidthText -= messageStyle.sendedStatusMargin.right - messageStyle.sendedStatusSize.width

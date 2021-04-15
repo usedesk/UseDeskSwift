@@ -150,9 +150,15 @@ public struct NavigationBarStyle {
 // MARK: -  ChatStyle
 public struct ChatStyle {
     public var backgroundColor: UIColor
+    public var backgroundColorLoaderView: UIColor
+    public var alphaLoaderView: CGFloat
     
-    public init(backgroundColor: UIColor? = nil) {
+    public init(backgroundColor: UIColor? = nil,
+                backgroundColorLoaderView: UIColor? = nil,
+                alphaLoaderView: CGFloat = 0.8) {
         self.backgroundColor = backgroundColor != nil ? backgroundColor! : UIColor(hexString: "FFFFFF")
+        self.backgroundColorLoaderView = backgroundColorLoaderView != nil ? backgroundColorLoaderView! : .lightGray
+        self.alphaLoaderView = alphaLoaderView
     }
 }
 // MARK: -  Date messages section
@@ -249,6 +255,8 @@ public struct MessageStyle {
     // Text Message
     public var textOutgoingColor: UIColor
     public var textIncomingColor: UIColor
+    public var linkOutgoingColor: UIColor
+    public var linkIncomingColor: UIColor
     public var font: UIFont
     public var textMargin: UIEdgeInsets
     // Time Text
@@ -284,6 +292,8 @@ public struct MessageStyle {
     
     public init(textOutgoingColor: UIColor? = nil,
                 textIncomingColor: UIColor? = nil,
+                linkOutgoingColor: UIColor? = nil,
+                linkIncomingColor: UIColor? = nil,
                 font: UIFont = UIFont.systemFont(ofSize: 17),
                 textInset: UIEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 7),
                 timeOutgoingColor: UIColor? = nil,
@@ -313,6 +323,8 @@ public struct MessageStyle {
                 senderTextMarginBottom: CGFloat = 4) {
         self.textOutgoingColor = textOutgoingColor != nil ? textOutgoingColor! : UIColor(hexString: "333333")
         self.textIncomingColor = textIncomingColor != nil ? textIncomingColor! : UIColor(hexString: "333333")
+        self.linkOutgoingColor = linkOutgoingColor != nil ? linkOutgoingColor! : UIColor(hexString: "007AFF")
+        self.linkIncomingColor = linkIncomingColor != nil ? linkIncomingColor! : UIColor(hexString: "007AFF")
         self.font = font
         self.textMargin = textInset
         self.timeOutgoingPictureColor = timeOutgoingPictureColor != nil ? timeOutgoingPictureColor! : UIColor(hexString: "FFFFFF")

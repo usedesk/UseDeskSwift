@@ -3,9 +3,10 @@
 
 import AVFoundation
 import Photos
+import PhotosUI
 import Alamofire
 import Swime
-import QBImagePickerController
+import MobileCoreServices
 
 enum Orientation {
     case portrait
@@ -17,7 +18,7 @@ enum LandscapeOrientation {
     case right
 }
 
-class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, QBImagePickerControllerDelegate {
+class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var viewInput: UIView!
@@ -84,6 +85,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     private var isAttachmentActive = false
     private var isSelectAttachment = false
     private var kHeightAttachView: CGFloat = 0
+    private var imagePicker: ImagePicker!
     
     convenience init() {
         let nibName: String = "UDMessagesView"
@@ -115,6 +117,8 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         
         tableView.transform = CGAffineTransform(scaleX: 1, y: -1)
         
+        imagePicker = ImagePicker(presentationController: self, delegate: self)
+        
         attachCollectionMessageView.delegate = self
         attachCollectionMessageView.dataSource = self
         attachCollectionMessageView.register(UDAttachCollectionViewCell.self, forCellWithReuseIdentifier: "UDAttachCollectionViewCell")
@@ -132,6 +136,8 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardHide(_:)), name: UIResponder.keyboardDidHideNotification, object: nil)
         
         configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
+        
+        usedesk?.loader?.hide(animated: true)
 
         inputPanelInit()
         
@@ -602,45 +608,16 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func selectPhoto() {
-        let imagePickerController = QBImagePickerController()
-        imagePickerController.delegate = self
-        imagePickerController.allowsMultipleSelection = true
-        var maxCountAssets = UInt(10 - sendAssets.count)
-        if usedesk != nil {
-            maxCountAssets = UInt(usedesk!.maxCountAssets - sendAssets.count)
-            if usedesk!.isSupportedAttachmentOnlyPhoto {
-                imagePickerController.mediaType = .image
-            } else if usedesk!.isSupportedAttachmentOnlyVideo {
-                imagePickerController.mediaType = .video
-            } else {
-                imagePickerController.mediaType = .any
-            }
+        if #available(iOS 14, *) {
+            var configuration = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
+            let maxCountAssets = usedesk != nil ? usedesk!.maxCountAssets - sendAssets.count : 10 - sendAssets.count
+            configuration.selectionLimit = maxCountAssets
+            let picker = PHPickerViewController(configuration: configuration)
+            picker.delegate = self
+            present(picker, animated: true)
+        } else {
+            imagePicker.present()
         }
-        imagePickerController.maximumNumberOfSelection = maxCountAssets
-        imagePickerController.showsNumberOfSelectedAssets = true
-        
-        present(imagePickerController, animated: true)
-    }
-    
-    func qb_imagePickerController(_ imagePickerController: QBImagePickerController?, didFinishPickingAssets assets: [Any]?) {
-        if assets != nil {
-            for asset in assets! {
-                if ((asset as? PHAsset) != nil) {
-                    let anAsset = asset as! PHAsset
-                    if anAsset.mediaType == .image || anAsset.mediaType == .video {
-                        sendAssets.append(anAsset)
-                    }
-                }
-            }
-            closeAttachView()
-            showAttachCollection()
-        }
-        buttonSend.isEnabled = true
-        dismiss(animated: true)
-    }
-    
-    func qb_imagePickerControllerDidCancel(_ imagePickerController: QBImagePickerController?) {
-        dismiss(animated: true)
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
@@ -843,11 +820,10 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             if message!.file.path == "" {
                 // download image
                 cell.bindData(indexPath, messagesView: self)
-                DispatchQueue.global(qos: .userInitiated).async {
+                DispatchQueue.global(qos: .unspecified).async {
                 let session = URLSession.shared
                 if let url = URL(string: message!.file.content) {
-                    (session.dataTask(with: url, completionHandler: { [weak self] data, response, error in
-                        guard let wSelf = self else {return}
+                    (session.dataTask(with: url, completionHandler: { data, response, error in
                         if error == nil {
                             let udMineType = UDMimeType()
                             let mimeType = udMineType.typeString(for: data)
@@ -1033,6 +1009,10 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
                 })
             } else if (sendAssets[indexPath.row] as? URL) != nil {
                 cell.setingCell(type: .file, urlFile: (sendAssets[indexPath.row] as! URL), index: indexPath.row)
+            } else if let data = sendAssets[indexPath.row] as? Data {
+                if let image = UIImage(data: data) {
+                    cell.setingCell(image: image, type: .image, index: indexPath.row)
+                }
             }
             return cell
         }
@@ -1185,4 +1165,82 @@ fileprivate func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ inp
 // Helper function inserted by Swift 4.2 migrator.
 fileprivate func convertFromUIImagePickerControllerInfoKey(_ input: UIImagePickerController.InfoKey) -> String {
 	return input.rawValue
+}
+// MARK: - ImagePickerDelegate
+extension UDMessagesView: ImagePickerDelegate {
+    func didSelect(image: UIImage?) {
+        if image != nil {
+            sendAssets.append(image!)
+        }
+        closeAttachView()
+        showAttachCollection()
+        buttonSend.isEnabled = true
+    }
+}
+// MARK: - PHPickerViewControllerDelegate
+@available(iOS 14, *)
+extension UDMessagesView: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        let identifiers = results.compactMap(\.assetIdentifier)
+        let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
+        fetchResult.enumerateObjects { [weak self] (asset, index, stop) -> Void in
+            guard let wSelf = self else {return}
+            wSelf.sendAssets.append(asset)
+            if index == fetchResult.count - 1 {
+                wSelf.closeAttachView()
+                wSelf.showAttachCollection()
+                picker.dismiss(animated: true, completion: nil)
+                wSelf.buttonSend.isEnabled = true
+            }
+        }
+    }
+}
+// MARK: - ImagePicker
+public protocol ImagePickerDelegate: class {
+    func didSelect(image: UIImage?)
+}
+
+open class ImagePicker: NSObject, UINavigationControllerDelegate {
+
+    private let pickerController: UIImagePickerController
+    private weak var presentationController: UIViewController?
+    private weak var delegate: ImagePickerDelegate?
+
+    public init(presentationController: UIViewController, delegate: ImagePickerDelegate) {
+        pickerController = UIImagePickerController()
+
+        super.init()
+
+        self.presentationController = presentationController
+        self.delegate = delegate
+
+        pickerController.delegate = self
+        pickerController.allowsEditing = true
+        pickerController.mediaTypes = ["public.image"]
+    }
+
+    public func present() {
+        pickerController.sourceType = .savedPhotosAlbum
+        presentationController?.present(self.pickerController, animated: true)
+    }
+
+    private func pickerController(_ controller: UIImagePickerController, didSelect image: UIImage?) {
+        controller.dismiss(animated: true, completion: nil)
+        self.delegate?.didSelect(image: image)
+    }
+}
+
+extension ImagePicker: UIImagePickerControllerDelegate {
+
+    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        self.pickerController(picker, didSelect: nil)
+    }
+
+    public func imagePickerController(_ picker: UIImagePickerController,
+                                      didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        guard let image = info[.editedImage] as? UIImage else {
+            return self.pickerController(picker, didSelect: nil)
+        }
+        self.pickerController(picker, didSelect: image)
+    }
 }

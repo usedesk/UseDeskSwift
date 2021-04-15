@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
 	s.name             = 'UseDesk_SDK_Swift'
-	s.version          = '1.2.2'
+	s.version          = '1.2.3'
 	s.summary          = 'A short description of UseDesk.'
 
 	s.description      = <<-DESC
@@ -24,14 +24,9 @@ Pod::Spec.new do |s|
 	}
 
 	s.frameworks = 'UIKit', 'MapKit' ,'AVFoundation'
-
-	s.dependency 'MBProgressHUD', '~> 1.0'
-	s.dependency 'NYTPhotoViewer', '1.2.0'
-	s.dependency 'ProgressHUD'
+  
 	s.dependency 'Socket.IO-Client-Swift', '~> 14.0'
 	s.dependency 'Alamofire', '~> 5'
-	s.dependency 'QBImagePickerController', '~> 3.4'
-	s.dependency 'UIAlertController+Blocks'
   s.dependency 'Swime'
   s.dependency 'Down'
   

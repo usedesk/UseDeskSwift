@@ -2,7 +2,6 @@
 //  UDOfflineForm.swift
 
 import Foundation
-import MBProgressHUD
 import Alamofire
 
 class UDOfflineForm: UIViewController, UITextFieldDelegate {

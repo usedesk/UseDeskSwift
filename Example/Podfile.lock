@@ -1,32 +1,15 @@
 PODS:
-  - Alamofire (5.4.1)
+  - Alamofire (5.4.2)
   - Down (0.10.0)
-  - FLAnimatedImage (1.0.15)
-  - MBProgressHUD (1.2.0)
-  - NYTPhotoViewer (1.2.0):
-    - NYTPhotoViewer/AnimatedGifSupport (= 1.2.0)
-    - NYTPhotoViewer/Core (= 1.2.0)
-  - NYTPhotoViewer/AnimatedGifSupport (1.2.0):
-    - FLAnimatedImage (~> 1.0.12)
-    - NYTPhotoViewer/Core
-  - NYTPhotoViewer/Core (1.2.0)
-  - ProgressHUD (2.70)
-  - QBImagePickerController (3.4.0)
   - Socket.IO-Client-Swift (14.0.0):
     - Starscream (~> 3.0.6)
   - Starscream (3.0.6)
   - Swime (3.0.6)
-  - "UIAlertController+Blocks (0.9.2)"
-  - UseDesk_SDK_Swift (1.2.1):
+  - UseDesk_SDK_Swift (1.2.2):
     - Alamofire (~> 5)
     - Down
-    - MBProgressHUD (~> 1.0)
-    - NYTPhotoViewer (= 1.2.0)
-    - ProgressHUD
-    - QBImagePickerController (~> 3.4)
     - Socket.IO-Client-Swift (~> 14.0)
     - Swime
-    - "UIAlertController+Blocks"
 
 DEPENDENCIES:
   - UseDesk_SDK_Swift (from `../`)
@@ -35,34 +18,22 @@ SPEC REPOS:
   trunk:
     - Alamofire
     - Down
-    - FLAnimatedImage
-    - MBProgressHUD
-    - NYTPhotoViewer
-    - ProgressHUD
-    - QBImagePickerController
     - Socket.IO-Client-Swift
     - Starscream
     - Swime
-    - "UIAlertController+Blocks"
 
 EXTERNAL SOURCES:
   UseDesk_SDK_Swift:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Alamofire: 2291f7d21ca607c491dd17642e5d40fdcda0e65c
+  Alamofire: bfbc4c2fe5909b1d94fb4ef2277c6b3727ef5dae
   Down: 01f155f9d7e99673c667efd2218709c3b9a8bc13
-  FLAnimatedImage: dd3db277b17e909ec3c7fd41adfce79b321d960e
-  MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
-  NYTPhotoViewer: 323217e4590a1586eb3c9674b3fefb0fb8b57896
-  ProgressHUD: e603e8b8622c47d8818b9fb38b3cfe9d3e7ca421
-  QBImagePickerController: d54cf93db6decf26baf6ed3472f336ef35cae022
   Socket.IO-Client-Swift: 21e6a8a23a7d367d5ddfab6cbbd3c679cf3c25d6
   Starscream: ef3ece99d765eeccb67de105bfa143f929026cf5
   Swime: d7b2c277503b6cea317774aedc2dce05613f8b0b
-  "UIAlertController+Blocks": 80e28b92523fb58aba4d1bccec013d5a0b0bddb2
-  UseDesk_SDK_Swift: e9f8dbfddc03ce08e37afb940b1fc8d92fee5098
+  UseDesk_SDK_Swift: 77ec838fd7413863281fabcdb8b42460f6c311c6
 
 PODFILE CHECKSUM: 06473a34d829d02e32f611b837c8eb34f4866fb0
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.10.1

@@ -3,7 +3,6 @@
 
 import Foundation
 import SocketIO
-import MBProgressHUD
 import Alamofire
 import UserNotifications
 import Down
@@ -63,6 +62,7 @@ public class UseDeskSDK: NSObject {
     
     var navController = UDNavigationController()
     var idLoadingMessages: [String] = []
+    var loader: UDLoader? = nil
     
     private var token = ""
     private var dialogflowVC: DialogflowView = DialogflowView()
@@ -72,9 +72,8 @@ public class UseDeskSDK: NSObject {
         
         let parentController: UIViewController? = parentController ?? RootView
         
-        let hud = MBProgressHUD.showAdded(to: (parentController?.view ?? UIView()), animated: true)
-        hud.mode = MBProgressHUDMode.indeterminate
-        hud.label.text = stringFor("Loading")
+        loader = UDLoader(view: parentController?.view ?? UIView(), colorBackView: configurationStyle.chatStyle.backgroundColorLoaderView, alphaBackView: configurationStyle.chatStyle.alphaLoaderView)
+        loader?.show()
         
         companyID = _companyID
         guard _chanelId.trimmingCharacters(in: .whitespaces).count > 0 && Int(_chanelId) != nil else {
@@ -108,7 +107,7 @@ public class UseDeskSDK: NSObject {
                 email = _email!
                 if !email.udIsValidEmail() {
                     startBlock(false, "emailError")
-                    hud.hide(animated: true)
+                    loader?.hide(animated: true)
                     return
                 }
             }
@@ -161,7 +160,7 @@ public class UseDeskSDK: NSObject {
                 phone = _phone!
                 guard isValidPhone(phone: _phone!) else {
                     startBlock(false, "phoneError")
-                    hud.hide(animated: true)
+                    loader?.hide(animated: true)
                     return
                 }
             }
@@ -190,7 +189,7 @@ public class UseDeskSDK: NSObject {
             if _signature != "" {
                 if !_signature!.udIsValidSignature() {
                     startBlock(false, "signatureError")
-                    hud.hide(animated: true)
+                    loader?.hide(animated: true)
                     return
                 }
                 signature = _signature!
@@ -223,7 +222,7 @@ public class UseDeskSDK: NSObject {
             navController.setTitleTextAttributes()
             navController.modalPresentationStyle = .fullScreen
             parentController?.present(navController, animated: true)
-            hud.hide(animated: true)
+            loader?.hide(animated: true)
         } else {
             startWithoutGUICompanyID(companyID: companyID, chanelId: chanelId, knowledgeBaseID: knowledgeBaseID, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, operatorName: operatorName, nameChat: _nameChat, connectionStatus: { [weak self] success, error in
                 guard let wSelf = self else {return}
@@ -236,7 +235,6 @@ public class UseDeskSDK: NSObject {
                         wSelf.navController.modalPresentationStyle = .fullScreen
                         parentController?.present(wSelf.navController, animated: true)
                     }
-                    hud.hide(animated: true)
                 } else {
                     if error == "feedback_form" || error == "feedback_form_and_chat" {
                         if wSelf.offlineVC.presentingViewController == nil {
@@ -250,7 +248,7 @@ public class UseDeskSDK: NSObject {
                             wSelf.navController.modalPresentationStyle = .fullScreen
                             parentController?.present(wSelf.navController, animated: true)
                         }
-                        hud.hide(animated: true)
+                        wSelf.loader?.hide(animated: true)
                     }
                 }
             })
@@ -817,7 +815,14 @@ public class UseDeskSDK: NSObject {
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
         }
         if createdAt != "" {
-            m.date = dateFormatter.date(from: createdAt)!
+            if dateFormatter.date(from: createdAt) != nil {
+                m.date = dateFormatter.date(from: createdAt)!
+            } else {
+                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+                if dateFormatter.date(from: createdAt) != nil {
+                    m.date = dateFormatter.date(from: createdAt)!
+                }
+            }
         }
         if mess?["id"] != nil {
             m.messageId = Int(mess?["id"] as? Int ?? 0)
@@ -893,7 +898,14 @@ public class UseDeskSDK: NSObject {
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
         }
         if createdAt != "" {
-            m.date = dateFormatter.date(from: createdAt)!
+            if dateFormatter.date(from: createdAt) != nil {
+                m.date = dateFormatter.date(from: createdAt)!
+            } else {
+                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+                if dateFormatter.date(from: createdAt) != nil {
+                    m.date = dateFormatter.date(from: createdAt)!
+                }
+            }
         }
         if mess?["id"] != nil {
             m.messageId = Int(mess?["id"] as? Int ?? 0)
@@ -1329,4 +1341,44 @@ public class UseDeskSDK: NSObject {
         return String(id)
     }
     
+}
+
+class UDLoader: NSObject {
+    var loader = UIActivityIndicatorView()
+    var view: UIView!
+    var backView = UIView()
+    var alphaBackView: CGFloat!
+    var colorBackView: UIColor!
+    
+    public init(view: UIView, colorBackView: UIColor, alphaBackView: CGFloat) {
+        self.view = view
+        self.alphaBackView = alphaBackView
+        self.colorBackView = colorBackView
+    }
+    
+    func show() {
+        if #available(iOS 13.0, *) {
+            loader.style = .large
+        } else {
+            loader.style = .whiteLarge
+        }
+        loader.startAnimating()
+        loader.alpha = 7
+        backView.backgroundColor = colorBackView
+        backView.alpha = alphaBackView
+        backView.clipsToBounds = true
+        backView.frame.size = CGSize(width: 50, height: 50)
+        backView.center = view.center
+        backView.layer.cornerRadius = 25
+        view.addSubview(backView)
+        backView.addSubview(loader)
+        loader.center = CGPoint(x: 26.5, y: 26.5)
+    }
+    
+    func hide(animated: Bool = false) {
+        loader.stopAnimating()
+        loader.alpha = 0
+        backView.removeFromSuperview()
+        backView.alpha = 0
+    }
 }

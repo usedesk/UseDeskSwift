@@ -4,7 +4,6 @@
 
 import Foundation
 import UIKit
-import MBProgressHUD
 import AVKit
 import Photos
 
@@ -19,7 +18,6 @@ class DialogflowView: UDMessagesView {
     
     weak var delegate: DialogflowVCDelegate?
     
-    private var hudErrorConnection: MBProgressHUD?
     private var fileViewingVC: UDFileViewingVC!
     private var isDark = false
     
@@ -37,11 +35,6 @@ class DialogflowView: UDMessagesView {
         }
         
         navigationItem.title = usedesk?.nameChat
-        hudErrorConnection = MBProgressHUD(view: view)
-        hudErrorConnection?.removeFromSuperViewOnHide = true
-        view.addSubview(hudErrorConnection!)
-        
-        hudErrorConnection?.mode = MBProgressHUDMode.indeterminate
         
         //Notification
         NotificationCenter.default.addObserver(self, selector: #selector(self.openUrlFromMessageButton(_:)), name: Notification.Name("messageButtonURLOpen"), object: nil)
@@ -51,7 +44,6 @@ class DialogflowView: UDMessagesView {
         
         usedesk?.connectBlock = { [weak self] success, error in
             guard let wSelf = self else {return}
-            wSelf.hudErrorConnection?.hide(animated: true)
         }
         
         usedesk?.newMessageBlock = { success, messageOptional in
