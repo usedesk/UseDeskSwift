@@ -2,9 +2,10 @@
 //  UseDeskSDKHelp.swift
 
 import Foundation
+import SocketIO
 
 class UseDeskSDKHelp {
-    class func config_CompanyID(_ companyID: String, chanelId: String, email: String, phone: String?, name: String?, url: String?, token: String?) -> [Any]? {
+    class func config_CompanyID(_ companyID: String, chanelId: String, email: String, phone: String?, name: String?, url: String?, token: String?) -> [SocketData]? {
         let payload = [
             "sdk" : "iOS",
             "type" : "sdk"
@@ -24,7 +25,7 @@ class UseDeskSDKHelp {
         return [dic]
     }
     
-    class func dataClient(_ email: String = "", phone: String = "", name: String = "", note: String = "", signature: String = "", additional_id: String? = nil) -> [Any]? {
+    class func dataClient(_ email: String = "", phone: String = "", name: String = "", note: String = "", signature: String = "", additional_id: String? = nil) -> [SocketData]? {
         var dic: [String : Any] = [
             "type"  : "@@server/chat/SET_CLIENT"
         ]
@@ -46,7 +47,7 @@ class UseDeskSDKHelp {
         return [dic]
     }
     
-    class func messageText(_ text: String, messageId: String? = nil) -> [Any]? {
+    class func messageText(_ text: String, messageId: String? = nil) -> [SocketData]? {
         
         var message: [String : Any] = [
             "text" : text
@@ -66,7 +67,7 @@ class UseDeskSDKHelp {
         return [dic]
     }
     
-    class func feedback(_ fb: Bool, message_id: Int) -> [Any]? {
+    class func feedback(_ fb: Bool, message_id: Int) -> [SocketData]? {
         var data: String
         
         if fb {
@@ -90,7 +91,7 @@ class UseDeskSDKHelp {
         return [dic]
     }
     
-    class func message(_ text: String?, withFileName fileName: String?, fileType: String?, contentBase64: String?) -> [Any]? {
+    class func message(_ text: String?, withFileName fileName: String?, fileType: String?, contentBase64: String?) -> [SocketData]? {
         let file = [
             "name" : fileName ?? "",
             "type" : fileType ?? "",

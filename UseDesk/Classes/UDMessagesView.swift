@@ -820,7 +820,7 @@ class UDMessagesView: UIViewController, UITableViewDataSource, UITableViewDelega
             if message!.file.path == "" {
                 // download image
                 cell.bindData(indexPath, messagesView: self)
-                DispatchQueue.global(qos: .unspecified).async {
+                DispatchQueue.global(qos: .userInitiated).async {
                 let session = URLSession.shared
                 if let url = URL(string: message!.file.content) {
                     (session.dataTask(with: url, completionHandler: { data, response, error in

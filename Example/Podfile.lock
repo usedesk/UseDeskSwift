@@ -1,14 +1,14 @@
 PODS:
   - Alamofire (5.4.2)
   - Down (0.10.0)
-  - Socket.IO-Client-Swift (14.0.0):
-    - Starscream (~> 3.0.6)
-  - Starscream (3.0.6)
+  - Socket.IO-Client-Swift (16.0.1):
+    - Starscream (~> 4.0)
+  - Starscream (4.0.4)
   - Swime (3.0.6)
-  - UseDesk_SDK_Swift (1.2.2):
+  - UseDesk_SDK_Swift (1.2.3):
     - Alamofire (~> 5)
     - Down
-    - Socket.IO-Client-Swift (~> 14.0)
+    - Socket.IO-Client-Swift (~> 16.0)
     - Swime
 
 DEPENDENCIES:
@@ -29,10 +29,10 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Alamofire: bfbc4c2fe5909b1d94fb4ef2277c6b3727ef5dae
   Down: 01f155f9d7e99673c667efd2218709c3b9a8bc13
-  Socket.IO-Client-Swift: 21e6a8a23a7d367d5ddfab6cbbd3c679cf3c25d6
-  Starscream: ef3ece99d765eeccb67de105bfa143f929026cf5
+  Socket.IO-Client-Swift: c116d6dc9fd6be9c259bacfe143f8725bce7d79e
+  Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   Swime: d7b2c277503b6cea317774aedc2dce05613f8b0b
-  UseDesk_SDK_Swift: 77ec838fd7413863281fabcdb8b42460f6c311c6
+  UseDesk_SDK_Swift: e7f08b0d026d0348870a2b1b01e230813a8bbe4b
 
 PODFILE CHECKSUM: 06473a34d829d02e32f611b837c8eb34f4866fb0
 

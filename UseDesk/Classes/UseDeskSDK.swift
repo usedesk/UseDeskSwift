@@ -257,7 +257,7 @@ public class UseDeskSDK: NSObject {
 
     @objc public func sendMessage(_ text: String, messageId: String? = nil) {
         let mess = UseDeskSDKHelp.messageText(text, messageId: messageId)
-        socket?.emit("dispatch", with: mess!)
+        socket?.emit("dispatch", with: mess!, completion: nil)
     }
     
     @objc public func sendFile(fileName: String, data: Data, messageId: String? = nil, status: @escaping (Bool, String?) -> Void) {
@@ -418,8 +418,8 @@ public class UseDeskSDK: NSObject {
             startBlock(false, "urlError")
             return
         }
-        let config = ["log": true]
-        manager = SocketManager(socketURL: urlAdress!, config: config)
+        
+        manager = SocketManager(socketURL: urlAdress!, config: [.log(true), .version(.two)])
         
         socket = manager?.defaultSocket
 
@@ -430,7 +430,7 @@ public class UseDeskSDK: NSObject {
             print("socket connected")
             let token = wSelf.signature != "" ? wSelf.signature : wSelf.loadToken()
             let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, chanelId: wSelf.chanelId, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: token)
-            wSelf.socket?.emit("dispatch", with: arrConfStart!)
+            wSelf.socket?.emit("dispatch", with: arrConfStart!, completion: nil)
         })
         
         socket?.on("error", callback: { [weak self] data, ack in
@@ -447,7 +447,7 @@ public class UseDeskSDK: NSObject {
             print("socket disconnect")
             let token = wSelf.signature != "" ? wSelf.signature : wSelf.loadToken()
             let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.companyID, chanelId: wSelf.chanelId, email: wSelf.email, phone: wSelf.phone, name: wSelf.name, url: wSelf.url, token: token)
-            wSelf.socket?.emit("dispatch", with: arrConfStart!)
+            wSelf.socket?.emit("dispatch", with: arrConfStart!, completion: nil)
         })
         
         socket?.on("dispatch", callback: { [weak self] data, ack in
@@ -776,10 +776,12 @@ public class UseDeskSDK: NSObject {
                             }
                             textWithoutLinkImage = text
                             if text.count > 0 {
+                                text = text.replacingOccurrences(of: "\n", with: "<№;%br>")
                                 let down = Down(markdownString: text)
                                 if let attributedString = try? down.toAttributedString() {
                                     mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
                                     mutableAttributedString!.mutableString.replaceCharacters(in: NSRange(location: mutableAttributedString!.length - 1, length: 1), with: "")
+                                    mutableAttributedString!.mutableString.replaceOccurrences(of: "<№;%br>", with: "\n", options: .caseInsensitive, range: NSRange(location: 0, length: mutableAttributedString!.length))
                                 }
                             }
                         }
@@ -799,7 +801,7 @@ public class UseDeskSDK: NSObject {
                     }
                 }
             }
-            socket?.emit("dispatch", with: UseDeskSDKHelp.dataClient(email, phone: phone, name: name, note: note, signature: signature)!)
+            socket?.emit("dispatch", with: UseDeskSDKHelp.dataClient(email, phone: phone, name: name, note: note, signature: signature)!, completion: nil)
         }
     }
     
@@ -1201,10 +1203,12 @@ public class UseDeskSDK: NSObject {
                 }
                 textWithoutLinkImage = text
                 if text.count > 0 {
+                    text = text.replacingOccurrences(of: "\n", with: "<№;%br>")
                     let down = Down(markdownString: text)
                     if let attributedString = try? down.toAttributedString() {
                         mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
                         mutableAttributedString!.mutableString.replaceCharacters(in: NSRange(location: mutableAttributedString!.length - 1, length: 1), with: "")
+                        mutableAttributedString!.mutableString.replaceOccurrences(of: "<№;%br>", with: "\n", options: .caseInsensitive, range: NSRange(location: 0, length: mutableAttributedString!.length))
                     }
                 }
             }
@@ -1233,7 +1237,7 @@ public class UseDeskSDK: NSObject {
     }
     
     @objc public func sendMessageFeedBack(_ status: Bool, message_id: Int) {
-        socket?.emit("dispatch", with: UseDeskSDKHelp.feedback(status, message_id: message_id)!)
+        socket?.emit("dispatch", with: UseDeskSDKHelp.feedback(status, message_id: message_id)!, completion: nil)
     }
     
     func stringFor(_ key: String) -> String {

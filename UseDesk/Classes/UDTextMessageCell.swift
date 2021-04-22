@@ -32,7 +32,9 @@ class UDTextMessageCell: UDMessageCell, UICollectionViewDelegate, UICollectionVi
         textView.textColor = message?.incoming != false ? messageStyle.textIncomingColor : messageStyle.textOutgoingColor
         if message?.attributedString != nil {
             let attributedString = message!.attributedString!
-            attributedString.addAttributes([NSAttributedString.Key.font : messageStyle.font, .foregroundColor : message!.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor], range: NSRange(location: 0, length: attributedString.length))
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.paragraphSpacing = 0
+            attributedString.addAttributes([NSAttributedString.Key.font : messageStyle.font, .foregroundColor : message!.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor, .paragraphStyle : paragraphStyle], range: NSRange(location: 0, length: attributedString.length))
             textView.attributedText = attributedString
         } else {
             textView.text = message?.text
@@ -43,7 +45,7 @@ class UDTextMessageCell: UDMessageCell, UICollectionViewDelegate, UICollectionVi
         }
         
         if message != nil {
-            textView.linkTextAttributes = [NSAttributedString.Key.font : messageStyle.font, .foregroundColor : message!.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor]
+            textView.linkTextAttributes = [NSAttributedString.Key.font : messageStyle.font, .foregroundColor : message!.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor, NSAttributedString.Key.underlineStyle : 1, NSAttributedString.Key.underlineColor : message!.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor]
             if message!.buttons.count > 0 {
                 let layout = UICollectionViewFlowLayout()
                 collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
@@ -91,7 +93,7 @@ class UDTextMessageCell: UDMessageCell, UICollectionViewDelegate, UICollectionVi
                 super.layoutSubviews(size)
             }
             var text = message!.text
-            var widthText: CGFloat = text.size(attributes: [NSAttributedString.Key.font : messageStyle.font]).width + 2
+            var widthText: CGFloat = text.size(attributes: [NSAttributedString.Key.font : messageStyle.font]).width + 3
             if message!.attributedString != nil {
                 text = message!.attributedString!.string
                 widthText = message!.attributedString!.size().width
@@ -140,7 +142,7 @@ class UDTextMessageCell: UDMessageCell, UICollectionViewDelegate, UICollectionVi
             width = maxwidth
             isExistButtons = true
         } else {
-            width = widthText + messageStyle.textMargin.left + messageStyle.textMargin.right + widthTime + messageStyle.timeMargin.right + 2
+            width = widthText + messageStyle.textMargin.left + messageStyle.textMargin.right + widthTime + messageStyle.timeMargin.right + 3
             if message!.outgoing {
                 width += messageStyle.sendedStatusMargin.right + messageStyle.sendedStatusSize.width
             }

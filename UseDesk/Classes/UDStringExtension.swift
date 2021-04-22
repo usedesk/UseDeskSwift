@@ -144,61 +144,6 @@ extension String {
         }
         return links
     }
-    
-//    func udToAttributedString() -> NSMutableAttributedString {
-//        var string = self
-//        var attributedString = NSMutableAttributedString()
-//        var count = 0
-//        var flag = true
-//        var startAddSubstringIndex = self.startIndex
-//        while count < 900 && flag {
-//            if let range = string.range(of: "[") {
-//                let startIndex = range.lowerBound
-//                if startIndex > string.startIndex {
-//                    if let endAddSubstringIndex = string.index(startIndex, offsetBy: -1, limitedBy: string.startIndex) {
-//                        attributedString.mutableString.append(String(string[startAddSubstringIndex...endAddSubstringIndex]))
-//                    }
-//                }
-////                sfdsfjas;lkf[fsdfsfasd[]()sdf
-////                [fsdfsfasd[]()sdf
-//                var isFindEnd = false
-//                var index = 0
-//                while !isFindEnd {
-//                    if let searchStartIndex = self.index(startIndex, offsetBy: index, limitedBy: self.endIndex) {
-//                        if let searchEndIndex = self.index(searchStartIndex, offsetBy: 1, limitedBy: self.endIndex) {
-//                            if self[searchStartIndex...searchEndIndex] == "](" {
-//                                var indexSearchEndLink = 0
-//                                while !isFindEnd {
-//                                    if let searchIndex = self.index(searchEndIndex, offsetBy: indexSearchEndLink, limitedBy: self.endIndex) {
-//                                        if self[searchIndex] == ")" {
-//                                            isFindEnd = true
-//                                            self = self.replacingOccurrences(of: self[startIndex...searchIndex], with: "")
-//                                            if let enterIndex = self.index(startIndex, offsetBy: -1, limitedBy: self.startIndex) {
-//                                                if self[enterIndex] == "\n" {
-//                                                    self.remove(at: enterIndex)
-//                                                }
-//                                            }
-//                                        }
-//                                    } else {
-//                                        isFindEnd = true
-//                                    }
-//                                    indexSearchEndLink += 1
-//                                }
-//                            }
-//                        } else {
-//                            isFindEnd = true
-//                        }
-//                    } else {
-//                        isFindEnd = true
-//                    }
-//                    index += 1
-//                }
-//            } else {
-//                flag = false
-//            }
-//            count += 1
-//        }
-//    }
 
     private func singleLineHeight(attributes: [NSAttributedString.Key : Any]) -> CGFloat {
         let attributedString = NSAttributedString(string: "0", attributes: attributes)
