@@ -14,6 +14,7 @@ public class UDFile: NSObject {
     @objc public var typeExtension = ""
     @objc public var duration: Int = 0
     @objc public var picture: UIImage?
+    @objc public var source: Any?
     
     var sizeString: String {
         guard self.size == "" else {
@@ -59,7 +60,6 @@ enum TypeSenderMessage: Int {
 public class UDMessage: NSObject {
     // MARK: - Properties
     @objc public var type: Int = 0
-    @objc public var data: Data?
     @objc public var typeSenderMessageString = ""
     @objc public var incoming = false
     @objc public var outgoing = false

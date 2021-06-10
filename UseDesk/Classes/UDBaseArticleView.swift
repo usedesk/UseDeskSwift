@@ -397,7 +397,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
         contentView.addSubview(webView)
         webView.navigationDelegate = self
         webView.contentMode = .left
-        webView.uiDelegate = self//selectedArticle?.text
+        webView.uiDelegate = self
         var correctoredHtml = HTMLImageCorrector(HTMLString:selectedArticle?.text ?? "")
         let styleContent = "<html><head><style>img{max-width:100%;height: auto;};</style></head>"
             + "<body style='margin:0; padding:0;'>" + correctoredHtml + "</body></html>"
@@ -803,9 +803,12 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
             self.loaderChatButton.alpha = 1
             self.loaderChatButton.startAnimating()
         }
-        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, signature: usedesk!.signature, connectionStatus: { [weak self] success, error in
+        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, token: usedesk!.token, connectionStatus: { [weak self] success, error, token in
             guard let wSelf = self else {return}
             guard wSelf.usedesk != nil else {return}
+            if wSelf.usedesk!.closure != nil {
+                wSelf.usedesk!.closure!(success, error, token)
+            }
             if success {
                 DispatchQueue.main.async(execute: {
                     wSelf.delegate?.openChat()

@@ -1,5 +1,5 @@
 //
-//  UDUIViewExtension.swift
+//  UDUIImageExtension.swift
 //
 
 import Foundation

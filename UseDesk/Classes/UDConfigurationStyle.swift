@@ -17,12 +17,6 @@ var SCREEN_WIDTH: CGFloat {
         }
     }
 }
-var SCREEN_HEIGHT: CGFloat {
-    get {
-        return UIScreen.main.bounds.size.height
-    }
-}
-
 var MAX_WIDTH_MESSAGE: CGFloat {
     get {
         if UIScreen.main.bounds.height > UIScreen.main.bounds.width {
@@ -172,7 +166,7 @@ public struct SectionHeaderStyle {
     public var backViewCornerRadius: CGFloat
     public var backViewOpacity: CGFloat
     
-    public init(margin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10),
+    public init(margin: UIEdgeInsets = UIEdgeInsets(top: 12, left: 10, bottom: 12, right: 10),
                 textColor: UIColor? = nil,
                 textHeight: CGFloat = 16,
                 font: UIFont = UIFont.systemFont(ofSize: 13),
@@ -197,9 +191,10 @@ public struct SectionHeaderStyle {
 }
 // MARK: -  Bubble
 public struct BubbleStyle {
-    public var bubbleMarginLeft: CGFloat
-    public var bubbleMarginRight: CGFloat
-    public var bubbleRadius: CGFloat
+    public var backgroundImageOutgoing: UIImage
+    public var backgroundImageIncoming: UIImage
+    public var marginBefore: CGFloat
+    public var marginAfter: CGFloat
     public var bubbleWidthMin: CGFloat
     public var bubbleHeightMin: CGFloat
     public var spacingOneSender: CGFloat
@@ -207,18 +202,20 @@ public struct BubbleStyle {
     public var bubbleColorOutgoing: UIColor
     public var bubbleColorIncoming: UIColor
     
-    public init(bubbleMarginLeft: CGFloat = 15.0,
-                bubbleMarginRight: CGFloat = 15.0,
-                bubbleRadius: CGFloat = 8,
+    public init(backgroundImageOutgoing: UIImage? = nil,
+                backgroundImageIncoming: UIImage? = nil,
+                marginBefore: CGFloat = 10.0,
+                marginAfter: CGFloat = 50.0,
                 bubbleWidthMin: CGFloat = 7.0,
                 bubbleHeightMin: CGFloat = 30.0,
                 spacingOneSender: CGFloat = 4,
                 spacingDifferentSender: CGFloat = 16,
                 bubbleColorOutgoing: UIColor? = nil,
                 bubbleColorIncoming: UIColor? = nil) {
-        self.bubbleMarginLeft = bubbleMarginLeft
-        self.bubbleMarginRight = bubbleMarginRight
-        self.bubbleRadius = bubbleRadius
+        self.backgroundImageOutgoing = backgroundImageOutgoing != nil ? backgroundImageOutgoing! : UIImage.named("udBubbleOutgoing")
+        self.backgroundImageIncoming = backgroundImageIncoming != nil ? backgroundImageIncoming! : UIImage.named("udBubbleIncoming")
+        self.marginBefore = marginBefore
+        self.marginAfter = marginAfter
         self.bubbleWidthMin = bubbleWidthMin
         self.bubbleHeightMin = bubbleHeightMin
         self.spacingOneSender = spacingOneSender
@@ -264,7 +261,6 @@ public struct MessageStyle {
     public var timeIncomingColor: UIColor
     public var timeFont: UIFont
     public var timeMargin: UIEdgeInsets
-    public var timeMarginRightForStatus: CGFloat
     public var timeOutgoingPictureColor: UIColor
     public var timeIncomingPictureColor: UIColor
     // Time Back View
@@ -273,7 +269,6 @@ public struct MessageStyle {
     public var timeBackViewOpacity: CGFloat
     public var timeBackViewCornerRadius: CGFloat
     public var timeBackViewPadding: UIEdgeInsets
-    public var timeBackViewPaddingRightForStatus: CGFloat
     // Sended Status
     public var sendStatusImage: UIImage
     public var sendedStatusImage: UIImage
@@ -288,19 +283,18 @@ public struct MessageStyle {
     // Sender Text
     public var senderTextColor: UIColor
     public var senderTextFont: UIFont
-    public var senderTextMarginBottom: CGFloat
+    public var senderTextMargin: UIEdgeInsets
     
     public init(textOutgoingColor: UIColor? = nil,
                 textIncomingColor: UIColor? = nil,
                 linkOutgoingColor: UIColor? = nil,
                 linkIncomingColor: UIColor? = nil,
                 font: UIFont = UIFont.systemFont(ofSize: 17),
-                textInset: UIEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 7),
+                textMargin: UIEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 5),
                 timeOutgoingColor: UIColor? = nil,
                 timeIncomingColor: UIColor? = nil,
                 timeFont: UIFont = UIFont.systemFont(ofSize: 11),
-                timeMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 6, right: 4),
-                timeMarginRightForStatus: CGFloat = 0,
+                timeMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 6, right: 4),
                 timeOutgoingPictureColor: UIColor? = nil,
                 timeIncomingPictureColor: UIColor? = nil,
                 timeBackViewOutgoingColor: UIColor? = nil,
@@ -308,38 +302,35 @@ public struct MessageStyle {
                 timeBackViewOpacity: CGFloat = 0.6,
                 timeBackViewCornerRadius: CGFloat = 7,
                 timeBackViewPadding: UIEdgeInsets = UIEdgeInsets(top: 1, left: 4, bottom: 0, right: 4),
-                timeBackViewPaddingRightForStatus: CGFloat = 2,
                 sendStatusImage: UIImage? = nil,
                 sendedStatusImage: UIImage? = nil,
                 sendStatusImageForImageMessage: UIImage? = nil,
                 sendedStatusImageForImageMessage: UIImage? = nil,
                 sendedStatusSize: CGSize = CGSize(width: 12, height: 12),
-                sendedStatusMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 6.5, right: 4),
+                sendedStatusMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 2, bottom: 6.5, right: 4),
                 notSentImage: UIImage? = nil,
                 notSentImageSize: CGSize = CGSize(width: 24, height: 24),
                 notSentImageMarginToBubble: CGFloat = 8,
                 senderTextColor: UIColor? = nil,
                 senderTextFont: UIFont = UIFont.systemFont(ofSize: 11),
-                senderTextMarginBottom: CGFloat = 4) {
+                senderTextMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 0)) {
         self.textOutgoingColor = textOutgoingColor != nil ? textOutgoingColor! : UIColor(hexString: "333333")
         self.textIncomingColor = textIncomingColor != nil ? textIncomingColor! : UIColor(hexString: "333333")
         self.linkOutgoingColor = linkOutgoingColor != nil ? linkOutgoingColor! : UIColor(hexString: "007AFF")
         self.linkIncomingColor = linkIncomingColor != nil ? linkIncomingColor! : UIColor(hexString: "007AFF")
         self.font = font
-        self.textMargin = textInset
+        self.textMargin = textMargin
         self.timeOutgoingPictureColor = timeOutgoingPictureColor != nil ? timeOutgoingPictureColor! : UIColor(hexString: "FFFFFF")
         self.timeIncomingPictureColor = timeIncomingPictureColor != nil ? timeIncomingPictureColor! : UIColor(hexString: "FFFFFF")
         self.timeOutgoingColor = timeOutgoingColor != nil ? timeOutgoingColor! : UIColor(hexString: "989FB3")
         self.timeIncomingColor = timeIncomingColor != nil ? timeIncomingColor! : UIColor(hexString: "989FB3")
         self.timeFont = timeFont
         self.timeMargin = timeMargin
-        self.timeMarginRightForStatus = timeMarginRightForStatus
         self.timeBackViewOutgoingColor = timeBackViewOutgoingColor != nil ? timeBackViewOutgoingColor! : UIColor(hexString: "333333")
         self.timeBackViewIncomingColor = timeBackViewIncomingColor != nil ? timeBackViewIncomingColor! : UIColor(hexString: "333333")
         self.timeBackViewOpacity = timeBackViewOpacity
         self.timeBackViewCornerRadius = timeBackViewCornerRadius
         self.timeBackViewPadding = timeBackViewPadding
-        self.timeBackViewPaddingRightForStatus = timeBackViewPaddingRightForStatus
         self.sendStatusImage = sendStatusImage != nil ? sendStatusImage! : UIImage.named("udSendStatusImage")
         self.sendedStatusImage = sendedStatusImage != nil ? sendedStatusImage! : UIImage.named("udSendedStatusImage")
         self.sendStatusImageForImageMessage = sendStatusImage != nil ? sendStatusImage! : UIImage.named("udSendStatusImageWhite")
@@ -351,13 +342,14 @@ public struct MessageStyle {
         self.notSentImageMarginToBubble = notSentImageMarginToBubble
         self.senderTextColor = senderTextColor != nil ? senderTextColor! : UIColor(hexString: "989FB3")
         self.senderTextFont = senderTextFont
-        self.senderTextMarginBottom = senderTextMarginBottom
+        self.senderTextMargin = senderTextMargin
     }
 }
 // MARK: -  Feedback Message cell
 public struct FeedbackMessageStyle {
     public var buttonSize: CGSize
-    public var buttonsMargin: UIEdgeInsets
+    public var buttonsMarginTop: CGFloat
+    public var buttonsSpacing: CGFloat
     public var likeOnImage: UIImage
     public var likeOffImage: UIImage
     public var dislikeOnImage: UIImage
@@ -367,7 +359,8 @@ public struct FeedbackMessageStyle {
     public var textMargin: UIEdgeInsets
     
     public init(buttonSize: CGSize = CGSize(width: 56, height: 56),
-                buttonsMargin: UIEdgeInsets = UIEdgeInsets(top: 25, left: 12, bottom: 0, right: 12),
+                buttonsMarginTop: CGFloat = 25,
+                buttonsSpacing: CGFloat = 12,
                 likeOnImage: UIImage? = nil,
                 likeOffImage: UIImage? = nil,
                 dislikeOnImage: UIImage? = nil,
@@ -376,7 +369,8 @@ public struct FeedbackMessageStyle {
                 font: UIFont = UIFont.systemFont(ofSize: 17),
                 textMargin: UIEdgeInsets = UIEdgeInsets(top: 17, left: 28, bottom: 14, right: 28)) {
         self.buttonSize = buttonSize
-        self.buttonsMargin = buttonsMargin
+        self.buttonsMarginTop = buttonsMarginTop
+        self.buttonsSpacing = buttonsSpacing
         self.likeOnImage = likeOnImage != nil ? likeOnImage! : UIImage.named("udLikeOn")
         self.likeOffImage = likeOffImage != nil ? likeOffImage! : UIImage.named("udLikeOff")
         self.dislikeOnImage = dislikeOnImage != nil ? dislikeOnImage! : UIImage.named("udDislikeOn")
@@ -389,13 +383,16 @@ public struct FeedbackMessageStyle {
 // MARK: -  Picture cell
 public struct PictureStyle {
     public var margin: UIEdgeInsets
+    public var cornerRadius: CGFloat
     public var imageDefault: UIImage
     public var sizeDefault: CGSize
     
     public init(margin: UIEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2),
+                cornerRadius: CGFloat = 8,
                 imageDefault: UIImage? = nil,
-                sizeDefault: CGSize = CGSize(width: 150, height: 170)) {
+                sizeDefault: CGSize = CGSize(width: 150, height: 150)) {
         self.margin = margin
+        self.cornerRadius = cornerRadius
         self.imageDefault = imageDefault != nil ? imageDefault! : UIImage.named("udPictureDefault")
         self.sizeDefault = sizeDefault
     }
@@ -403,13 +400,16 @@ public struct PictureStyle {
 // MARK: -  Video cell
 public struct VideoStyle {
     public var margin: UIEdgeInsets
+    public var cornerRadius: CGFloat
     public var imageDefault: UIImage
     public var sizeDefault: CGSize
 
     public init(margin: UIEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2),
+                cornerRadius: CGFloat = 8,
                 imageDefault: UIImage? = nil,
                 sizeDefault: CGSize = CGSize(width: 150, height: 170)) {
         self.margin = margin
+        self.cornerRadius = cornerRadius
         self.imageDefault = imageDefault != nil ? imageDefault! : UIImage.named("udVideoDefault")
         self.sizeDefault = sizeDefault
     }
@@ -421,29 +421,35 @@ public struct FileStyle {
     public var iconSize: CGSize
     public var fontName: UIFont
     public var nameMargin: UIEdgeInsets
-    public var nameColor: UIColor
+    public var nameOutgoingColor: UIColor
+    public var nameIncomingColor: UIColor
     public var fontSize: UIFont
-    public var sizeMargin: UIEdgeInsets
-    public var sizeColor: UIColor
+    public var sizeMarginTop: CGFloat
+    public var sizeOutgoingColor: UIColor
+    public var sizeIncomingColor: UIColor
 
     public init(iconMargin: UIEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 8),
                 imageIcon: UIImage? = nil,
                 iconSize: CGSize = CGSize(width: 40, height: 40),
                 fontName: UIFont = UIFont.systemFont(ofSize: 17),
-                nameMargin: UIEdgeInsets = UIEdgeInsets(top: 9, left: 0, bottom: 0, right: 20),
-                nameColor: UIColor? = nil,
+                nameMargin: UIEdgeInsets = UIEdgeInsets(top: 9, left: 0, bottom: 0, right: 8),
+                nameOutgoingColor: UIColor? = nil,
+                nameIncomingColor: UIColor? = nil,
                 fontSize: UIFont = UIFont.systemFont(ofSize: 12),
-                sizeMargin: UIEdgeInsets = UIEdgeInsets(top: 2, left: 0, bottom: 0, right: 20),
-                sizeColor: UIColor? = nil) {
+                sizeMarginTop: CGFloat = 2,
+                sizeOutgoingColor: UIColor? = nil,
+                sizeIncomingColor: UIColor? = nil) {
         self.iconMargin = iconMargin
         self.imageIcon = imageIcon != nil ? imageIcon! : UIImage.named("udFileIcon")
         self.iconSize = iconSize
         self.fontName = fontName
         self.nameMargin = nameMargin
-        self.nameColor = nameColor != nil ? nameColor! : UIColor(hexString: "333333")
+        self.nameOutgoingColor = nameOutgoingColor != nil ? nameOutgoingColor! : UIColor(hexString: "333333")
+        self.nameIncomingColor = nameIncomingColor != nil ? nameIncomingColor! : UIColor(hexString: "333333")
         self.fontSize = fontSize
-        self.sizeMargin = sizeMargin
-        self.sizeColor = sizeColor != nil ? sizeColor! : UIColor(hexString: "989FB3")
+        self.sizeMarginTop = sizeMarginTop
+        self.sizeOutgoingColor = sizeOutgoingColor != nil ? sizeOutgoingColor! : UIColor(hexString: "989FB3")
+        self.sizeIncomingColor = sizeIncomingColor != nil ? sizeIncomingColor! : UIColor(hexString: "989FB3")
     }
 }
 // MARK: -  Input View
@@ -529,21 +535,25 @@ public struct MessageButtonStyle {
     public var textColor: UIColor
     public var textFont: UIFont
     public var cornerRadius: CGFloat
+    public var spacing: CGFloat
+    public var height: CGFloat
     public var margin: UIEdgeInsets
-    public var padding: UIEdgeInsets
+    
     
     public init(color: UIColor? = nil,
                 textColor: UIColor? = nil,
                 textFont: UIFont = UIFont.systemFont(ofSize: 11),
                 cornerRadius: CGFloat = 8,
-                margin: UIEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 6),
-                padding: UIEdgeInsets = UIEdgeInsets(top: 12, left: 9, bottom: 12, right: 9)) {
+                spacing: CGFloat = 8,
+                height: CGFloat = 36,
+                margin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 8, right: 6)) {
         self.color = color != nil ? color! : UIColor(hexString: "333333")
         self.textColor = textColor != nil ? textColor! : UIColor(hexString: "FFFFFF")
         self.textFont = textFont
         self.cornerRadius = cornerRadius
+        self.spacing = spacing
+        self.height = height
         self.margin = margin
-        self.padding = padding
     }
 }
 

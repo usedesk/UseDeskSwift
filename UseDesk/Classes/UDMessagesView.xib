@@ -4,6 +4,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -29,15 +30,16 @@
                 <outlet property="buttonAttachWC" destination="TdM-ns-r9m" id="iCb-7G-7VX"/>
                 <outlet property="buttonSend" destination="aaP-dQ-ykO" id="lfT-mi-8sE"/>
                 <outlet property="buttonSendHC" destination="r6R-KT-PQr" id="lcC-dy-LuK"/>
+                <outlet property="buttonSendLoader" destination="4CI-2b-YLv" id="jUd-S4-cm0"/>
                 <outlet property="buttonSendTC" destination="Wny-R1-Wnx" id="G4k-MO-knW"/>
                 <outlet property="buttonSendWC" destination="mFz-Hz-yj8" id="lhe-gX-5Sh"/>
-                <outlet property="tableView" destination="i5M-Pr-FkT" id="lyD-HE-CdL"/>
                 <outlet property="textInput" destination="WF4-Ti-KqT" id="FSc-Lc-lva"/>
                 <outlet property="textInputBC" destination="0QF-3K-Leo" id="kGo-RE-VxI"/>
                 <outlet property="textInputHC" destination="VTd-c8-c4g" id="knR-oc-TMc"/>
                 <outlet property="textInputLC" destination="02r-Nl-wYU" id="J0i-C0-Qzn"/>
                 <outlet property="textInputTC" destination="BOa-0Q-yIe" id="OcO-gb-TXK"/>
                 <outlet property="view" destination="PpO-Gc-0B7" id="ccK-Tu-foM"/>
+                <outlet property="viewForTable" destination="SGa-4e-nkS" id="zox-RV-h8o"/>
                 <outlet property="viewInput" destination="xuU-RB-86v" id="9Gh-xP-iGY"/>
                 <outlet property="viewInputHC" destination="ZgX-0c-wgP" id="yeH-eB-sI0"/>
             </connections>
@@ -47,14 +49,10 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <tableView opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" bouncesZoom="NO" style="plain" separatorStyle="none" allowsSelectionDuringEditing="YES" allowsMultipleSelectionDuringEditing="YES" rowHeight="50" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="i5M-Pr-FkT">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SGa-4e-nkS">
                     <rect key="frame" x="0.0" y="0.0" width="320" height="518"/>
-                    <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                    <connections>
-                        <outlet property="dataSource" destination="-1" id="Tng-2m-Rnh"/>
-                        <outlet property="delegate" destination="-1" id="9aC-8N-iBw"/>
-                    </connections>
-                </tableView>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xuU-RB-86v">
                     <rect key="frame" x="0.0" y="518" width="320" height="50"/>
                     <subviews>
@@ -90,6 +88,9 @@
                                 <action selector="actionInputSend:" destination="-1" eventType="touchUpInside" id="AKj-eb-WYm"/>
                             </connections>
                         </button>
+                        <activityIndicatorView opaque="NO" alpha="0.0" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="4CI-2b-YLv">
+                            <rect key="frame" x="282" y="14" width="20" height="20"/>
+                        </activityIndicatorView>
                         <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" alpha="0.0" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="dSh-VU-anE">
                             <rect key="frame" x="0.0" y="47" width="320" height="68"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -112,6 +113,7 @@
                         <constraint firstItem="WF4-Ti-KqT" firstAttribute="top" secondItem="xuU-RB-86v" secondAttribute="top" constant="7" id="AxG-Vq-6Zg"/>
                         <constraint firstAttribute="trailing" secondItem="WF4-Ti-KqT" secondAttribute="trailing" constant="53" id="BOa-0Q-yIe"/>
                         <constraint firstItem="yEt-FB-L4p" firstAttribute="centerX" secondItem="Wx7-PH-b4G" secondAttribute="centerX" id="IWs-7Y-uCt"/>
+                        <constraint firstItem="4CI-2b-YLv" firstAttribute="centerY" secondItem="aaP-dQ-ykO" secondAttribute="centerY" id="NtQ-ib-wmX"/>
                         <constraint firstItem="dSh-VU-anE" firstAttribute="leading" secondItem="xuU-RB-86v" secondAttribute="leading" id="OIs-f3-WIT"/>
                         <constraint firstItem="Wx7-PH-b4G" firstAttribute="bottom" secondItem="WF4-Ti-KqT" secondAttribute="bottom" constant="-7" id="Q1y-yC-voh"/>
                         <constraint firstAttribute="trailing" secondItem="aaP-dQ-ykO" secondAttribute="trailing" constant="12" id="Wny-R1-Wnx"/>
@@ -120,6 +122,7 @@
                         <constraint firstItem="yEt-FB-L4p" firstAttribute="centerY" secondItem="Wx7-PH-b4G" secondAttribute="centerY" id="d7U-7F-G7x"/>
                         <constraint firstItem="dSh-VU-anE" firstAttribute="top" secondItem="WF4-Ti-KqT" secondAttribute="bottom" constant="4" id="jVY-o5-YxQ"/>
                         <constraint firstItem="aaP-dQ-ykO" firstAttribute="centerY" secondItem="Wx7-PH-b4G" secondAttribute="centerY" id="sBc-P5-djC"/>
+                        <constraint firstItem="4CI-2b-YLv" firstAttribute="centerX" secondItem="aaP-dQ-ykO" secondAttribute="centerX" id="sCY-3q-GPB"/>
                     </constraints>
                 </view>
                 <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vWE-cl-xhX">
@@ -238,15 +241,15 @@
             <constraints>
                 <constraint firstItem="vWE-cl-xhX" firstAttribute="top" secondItem="PpO-Gc-0B7" secondAttribute="top" id="6P0-D6-5Yb"/>
                 <constraint firstAttribute="trailing" secondItem="vWE-cl-xhX" secondAttribute="trailing" id="78l-dh-pjR"/>
+                <constraint firstItem="SGa-4e-nkS" firstAttribute="top" secondItem="PpO-Gc-0B7" secondAttribute="top" id="7hl-zF-iDI"/>
+                <constraint firstItem="xuU-RB-86v" firstAttribute="top" secondItem="SGa-4e-nkS" secondAttribute="bottom" id="9ko-0h-yVx"/>
                 <constraint firstItem="vWE-cl-xhX" firstAttribute="leading" secondItem="PpO-Gc-0B7" secondAttribute="leading" id="9pg-xZ-50x"/>
-                <constraint firstItem="xuU-RB-86v" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="bottom" id="AWf-YO-X5Y"/>
                 <constraint firstAttribute="trailing" secondItem="xuU-RB-86v" secondAttribute="trailing" id="H1D-Pa-OaA"/>
                 <constraint firstAttribute="bottom" secondItem="xuU-RB-86v" secondAttribute="bottom" id="M5j-Eh-ief"/>
                 <constraint firstItem="xuU-RB-86v" firstAttribute="leading" secondItem="PpO-Gc-0B7" secondAttribute="leading" id="P6d-Se-fzz"/>
                 <constraint firstAttribute="bottom" secondItem="vWE-cl-xhX" secondAttribute="bottom" id="Rtg-cg-66a"/>
-                <constraint firstItem="i5M-Pr-FkT" firstAttribute="top" secondItem="PpO-Gc-0B7" secondAttribute="top" id="bn0-oS-5Q0"/>
-                <constraint firstAttribute="trailing" secondItem="i5M-Pr-FkT" secondAttribute="trailing" id="ivS-wA-vbN"/>
-                <constraint firstItem="i5M-Pr-FkT" firstAttribute="leading" secondItem="PpO-Gc-0B7" secondAttribute="leading" id="pI8-fN-4he"/>
+                <constraint firstAttribute="trailing" secondItem="SGa-4e-nkS" secondAttribute="trailing" id="VJm-qC-2SS"/>
+                <constraint firstItem="SGa-4e-nkS" firstAttribute="leading" secondItem="PpO-Gc-0B7" secondAttribute="leading" id="yzg-dd-8y5"/>
             </constraints>
             <point key="canvasLocation" x="266.25" y="762.67605633802816"/>
         </view>
@@ -265,6 +268,9 @@
     <resources>
         <systemColor name="groupTableViewBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
     </resources>
 </document>

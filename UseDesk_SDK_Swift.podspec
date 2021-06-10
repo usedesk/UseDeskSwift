@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
 	s.name             = 'UseDesk_SDK_Swift'
-	s.version          = '1.2.4'
+	s.version          = '2.0.0'
 	s.summary          = 'A short description of UseDesk.'
 
 	s.description      = <<-DESC
@@ -29,5 +29,6 @@ Pod::Spec.new do |s|
 	s.dependency 'Alamofire', '~> 5'
   s.dependency 'Swime'
   s.dependency 'Down'
+  s.dependency 'Texture'
   
 end

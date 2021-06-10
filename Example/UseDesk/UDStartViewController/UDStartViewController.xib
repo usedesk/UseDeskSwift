@@ -28,7 +28,7 @@
                 <outlet property="phoneTextField" destination="hIK-20-D10" id="7cd-qe-uQQ"/>
                 <outlet property="portTextField" destination="rI1-0D-0C9" id="5l5-b3-4iN"/>
                 <outlet property="scrollView" destination="nV9-bY-109" id="bOl-7m-nW6"/>
-                <outlet property="signatureTextField" destination="U9A-P3-0ra" id="fHv-t0-OG4"/>
+                <outlet property="tokenTextField" destination="U9A-P3-0ra" id="fHv-t0-OG4"/>
                 <outlet property="urlBaseTextField" destination="uMe-c6-dwa" id="hRz-cJ-KyR"/>
                 <outlet property="urlTextField" destination="pRA-kW-iUW" id="jHG-yp-FkN"/>
                 <outlet property="urlToSendFileTextField" destination="kTY-Hj-3Aw" id="KaS-e2-kB2"/>
@@ -145,7 +145,7 @@
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aB3-yJ-wcD">
                                     <rect key="frame" x="0.0" y="120" width="320" height="40"/>
                                     <subviews>
-                                        <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="pubsub.usedesk.ru" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="pRA-kW-iUW">
+                                        <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="pubsubsec.usedesk.ru" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="pRA-kW-iUW">
                                             <rect key="frame" x="55" y="3" width="260" height="34"/>
                                             <fontDescription key="fontDescription" type="system" weight="light" pointSize="14"/>
                                             <textInputTraits key="textInputTraits"/>
@@ -177,7 +177,7 @@
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lLs-IA-9Sm">
                                     <rect key="frame" x="0.0" y="160" width="320" height="40"/>
                                     <subviews>
-                                        <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="1992" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="rI1-0D-0C9">
+                                        <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="rI1-0D-0C9">
                                             <rect key="frame" x="55" y="3" width="260" height="34"/>
                                             <fontDescription key="fontDescription" type="system" weight="light" pointSize="14"/>
                                             <textInputTraits key="textInputTraits"/>
@@ -537,7 +537,7 @@
                                                 <outlet property="delegate" destination="-1" id="5Wq-jk-Sfz"/>
                                             </connections>
                                         </textField>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="signature:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ONi-lI-sED">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Token:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ONi-lI-sED">
                                             <rect key="frame" x="10" y="9.5" width="70" height="21"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="70" id="4p2-u9-QV0"/>

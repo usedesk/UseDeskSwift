@@ -257,9 +257,12 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
             showSendedView()
             return
         }
-        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, phone: usedesk!.phone, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, signature: usedesk!.signature, isBeforeFeedbackForm: true, connectionStatus: { [weak self] success, error in
+        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, phone: usedesk!.phone, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, token: usedesk!.token, isBeforeFeedbackForm: true, connectionStatus: { [weak self] success, error, token in
             guard let wSelf = self else {return}
             guard wSelf.usedesk != nil else {return}
+            if wSelf.usedesk!.closure != nil {
+                wSelf.usedesk!.closure!(success, error, token)
+            }
             if !success && error == "feedback_form" {
                 wSelf.showSendedView()
             } else {
@@ -330,7 +333,6 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                                     text += "\n" + topic
                                 }
                                 for field in customFields {
-                                    print("\n" + field.title + "\n" + field.text)
                                     text += "\n" + field.title + "\n" + field.text
                                 }
                                 text += "\n" + message.text
@@ -338,14 +340,12 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                             } else {
                                 wSelf.sendLoader.alpha = 0
                                 wSelf.sendLoader.stopAnimating()
-//                                wSelf.sendMessageButton.setTitle(wSelf.usedesk!.stringFor("Close"), for: .normal)
                                 wSelf.showSendedView()
                             }
                         }
                     } else {
                         wSelf.sendLoader.alpha = 0
                         wSelf.sendLoader.stopAnimating()
-//                        wSelf.sendMessageButton.setTitle(wSelf.usedesk!.stringFor("Close"), for: .normal)
                         wSelf.showAlert(wSelf.usedesk!.stringFor("Error"), text: wSelf.usedesk!.stringFor("ServerError"))
                     }
                 }

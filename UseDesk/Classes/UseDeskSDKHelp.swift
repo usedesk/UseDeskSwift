@@ -8,7 +8,8 @@ class UseDeskSDKHelp {
     class func config_CompanyID(_ companyID: String, chanelId: String, email: String, phone: String?, name: String?, url: String?, token: String?) -> [SocketData]? {
         let payload = [
             "sdk" : "iOS",
-            "type" : "sdk"
+            "type" : "sdk",
+            "version" : "2.0.0"
         ]
         var dic = [
             "type" : "@@server/chat/INIT",
@@ -25,7 +26,7 @@ class UseDeskSDKHelp {
         return [dic]
     }
     
-    class func dataClient(_ email: String = "", phone: String = "", name: String = "", note: String = "", signature: String = "", additional_id: String? = nil) -> [SocketData]? {
+    class func dataClient(_ email: String = "", phone: String = "", name: String = "", note: String = "", token: String = "", additional_id: String? = nil) -> [SocketData]? {
         var dic: [String : Any] = [
             "type"  : "@@server/chat/SET_CLIENT"
         ]
@@ -40,8 +41,8 @@ class UseDeskSDKHelp {
 //                payload["additional_id"] = additional_id
 //            }
 //        }
-        if signature != "" {
-            payload["signature"] = signature
+        if token != "" {
+            payload["token"] = token
         }
         dic["payload"] = payload
         return [dic]

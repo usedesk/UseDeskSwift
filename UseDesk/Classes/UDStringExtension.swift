@@ -71,8 +71,8 @@ extension String {
         return udEmailPredicate.evaluate(with: self)
     }
     
-    func udIsValidSignature() -> Bool {
-        if self.udIsContainEmoji || self.contains(" ") || self.contains("&#") || self.count < 8 {
+    func udIsValidToken() -> Bool {
+        if self.udIsContainEmoji || self.contains(" ") || self.count < 64 {
             return false
         }
         return true

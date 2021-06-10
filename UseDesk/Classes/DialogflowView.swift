@@ -6,6 +6,8 @@ import Foundation
 import UIKit
 import AVKit
 import Photos
+import AsyncDisplayKit
+import MobileCoreServices
 
 protocol DialogflowVCDelegate: class {
     func close()
@@ -65,6 +67,12 @@ class DialogflowView: UDMessagesView {
                                 message.file = wSelf.messagesWithSection[indexSection][index].file
                                 message.status = wSelf.messagesWithSection[indexSection][index].status
                                 wSelf.messagesWithSection[indexSection][index] = message
+                                if let cell = (wSelf.tableNode.nodeForRow(at: IndexPath(row: index, section: indexSection)) as? UDMessageCellNode) {
+                                    cell.setSendedStatus()
+                                    cell.setNeedsLayout()
+                                } else {
+                                    wSelf.tableNode.reloadRows(at: [IndexPath(row: index, section: indexSection)], with: .automatic)
+                                }
                             }
                             index += 1
                         }
@@ -78,7 +86,6 @@ class DialogflowView: UDMessagesView {
                 } else {
                     wSelf.addMessage(message)
                 }
-                wSelf.tableView.reloadData()
             })
         }
         
@@ -150,64 +157,79 @@ class DialogflowView: UDMessagesView {
             } else {
                 wSelf.messagesWithSection.append([message])
             }
-            wSelf.tableView.reloadData()
+            wSelf.tableNode.insertRows(at: [IndexPath(row: 0, section: 0)], with: .bottom)
+            if wSelf.messagesWithSection[0].count > 1 {
+                wSelf.tableNode.reloadRows(at: [IndexPath(row: 1, section: 0)], with: .none)
+            }
         })
     }
     func chekSentMessage(_ message: UDMessage) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 7) { [weak self] in
             guard let wSelf = self else {return}
-            let loadingMessageId = message.loadingMessageId
-            var indexSection = 0
-            var index = 0
-            var isFind = false
-            while !isFind && indexSection < wSelf.messagesWithSection.count {
-                index = 0
-                while !isFind && index < wSelf.messagesWithSection[indexSection].count {
-                    if wSelf.messagesWithSection[indexSection][index].loadingMessageId == loadingMessageId {
-                        isFind = true
-                        if wSelf.messagesWithSection[indexSection][index].loadingMessageId != "" {
-                            wSelf.messagesWithSection[indexSection][index] = message
-                            if let replaceMessage = wSelf.messages.filter({ $0.loadingMessageId == loadingMessageId}).first {
-                                if let index = wSelf.messages.firstIndex(of: replaceMessage) {
-                                    wSelf.messages[index] = message
-                                }
+            if let messageNow = wSelf.getMessage(wSelf.indexPathForMessage(at: message.messageId)) {
+                wSelf.setNotSendMessageFor(messageNow)
+            }
+        }
+    }
+    
+    func setNotSendMessageFor(_ message: UDMessage) {
+        let loadingMessageId = message.loadingMessageId
+        var indexSection = 0
+        var index = 0
+        var isFind = false
+        while !isFind && indexSection < messagesWithSection.count {
+            index = 0
+            while !isFind && index < messagesWithSection[indexSection].count {
+                if messagesWithSection[indexSection][index].loadingMessageId == loadingMessageId {
+                    isFind = true
+                    if messagesWithSection[indexSection][index].loadingMessageId != "" {
+                        message.isNotSent = true
+                        messagesWithSection[indexSection][index] = message
+                        tableNode.reloadRows(at: [IndexPath(row: index, section: indexSection)], with: .automatic)
+                        if let replaceMessage = messages.filter({ $0.loadingMessageId == loadingMessageId}).first {
+                            if let index = messages.firstIndex(of: replaceMessage) {
+                                messages[index] = message
                             }
                         }
                     }
-                    index += 1
                 }
-                indexSection += 1
+                index += 1
             }
-            wSelf.tableView.reloadData()
+            indexSection += 1
         }
     }
     
     // MARK: - Message Button methods
     @objc func openUrlFromMessageButton(_ notification: NSNotification) {
-        if let url = notification.userInfo?["url"] as? String {
-            let url = URL(string: url)
-            if #available(iOS 10.0, *) {
-                if UIApplication.shared.responds(to: #selector(UIApplication.open(_:options:completionHandler:))) {
-                    if let anUrl = url {
-                        UIApplication.shared.open(anUrl, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
+        DispatchQueue.main.async {
+            if let url = notification.userInfo?["url"] as? String {
+                let url = URL(string: url)
+                if #available(iOS 10.0, *) {
+                    if UIApplication.shared.responds(to: #selector(UIApplication.open(_:options:completionHandler:))) {
+                        if let anUrl = url {
+                            UIApplication.shared.open(anUrl, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
+                        }
+                    } else {
+                        // Fallback on earlier versions
+                        if let anUrl = url {
+                            UIApplication.shared.openURL(anUrl)
+                        }
                     }
                 } else {
-                    // Fallback on earlier versions
                     if let anUrl = url {
                         UIApplication.shared.openURL(anUrl)
                     }
-                }
-            } else {
-                if let anUrl = url {
-                    UIApplication.shared.openURL(anUrl)
                 }
             }
         }
     }
     
     @objc func sendMessageButton(_ notification: NSNotification) {
-        if let text = notification.userInfo?["text"] as? String {
-            usedesk?.sendMessage(text)
+        DispatchQueue.main.async { [weak self] in
+            guard let wSelf = self else {return}
+            if let text = notification.userInfo?["text"] as? String {
+                wSelf.usedesk?.sendMessage(text)
+            }
         }
     }
     
@@ -247,13 +269,176 @@ class DialogflowView: UDMessagesView {
     // MARK: - Refresh methods
     func refreshTableView() {
         // inverter messages
-        var newMessages: [UDMessage] = []
-        for index in 0..<messages.count {
-            newMessages.append(messages[messages.count - 1 - index])
+        DispatchQueue.main.async { [weak self] in
+            guard let wSelf = self else {return}
+            var newMessages: [UDMessage] = []
+            for index in 0..<wSelf.messages.count {
+                newMessages.append(wSelf.messages[wSelf.messages.count - 1 - index])
+            }
+            wSelf.messages = newMessages
+            wSelf.generateSectionFromModel(messagesArray: wSelf.messages)
+            wSelf.tableNode.reloadData()
         }
-        messages = newMessages
-        generateSectionFromModel(messagesArray: messages)
-        tableView.reloadData()
+    }
+    
+    // MARK: - Send methods
+    func toData(image: UIImage) -> Data? {
+        return autoreleasepool(invoking: { () -> Data? in
+            return image.pngData()
+        })
+    }
+    
+    func sendUIImageMessage(image: UIImage) {
+        autoreleasepool {
+            if let imageData = toData(image: image) {
+                let content = "data:image/png;base64,\(imageData)"
+                var fileName = String(format: "%ld", content.hash)
+                fileName += ".png"
+                let message = UDMessage()
+                message.date = Date()
+                message.type = RC_TYPE_PICTURE
+                message.incoming = false
+                message.outgoing = !message.incoming
+                message.typeSenderMessageString = "client_to_operator"
+                message.file.picture = image
+                message.file.name = fileName
+                message.file.source = image
+                message.status = RC_STATUS_SUCCEED
+                if let id = usedesk?.newIdLoadingMessages() {
+                    usedesk!.idLoadingMessages.append(id)
+                    message.loadingMessageId = id
+                    usedesk?.sendFile(fileName: fileName, data: imageData, messageId: id, status: {[weak self] success, error in
+                        guard let wSelf = self else {return}
+                        if success {
+                            wSelf.chekSentMessage(message)
+                        } else {
+                            wSelf.setNotSendMessageFor(message)
+                        }
+                    })
+                } else {
+                    usedesk?.sendFile(fileName: fileName, data: imageData, status: {_,_ in })
+                }
+                addMessage(message)
+            }
+        }
+    }
+    
+    func sendPHAssetMessage(asset: PHAsset) {
+        if asset.mediaType == .video {
+            DispatchQueue.global(qos: .userInitiated).async {
+            let options = PHVideoRequestOptions()
+            options.version = .original
+            PHCachingImageManager.default().requestAVAsset(forVideo: asset, options: options){ [weak self] avasset, _, _ in
+                guard let wSelf = self else {return}
+                if let avassetURL = avasset as? AVURLAsset {
+                    if let videoData = try? Data(contentsOf: avassetURL.url) {
+                        let content = "data:video/mp4;base64,\(videoData.base64EncodedString())"
+                        var fileName = String(format: "%ld", content.hash)
+                        fileName += ".mp4"
+                        let message = UDMessage()
+                        message.date = Date()
+                        message.type = RC_TYPE_VIDEO
+                        message.incoming = false
+                        message.outgoing = !message.incoming
+                        message.typeSenderMessageString = "client_to_operator"
+                        message.file.path = avassetURL.url.path
+                        message.file.picture = UDFileManager.videoPreview(filePath: avassetURL.url.path)
+                        message.file.name = fileName
+                        message.file.source = asset
+                        message.status = RC_STATUS_SUCCEED
+                        if let id = wSelf.usedesk?.newIdLoadingMessages() {
+                            wSelf.usedesk!.idLoadingMessages.append(id)
+                            message.loadingMessageId = id
+                            wSelf.usedesk?.sendFile(fileName: fileName, data: videoData, messageId: id, status: {[weak self] success, error in
+                                guard let wSelf = self else {return}
+                                if success {
+                                    wSelf.chekSentMessage(message)
+                                } else {
+                                    wSelf.setNotSendMessageFor(message)
+                                }
+                            })
+                        } else {
+                            wSelf.usedesk?.sendFile(fileName: fileName, data: videoData, status: {_,_ in })
+                        }
+                        wSelf.addMessage(message)
+                    }
+                }
+            }
+            }
+        } else {
+            DispatchQueue.global(qos: .userInitiated).async {
+                let options = PHImageRequestOptions()
+                options.isSynchronous = true
+                PHCachingImageManager.default().requestImage(for: asset, targetSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight)), contentMode: .aspectFit, options: options, resultHandler: { [weak self] resultImage, info in
+                    guard let wSelf = self else {return}
+                    if resultImage != nil {
+                        if let imageData = resultImage!.pngData() {
+                            let content = "data:image/png;base64,\(imageData)"
+                            var fileName = String(format: "%ld", content.hash)
+                            fileName += ".png"
+                            let message = UDMessage()
+                            message.date = Date()
+                            message.type = RC_TYPE_PICTURE
+                            message.incoming = false
+                            message.outgoing = !message.incoming
+                            message.typeSenderMessageString = "client_to_operator"
+                            message.file.picture = resultImage
+                            message.file.name = fileName
+                            message.file.source = asset
+                            message.status = RC_STATUS_SUCCEED
+                            if let id = wSelf.usedesk?.newIdLoadingMessages() {
+                                wSelf.usedesk?.idLoadingMessages.append(id)
+                                message.loadingMessageId = id
+                                wSelf.usedesk?.sendFile(fileName: fileName, data: imageData, messageId: id, status: {[weak self] success, error in
+                                    guard let wSelf = self else {return}
+                                    if success {
+                                        wSelf.chekSentMessage(message)
+                                    } else {
+                                        wSelf.setNotSendMessageFor(message)
+                                    }
+                                })
+                            } else {
+                                wSelf.usedesk?.sendFile(fileName: fileName, data: imageData, status: {_,_ in })
+                            }
+                            wSelf.addMessage(message)
+                        }
+                    }
+                })
+            }
+        }
+    }
+    
+    func sendUrlFileMessage(urlFile: URL) {
+        let fileName = urlFile.localizedName ?? urlFile.lastPathComponent
+        let dataFile = try? Data(contentsOf: urlFile)
+        if dataFile != nil {
+            let message = UDMessage()
+            message.date = Date()
+            message.type = RC_TYPE_File
+            message.incoming = false
+            message.outgoing = !message.incoming
+            message.typeSenderMessageString = "client_to_operator"
+            message.file.name = fileName
+            message.file.sizeInt = dataFile!.count
+            message.file.path = urlFile.path
+            message.file.source = urlFile
+            message.status = RC_STATUS_SUCCEED
+            if let id = usedesk?.newIdLoadingMessages() {
+                usedesk!.idLoadingMessages.append(id)
+                message.loadingMessageId = id
+                usedesk?.sendFile(fileName: fileName, data: dataFile!, messageId: id, status: {[weak self] success, error in
+                    guard let wSelf = self else {return}
+                    if success {
+                        wSelf.chekSentMessage(message)
+                    } else {
+                        wSelf.setNotSendMessageFor(message)
+                    }
+                })
+            } else {
+                usedesk?.sendFile(fileName: fileName, data: dataFile!, status: {_,_ in })
+            }
+            addMessage(message)
+        }
     }
     
     // MARK: - User actions
@@ -290,6 +475,9 @@ class DialogflowView: UDMessagesView {
     }
     
     override func actionSendMessage(_ text: String?) {
+        buttonSend.alpha = 0
+        buttonSendLoader.alpha = 1
+        buttonSendLoader.startAnimating()
         if text != nil {
             if text!.count > 0 {
                 let message = UDMessage()
@@ -312,134 +500,22 @@ class DialogflowView: UDMessagesView {
         }
         if sendAssets.count > 0 {
             for i in 0..<sendAssets.count {
-                if sendAssets[i] as? PHAsset != nil {
-                    let asset = sendAssets[i] as! PHAsset
-                    if asset.mediaType == .video {
-                        DispatchQueue.global(qos: .userInitiated).async {
-                        let options = PHVideoRequestOptions()
-                        options.version = .original
-                        PHCachingImageManager.default().requestAVAsset(forVideo: asset, options: options){ [weak self] avasset, _, _ in
-                            guard let wSelf = self else {return}
-                            if let avassetURL = avasset as? AVURLAsset {
-                                if let videoData = try? Data(contentsOf: avassetURL.url) {
-                                    let content = "data:video/mp4;base64,\(videoData.base64EncodedString())"
-                                    var fileName = String(format: "%ld", content.hash)
-                                    fileName += ".mp4"
-                                    let message = UDMessage()
-                                    message.date = Date()
-                                    message.type = RC_TYPE_VIDEO
-                                    message.incoming = false
-                                    message.outgoing = !message.incoming
-                                    message.typeSenderMessageString = "client_to_operator"
-                                    message.file.path = avassetURL.url.path
-                                    message.file.picture = UDFileManager.videoPreview(filePath: avassetURL.url.path)
-                                    message.file.name = fileName
-                                    message.data = videoData
-                                    message.status = RC_STATUS_SUCCEED
-                                    if let id = wSelf.usedesk?.newIdLoadingMessages() {
-                                        wSelf.usedesk!.idLoadingMessages.append(id)
-                                        message.loadingMessageId = id
-                                        wSelf.usedesk?.sendFile(fileName: fileName, data: videoData, messageId: id, status: {_,_ in })
-                                        wSelf.chekSentMessage(message)
-                                    } else {
-                                        wSelf.usedesk?.sendFile(fileName: fileName, data: videoData, status: {_,_ in })
-                                    }
-                                    wSelf.addMessage(message)
-                                }
-                            }
-                        }
-                        }
-                    } else {
-                        DispatchQueue.global(qos: .userInitiated).async {
-                        let options = PHImageRequestOptions()
-                        options.isSynchronous = true
-                        PHCachingImageManager.default().requestImage(for: asset, targetSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight)), contentMode: .aspectFit, options: options, resultHandler: { [weak self] resultImage, info in
-                            guard let wSelf = self else {return}
-                            if resultImage != nil {
-                                if let imageData = resultImage!.pngData() {
-                                    let content = "data:image/png;base64,\(imageData)"
-                                    var fileName = String(format: "%ld", content.hash)
-                                    fileName += ".png"
-                                    let message = UDMessage()
-                                    message.date = Date()
-                                    message.type = RC_TYPE_PICTURE
-                                    message.incoming = false
-                                    message.outgoing = !message.incoming
-                                    message.typeSenderMessageString = "client_to_operator"
-                                    message.file.picture = resultImage
-                                    message.file.name = fileName
-                                    message.data = imageData
-                                    message.status = RC_STATUS_SUCCEED
-                                    if let id = wSelf.usedesk?.newIdLoadingMessages() {
-                                        wSelf.usedesk!.idLoadingMessages.append(id)
-                                        message.loadingMessageId = id
-                                        wSelf.usedesk?.sendFile(fileName: fileName, data: imageData, messageId: id, status: {_,_ in })
-                                        wSelf.chekSentMessage(message)
-                                    } else {
-                                        wSelf.usedesk?.sendFile(fileName: fileName, data: imageData, status: {_,_ in })
-                                    }
-                                    wSelf.addMessage(message)
-                                }
-                            }
-                        })
-                    }
-                    }
-                } else if sendAssets[i] as? UIImage != nil {
-                    let pickerImage = sendAssets[i] as! UIImage
-                    if let imageData = pickerImage.pngData() {
-                        let content = "data:image/png;base64,\(imageData)"
-                        var fileName = String(format: "%ld", content.hash)
-                        fileName += ".png"
-                        let message = UDMessage()
-                        message.date = Date()
-                        message.type = RC_TYPE_PICTURE
-                        message.incoming = false
-                        message.outgoing = !message.incoming
-                        message.typeSenderMessageString = "client_to_operator"
-                        message.file.picture = pickerImage
-                        message.file.name = fileName
-                        message.data = imageData
-                        message.status = RC_STATUS_SUCCEED
-                        if let id = usedesk?.newIdLoadingMessages() {
-                            usedesk!.idLoadingMessages.append(id)
-                            message.loadingMessageId = id
-                            usedesk?.sendFile(fileName: fileName, data: imageData, messageId: id, status: {_,_ in })
-                            chekSentMessage(message)
-                        } else {
-                            usedesk?.sendFile(fileName: fileName, data: imageData, status: {_,_ in })
-                        }
-                        addMessage(message)
-                    }
-                } else if let urlFile = sendAssets[i] as? URL {
-                    let fileName = urlFile.localizedName ?? urlFile.lastPathComponent
-                    let dataFile = try? Data(contentsOf: urlFile)
-                    if dataFile != nil {
-                        let message = UDMessage()
-                        message.date = Date()
-                        message.type = RC_TYPE_File
-                        message.incoming = false
-                        message.outgoing = !message.incoming
-                        message.typeSenderMessageString = "client_to_operator"
-                        message.file.name = fileName
-                        message.file.sizeInt = dataFile!.count
-                        message.file.path = urlFile.path
-                        message.data = dataFile!
-                        message.status = RC_STATUS_SUCCEED
-                        if let id = usedesk?.newIdLoadingMessages() {
-                            usedesk!.idLoadingMessages.append(id)
-                            message.loadingMessageId = id
-                            usedesk?.sendFile(fileName: fileName, data: dataFile!, messageId: id, status: {_,_ in })
-                            chekSentMessage(message)
-                        } else {
-                            usedesk?.sendFile(fileName: fileName, data: dataFile!, status: {_,_ in })
-                        }
-                        addMessage(message)
+                autoreleasepool {
+                    if let asset = sendAssets[i] as? PHAsset {
+                        sendPHAssetMessage(asset: asset)
+                    } else if let image = sendAssets[i] as? UIImage {
+                        sendUIImageMessage(image: image)
+                    } else if let urlFile = sendAssets[i] as? URL {
+                        sendUrlFileMessage(urlFile: urlFile)
                     }
                 }
             }
-            sendAssets = []
+            self.sendAssets = []
         }
         closeAttachCollection()
+        buttonSend.alpha = 1
+        buttonSendLoader.alpha = 0
+        buttonSendLoader.stopAnimating()
     }
     
     // MARK: - User actions (menu)
@@ -450,16 +526,11 @@ class DialogflowView: UDMessagesView {
         }
     }
    
-    // MARK: - TableView
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return messagesWithSection.count
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard usedesk != nil else {return}
+    // MARK: - TableNode
+    func tableNode(_ tableNode: ASTableNode, didSelectRowAt indexPath: IndexPath) {
         if messagesWithSection[indexPath.section][indexPath.row].isNotSent {
             let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-            
+
             let removeAction = UIAlertAction(title: usedesk!.stringFor("DeleteMessage"), style: .destructive, handler: { [weak self] (alert: UIAlertAction!)  in
                 guard let wSelf = self else {return}
                 if let removeMessage = wSelf.messages.filter({ $0.loadingMessageId == wSelf.messagesWithSection[indexPath.section][indexPath.row].loadingMessageId}).first {
@@ -470,10 +541,10 @@ class DialogflowView: UDMessagesView {
                 wSelf.messagesWithSection[indexPath.section].remove(at: indexPath.row)
                 DispatchQueue.main.async(execute: { [weak self] in
                     guard let wSelf = self else {return}
-                    wSelf.tableView.reloadData()
+                    wSelf.tableNode.reloadData()
                 })
             })
-            
+
             let repeatAction = UIAlertAction(title: usedesk!.stringFor("SendAgain"), style: .default, handler: { [weak self] (alert: UIAlertAction!) in
                 guard let wSelf = self else {return}
                 let message = wSelf.messagesWithSection[indexPath.section][indexPath.row]
@@ -485,20 +556,22 @@ class DialogflowView: UDMessagesView {
                 wSelf.messagesWithSection[indexPath.section].remove(at: indexPath.row)
                 DispatchQueue.main.async(execute: { [weak self] in
                     guard let wSelf = self else {return}
-                    wSelf.tableView.reloadData()
-                    wSelf.tableView.contentOffset.y = 0
+                    wSelf.tableNode.reloadData()
+                    wSelf.tableNode.contentOffset.y = 0
                 })
                 message.isNotSent = false
                 switch message.type {
                 case RC_TYPE_VIDEO, RC_TYPE_PICTURE, RC_TYPE_File:
-                    if message.data != nil {
-                        wSelf.usedesk?.sendFile(fileName: message.file.name, data: message.data!, messageId: message.loadingMessageId, status: {_,_ in })
-                        wSelf.chekSentMessage(message)
+                    if let image = message.file.source as? UIImage {
+                        wSelf.sendUIImageMessage(image: image)
+                    } else if let asset = message.file.source as? PHAsset {
+                        wSelf.sendPHAssetMessage(asset: asset)
+                    } else if let urlFile = message.file.source as? URL {
+                        wSelf.sendUrlFileMessage(urlFile: urlFile)
                     }
                 default:
                     wSelf.actionSendMessage(message.text)
                 }
-                wSelf.addMessage(message)
             })
 
             let cancelAction = UIAlertAction(title: "Отменить", style: .cancel, handler: {(alert: UIAlertAction!) in
@@ -617,4 +690,16 @@ extension Date {
 // Helper function inserted by Swift 4.2 migrator.
 fileprivate func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
 	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
+}
+extension UIImage {
+    func toData (options: NSDictionary, type: CFString) -> Data? {
+        guard let cgImage = cgImage else { return nil }
+        return autoreleasepool { () -> Data? in
+            let data = NSMutableData()
+            guard let imageDestination = CGImageDestinationCreateWithData(data as CFMutableData, type, 1, nil) else { return nil }
+            CGImageDestinationAddImage(imageDestination, cgImage, options)
+            CGImageDestinationFinalize(imageDestination)
+            return data as Data
+        }
+    }
 }

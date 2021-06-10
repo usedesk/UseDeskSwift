@@ -42,36 +42,7 @@ class UDDir: NSObject {
         self.createIntermediate(path)
         return path
     }
-
-    // MARK: -
-//    convenience override init() {
-//        NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first
-//    }
     
-//    class func document(_ component: String?) -> String? {
-//        var path = self.init()
-//        if component != nil {
-//            path = URL(fileURLWithPath: path ?? "").appendingPathComponent(component).absoluteString
-//        }
-//        self.createIntermediate(path)
-//        return path
-//    }
-    
-    // MARK: -
-//    convenience override init() {
-//        NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first
-//    }
-//
-//    class func cache(_ component: String?) -> String? {
-//        var path = self.init()
-//        if component != nil {
-//            path = URL(fileURLWithPath: path ?? "").appendingPathComponent(component).absoluteString
-//        }
-//        self.createIntermediate(path)
-//        return path
-//    }
-    
-    // MARK: -
     class func createIntermediate(_ path: String?) {
         let directory = URL(fileURLWithPath: path ?? "").deletingLastPathComponent().absoluteString
         if self.exist(directory) == false {

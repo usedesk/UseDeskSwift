@@ -1,15 +1,51 @@
 PODS:
-  - Alamofire (5.4.2)
+  - Alamofire (5.4.3)
   - Down (0.10.0)
+  - PINCache (3.0.3):
+    - PINCache/Arc-exception-safe (= 3.0.3)
+    - PINCache/Core (= 3.0.3)
+  - PINCache/Arc-exception-safe (3.0.3):
+    - PINCache/Core
+  - PINCache/Core (3.0.3):
+    - PINOperation (~> 1.2.1)
+  - PINOperation (1.2.1)
+  - PINRemoteImage/Core (3.0.3):
+    - PINOperation
+  - PINRemoteImage/iOS (3.0.3):
+    - PINRemoteImage/Core
+  - PINRemoteImage/PINCache (3.0.3):
+    - PINCache (~> 3.0.3)
+    - PINRemoteImage/Core
   - Socket.IO-Client-Swift (16.0.1):
     - Starscream (~> 4.0)
   - Starscream (4.0.4)
   - Swime (3.0.6)
-  - UseDesk_SDK_Swift (1.2.3):
+  - Texture (3.0.0):
+    - Texture/AssetsLibrary (= 3.0.0)
+    - Texture/Core (= 3.0.0)
+    - Texture/MapKit (= 3.0.0)
+    - Texture/Photos (= 3.0.0)
+    - Texture/PINRemoteImage (= 3.0.0)
+    - Texture/Video (= 3.0.0)
+  - Texture/AssetsLibrary (3.0.0):
+    - Texture/Core
+  - Texture/Core (3.0.0)
+  - Texture/MapKit (3.0.0):
+    - Texture/Core
+  - Texture/Photos (3.0.0):
+    - Texture/Core
+  - Texture/PINRemoteImage (3.0.0):
+    - PINRemoteImage/iOS (~> 3.0.0)
+    - PINRemoteImage/PINCache
+    - Texture/Core
+  - Texture/Video (3.0.0):
+    - Texture/Core
+  - UseDesk_SDK_Swift (1.3.0):
     - Alamofire (~> 5)
     - Down
     - Socket.IO-Client-Swift (~> 16.0)
     - Swime
+    - Texture
 
 DEPENDENCIES:
   - UseDesk_SDK_Swift (from `../`)
@@ -18,21 +54,29 @@ SPEC REPOS:
   trunk:
     - Alamofire
     - Down
+    - PINCache
+    - PINOperation
+    - PINRemoteImage
     - Socket.IO-Client-Swift
     - Starscream
     - Swime
+    - Texture
 
 EXTERNAL SOURCES:
   UseDesk_SDK_Swift:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Alamofire: bfbc4c2fe5909b1d94fb4ef2277c6b3727ef5dae
+  Alamofire: e447a2774a40c996748296fa2c55112fdbbc42f9
   Down: 01f155f9d7e99673c667efd2218709c3b9a8bc13
+  PINCache: 7a8fc1a691173d21dbddbf86cd515de6efa55086
+  PINOperation: 00c935935f1e8cf0d1e2d6b542e75b88fc3e5e20
+  PINRemoteImage: f1295b29f8c5e640e25335a1b2bd9d805171bd01
   Socket.IO-Client-Swift: c116d6dc9fd6be9c259bacfe143f8725bce7d79e
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   Swime: d7b2c277503b6cea317774aedc2dce05613f8b0b
-  UseDesk_SDK_Swift: e7f08b0d026d0348870a2b1b01e230813a8bbe4b
+  Texture: 2f109e937850d94d1d07232041c9c7313ccddb81
+  UseDesk_SDK_Swift: 432211ce4d985ce9673a2755b1ea455ba78a1966
 
 PODFILE CHECKSUM: 06473a34d829d02e32f611b837c8eb34f4866fb0
 

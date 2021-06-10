@@ -18,7 +18,9 @@ class UDNavigationController: UINavigationController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+    }
+    
+    func setProperties() {
         isDark = configurationStyle.navigationBarStyle.statusBarStyle == .default ? false : true
         
         navigationBar.isTranslucent = false
