@@ -78,14 +78,14 @@ extension String {
         return true
     }
     
-    func udGetLinks() -> [String] {
-        var links: [String] = []
+    func udGetLinksRange() -> [Range<String.Index>] {
+        var links: [Range<String.Index>] = []
         let detector = try! NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
         let matches = detector.matches(in: self, options: [], range: NSRange(location: 0, length: self.utf16.count))
 
         for match in matches {
             if let range = Range(match.range, in: self) {
-                links.append(String(self[range]))
+                links.append(range/*.nsRange(in: self)*/)
             }
         }
         return links
@@ -150,4 +150,8 @@ extension String {
         
         return attributedString.size().height
     }
+}
+
+extension RangeExpression where Bound == String.Index  {
+    func nsRange<S: StringProtocol>(in string: S) -> NSRange { .init(self, in: string) }
 }

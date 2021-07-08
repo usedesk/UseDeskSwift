@@ -95,7 +95,7 @@ class DialogflowView: UDMessagesView {
                 wSelf.addMessage(message)
             }
         }
-        reloadhistory()
+        loadHistory()
     }
     
     deinit {
@@ -103,22 +103,37 @@ class DialogflowView: UDMessagesView {
         NotificationCenter.default.removeObserver(self, name: Notification.Name("messageButtonSend"), object: nil)
     }
     
-    func reloadhistory() {
+    func reloadHistory() {
         if usedesk != nil {
-            for message in messages {
-                if message.file.path != "" {
-                    let url = URL(fileURLWithPath: message.file.path)
-                    do {
-                        try FileManager.default.removeItem(at: url)
-                    } catch {}
+            if usedesk!.historyMess.count > messages.count {
+                let countNewMessages = usedesk!.historyMess.count - messages.count
+                let countMessages = messages.count
+                for index in 0..<countNewMessages {
+                    messages.insert(usedesk!.historyMess[countMessages + index], at: 0)
+                }
+                DispatchQueue.main.async { [weak self] in
+                    guard let wSelf = self else {return}
+                    wSelf.generateSectionFromModel(messagesArray: wSelf.messages)
+                    wSelf.tableNode.reloadData()
                 }
             }
-            messages = []
-            for message in (usedesk!.historyMess) {
-                messages.append(message)
-            }
-            refreshTableView()
         }
+    }
+    
+    func loadHistory() {
+        for message in messages {
+            if message.file.path != "" {
+                let url = URL(fileURLWithPath: message.file.path)
+                do {
+                    try FileManager.default.removeItem(at: url)
+                } catch {}
+            }
+        }
+        messages = []
+        for message in (usedesk!.historyMess) {
+            messages.append(message)
+        }
+        refreshTableView()
     }
     
     func generateSectionFromModel(messagesArray: [UDMessage]) {

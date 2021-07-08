@@ -29,12 +29,17 @@ class UDTextMessageCellNode: UDMessageCellNode {
             attributedString = NSMutableAttributedString(string: message.text)
         }
         attributedString.addAttributes([NSAttributedString.Key.font : messageStyle.font, .foregroundColor : message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor], range: NSRange(location: 0, length: attributedString.length))
+        let linksRange = attributedString.string.udGetLinksRange()
+        for linkRange in linksRange {
+            attributedString.addAttributes([.link : attributedString.string[linkRange]], range: linkRange.nsRange(in: attributedString.string))
+        }
         attributedString.enumerateAttribute(.link, in: NSRange(location: 0, length: attributedString.string.count)) { value, range, _ in
             if value != nil {
                 attributedString.addAttribute(.underlineColor, value: message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor, range: range)
                 attributedString.addAttribute(.foregroundColor, value: message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor, range: range)
             }
         }
+        
         textMessageNode.attributedText = attributedString
         textMessageNode.isUserInteractionEnabled = true
         textMessageNode.delegate = self
@@ -140,6 +145,10 @@ extension UDTextMessageCellNode: ASTextNodeDelegate {
     public func textNode(_ textNode: ASTextNode, tappedLinkAttribute attribute: String, value: Any, at point: CGPoint, textRange: NSRange) {
         if let url = value as? URL {
             UIApplication.shared.open(url)
+        } else if let valueString = value as? String {
+            if let url = URL(string: valueString) {
+                UIApplication.shared.open(url)
+            }
         }
     }
 }

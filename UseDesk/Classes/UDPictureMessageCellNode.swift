@@ -49,15 +49,18 @@ class UDPictureMessageCellNode: UDMessageCellNode {
             wSelf.activityIndicator = UIActivityIndicatorView(style: .white)
             wSelf.activityIndicator.hidesWhenStopped = false
             if message.status == RC_STATUS_OPENIMAGE {
+                print("RC_STATUS_OPENIMAGE")
                 wSelf.activityIndicator.startAnimating()
                 wSelf.activityIndicator.alpha = 1
                 wSelf.loaderBackNode.alpha = 1
             } else {
                 if message.status == RC_STATUS_SUCCEED {
+                    print("RC_STATUS_SUCCEED")
                     wSelf.activityIndicator.stopAnimating()
                     wSelf.activityIndicator.alpha = 0
                     wSelf.loaderBackNode.alpha = 0
                 } else {
+                    print("status = \(message.status)")
                     wSelf.activityIndicator.startAnimating()
                     wSelf.activityIndicator.alpha = 1
                     wSelf.loaderBackNode.alpha = 1
@@ -65,7 +68,7 @@ class UDPictureMessageCellNode: UDMessageCellNode {
             }
             return wSelf.activityIndicator
         })
-        
+        print("message.file.picture = \(message.file.picture != nil ? "есть" : "nil")")
         imageNode.image = message.file.picture != nil ? message.file.picture : pictureStyle.imageDefault
         imageNode.contentMode = .scaleAspectFit
         imageNode.cornerRadius = pictureStyle.cornerRadius

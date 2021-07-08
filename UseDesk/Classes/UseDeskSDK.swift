@@ -242,6 +242,8 @@ public class UseDeskSDK: NSObject {
                         wSelf.navController.setTitleTextAttributes()
                         wSelf.navController.modalPresentationStyle = .fullScreen
                         parentController?.present(wSelf.navController, animated: true)
+                    } else {
+                        wSelf.dialogflowVC.reloadHistory()
                     }
                 } else {
                     if error == "feedback_form" || error == "feedback_form_and_chat" {
