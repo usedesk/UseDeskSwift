@@ -363,6 +363,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     @objc func keyboardHide(_ notification: Notification?) {
         if isShowKeyboard {
+            updateTextInputComment()
             let info = notification?.userInfo
             let duration = TimeInterval((info?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
             UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
@@ -440,10 +441,12 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         }
     }
     
-    func sendCommentEnd() {
+    func updateTextInputComment() {
         guard usedesk != nil else {return}
-        textInput.text = usedesk!.stringFor("Write") + "..."
-        textInput.textColor = configurationStyle.inputViewStyle.placeholderTextColor
+        if textInput.text.count == 0 {
+            textInput.text = usedesk!.stringFor("Write") + "..."
+            textInput.textColor = configurationStyle.inputViewStyle.placeholderTextColor
+        }
     }
     
     // MARK: - User actions (bubble tap)
@@ -462,9 +465,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             actionSendMessage()
         } else {
             actionSendMessage(textInput.text)
+            textInput.text = ""
         }
-        dismissKeyboard()
-        sendCommentEnd()
         inputPanelUpdate()
     }
     
@@ -520,6 +522,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             alert.addAction(canselAction)
             self.present(alert, animated: true)
         } else {
+            if assetsGallery.count == 0 {
+                loadAssets()
+            }
             var maxCountAssets = 10
             if usedesk != nil {
                 maxCountAssets = usedesk!.maxCountAssets
@@ -546,7 +551,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     }
     
     // MARK: - Attach Methods
-    func showAttachCollection() {
+    func showAttachCollection() { 
         attachCollectionMessageView.reloadData()
         isAttachFiles = true
         if !isViewInputResizeFromAttach {
@@ -811,7 +816,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                         guard let wSelf = self else {return}
                                         if let indexPathPicture = wSelf.indexPathForMessage(at: message.messageId) {
                                             if (mimeType == "image") {
-                                                message.file.picture = UIImage(data: data!)
+                                                message.file.picture = UIImage(data: data!)?.resizeImage()
                                                 message.file.path = FileManager.default.writeDataToCacheDirectory(data: data!) ?? ""
                                                 message.file.name = message.file.path != "" ? (URL(fileURLWithPath: message.file.path).localizedName ?? "Image") : "Image"
                                                 message.status = RC_STATUS_SUCCEED
@@ -891,7 +896,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                                 }
                                             } else if mimeType.mime.contains("image") {
                                                 if let indexPathPicture = wSelf.indexPathForMessage(at: message.messageId) {
-                                                    message.file.picture = UIImage(data: data!)
+                                                    message.file.picture = UIImage(data: data!)?.resizeImage()
                                                     message.file.path = FileManager.default.writeDataToCacheDirectory(data: data!) ?? ""
                                                     message.file.name = message.file.path != "" ? (URL(fileURLWithPath: message.file.path).localizedName ?? "Image") : "Image"
                                                     message.file.type = "image"
@@ -1002,9 +1007,6 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
                 PHCachingImageManager.default().requestImage(for: asset, targetSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight)), contentMode: .aspectFit, options: options, resultHandler: {[weak self] result, info in
                     if result != nil {
                         guard let wSelf = self else {return}
-                        if indexPath.row < wSelf.sendAssets.count {
-                            wSelf.sendAssets[indexPath.row] = result!
-                        }
                         cell.setingCell(image: result!, type: asset.mediaType == .video ? .video : .image, videoDuration: asset.duration, index: indexPath.row)
                     }
                 })
@@ -1035,7 +1037,7 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
                 maxCountAssets = usedesk!.maxCountAssets
             }
             if indexPath.row == 0 {
-                if (sendAssets.count + selectedAssets.count < maxCountAssets){
+                if (sendAssets.count + selectedAssets.count < maxCountAssets) {
                     takePhotoCamera()
                 } else {
                     showAlertMaxCountAttach()
@@ -1184,22 +1186,11 @@ extension UDMessagesView: PHPickerViewControllerDelegate {
         fetchResult.enumerateObjects { [weak self] (asset, index, stop) -> Void in
             guard let wSelf = self else {return}
             wSelf.sendAssets.append(asset)
-            let options = PHImageRequestOptions()
-            options.isSynchronous = true
-            PHCachingImageManager.default().requestImage(for: asset, targetSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight)), contentMode: .aspectFit, options: options, resultHandler: {[weak self] result, info in
-                guard let wSelf = self else {return}
-                if result != nil {
-                    if index < wSelf.sendAssets.count {
-                        wSelf.sendAssets[index] = result!
-                    }
-                }
-                if index == fetchResult.count - 1 {
-                    wSelf.closeAttachView()
-                    wSelf.showAttachCollection()
-                    wSelf.buttonSend.isEnabled = true
-                }
-            })
-            
+            if index == fetchResult.count - 1 {
+                wSelf.closeAttachView()
+                wSelf.showAttachCollection()
+                wSelf.buttonSend.isEnabled = true
+            }
         }
     }
 }

@@ -127,8 +127,8 @@ class UseDeskSDKHelp {
         }
     }
     
-    class func image(toNSString image: UIImage) -> String {
-        let imageData: Data = image.pngData()!
-        return imageData.base64EncodedString(options: .lineLength64Characters)
-    }
+//    class func image(toNSString image: UIImage) -> String {
+//        let imageData: Data = image.pngData()!
+//        return imageData.base64EncodedString(options: .lineLength64Characters)
+//    }
 }

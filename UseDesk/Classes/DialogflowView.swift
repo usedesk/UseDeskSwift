@@ -315,9 +315,9 @@ class DialogflowView: UDMessagesView {
                 message.incoming = false
                 message.outgoing = !message.incoming
                 message.typeSenderMessageString = "client_to_operator"
-                message.file.picture = image
+                message.file.picture = image.resizeImage()
                 message.file.name = fileName
-                message.file.source = image
+                message.file.source = image.resizeImage()
                 message.status = RC_STATUS_SUCCEED
                 if let id = usedesk?.newIdLoadingMessages() {
                     usedesk!.idLoadingMessages.append(id)
@@ -384,11 +384,10 @@ class DialogflowView: UDMessagesView {
             DispatchQueue.global(qos: .userInitiated).async {
                 let options = PHImageRequestOptions()
                 options.isSynchronous = true
-                PHCachingImageManager.default().requestImage(for: asset, targetSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight)), contentMode: .aspectFit, options: options, resultHandler: { [weak self] resultImage, info in
+                PHCachingImageManager.default().requestImageData(for: asset, options: options, resultHandler: { [weak self] data, _, _, info in
                     guard let wSelf = self else {return}
-                    if resultImage != nil {
-                        if let imageData = resultImage!.pngData() {
-                            let content = "data:image/png;base64,\(imageData)"
+                    if data != nil {
+                            let content = "data:image/png;base64,\(data!)"
                             var fileName = String(format: "%ld", content.hash)
                             fileName += ".png"
                             let message = UDMessage()
@@ -397,14 +396,14 @@ class DialogflowView: UDMessagesView {
                             message.incoming = false
                             message.outgoing = !message.incoming
                             message.typeSenderMessageString = "client_to_operator"
-                            message.file.picture = resultImage
+                        message.file.picture = UIImage(data: data!)?.resizeImage()
                             message.file.name = fileName
                             message.file.source = asset
                             message.status = RC_STATUS_SUCCEED
                             if let id = wSelf.usedesk?.newIdLoadingMessages() {
                                 wSelf.usedesk?.idLoadingMessages.append(id)
                                 message.loadingMessageId = id
-                                wSelf.usedesk?.sendFile(fileName: fileName, data: imageData, messageId: id, status: {[weak self] success, error in
+                                wSelf.usedesk?.sendFile(fileName: fileName, data: data!, messageId: id, status: {[weak self] success, error in
                                     guard let wSelf = self else {return}
                                     if success {
                                         wSelf.chekSentMessage(message)
@@ -413,10 +412,9 @@ class DialogflowView: UDMessagesView {
                                     }
                                 })
                             } else {
-                                wSelf.usedesk?.sendFile(fileName: fileName, data: imageData, status: {_,_ in })
+                                wSelf.usedesk?.sendFile(fileName: fileName, data: data!, status: {_,_ in })
                             }
                             wSelf.addMessage(message)
-                        }
                     }
                 })
             }
@@ -499,7 +497,7 @@ class DialogflowView: UDMessagesView {
                 message.date = Date()
                 message.type = RC_TYPE_TEXT
                 message.incoming = false
-                message.outgoing = !message.incoming
+                message.outgoing = !message.incoming 
                 message.text = text!
                 message.typeSenderMessageString = "client_to_operator"
                 if let id = usedesk?.newIdLoadingMessages() {

@@ -44,7 +44,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </view>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="videoIndicator" translatesAutoresizingMaskIntoConstraints="NO" id="L0M-oy-r9N">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="udVideoIndicator" translatesAutoresizingMaskIntoConstraints="NO" id="L0M-oy-r9N">
                                 <rect key="frame" x="8" y="5.5" width="8" height="9"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="L0M-oy-r9N" secondAttribute="height" multiplier="8:9" id="bZB-5k-oQU"/>
@@ -114,6 +114,6 @@
     </objects>
     <resources>
         <image name="udSelectAsset" width="24" height="24"/>
-        <image name="videoIndicator" width="12" height="12"/>
+        <image name="udVideoIndicator" width="12" height="12"/>
     </resources>
 </document>
