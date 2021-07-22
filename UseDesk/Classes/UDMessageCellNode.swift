@@ -37,6 +37,7 @@ class UDMessageCellNode: ASCellNode {
         bubbleImage = bubbleImage.stretchableImage(withLeftCapWidth: 23, topCapHeight: 16).withRenderingMode(.alwaysTemplate)
         bubbleImageNode.image = bubbleImage
         bubbleImageNode.imageModificationBlock = ASImageNodeTintColorModificationBlock(message.incoming != false ? bubbleStyle.bubbleColorIncoming : bubbleStyle.bubbleColorOutgoing)
+        backgroundColor = .clear
         
         //avatar and time
         if isPictureOrVideoType {
