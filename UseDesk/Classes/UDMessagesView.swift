@@ -706,7 +706,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         if textView == textInput {
             if (textView.text == usedesk!.stringFor("Write") + "..." && textView.textColor == configurationStyle.inputViewStyle.placeholderTextColor) {
                 textInput.text = ""
-                textInput.textColor = .black
+                textInput.textColor = configurationStyle.inputViewStyle.textColor
             }
         }
     }
