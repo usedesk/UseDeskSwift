@@ -1115,8 +1115,6 @@ public class UseDeskSDK: NSObject {
     }
     
     @objc public func closeChat() {
-        //dialogflowVC = DialogflowView()
-        //offlineVC = UDOfflineForm()
         socket?.disconnect()
         historyMess = []
     }

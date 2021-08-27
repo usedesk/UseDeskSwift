@@ -9,13 +9,19 @@ import Foundation
 
 let RootView = UIApplication.shared.keyWindow?.rootViewController
 
-extension UseDeskSDK {
+class UseDeskSDKUIHelper: SDKUIHelper {
     var loader: UDLoader? = nil
     var navController = UDNavigationController()
     private var dialogflowVC: DialogflowView = DialogflowView()
     private var offlineVC: UDOfflineForm = UDOfflineForm()
 
-    @objc public func start(withCompanyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, token _token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
+    func resetUI() {
+        dialogflowVC = DialogflowView()
+        offlineVC = UDOfflineForm()
+    }
+
+    @objc
+    public func start(withCompanyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, token _token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
 
         closure = startBlock
 
