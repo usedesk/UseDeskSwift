@@ -216,3 +216,10 @@ class UseDeskSDKUIHelper: SDKUIHelper {
         }
     }
 }
+
+extension UseDeskSDK {
+    convenience init(withUI: Bool = true) {
+        uiHelper = UseDeskSDKUIHelper()
+        self.init()
+    }
+}

@@ -6,7 +6,7 @@ import SocketIO
 import Alamofire
 import UserNotifications
 import Down
-
+import UIKit
 
 public typealias UDSStartBlock = (Bool, String?, String) -> Void
 public typealias UDSBaseBlock = (Bool, [UDBaseCollection]?, String?) -> Void
@@ -39,6 +39,7 @@ public class UseDeskSDK: NSObject {
     var socket: SocketIOClient?
     // closure StartBlock
     var closure: UDSStartBlock? = nil
+    var uiHelper: SDKUIHelper?
     
     // Configutation
     var companyID = ""
@@ -97,6 +98,10 @@ public class UseDeskSDK: NSObject {
             status(false, "Тhe file is not accepted by the server ")
         }
         
+    }
+
+    public func start(withCompanyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, token _token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
+        uiHelper?.start(withCompanyID: _companyID, chanelId: _chanelId, urlAPI: _urlAPI, knowledgeBaseID: _knowledgeBaseID, api_token: _api_token, email: _email, phone: _phone, url: _url, urlToSendFile: _urlToSendFile, port: _port, name: _name, operatorName: _operatorName, nameChat: _nameChat, firstMessage: _firstMessage, note: _note, token: _token, localeIdentifier: localeIdentifier, customLocale: customLocale, presentIn: parentController, connectionStatus: startBlock)
     }
     
     @objc public func startWithoutGUICompanyID(companyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, token _token: String? = nil, isBeforeFeedbackForm: Bool = false, connectionStatus startBlock: @escaping UDSStartBlock) {
@@ -1117,11 +1122,11 @@ public class UseDeskSDK: NSObject {
     @objc public func closeChat() {
         socket?.disconnect()
         historyMess = []
+        uiHelper?.resetUI()
     }
     
     @objc public func releaseChat() {
-        //dialogflowVC = DialogflowView()
-       // offlineVC = UDOfflineForm()
+        uiHelper?.resetUI()
         idLoadingMessages = []
         socket?.disconnect()
         historyMess = []
