@@ -13,7 +13,7 @@ let package = Package(
         .package(url: "https://github.com/socketio/socket.io-client-swift", from: "16.0.0"),
         .package(url: "https://github.com/Alamofire/Alamofire", from: "5.0.0"),
         .package(url: "https://github.com/sendyhalim/Swime", from: "3.0.0"),
-        .package(url: "https://github.com/erikkerber/Down/tree/ek/portable-framework", .branch("ek/portable-framework"))
+        .package(url: "https://github.com/erikkerber/Down", .branch("ek/portable-framework"))
     ],
     targets: [
         .target(
