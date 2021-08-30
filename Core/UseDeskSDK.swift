@@ -18,7 +18,7 @@ public typealias UDSErrorBlock = ([Any]?) -> Void
 public typealias UDSFeedbackMessageBlock = (UDMessage?) -> Void
 public typealias UDSFeedbackAnswerMessageBlock = (Bool) -> Void
 
-public class UseDeskSDK: NSObject {
+public class UseDeskSDK: NSObject, UDUISetupable {
     @objc public var newMessageBlock: UDSNewMessageBlock?
     @objc public var connectBlock: UDSConnectBlock?
     @objc public var errorBlock: UDSErrorBlock?
@@ -101,7 +101,159 @@ public class UseDeskSDK: NSObject {
     }
 
     public func start(withCompanyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, token _token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
-        uiHelper?.start(withCompanyID: _companyID, chanelId: _chanelId, urlAPI: _urlAPI, knowledgeBaseID: _knowledgeBaseID, api_token: _api_token, email: _email, phone: _phone, url: _url, urlToSendFile: _urlToSendFile, port: _port, name: _name, operatorName: _operatorName, nameChat: _nameChat, firstMessage: _firstMessage, note: _note, token: _token, localeIdentifier: localeIdentifier, customLocale: customLocale, presentIn: parentController, connectionStatus: startBlock)
+        setupUI()
+        closure = startBlock
+
+        uiHelper?.showLoader()
+
+        companyID = _companyID
+        guard _chanelId.trimmingCharacters(in: .whitespaces).count > 0 && Int(_chanelId) != nil else {
+            startBlock(false, "chanelIdError", "")
+            return
+        }
+        chanelId = _chanelId
+        api_token = _api_token
+
+        if _port != nil {
+            if _port != "" {
+                port = _port!
+            }
+        }
+
+        guard isValidSite(path: _url) else {
+            startBlock(false, "urlError", "")
+            return
+        }
+        urlWithoutPort = _url
+
+        if isExistProtocol(url: _url) {
+            url = "\(_url):\(port)"
+        } else {
+            url = "https://" + "\(_url):\(port)"
+        }
+
+
+        if _email != nil {
+            if _email != "" {
+                email = _email!
+                if !email.udIsValidEmail() {
+                    startBlock(false, "emailError", "")
+                    uiHelper?.hideLoader()
+                    return
+                }
+            }
+        }
+
+        if _urlToSendFile != nil {
+            if _urlToSendFile != "" {
+                guard isValidSite(path: _urlToSendFile!) else {
+                    startBlock(false, "urlToSendFileError", "")
+                    return
+                }
+                if isExistProtocol(url: _urlToSendFile!) {
+                    urlToSendFile = _urlToSendFile!
+                } else {
+                    urlToSendFile = "https://" + _urlToSendFile!
+                }
+            }
+        }
+
+        if _knowledgeBaseID != nil {
+            knowledgeBaseID = _knowledgeBaseID!
+        }
+
+        if _urlAPI != nil {
+            if _urlAPI != "" {
+                if isExistProtocol(url: _urlAPI!) {
+                    urlAPI = _urlAPI!
+                } else {
+                    urlAPI = "https://" + _urlAPI!
+                }
+                guard isValidSite(path: urlAPI) else {
+                    startBlock(false, "urlAPIError", "")
+                    return
+                }
+            }
+        }
+
+        if _name != nil {
+            if _name != "" {
+                name = _name!
+            }
+        }
+        if _operatorName != nil {
+            if _operatorName != "" {
+                operatorName = _operatorName!
+            }
+        }
+        if _phone != nil {
+            if _phone != "" {
+                phone = _phone!
+                guard isValidPhone(phone: _phone!) else {
+                    startBlock(false, "phoneError", "")
+                    uiHelper?.hideLoader()
+                    return
+                }
+            }
+        }
+        if _nameChat != nil {
+            if _nameChat != "" {
+                nameChat = _nameChat!
+            } else {
+                nameChat = stringFor("OnlineChat")
+
+            }
+        } else {
+            nameChat = stringFor("OnlineChat")
+        }
+        if _firstMessage != nil {
+            if _firstMessage != "" {
+                firstMessage = _firstMessage!
+            }
+        }
+        if _note != nil {
+            if _note != "" {
+                note = _note!
+            }
+        }
+        if _token != nil {
+            if _token != "" {
+                if !_token!.udIsValidToken() {
+                    startBlock(false, "tokenError", "")
+                    uiHelper?.hideLoader()
+                    return
+                }
+                token = _token!
+            }
+        }
+//        if _additional_id != nil {
+//            if _additional_id != "" {
+//                additional_id = _additional_id!
+//            }
+//        }
+        if customLocale != nil {
+            locale = customLocale!
+        } else if localeIdentifier != nil {
+            if let getLocale = UDLocalizeManager().getLocaleFor(localeId: localeIdentifier!) {
+                locale = getLocale
+            } else {
+                locale = UDLocalizeManager().getLocaleFor(localeId: "ru")!
+            }
+        } else {
+            locale = UDLocalizeManager().getLocaleFor(localeId: "ru")!
+        }
+
+        isOpenSDKUI = true
+        if knowledgeBaseID != "" {
+            uiHelper?.showBaseView(in: parentController, url: url)
+            uiHelper?.hideLoader()
+        } else {
+            startWithoutGUICompanyID(companyID: companyID, chanelId: chanelId, knowledgeBaseID: knowledgeBaseID, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, operatorName: operatorName, nameChat: _nameChat, connectionStatus: { [weak self] success, error, token in
+                guard let wSelf = self else { return }
+                startBlock(success, error, token)
+                wSelf.uiHelper?.startDialogFlow(success: success, error: error, url: wSelf.url, in: parentController)
+            })
+        }
     }
     
     @objc public func startWithoutGUICompanyID(companyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, token _token: String? = nil, isBeforeFeedbackForm: Bool = false, connectionStatus startBlock: @escaping UDSStartBlock) {

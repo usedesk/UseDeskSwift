@@ -186,7 +186,7 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
                     DispatchQueue.main.async(execute: {
                         wSelf.dialogflowVC.usedesk = wSelf.usedesk
                         wSelf.dialogflowVC.isFromBase = true
-                        wSelf.usedesk?.navController.pushViewController(wSelf.dialogflowVC, animated: true)
+                        wSelf.usedesk?.uiHelper?.pushViewController(wSelf.dialogflowVC)
                         UIView.animate(withDuration: 0.3) {
                             wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
                             wSelf.loaderChatButton.alpha = 0
@@ -203,7 +203,7 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
                         }
                         wSelf.offlineVC.usedesk = wSelf.usedesk
                         wSelf.offlineVC.isFromBase = true
-                        wSelf.usedesk?.navController.pushViewController(wSelf.offlineVC, animated: true)
+                        wSelf.usedesk?.uiHelper?.pushViewController(wSelf.offlineVC)
                         UIView.animate(withDuration: 0.3) {
                             wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
                             wSelf.loaderChatButton.alpha = 0

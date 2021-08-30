@@ -271,7 +271,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                         wSelf.dialogflowVC.usedesk = wSelf.usedesk
                         wSelf.dialogflowVC.isFromBase = wSelf.isFromBase
                         wSelf.dialogflowVC.delegate = self
-                        wSelf.usedesk?.navController.pushViewController(wSelf.dialogflowVC, animated: true)
+                        wSelf.usedesk?.uiHelper?.pushViewController(wSelf.dialogflowVC)
                         wSelf.usedesk?.sendMessage(text)
                     })
                 }

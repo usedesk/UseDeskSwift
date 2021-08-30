@@ -232,7 +232,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
                     DispatchQueue.main.async(execute: {
                         wSelf.dialogflowVC.usedesk = wSelf.usedesk
                         wSelf.dialogflowVC.isFromBase = true
-                        wSelf.usedesk?.navController.pushViewController(wSelf.dialogflowVC, animated: true)
+                        wSelf.usedesk?.uiHelper?.pushViewController(wSelf.dialogflowVC)
                         UIView.animate(withDuration: 0.3) {
                             wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
                             wSelf.loaderChatButton.alpha = 0
@@ -365,7 +365,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
             baseCategoriesVC.usedesk = usedesk!
             baseCategoriesVC.baseCollection = arrayCollections[indexPath.row]
             baseCategoriesVC.arrayCollections = arrayCollections
-            usedesk!.navController.pushViewController(baseCategoriesVC, animated: true)
+            usedesk?.uiHelper?.pushViewController(baseCategoriesVC)
             if let cell = tableView.cellForRow(at: indexPath) as? UDBaseSectionViewCell {
                 cell.isSelected = false
                 cell.selectionStyle = .none

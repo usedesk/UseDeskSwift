@@ -470,7 +470,7 @@ class DialogflowView: UDMessagesView {
             navigationController?.popViewController(animated: true)
         } else {
             usedesk?.releaseChat()
-            usedesk?.navController.dismiss(animated: true, completion: nil)
+            usedesk?.uiHelper?.dismiss()
         }
         self.view.removeFromSuperview()
     }

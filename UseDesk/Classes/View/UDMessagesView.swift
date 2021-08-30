@@ -131,7 +131,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardHide(_:)), name: UIResponder.keyboardDidHideNotification, object: nil)
         
-        usedesk?.loader?.hide(animated: true)
+        usedesk?.uiHelper?.hideLoader()
 
         inputPanelInit()
         
