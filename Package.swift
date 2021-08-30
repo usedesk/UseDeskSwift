@@ -3,6 +3,8 @@
 
 import PackageDescription
 
+// Disclaimer: Adds SDK without UI
+
 let package = Package(
     name: "UseDesk",
     platforms: [.iOS(.v10)],
