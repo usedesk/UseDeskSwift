@@ -12,11 +12,11 @@
       },
       {
         "package": "Down",
-        "repositoryURL": "https://github.com/larryonoff/Down",
+        "repositoryURL": "https://github.com/johnxnguyen/Down",
         "state": {
-          "branch": "fix-imports",
-          "revision": "9dd46e0d2086fbe824d88a457dd72147f7f6e005",
-          "version": null
+          "branch": null,
+          "revision": "f34b166be1f1db4aa8f573067e901d72f2a6be57",
+          "version": "0.11.0"
         }
       },
       {
