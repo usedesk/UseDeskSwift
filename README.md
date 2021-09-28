@@ -24,7 +24,7 @@
 
 # Добавление библиотеки в проект:
 
-####  CocoaPods
+###  CocoaPods
 
 Полный функционал с нашим GUI доступен через [CocoaPods](http://cocoapods.org).
 
@@ -38,7 +38,7 @@ pod 'UseDesk_SDK_Swift'
 
 -Подключаем библиотеку import UseDesk`
 
-#### Swift Package Manager
+### Swift Package Manager
 
 ```swift
 .package(url: "https://github.com/usedesk/UseDeskSwift.git", from: "2.1.0")
@@ -53,27 +53,27 @@ pod 'UseDesk_SDK_Swift'
 
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
-| CompanyID\* | String | идентификатор компании. Как найти описано в [документации](https://docs.usedesk.ru/article/61) |
-| ChanelId\* | String | идентификатор канала (добавлен  в v1.1.5). Как найти описано в [документации](https://docs.usedesk.ru/article/10167) |
+| CompanyID\* | String | Идентификатор компании. Как найти описано в [документации](https://docs.usedesk.ru/article/61) |
+| ChanelId\* | String | Идентификатор канала (добавлен  в v1.1.5). Как найти описано в [документации](https://docs.usedesk.ru/article/10167) |
 | UrlAPI\* | String | Адрес API. Стандартное значение `secure.usedesk.ru/` |
-| Knowledge Base ID | String | идентификатор базы знаний. Если не указан, база знаний не используется |
-| API Token\* | String | личный API ключ |
-| Email | String | почта клиента |
-| Phone | String | телефон клиента |
-| Url\* | String | адрес сервера в формате - pubsubsec.usedesk.ru |
+| Knowledge Base ID | String | Идентификатор базы знаний. Если не указан, база знаний не используется |
+| API Token\* | String | Личный API ключ |
+| Email | String | Почта клиента |
+| Phone | String | Телефон клиента |
+| Url\* | String | Адрес сервера в формате - pubsubsec.usedesk.ru |
 | UrlToSendFile | String | Адрес для отправки файлов. Стандартное значение `https://secure.usedesk.ru/uapi/v1/send_file`  |
-| Port | String | порт сервера |
-| Name | String | имя клиента |
-| NameOperator | String | имя оператора |
-| NameChat | String | имя чата. Отображается в шапке |
-| FirstMessage | String | автоматическое сообщение. Отправиться сразу после иницилизации от имени клиента |
-| Note | String | текст заметки |
-| Token | String | подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах для сохранения истории переписки. (генерирует наша система,  ограничение не меньше 64 символа) |
-| LocaleIdentifier | String | идентификатор языка. Доступные языки: русский ("ru"), английский ("en"), португальский ("pt"), испанский ("es"). Если переданный идентификатор не поддерживается, будет выбран русский язык. |
+| Port | String | Порт сервера |
+| Name | String | Имя клиента |
+| NameOperator | String | Имя оператора |
+| NameChat | String | Имя чата. Отображается в шапке |
+| FirstMessage | String | Автоматическое сообщение. Отправиться сразу после иницилизации от имени клиента |
+| Note | String | Текст заметки |
+| Token | String | Подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах для сохранения истории переписки. (генерирует наша система,  ограничение не меньше 64 символа) |
+| LocaleIdentifier | String | Идентификатор языка. Доступные языки: русский ("ru"), английский ("en"), португальский ("pt"), испанский ("es"). Если переданный идентификатор не поддерживается, будет выбран русский язык. |
 | CustomLocale | [String : String] | Можно передать свой словарь переводов |
-| Storage | UDStorage | хранилище поддерживающее протокол [UDStorage](https://github.com/usedesk/UseDeskSwift/blob/master/UseDesk/Core/UseDeskSDK.swift). Для каждого отдельного чата нужно передавать свое отдельное хранилище. |
+| Storage | UDStorage | Хранилище поддерживающее протокол [UDStorage](https://github.com/usedesk/UseDeskSwift/blob/master/Core/UseDeskSDK.swift). Для каждого отдельного чата нужно передавать свое отдельное хранилище. |
 | isCacheMessagesWithFile | Bool | Сохранять ли сообщения содержащие файлы |
-| PresentIn | UIViewController | в каком контроллере открывать |
+| PresentIn | UIViewController | В каком контроллере открывать |
 | isUseBase | Bool | Начиная с версии 0.3.19 не используется |
 | Signature | String | Начиная с версии 2.0.0 не используется |
 
@@ -109,22 +109,22 @@ usedesk.start(withCompanyID: "1234567", chanelId: "1234", api_token: "143ed59g90
 
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
-| CompanyID\* | String | идентификатор компании. Как найти описано в [документации](https://docs.usedesk.ru/article/61) |
-| ChanelId\* | String | идентификатор канала (добавлен  в v1.1.5). Как найти описано в [документации](https://docs.usedesk.ru/article/10167) |
-| UrlAPI\* | String | адрес  - devsecure.usedesk.ru/uapi |
-| API Token\* | String | личный API ключ |
-| Url\* | String | адрес сервера в формате - pubsubsec.usedesk.ru |
-| Knowledge Base ID | String | идентификатор базы знаний. Если не указан, база знаний не используется |
-| Email | String | почта клиента |
-| Phone | String | телефон клиента |
+| CompanyID\* | String | Идентификатор компании. Как найти описано в [документации](https://docs.usedesk.ru/article/61) |
+| ChanelId\* | String | Идентификатор канала (добавлен  в v1.1.5). Как найти описано в [документации](https://docs.usedesk.ru/article/10167) |
+| UrlAPI\* | String | Адрес  - devsecure.usedesk.ru/uapi |
+| API Token\* | String | Личный API ключ |
+| Url\* | String | Адрес сервера в формате - pubsubsec.usedesk.ru |
+| Knowledge Base ID | String | Идентификатор базы знаний. Если не указан, база знаний не используется |
+| Email | String | Почта клиента |
+| Phone | String | Телефон клиента |
 | UrlToSendFile | String | Адрес для отправки файлов. Стандартное значение `https://secure.usedesk.ru/uapi/v1/send_file`  |
-| Port | String | порт сервера  |
-| Name | String | имя клиента |
-| NameOperator | String | имя оператора |
-| NameChat | String | имя чата. Отображается в шапке |
-| FirstMessage | String | автоматическое сообщение. Отправиться сразу после иницилизации от имени клиента |
-| Note | String | текст заметки |
-| Token | String | подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах для сохранения истории переписки. (генерирует наша система,  ограничение не меньше 64 символа) |
+| Port | String | Порт сервера  |
+| Name | String | Имя клиента |
+| NameOperator | String | Имя оператора |
+| NameChat | String | Имя чата. Отображается в шапке |
+| FirstMessage | String | Автоматическое сообщение. Отправиться сразу после иницилизации от имени клиента |
+| Note | String | Текст заметки |
+| Token | String | Подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах для сохранения истории переписки. (генерирует наша система,  ограничение не меньше 64 символа) |
 | isUseBase | Bool | Начиная с версии 0.3.19 не используется |
 | Signature | String | Начиная с версии 2.0.0 не используется |
 
