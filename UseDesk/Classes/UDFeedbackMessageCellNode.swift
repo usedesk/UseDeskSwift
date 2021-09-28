@@ -4,7 +4,7 @@
 import UIKit
 import AsyncDisplayKit
 
-protocol UDFeedbackMessageCellNodeDelegate: class {
+protocol UDFeedbackMessageCellNodeDelegate: AnyObject {
     func feedbackAction(indexPath: IndexPath, feedback: Bool)
 }
 
@@ -148,7 +148,7 @@ class UDFeedbackMessageCellNode: UDMessageCellNode {
             if indexPathCell != nil {
                 self.delegate?.feedbackAction(indexPath: indexPathCell!, feedback: false)
             }
-            self.usedesk?.sendMessageFeedBack(false, message_id: self.message.messageId)
+            self.usedesk?.sendMessageFeedBack(false, message_id: self.message.id)
         }
     }
     
@@ -165,7 +165,7 @@ class UDFeedbackMessageCellNode: UDMessageCellNode {
             if self.indexPath != nil {
                 self.delegate?.feedbackAction(indexPath: self.indexPath!, feedback: true)
             }
-            self.usedesk?.sendMessageFeedBack(true, message_id: self.message.messageId)
+            self.usedesk?.sendMessageFeedBack(true, message_id: self.message.id)
         }
     }
 }

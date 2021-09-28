@@ -5,7 +5,7 @@ import Foundation
 import UIKit
 import WebKit
 
-protocol UDBaseArticleViewDelegate: class {
+protocol UDBaseArticleViewDelegate: AnyObject {
     func openChat()
     func openOfflineForm()
 }

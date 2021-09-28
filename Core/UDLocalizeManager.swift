@@ -74,6 +74,11 @@ class UDLocalizeManager {
             "SendAgain"                : "Отправить повторно",
             "CSIReviewLike"            : "Оценка: отлично",
             "CSIReviewDislike"         : "Оценка: плохо",
+            "LimitIsExceeded"          : "Превышен лимит",
+            "ThisFileSize"             : "Этот файл размером",
+            "Mb"                       : "Мб",
+            "Gb"                       : "Гб",
+            "ExceededMaximumSize"      : "превышает максимальный размер файла в",
             //Статья
             "Send"                     : "Отправить",
             "ArticleReviewSendTitle"   : "Посоветуйте, как нам улучшить статью?",
@@ -132,6 +137,11 @@ class UDLocalizeManager {
             "SendAgain"                : "Resend",
             "CSIReviewLike"            : "Rating: excellent",
             "CSIReviewDislike"         : "Rating: poor",
+            "LimitIsExceeded"          : "Limit is exceeded",
+            "ThisFileSize"             : "This file size",
+            "Mb"                       : "Mb",
+            "Gb"                       : "Gb",
+            "ExceededMaximumSize"      : "exceeded maximum file size",
             //Статья
             "Send"                     : "Send",
             "ArticleReviewSendTitle"   : "Let us know how we could do better?",
@@ -154,64 +164,6 @@ class UDLocalizeManager {
             "FeedbackText"             : "All agents are busy at this time. Leave your message and we'll answer withing one working day."
         ]
         return enLocale
-    }
-    
-    // MARK: - Portugal
-    private func getPtLocale() -> [String:String] {
-        let ptLocale: [String:String] = [
-            "Copy"                     : "Copiar",
-            "Yesterday"                : "Ontem",
-            "Today"                    : "Hoje",
-            "Close"                    : "Fechar",
-            "GoToSettings"             : "Ir para as configurações",
-            "AllowMedia"               : "Permitir o acesso a arquivos e  media digital ",
-            "AllowCamera"              : "Permitir acesso à câmera",
-            "ToSendMedia"              : "Para enviar foto / vídeo",
-            "Article"                  : "Artigo",
-            "Category"                 : "Categoria",
-            "KnowlengeBase"            : "Base de Conhecimento",
-            "Search"                   : "Pesquisar",
-            "Cancel"                   : "Cancelar",
-            "ArticleReviewForSubject"  : "Avaliação do artigo",
-            "KnowlengeBaseTag"         : "Base de Conhecimento",
-            "OnlineChat"               : "Chat online",
-            "Chat"                     : "Chat",
-            "File"                     : "Arquivo",
-            "File2"                    : "Arquivo",
-            "File3"                    : "Arquivo",
-            "Attach"                   : "Anexar",
-            "Write"                    : "Escrever",
-            "AttachmentLimit"          : "Limite de anexos atingido",
-            "Ok"                       : "OK",
-            "Gallery"                  : "Galeria",
-            "ErrorLoading"             : "Erro ao carregar",
-            "Loading"                  : "Carregando",
-            "DeleteMessage"            : "Apagar mensagem",
-            "SendAgain"                : "Reenviar",
-            "CSIReviewLike"            : "Avaliação: Excelente",
-            "CSIReviewDislike"         : "Avaliação: Ruim",
-            //Статья
-            "Send"                     : "Enviar",
-            "ArticleReviewSendTitle"   : "Conte para nós o que podemos fazer para melhorar?",
-            "Yes"                      : "Sim",
-            "No"                       : "Não",
-            "ArticleReviewFirstTitle"  : "Esse artigo foi útil?",
-            "ArticleReviewSendedTitle" : "Obrigado por nos avaliar!",
-            //ФОС
-            "Message"                  : "Mensagem",
-            "Email"                    : "Enviar",
-            "ErrorEmail"               : "Login inválido",
-            "MandatoryField"           : "Campo obrigatório",
-            "Name"                     : "Nome",
-            "TopicTitle"               : "Tema da solicitação ",
-            "CustomField"              : "Campo adicional",
-            "Error"                    : "Erro",
-            "ServerError"              : "O servidor não está respondendo. Verifique sua conexão e tente novamente.",
-            "Understand"               : "OK",
-            "FeedbackSendedMessage"    : "Sua mensagem foi enviada. Nós responderemos  dentro de um dia útil.",
-            "FeedbackText"             : "Todos os atendentes estão ocupados neste momento. Deixe sua mensagem que nós te  responderemos em até um dia útil."
-        ]
-        return ptLocale
     }
     
     // MARK: - Spanish
@@ -248,6 +200,11 @@ class UDLocalizeManager {
             "SendAgain"                : "Reenviar",
             "CSIReviewLike"            : "Satisfacción: Excelente",
             "CSIReviewDislike"         : "Satisfacción: Pobre",
+            "LimitIsExceeded"          : "Limite foi excedido",
+            "ThisFileSize"             : "Tamanho do arquivo",
+            "Mb"                       : "Mb",
+            "Gb"                       : "Gb",
+            "ExceededMaximumSize"      : "excedeu o tamanho máximo do arquivo",
             //Статья
             "Send"                     : "Enviar",
             "ArticleReviewSendTitle"   : "¿Háganos saber cómo podríamos hacerlo mejor",
@@ -271,4 +228,69 @@ class UDLocalizeManager {
         ]
         return esLocale
     }
+    
+    // MARK: - Portugal
+    private func getPtLocale() -> [String:String] {
+        let ptLocale: [String:String] = [
+            "Copy"                     : "Copiar",
+            "Yesterday"                : "Ontem",
+            "Today"                    : "Hoje",
+            "Close"                    : "Fechar",
+            "GoToSettings"             : "Ir para as configurações",
+            "AllowMedia"               : "Permitir o acesso a arquivos e  media digital ",
+            "AllowCamera"              : "Permitir acesso à câmera",
+            "ToSendMedia"              : "Para enviar foto / vídeo",
+            "Article"                  : "Artigo",
+            "Category"                 : "Categoria",
+            "KnowlengeBase"            : "Base de Conhecimento",
+            "Search"                   : "Pesquisar",
+            "Cancel"                   : "Cancelar",
+            "ArticleReviewForSubject"  : "Avaliação do artigo",
+            "KnowlengeBaseTag"         : "Base de Conhecimento",
+            "OnlineChat"               : "Chat online",
+            "Chat"                     : "Chat",
+            "File"                     : "Arquivo",
+            "File2"                    : "Arquivo",
+            "File3"                    : "Arquivo",
+            "Attach"                   : "Anexar",
+            "Write"                    : "Escrever",
+            "AttachmentLimit"          : "Limite de anexos atingido",
+            "Ok"                       : "OK",
+            "Gallery"                  : "Galeria",
+            "ErrorLoading"             : "Erro ao carregar",
+            "Loading"                  : "Carregando",
+            "DeleteMessage"            : "Apagar mensagem",
+            "SendAgain"                : "Reenviar",
+            "CSIReviewLike"            : "Avaliação: Excelente",
+            "CSIReviewDislike"         : "Avaliação: Ruim",
+            "LimitIsExceeded"          : "Se supera el límite",
+            "ThisFileSize"             : "Tamaño del archivo",
+            "Mb"                       : "Mb",
+            "Gb"                       : "GB",
+            "ExceededMaximumSize"      : "superó el tamaño máximo de archivo",
+            //Статья
+            "Send"                     : "Enviar",
+            "ArticleReviewSendTitle"   : "Conte para nós o que podemos fazer para melhorar?",
+            "Yes"                      : "Sim",
+            "No"                       : "Não",
+            "ArticleReviewFirstTitle"  : "Esse artigo foi útil?",
+            "ArticleReviewSendedTitle" : "Obrigado por nos avaliar!",
+            //ФОС
+            "Message"                  : "Mensagem",
+            "Email"                    : "Enviar",
+            "ErrorEmail"               : "Login inválido",
+            "MandatoryField"           : "Campo obrigatório",
+            "Name"                     : "Nome",
+            "TopicTitle"               : "Tema da solicitação ",
+            "CustomField"              : "Campo adicional",
+            "Error"                    : "Erro",
+            "ServerError"              : "O servidor não está respondendo. Verifique sua conexão e tente novamente.",
+            "Understand"               : "OK",
+            "FeedbackSendedMessage"    : "Sua mensagem foi enviada. Nós responderemos  dentro de um dia útil.",
+            "FeedbackText"             : "Todos os atendentes estão ocupados neste momento. Deixe sua mensagem que nós te  responderemos em até um dia útil."
+        ]
+        return ptLocale
+    }
+    
+    
 }

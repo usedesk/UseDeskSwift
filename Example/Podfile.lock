@@ -1,6 +1,6 @@
 PODS:
   - Alamofire (5.4.3)
-  - Down (0.10.0)
+  - Down (0.11.0)
   - PINCache (3.0.3):
     - PINCache/Arc-exception-safe (= 3.0.3)
     - PINCache/Core (= 3.0.3)
@@ -40,7 +40,7 @@ PODS:
     - Texture/Core
   - Texture/Video (3.0.0):
     - Texture/Core
-  - UseDesk_SDK_Swift (2.0.1):
+  - UseDesk_SDK_Swift (2.1.0):
     - Alamofire (~> 5)
     - Down
     - Socket.IO-Client-Swift (~> 16.0)
@@ -68,7 +68,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Alamofire: e447a2774a40c996748296fa2c55112fdbbc42f9
-  Down: 01f155f9d7e99673c667efd2218709c3b9a8bc13
+  Down: b6ba1bc985c9d2f4e15e3b293d2207766fa12612
   PINCache: 7a8fc1a691173d21dbddbf86cd515de6efa55086
   PINOperation: 00c935935f1e8cf0d1e2d6b542e75b88fc3e5e20
   PINRemoteImage: f1295b29f8c5e640e25335a1b2bd9d805171bd01
@@ -76,7 +76,7 @@ SPEC CHECKSUMS:
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   Swime: d7b2c277503b6cea317774aedc2dce05613f8b0b
   Texture: 2f109e937850d94d1d07232041c9c7313ccddb81
-  UseDesk_SDK_Swift: 8ca4b624f3faec9da2bb9884783828bfc39d99af
+  UseDesk_SDK_Swift: 56578b83db33d2489f17dcbd346ce2b1d87b364f
 
 PODFILE CHECKSUM: 97034e1e97015f1d3c41c42409060ef8482278be
 

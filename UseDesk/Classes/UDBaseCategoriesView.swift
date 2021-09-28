@@ -184,7 +184,7 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
                     DispatchQueue.main.async(execute: {
                         wSelf.dialogflowVC.usedesk = wSelf.usedesk
                         wSelf.dialogflowVC.isFromBase = true
-                        wSelf.usedesk?.navController.pushViewController(wSelf.dialogflowVC, animated: true)
+                        wSelf.usedesk?.uiManager?.pushViewController(wSelf.dialogflowVC)
                         UIView.animate(withDuration: 0.3) {
                             wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
                             wSelf.loaderChatButton.alpha = 0
@@ -201,7 +201,7 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
                         }
                         wSelf.offlineVC.usedesk = wSelf.usedesk
                         wSelf.offlineVC.isFromBase = true
-                        wSelf.usedesk?.navController.pushViewController(wSelf.offlineVC, animated: true)
+                        wSelf.usedesk?.uiManager?.pushViewController(wSelf.offlineVC)
                         UIView.animate(withDuration: 0.3) {
                             wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
                             wSelf.loaderChatButton.alpha = 0
@@ -244,7 +244,7 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: searchButtonImage, style: .plain, target: self, action: #selector(self.searchAction))
         }
         navigationItem.titleView = nil
-        navigationItem.title = "База знаний"
+        navigationItem.title = usedesk?.stringFor("KnowlengeBase") ?? ""
         tableView.reloadData()
     }
     
@@ -318,7 +318,7 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
             articlesVC.usedesk = usedesk!
             articlesVC.сategory = сategories[indexPath.row]
             articlesVC.arrayCollections = arrayCollections
-            usedesk!.navController.pushViewController(articlesVC, animated: true)
+            usedesk?.uiManager?.pushViewController(articlesVC)
             if let cell = tableView.cellForRow(at: indexPath) as? UDBaseCategoriesCell {
                 cell.isSelected = false
                 cell.selectionStyle = .none

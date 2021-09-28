@@ -11,17 +11,6 @@ import Swime
 import CommonCrypto
 
 class UDFileManager: NSObject {
-    var cacheDataPath: String {
-        let cachePath = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).last ?? ""
-        let finalPath = cachePath
-        
-        if (!FileManager.default.fileExists(atPath: finalPath)) {
-            try? FileManager.default.createDirectory(atPath: finalPath, withIntermediateDirectories: true, attributes: nil)
-        }
-        
-        return finalPath
-    }
-    
     class func downloadFile(indexPath: IndexPath, urlPath: String, name: String, extansion: String, successBlock: @escaping (IndexPath, URL)->(), errorBlock: (_ error: String) -> Void) {
         if let url = URL(string: urlPath) {
             let destination: DownloadRequest.Destination = { _, _ in
@@ -37,7 +26,7 @@ class UDFileManager: NSObject {
                         flag = false
                     }
                 }
-             return (fileURL, [.removePreviousFile,.createIntermediateDirectories])
+             return (fileURL, [.removePreviousFile, .createIntermediateDirectories])
             }
             AF.download(url, to: destination).responseData { response in
                 if let destinationUrl = response.fileURL {
@@ -65,21 +54,18 @@ class UDFileManager: NSObject {
         }
     }
     
-    func timeStringFor(seconds : Int) -> String
-    {
-      let formatter = DateComponentsFormatter()
-      formatter.allowedUnits = [.second, .minute, .hour]
-      formatter.zeroFormattingBehavior = .pad
-      let output = formatter.string(from: TimeInterval(seconds))!
+    func timeStringFor(seconds : Int) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.second, .minute, .hour]
+        formatter.zeroFormattingBehavior = .pad
+        let output = formatter.string(from: TimeInterval(seconds))!
         return output
-     // return self < 3600 ? output.substring(from: output.range(of: ":")!.upperBound) : output
     }
-
 }
 
 extension FileManager {
     
-    var cacheDataPath: String {
+    var udCacheDataPath: String {
         let cachePath = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).last ?? ""
         let finalPath = cachePath
         
@@ -90,23 +76,27 @@ extension FileManager {
         return finalPath
     }
     
-    func writeDataToCacheDirectory(data: Data) -> String? {
+    func udWriteDataToCacheDirectory(data: Data, fileExtension: String? = nil) -> String? {
         var fileName = data.sha1(uppercased: true) ?? "\(data.hashValue)"
-        let subData = data.prefix(10240)
-        if let `extension` = Swime.mimeType(data: subData)?.ext {
-            fileName += "." + `extension`
+        if fileExtension != nil {
+            fileName += "." + fileExtension!
         } else {
-            fileName += ".itmp"
+            let subData = data.prefix(10240)
+            if let fileExtensionSwime = Swime.mimeType(data: subData)?.ext {
+                fileName += "." + fileExtensionSwime
+            } else {
+                fileName += ".mp4"
+            }
         }
 
-        let dataPath = "file://" + cacheDataPath + "/"
+        let dataPath = "file://" + udCacheDataPath + "/"
 
         var url = URL(fileURLWithPath: fileName, relativeTo: URL(string: dataPath))
-        var filePath = cacheDataPath + "/" + fileName
+        var filePath = udCacheDataPath + "/" + fileName
         var count = 0
         while (fileExists(atPath: filePath)) && count < 10000 {
             url = URL(fileURLWithPath: "\(count)" + fileName, relativeTo: URL(string: dataPath))
-            filePath = cacheDataPath + "/" + "\(count)" + fileName
+            filePath = udCacheDataPath + "/" + "\(count)" + fileName
             count += 1
         }
         do {

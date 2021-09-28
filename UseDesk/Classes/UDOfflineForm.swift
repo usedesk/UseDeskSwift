@@ -271,7 +271,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                         wSelf.dialogflowVC.usedesk = wSelf.usedesk
                         wSelf.dialogflowVC.isFromBase = wSelf.isFromBase
                         wSelf.dialogflowVC.delegate = self
-                        wSelf.usedesk?.navController.pushViewController(wSelf.dialogflowVC, animated: true)
+                        wSelf.usedesk?.uiManager?.pushViewController(wSelf.dialogflowVC)
                         wSelf.usedesk?.sendMessage(text)
                     })
                 }
@@ -333,7 +333,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                                     text += "\n" + topic
                                 }
                                 for field in customFields {
-                                    text += "\n" + field.title + "\n" + field.text
+                                    text += "\n" + field.text
                                 }
                                 text += "\n" + message.text
                                 wSelf.startChat(text: text)

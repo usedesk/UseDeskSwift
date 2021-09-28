@@ -7,12 +7,17 @@ import UIKit
 
 extension Double {
     
-    func timeStringFor(seconds : Int) -> String {
-      let formatter = DateComponentsFormatter()
-      formatter.allowedUnits = [.second, .minute, .hour]
-      formatter.zeroFormattingBehavior = .pad
-      let output = formatter.string(from: TimeInterval(seconds))!
+    func udTimeStringFor(seconds : Int) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.second, .minute, .hour]
+        formatter.zeroFormattingBehavior = .pad
+        let output = formatter.string(from: TimeInterval(seconds))!
         return output
+    }
+    
+    func udRounded(toPlaces places:Int) -> Double {
+        let divisor = pow(10.0, Double(places))
+        return (self * divisor).rounded() / divisor
     }
 }
 

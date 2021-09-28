@@ -6,7 +6,7 @@
 import Foundation
 import UIKit
 
-protocol ChangeabelTextCellDelegate: class {
+protocol ChangeabelTextCellDelegate: AnyObject {
     func newValue(indexPath: IndexPath, value: String, isValid: Bool, positionCursorY: CGFloat)
     func tapingTextView(indexPath: IndexPath, position: CGFloat)
     func endWrite()

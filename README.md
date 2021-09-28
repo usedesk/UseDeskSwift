@@ -1,4 +1,6 @@
 # UseDesk_SDK_Swift
+[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/UseDesk_SDK_Swift.svg?style=flat-square)](https://img.shields.io/cocoapods/v/UseDesk_SDK_Swift.svg)
+[![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-compatible-orange?style=flat-square)](https://img.shields.io/badge/Swift_Package_Manager-compatible-orange?style=flat-square)
 
 - [Образец](#образец)
 - [Добавление библиотеки в проект](#добавление-библиотеки-в-проект)
@@ -22,7 +24,9 @@
 
 # Добавление библиотеки в проект:
 
-Библиотека UseDesk_SDK_Swift доступна только через систему управления зависимостями [CocoaPods](http://cocoapods.org).
+####  CocoaPods
+
+Полный функционал с нашим GUI доступен через [CocoaPods](http://cocoapods.org).
 
 -Добавьте строчку в Podfile вашего приложения
 
@@ -34,6 +38,12 @@ pod 'UseDesk_SDK_Swift'
 
 -Подключаем библиотеку import UseDesk`
 
+#### Swift Package Manager
+
+```swift
+.package(url: "https://github.com/usedesk/UseDeskSwift.git", from: "2.1.0")
+```
+
 ## ВАЖНЫЕ ОБНОВЛЕНИЯ: 
 Начиная с версии 2.0.0 мы заменяем параметр signature на token. Токен выдается в коллбэке после инициализации чата и привязывается к связке почта-телефон-имя пользователя. Для идентификации различных пользователей на одном устройстве вы должны хранить и передавать полученный токен в метод инициализации.
 
@@ -43,14 +53,14 @@ pod 'UseDesk_SDK_Swift'
 
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
-| CompanyID\* | String | идентификатор компании |
-| ChanelId\* | String | идентификатор канала (добавлен  в v1.1.5) |
+| CompanyID\* | String | идентификатор компании. Как найти описано в [документации](https://docs.usedesk.ru/article/61) |
+| ChanelId\* | String | идентификатор канала (добавлен  в v1.1.5). Как найти описано в [документации](https://docs.usedesk.ru/article/10167) |
 | UrlAPI\* | String | Адрес API. Стандартное значение `secure.usedesk.ru/` |
-| API Token\* | String | личный API ключ |
-| Url\* | String | адрес сервера в формате - pubsubsec.usedesk.ru |
 | Knowledge Base ID | String | идентификатор базы знаний. Если не указан, база знаний не используется |
+| API Token\* | String | личный API ключ |
 | Email | String | почта клиента |
 | Phone | String | телефон клиента |
+| Url\* | String | адрес сервера в формате - pubsubsec.usedesk.ru |
 | UrlToSendFile | String | Адрес для отправки файлов. Стандартное значение `https://secure.usedesk.ru/uapi/v1/send_file`  |
 | Port | String | порт сервера |
 | Name | String | имя клиента |
@@ -61,6 +71,8 @@ pod 'UseDesk_SDK_Swift'
 | Token | String | подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах для сохранения истории переписки. (генерирует наша система,  ограничение не меньше 64 символа) |
 | LocaleIdentifier | String | идентификатор языка. Доступные языки: русский ("ru"), английский ("en"), португальский ("pt"), испанский ("es"). Если переданный идентификатор не поддерживается, будет выбран русский язык. |
 | CustomLocale | [String : String] | Можно передать свой словарь переводов |
+| Storage | UDStorage | хранилище поддерживающее протокол [UDStorage](https://github.com/usedesk/UseDeskSwift/blob/master/UseDesk/Core/UseDeskSDK.swift). Для каждого отдельного чата нужно передавать свое отдельное хранилище. |
+| isCacheMessagesWithFile | Bool | Сохранять ли сообщения содержащие файлы |
 | PresentIn | UIViewController | в каком контроллере открывать |
 | isUseBase | Bool | Начиная с версии 0.3.19 не используется |
 | Signature | String | Начиная с версии 2.0.0 не используется |
@@ -93,14 +105,12 @@ usedesk.start(withCompanyID: "1234567", chanelId: "1234", api_token: "143ed59g90
 
 ## Подключение SDK без графического интерфейса
 
-- Подключаем библиотеку import UseDesk
-
 - Выполняем операцию инициализации чата параметрами без GUI:
 
 | Переменная  | Тип | Описание |
 | -------------| ------------- | ------------- |
-| CompanyID\* | String | идентификатор компании |
-| ChanelId\* | String | идентификатор канала (добавлен  в v1.1.5) |
+| CompanyID\* | String | идентификатор компании. Как найти описано в [документации](https://docs.usedesk.ru/article/61) |
+| ChanelId\* | String | идентификатор канала (добавлен  в v1.1.5). Как найти описано в [документации](https://docs.usedesk.ru/article/10167) |
 | UrlAPI\* | String | адрес  - devsecure.usedesk.ru/uapi |
 | API Token\* | String | личный API ключ |
 | Url\* | String | адрес сервера в формате - pubsubsec.usedesk.ru |

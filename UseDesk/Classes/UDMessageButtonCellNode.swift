@@ -11,17 +11,22 @@ class UDMessageButtonCellNode: ASCellNode {
     let backgroundNode = ASDisplayNode()
     var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     
-    func setCell(titleButton: String) {
+    var spacing: CGFloat = 0
+    
+    func setCell(titleButton: String, spacing spacingButton: CGFloat = 0) {
         self.backgroundColor = .clear
         self.selectionStyle = .none
-        let messageStyle = configurationStyle.messageStyle
+        spacing = spacingButton
+        let messageButtonStyle = configurationStyle.messageButtonStyle
         let attributedString = NSMutableAttributedString(string: titleButton)
-        attributedString.addAttributes([NSAttributedString.Key.font : messageStyle.font, .foregroundColor : UIColor.white], range: NSRange(location: 0, length: attributedString.length))
+        attributedString.addAttributes([.font : messageButtonStyle.textFont, .foregroundColor : messageButtonStyle.textColor], range: NSRange(location: 0, length: attributedString.length))
         titleNode.attributedText = attributedString
+        titleNode.maximumNumberOfLines = UInt(messageButtonStyle.maximumLine)
+        titleNode.truncationMode = .byTruncatingTail
         titleNode.style.alignSelf = .center
         
-        backgroundNode.backgroundColor = configurationStyle.messageButtonStyle.color
-        backgroundNode.cornerRadius = configurationStyle.messageButtonStyle.cornerRadius
+        backgroundNode.backgroundColor = messageButtonStyle.color
+        backgroundNode.cornerRadius = messageButtonStyle.cornerRadius
         addSubnode(backgroundNode)
         addSubnode(titleNode)
     }
@@ -33,12 +38,12 @@ class UDMessageButtonCellNode: ASCellNode {
         let vMessageStack = ASStackLayoutSpec(
                     direction: .vertical,
                     spacing: 0,
-                    justifyContent: .center,
+                    justifyContent: .start,
                     alignItems: .center,
                     children: [titleNodeInsetSpec])
         verticalSpec.setChild(vMessageStack, at: 0)
         verticalSpec.style.alignSelf = .center
-        let verticalSpecInsetSpec = ASInsetLayoutSpec(insets: UIEdgeInsets(top: indexPath?.row == 0 ? 0 : 10, left: 0, bottom: 0, right: 0), child: verticalSpec)
+        let verticalSpecInsetSpec = ASInsetLayoutSpec(insets: UIEdgeInsets(top: spacing, left: 0, bottom: 0, right: 0), child: verticalSpec)
         return verticalSpecInsetSpec
     }
 }

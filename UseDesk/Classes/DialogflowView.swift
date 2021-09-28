@@ -9,7 +9,7 @@ import Photos
 import AsyncDisplayKit
 import MobileCoreServices
 
-protocol DialogflowVCDelegate: class {
+protocol DialogflowVCDelegate: AnyObject {
     func close()
 }
 
@@ -61,9 +61,14 @@ class DialogflowView: UDMessagesView {
                         index = 0
                         while !isFind && index < wSelf.messagesWithSection[indexSection].count {
                             if wSelf.messagesWithSection[indexSection][index].loadingMessageId == loadingMessageId {
+                                if let failMessage = wSelf.failMessages.filter({$0.loadingMessageId == message.loadingMessageId}).first {
+                                    if let index = wSelf.failMessages.firstIndex(of: failMessage) {
+                                        wSelf.deleteMeessage(from: &wSelf.failMessages, index: index)
+                                    }
+                                }
                                 isFind = true
                                 message.loadingMessageId = ""
-                                message.isNotSent = false
+                                message.statusSend = UD_STATUS_SEND_SUCCEED
                                 message.file = wSelf.messagesWithSection[indexSection][index].file
                                 message.status = wSelf.messagesWithSection[indexSection][index].status
                                 wSelf.messagesWithSection[indexSection][index] = message
@@ -113,7 +118,13 @@ class DialogflowView: UDMessagesView {
                 }
                 DispatchQueue.main.async { [weak self] in
                     guard let wSelf = self else {return}
-                    wSelf.generateSectionFromModel(messagesArray: wSelf.messages)
+                    wSelf.loadMessagesFromStorage()
+                    wSelf.generateSectionFromModel()
+                    wSelf.configurationViews()
+                    wSelf.buttonSend.isEnabled = true
+                    wSelf.buttonAttach.isEnabled = true
+                    wSelf.loader.stopAnimating()
+                    wSelf.loader.alpha = 0
                     wSelf.tableNode.reloadData()
                 }
             }
@@ -128,36 +139,102 @@ class DialogflowView: UDMessagesView {
                     try FileManager.default.removeItem(at: url)
                 } catch {}
             }
+            if message.file.defaultPath != "" {
+                let url = URL(fileURLWithPath: message.file.defaultPath)
+                do {
+                    try FileManager.default.removeItem(at: url)
+                } catch {}
+            }
+            if message.file.previewPath != "" {
+                let url = URL(fileURLWithPath: message.file.previewPath)
+                do {
+                    try FileManager.default.removeItem(at: url)
+                } catch {}
+            }
         }
         messages = []
-        for message in (usedesk!.historyMess) {
-            messages.append(message)
+        if usedesk != nil {
+            for message in (usedesk!.historyMess) {
+                messages.append(message)
+            }
         }
         refreshTableView()
     }
     
-    func generateSectionFromModel(messagesArray: [UDMessage]) {
+    func generateSectionFromModel() {
         messagesWithSection = []
-        guard messagesArray.count > 0 else {return}
-        messagesWithSection.append([messagesArray[0]])
+        insertFailSendMessages()
+        guard messages.count > 0 else {return}
+        messagesWithSection.append([messages[0]])
         var indexSection = 0
-        for index in 1..<messagesArray.count {
+        for index in 1..<messages.count {
             var dateStringSection = ""
             var dateStringObject = ""
             // date section
             if messagesWithSection[indexSection][0].date != nil {
                 dateStringSection = messagesWithSection[indexSection][0].date!.dateFormatString
             }
-            if messagesArray[index].date != nil {
-                dateStringObject = messagesArray[index].date!.dateFormatString
+            if messages[index].date != nil {
+                dateStringObject = messages[index].date!.dateFormatString
             }
             if dateStringSection.count > 0 && dateStringObject.count > 0 {
                 if dateStringSection == dateStringObject {
-                    messagesWithSection[indexSection].append(messagesArray[index])
+                    messagesWithSection[indexSection].append(messages[index])
                 } else {
-                    messagesWithSection.append([messagesArray[index]])
+                    messagesWithSection.append([messages[index]])
                     indexSection += 1
                 }
+            }
+        }
+    }
+    
+    func insertFailSendMessages() {
+        guard usedesk != nil else {return}
+        var failMessagesInsert = failMessages
+        var insertArray: [[Int]] = []
+        for index in 0..<messages.count {
+            let invertedIndex = messages.count - index - 1
+            if messages[invertedIndex].date != nil {
+                var insertMessages: [UDMessage] = []
+                for indexFail in 0..<failMessagesInsert.count {
+                    if failMessagesInsert[indexFail].date != nil {
+                        if failMessagesInsert[indexFail].date! < messages[invertedIndex].date! {
+                            insertMessages.append(failMessagesInsert[indexFail])
+                        }
+                    }
+                }
+                var insertMessagesIndexes: [Int] = [invertedIndex > 0 ? invertedIndex : invertedIndex + 1]
+                insertMessages.forEach { message in
+                    if let deleteIndex = failMessages.firstIndex(of: message) {
+                        insertMessagesIndexes.append(deleteIndex)
+                        if let deleteIndex = failMessagesInsert.firstIndex(of: message) {
+                            failMessagesInsert.remove(at: deleteIndex)
+                        }
+                    }
+                }
+                if insertMessagesIndexes.count > 1 {
+                    insertArray.append(insertMessagesIndexes)
+                }
+                if (invertedIndex == 0) && (failMessagesInsert.count > 0) {
+                    insertMessagesIndexes = [invertedIndex]
+                    insertMessages = failMessagesInsert
+                    insertMessages.forEach { message in
+                        if let deleteIndex = failMessages.firstIndex(of: message) {
+                            insertMessagesIndexes.append(deleteIndex)
+                            if let deleteIndex = failMessagesInsert.firstIndex(of: message) {
+                                failMessagesInsert.remove(at: deleteIndex)
+                            }
+                        }
+                    }
+                    if insertMessagesIndexes.count > 1 {
+                        insertArray.append(insertMessagesIndexes)
+                    }
+                }
+            }
+        }
+        for SectionInsertArray in 0..<insertArray.count {
+            for indexInsertFailMess in 1..<insertArray[SectionInsertArray].count {
+                messages.insert(failMessages[insertArray[SectionInsertArray][indexInsertFailMess]], at: insertArray[SectionInsertArray][0])
             }
         }
     }
@@ -181,7 +258,9 @@ class DialogflowView: UDMessagesView {
     func chekSentMessage(_ message: UDMessage) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 7) { [weak self] in
             guard let wSelf = self else {return}
-            if let messageNow = wSelf.getMessage(wSelf.indexPathForMessage(at: message.messageId)) {
+            if message.id == 0 {
+                wSelf.setNotSendMessageFor(message)
+            } else if let messageNow = wSelf.getMessage(wSelf.indexPathForMessage(at: message.id)) {
                 wSelf.setNotSendMessageFor(messageNow)
             }
         }
@@ -198,7 +277,10 @@ class DialogflowView: UDMessagesView {
                 if messagesWithSection[indexSection][index].loadingMessageId == loadingMessageId {
                     isFind = true
                     if messagesWithSection[indexSection][index].loadingMessageId != "" {
-                        message.isNotSent = true
+                        message.statusSend = UD_STATUS_SEND_FAIL
+                        if failMessages.filter({$0.loadingMessageId == message.loadingMessageId}).count == 0 {
+                            failMessages.append(message)
+                        }
                         messagesWithSection[indexSection][index] = message
                         tableNode.reloadRows(at: [IndexPath(row: index, section: indexSection)], with: .automatic)
                         if let replaceMessage = messages.filter({ $0.loadingMessageId == loadingMessageId}).first {
@@ -291,38 +373,26 @@ class DialogflowView: UDMessagesView {
                 newMessages.append(wSelf.messages[wSelf.messages.count - 1 - index])
             }
             wSelf.messages = newMessages
-            wSelf.generateSectionFromModel(messagesArray: wSelf.messages)
+            wSelf.generateSectionFromModel()
             wSelf.tableNode.reloadData()
         }
     }
     
     // MARK: - Send methods
-    func toData(image: UIImage) -> Data? {
-        return autoreleasepool(invoking: { () -> Data? in
-            return image.pngData()
-        })
-    }
-    
-    func sendUIImageMessage(image: UIImage) {
-        autoreleasepool {
-            if let imageData = toData(image: image) {
-                let content = "data:image/png;base64,\(imageData)"
-                var fileName = String(format: "%ld", content.hash)
-                fileName += ".png"
-                let message = UDMessage()
-                message.date = Date()
-                message.type = RC_TYPE_PICTURE
-                message.incoming = false
-                message.outgoing = !message.incoming
-                message.typeSenderMessageString = "client_to_operator"
-                message.file.picture = image.resizeImage()
-                message.file.name = fileName
-                message.file.source = image.resizeImage()
-                message.status = RC_STATUS_SUCCEED
-                if let id = usedesk?.newIdLoadingMessages() {
-                    usedesk!.idLoadingMessages.append(id)
-                    message.loadingMessageId = id
-                    usedesk?.sendFile(fileName: fileName, data: imageData, messageId: id, status: {[weak self] success, error in
+    func sendMessage(_ message: UDMessage) {
+        message.date = Date()
+        if let id = usedesk?.newIdLoadingMessages() {
+            usedesk!.idLoadingMessages.append(id)
+            message.loadingMessageId = id
+            if message.type == UD_TYPE_TEXT {
+                usedesk?.sendMessage(message.text, messageId: id)
+                if failMessages.filter({$0.loadingMessageId == message.loadingMessageId}).count == 0 {
+                    failMessages.append(message)
+                }
+                chekSentMessage(message)
+            } else {
+                if let data = message.file.data {
+                    usedesk?.sendFile(fileName: message.file.name, data: data, messageId: id, status: {[weak self] success, error in
                         guard let wSelf = self else {return}
                         if success {
                             wSelf.chekSentMessage(message)
@@ -330,138 +400,40 @@ class DialogflowView: UDMessagesView {
                             wSelf.setNotSendMessageFor(message)
                         }
                     })
-                } else {
-                    usedesk?.sendFile(fileName: fileName, data: imageData, status: {_,_ in })
                 }
-                addMessage(message)
-            }
-        }
-    }
-    
-    func sendPHAssetMessage(asset: PHAsset) {
-        if asset.mediaType == .video {
-            DispatchQueue.global(qos: .userInitiated).async {
-            let options = PHVideoRequestOptions()
-            options.version = .original
-            PHCachingImageManager.default().requestAVAsset(forVideo: asset, options: options){ [weak self] avasset, _, _ in
-                guard let wSelf = self else {return}
-                if let avassetURL = avasset as? AVURLAsset {
-                    if let videoData = try? Data(contentsOf: avassetURL.url) {
-                        let content = "data:video/mp4;base64,\(videoData.base64EncodedString())"
-                        var fileName = String(format: "%ld", content.hash)
-                        fileName += ".mp4"
-                        let message = UDMessage()
-                        message.date = Date()
-                        message.type = RC_TYPE_VIDEO
-                        message.incoming = false
-                        message.outgoing = !message.incoming
-                        message.typeSenderMessageString = "client_to_operator"
-                        message.file.path = avassetURL.url.path
-                        message.file.picture = UDFileManager.videoPreview(filePath: avassetURL.url.path)
-                        message.file.name = fileName
-                        message.file.source = asset
-                        message.status = RC_STATUS_SUCCEED
-                        if let id = wSelf.usedesk?.newIdLoadingMessages() {
-                            wSelf.usedesk!.idLoadingMessages.append(id)
-                            message.loadingMessageId = id
-                            wSelf.usedesk?.sendFile(fileName: fileName, data: videoData, messageId: id, status: {[weak self] success, error in
-                                guard let wSelf = self else {return}
-                                if success {
-                                    wSelf.chekSentMessage(message)
-                                } else {
-                                    wSelf.setNotSendMessageFor(message)
-                                }
-                            })
-                        } else {
-                            wSelf.usedesk?.sendFile(fileName: fileName, data: videoData, status: {_,_ in })
-                        }
-                        wSelf.addMessage(message)
-                    }
-                }
-            }
             }
         } else {
-            DispatchQueue.global(qos: .userInitiated).async {
-                let options = PHImageRequestOptions()
-                options.isSynchronous = true
-                PHCachingImageManager.default().requestImageData(for: asset, options: options, resultHandler: { [weak self] data, _, _, info in
-                    guard let wSelf = self else {return}
-                    if data != nil {
-                            let content = "data:image/png;base64,\(data!)"
-                            var fileName = String(format: "%ld", content.hash)
-                            fileName += ".png"
-                            let message = UDMessage()
-                            message.date = Date()
-                            message.type = RC_TYPE_PICTURE
-                            message.incoming = false
-                            message.outgoing = !message.incoming
-                            message.typeSenderMessageString = "client_to_operator"
-                        message.file.picture = UIImage(data: data!)?.resizeImage()
-                            message.file.name = fileName
-                            message.file.source = asset
-                            message.status = RC_STATUS_SUCCEED
-                            if let id = wSelf.usedesk?.newIdLoadingMessages() {
-                                wSelf.usedesk?.idLoadingMessages.append(id)
-                                message.loadingMessageId = id
-                                wSelf.usedesk?.sendFile(fileName: fileName, data: data!, messageId: id, status: {[weak self] success, error in
-                                    guard let wSelf = self else {return}
-                                    if success {
-                                        wSelf.chekSentMessage(message)
-                                    } else {
-                                        wSelf.setNotSendMessageFor(message)
-                                    }
-                                })
-                            } else {
-                                wSelf.usedesk?.sendFile(fileName: fileName, data: data!, status: {_,_ in })
-                            }
-                            wSelf.addMessage(message)
-                    }
-                })
-            }
-        }
-    }
-    
-    func sendUrlFileMessage(urlFile: URL) {
-        let fileName = urlFile.localizedName ?? urlFile.lastPathComponent
-        let dataFile = try? Data(contentsOf: urlFile)
-        if dataFile != nil {
-            let message = UDMessage()
-            message.date = Date()
-            message.type = RC_TYPE_File
-            message.incoming = false
-            message.outgoing = !message.incoming
-            message.typeSenderMessageString = "client_to_operator"
-            message.file.name = fileName
-            message.file.sizeInt = dataFile!.count
-            message.file.path = urlFile.path
-            message.file.source = urlFile
-            message.status = RC_STATUS_SUCCEED
-            if let id = usedesk?.newIdLoadingMessages() {
-                usedesk!.idLoadingMessages.append(id)
-                message.loadingMessageId = id
-                usedesk?.sendFile(fileName: fileName, data: dataFile!, messageId: id, status: {[weak self] success, error in
-                    guard let wSelf = self else {return}
-                    if success {
-                        wSelf.chekSentMessage(message)
-                    } else {
-                        wSelf.setNotSendMessageFor(message)
-                    }
-                })
+            if message.type == UD_TYPE_TEXT {
+                usedesk?.sendMessage(message.text)
             } else {
-                usedesk?.sendFile(fileName: fileName, data: dataFile!, status: {_,_ in })
+                if let data = message.file.data {
+                    usedesk?.sendFile(fileName: message.file.name, data: data, status: {_,_ in })
+                }
             }
-            addMessage(message)
         }
+        addMessage(message)
     }
     
     // MARK: - User actions
     @objc func actionDone() {
         for message in messages {
-            if message.file.path != "" {
+            if message.statusSend == UD_STATUS_SEND_SUCCEED && (message.file.path != "" || message.file.defaultPath != "" || message.file.previewPath != "") {
                 let url = URL(fileURLWithPath: message.file.path)
                 do {
                     try FileManager.default.removeItem(at: url)
                 } catch {}
+                if message.file.defaultPath != "" {
+                    let url = URL(fileURLWithPath: message.file.defaultPath)
+                    do {
+                        try FileManager.default.removeItem(at: url)
+                    } catch {}
+                }
+                if message.file.previewPath != "" {
+                    let url = URL(fileURLWithPath: message.file.previewPath)
+                    do {
+                        try FileManager.default.removeItem(at: url)
+                    } catch {}
+                }
             }
         }
         delegate?.close()
@@ -470,8 +442,9 @@ class DialogflowView: UDMessagesView {
             navigationController?.popViewController(animated: true)
         } else {
             usedesk?.releaseChat()
-            usedesk?.navController.dismiss(animated: true, completion: nil)
+            usedesk?.uiManager?.dismiss()
         }
+        saveMessagesDraftAndFail()
         self.view.removeFromSuperview()
     }
     
@@ -487,44 +460,23 @@ class DialogflowView: UDMessagesView {
         navigationController?.navigationBar.layoutSubviews()
     }
     
-    override func actionSendMessage(_ text: String?) {
+    override func actionSendMessage() {
         buttonSend.alpha = 0
         buttonSendLoader.alpha = 1
         buttonSendLoader.startAnimating()
-        if text != nil {
-            if text!.count > 0 {
-                let message = UDMessage()
-                message.date = Date()
-                message.type = RC_TYPE_TEXT
-                message.incoming = false
-                message.outgoing = !message.incoming 
-                message.text = text!
-                message.typeSenderMessageString = "client_to_operator"
-                if let id = usedesk?.newIdLoadingMessages() {
-                    usedesk!.idLoadingMessages.append(id)
-                    message.loadingMessageId = id
-                    usedesk?.sendMessage(text!, messageId: id)
-                    chekSentMessage(message)
-                } else {
-                    usedesk?.sendMessage(text!)
+        
+        draftMessages.forEach { message in
+            if message.type == UD_TYPE_File || message.type == UD_TYPE_PICTURE || message.type == UD_TYPE_VIDEO {
+                if message.file.sourceType != nil {
+                    sendMessage(message)
                 }
-                addMessage(message)
+            } else {
+                sendMessage(message)
             }
         }
-        if sendAssets.count > 0 {
-            for i in 0..<sendAssets.count {
-                autoreleasepool {
-                    if let asset = sendAssets[i] as? PHAsset {
-                        sendPHAssetMessage(asset: asset)
-                    } else if let image = sendAssets[i] as? UIImage {
-                        sendUIImageMessage(image: image)
-                    } else if let urlFile = sendAssets[i] as? URL {
-                        sendUrlFileMessage(urlFile: urlFile)
-                    }
-                }
-            }
-            self.sendAssets = []
-        }
+        
+        draftMessages.removeAll()
+        
         closeAttachCollection()
         buttonSend.alpha = 1
         buttonSendLoader.alpha = 0
@@ -541,8 +493,8 @@ class DialogflowView: UDMessagesView {
    
     // MARK: - TableNode
     func tableNode(_ tableNode: ASTableNode, didSelectRowAt indexPath: IndexPath) {
-        if messagesWithSection[indexPath.section][indexPath.row].isNotSent {
-            let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        if messagesWithSection[indexPath.section][indexPath.row].statusSend == UD_STATUS_SEND_FAIL {
+            let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
 
             let removeAction = UIAlertAction(title: usedesk!.stringFor("DeleteMessage"), style: .destructive, handler: { [weak self] (alert: UIAlertAction!)  in
                 guard let wSelf = self else {return}
@@ -572,24 +524,12 @@ class DialogflowView: UDMessagesView {
                     wSelf.tableNode.reloadData()
                     wSelf.tableNode.contentOffset.y = 0
                 })
-                message.isNotSent = false
-                switch message.type {
-                case RC_TYPE_VIDEO, RC_TYPE_PICTURE, RC_TYPE_File:
-                    if let image = message.file.source as? UIImage {
-                        wSelf.sendUIImageMessage(image: image)
-                    } else if let asset = message.file.source as? PHAsset {
-                        wSelf.sendPHAssetMessage(asset: asset)
-                    } else if let urlFile = message.file.source as? URL {
-                        wSelf.sendUrlFileMessage(urlFile: urlFile)
-                    }
-                default:
-                    wSelf.actionSendMessage(message.text)
-                }
+//                message.statusSend = UD_STATUS_SEND_SUCCEED
+                wSelf.sendMessage(message)
             })
 
             let cancelAction = UIAlertAction(title: "Отменить", style: .cancel, handler: {(alert: UIAlertAction!) in
             })
-
             alertController.addAction(repeatAction)
             alertController.addAction(removeAction)
             alertController.addAction(cancelAction)
@@ -602,9 +542,8 @@ class DialogflowView: UDMessagesView {
     
     override func actionTapBubble(_ indexPath: IndexPath?) {
         let message = messagesWithSection[indexPath!.section][indexPath!.row]
-        guard !message.isNotSent else { return }
         let file: UDFile = message.file
-        if (file.type == "image" || message.type == RC_TYPE_PICTURE || file.type == "video" || message.type == RC_TYPE_VIDEO || file.type == "file" || message.type == RC_TYPE_File) && message.status == RC_STATUS_SUCCEED {
+        if (file.type == "image" || message.type == UD_TYPE_PICTURE || file.type == "video" || message.type == UD_TYPE_VIDEO || file.type == "file" || message.type == UD_TYPE_File) && message.status == UD_STATUS_SUCCEED {
             navigationItem.title = message.file.name
             navigationController?.navigationBar.barTintColor = .black
             navigationController?.navigationBar.tintColor = .white
@@ -624,14 +563,14 @@ class DialogflowView: UDMessagesView {
                 width += safeAreaInsetsLeftOrRight * 2
             }
             fileViewingVC.view.frame = CGRect(x:0, y:0, width: width, height: self.view.frame.height)
-            if file.type == "image" || message.type == RC_TYPE_PICTURE {
+            if file.type == "image" || message.type == UD_TYPE_PICTURE {
                 fileViewingVC.filePath = file.path
                 fileViewingVC.typeFile = .image
-                fileViewingVC.viewimage.image = file.picture
-            } else if file.type == "video" || message.type == RC_TYPE_VIDEO {
+                fileViewingVC.viewimage.image = file.image
+            } else if file.type == "video" || message.type == UD_TYPE_VIDEO {
                 fileViewingVC.filePath = file.path
                 fileViewingVC.typeFile = .video
-                fileViewingVC.videoImage = file.picture
+                fileViewingVC.videoImage = file.previewImage
             } else {
                 fileViewingVC.filePath = file.path
                 fileViewingVC.typeFile = .file

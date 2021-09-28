@@ -40,12 +40,12 @@ class UDFileMessageCellNode: UDMessageCellNode {
             guard let wSelf = self else {return UIView()}
             wSelf.activityIndicator = UIActivityIndicatorView(style: .white)
             wSelf.activityIndicator.hidesWhenStopped = false
-            if message.status == RC_STATUS_OPENIMAGE || message.file.path == "" {
+            if message.status == UD_STATUS_OPENIMAGE || message.file.path == "" {
                 wSelf.activityIndicator.startAnimating()
                 wSelf.activityIndicator.alpha = 1
                 wSelf.iconNode.alpha = 0
             } else {
-                if message.status == RC_STATUS_SUCCEED {
+                if message.status == UD_STATUS_SUCCEED {
                     wSelf.activityIndicator.stopAnimating()
                     wSelf.activityIndicator.alpha = 0
                     wSelf.iconNode.alpha = 1

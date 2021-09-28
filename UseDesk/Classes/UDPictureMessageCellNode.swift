@@ -48,19 +48,16 @@ class UDPictureMessageCellNode: UDMessageCellNode {
             guard let wSelf = self else {return UIView()}
             wSelf.activityIndicator = UIActivityIndicatorView(style: .white)
             wSelf.activityIndicator.hidesWhenStopped = false
-            if message.status == RC_STATUS_OPENIMAGE {
-                print("RC_STATUS_OPENIMAGE")
+            if message.status == UD_STATUS_OPENIMAGE {
                 wSelf.activityIndicator.startAnimating()
                 wSelf.activityIndicator.alpha = 1
                 wSelf.loaderBackNode.alpha = 1
             } else {
-                if message.status == RC_STATUS_SUCCEED {
-                    print("RC_STATUS_SUCCEED")
+                if message.status == UD_STATUS_SUCCEED {
                     wSelf.activityIndicator.stopAnimating()
                     wSelf.activityIndicator.alpha = 0
                     wSelf.loaderBackNode.alpha = 0
                 } else {
-                    print("status = \(message.status)")
                     wSelf.activityIndicator.startAnimating()
                     wSelf.activityIndicator.alpha = 1
                     wSelf.loaderBackNode.alpha = 1
@@ -68,11 +65,11 @@ class UDPictureMessageCellNode: UDMessageCellNode {
             }
             return wSelf.activityIndicator
         })
-        print("message.file.picture = \(message.file.picture != nil ? "есть" : "nil")")
-        imageNode.image = message.file.picture != nil ? message.file.picture : pictureStyle.imageDefault
-        imageNode.contentMode = .scaleAspectFit
-        imageNode.cornerRadius = pictureStyle.cornerRadius
-        
+        if imageNode.image == pictureStyle.imageDefault || imageNode.image == nil {
+            imageNode.image = message.file.image ?? pictureStyle.imageDefault
+            imageNode.contentMode = .scaleAspectFit
+            imageNode.cornerRadius = pictureStyle.cornerRadius
+        }
         if imageNode.supernode == nil {
             addSubnode(imageNode)
             addSubnode(loaderBackNode)
@@ -92,7 +89,7 @@ class UDPictureMessageCellNode: UDMessageCellNode {
         loaderBackOverlaySpec.child = loaderBackNode
         
         let sizeMessagesManager = UDSizeMessagesManager(messagesView: messagesView, message: message, indexPath: indexPath, configurationStyle: configurationStyle)
-        let sizeImageNode = sizeMessagesManager.sizeImageMessageFrom(size: CGSize(width: message.file.picture?.size.width ?? 0, height: message.file.picture?.size.height ?? 0))
+        let sizeImageNode = sizeMessagesManager.sizeImageMessageFrom(size: CGSize(width: imageNode.image?.size.width ?? 0, height: imageNode.image?.size.height ?? 0))
         imageNode.style.width = ASDimensionMakeWithPoints(sizeImageNode.width)
         imageNode.style.height = ASDimensionMakeWithPoints(sizeImageNode.height)
         

@@ -27,19 +27,23 @@ var MAX_WIDTH_MESSAGE: CGFloat {
     }
 }
 
-let RC_TYPE_TEXT = 1
-let RC_TYPE_EMOJI = 2
-let RC_TYPE_PICTURE = 3
-let RC_TYPE_VIDEO = 4
-let RC_TYPE_File = 5
-let RC_TYPE_Feedback = 6
+let UD_TYPE_TEXT = 1
+let UD_TYPE_EMOJI = 2
+let UD_TYPE_PICTURE = 3
+let UD_TYPE_VIDEO = 4
+let UD_TYPE_File = 5
+let UD_TYPE_Feedback = 6
 
-let RC_STATUS_LOADING = 1
-let RC_STATUS_SUCCEED = 2
-let RC_STATUS_OPENIMAGE = 3
+let UD_STATUS_LOADING = 1
+let UD_STATUS_SUCCEED = 2
+let UD_STATUS_OPENIMAGE = 3
 
-let RC_AUDIOSTATUS_STOPPED = 1
-let RC_AUDIOSTATUS_PLAYING = 2
+let UD_STATUS_SEND_FAIL = 1
+let UD_STATUS_SEND_DRAFT = 2
+let UD_STATUS_SEND_SUCCEED = 3
+
+let UD_AUDIOSTATUS_STOPPED = 1
+let UD_AUDIOSTATUS_PLAYING = 2
 
 // MARK: - Configuration desigen
 public struct ConfigurationStyle {
@@ -146,13 +150,22 @@ public struct ChatStyle {
     public var backgroundColor: UIColor
     public var backgroundColorLoaderView: UIColor
     public var alphaLoaderView: CGFloat
+    public var scrollButtonImage: UIImage
+    public var scrollButtonSize: CGSize
+    public var scrollButtonMargin: UIEdgeInsets
     
     public init(backgroundColor: UIColor? = nil,
                 backgroundColorLoaderView: UIColor? = nil,
-                alphaLoaderView: CGFloat = 0.8) {
+                alphaLoaderView: CGFloat = 0.8,
+                scrollButtonImage: UIImage? = nil,
+                scrollButtonSize: CGSize = CGSize(width: 40, height: 40),
+                scrollButtonMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 12)) {
         self.backgroundColor = backgroundColor != nil ? backgroundColor! : UIColor(hexString: "FFFFFF")
         self.backgroundColorLoaderView = backgroundColorLoaderView != nil ? backgroundColorLoaderView! : .lightGray
         self.alphaLoaderView = alphaLoaderView
+        self.scrollButtonImage = scrollButtonImage != nil ? scrollButtonImage! : UIImage.named("udScrollButton")
+        self.scrollButtonSize = scrollButtonSize
+        self.scrollButtonMargin = scrollButtonMargin
     }
 }
 // MARK: -  Date messages section
@@ -536,24 +549,26 @@ public struct MessageButtonStyle {
     public var textFont: UIFont
     public var cornerRadius: CGFloat
     public var spacing: CGFloat
-    public var height: CGFloat
+    public var minHeight: CGFloat
     public var margin: UIEdgeInsets
-    
+    public var maximumLine: Int
     
     public init(color: UIColor? = nil,
                 textColor: UIColor? = nil,
-                textFont: UIFont = UIFont.systemFont(ofSize: 11),
+                textFont: UIFont = UIFont.systemFont(ofSize: 15),
                 cornerRadius: CGFloat = 8,
                 spacing: CGFloat = 8,
                 height: CGFloat = 36,
-                margin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 8, right: 6)) {
+                margin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 8, right: 6),
+                maximumLine: Int = 1) {
         self.color = color != nil ? color! : UIColor(hexString: "333333")
         self.textColor = textColor != nil ? textColor! : UIColor(hexString: "FFFFFF")
         self.textFont = textFont
         self.cornerRadius = cornerRadius
         self.spacing = spacing
-        self.height = height
+        self.minHeight = height
         self.margin = margin
+        self.maximumLine = maximumLine
     }
 }
 

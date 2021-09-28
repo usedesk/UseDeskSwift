@@ -58,12 +58,12 @@ class UDVideoMessageCellNode: UDMessageCellNode {
             guard let wSelf = self else {return UIView()}
             wSelf.activityIndicator = UIActivityIndicatorView(style: .white)
             wSelf.activityIndicator.hidesWhenStopped = false
-            if message.status == RC_STATUS_OPENIMAGE {
+            if message.status == UD_STATUS_OPENIMAGE {
                 wSelf.activityIndicator.startAnimating()
                 wSelf.activityIndicator.alpha = 1
                 wSelf.playNode.alpha = 0
             } else {
-                if message.status == RC_STATUS_SUCCEED {
+                if message.status == UD_STATUS_SUCCEED {
                     wSelf.activityIndicator.stopAnimating()
                     wSelf.activityIndicator.alpha = 0
                     wSelf.playNode.alpha = 1
@@ -77,10 +77,10 @@ class UDVideoMessageCellNode: UDMessageCellNode {
         })
         
         previewImageNode.removeFromSupernode()
-        if message.file.picture != nil {
-            previewImageNode.image = message.file.picture
-        } else if message.file.path != "" {
+        if message.file.path != "" {
             previewImageNode.image = UDFileManager.videoPreview(filePath: message.file.path)
+        } else if message.file.defaultPath != "" {
+            previewImageNode.image = UDFileManager.videoPreview(filePath: message.file.defaultPath)
         } else {
             previewImageNode.image = videoStyle.imageDefault
         }
@@ -110,7 +110,8 @@ class UDVideoMessageCellNode: UDMessageCellNode {
         loaderBackOverlaySpec.child = loaderBackNode
         
         let sizeMessagesManager = UDSizeMessagesManager(messagesView: messagesView, message: message, indexPath: indexPath, configurationStyle: configurationStyle)
-        let sizeImageNode = sizeMessagesManager.sizeImageMessageFrom(size: CGSize(width: message.file.picture?.size.width ?? 0, height: message.file.picture?.size.height ?? 0))
+        
+        let sizeImageNode = sizeMessagesManager.sizeImageMessageFrom(size: CGSize(width: previewImageNode.image?.size.width ?? 0, height: previewImageNode.image?.size.height ?? 0))
         previewImageNode.style.width = ASDimensionMakeWithPoints(sizeImageNode.width)
         previewImageNode.style.height = ASDimensionMakeWithPoints(sizeImageNode.height)
         

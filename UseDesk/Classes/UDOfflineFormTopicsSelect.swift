@@ -5,7 +5,7 @@
 
 import UIKit
 
-protocol UDOfflineFormTopicsSelectDelegate: class {
+protocol UDOfflineFormTopicsSelectDelegate: AnyObject {
     func selectedTopic(indexTopic: Int?)
 }
 

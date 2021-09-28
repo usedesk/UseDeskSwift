@@ -33,6 +33,8 @@ class UDMessageCellNode: ASCellNode {
         let messageStyle = configurationStyle.messageStyle
         let bubbleStyle = configurationStyle.bubbleStyle
         
+        backgroundColor = .clear
+        
         var bubbleImage = message.outgoing ? bubbleStyle.backgroundImageOutgoing : bubbleStyle.backgroundImageIncoming
         bubbleImage = bubbleImage.stretchableImage(withLeftCapWidth: 23, topCapHeight: 16).withRenderingMode(.alwaysTemplate)
         bubbleImageNode.image = bubbleImage
@@ -60,12 +62,12 @@ class UDMessageCellNode: ASCellNode {
             }
             sendedImageNode.image = imageSended
             addSubnode(sendedImageNode)
-            if message.isNotSent {
+            if message.statusSend == UD_STATUS_SEND_FAIL {
                 notSentImageNode.alpha = 1
                 notSentImageNode.image = messageStyle.notSentImage
                 notSentImageNode.isUserInteractionEnabled = false
                 addSubnode(notSentImageNode)
-            } else if !message.isNotSent {
+            } else {
                 notSentImageNode.alpha = 0
             }
         } else {
@@ -123,7 +125,7 @@ class UDMessageCellNode: ASCellNode {
         if message.outgoing {
             let notSentImageInsetSpec = ASInsetLayoutSpec(insets: UIEdgeInsets(top: 0, left: 0, bottom: 0, right: messageStyle.notSentImageMarginToBubble), child: notSentImageNode)
             let notSentImageCenterSpec = ASCenterLayoutSpec(horizontalPosition: .end, verticalPosition: .center, sizingOption: [], child: notSentImageInsetSpec)
-            if message.isNotSent {
+            if message.statusSend == UD_STATUS_SEND_FAIL {
                 hMessageStack.setChild(notSentImageCenterSpec, at: 0)
             }
             hMessageStack.setChild(contentMessageBackgroundAndNameStack, at: 1)

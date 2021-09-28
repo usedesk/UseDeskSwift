@@ -12,7 +12,7 @@ enum UDFileType {
     case file
 }
 
-protocol UDAttachCVCellDelegate: class {
+protocol UDAttachCVCellDelegate: AnyObject {
     func deleteFile(index: Int)
 }
 
@@ -30,15 +30,20 @@ class UDAttachCollectionViewCell: UICollectionViewCell {
     var imageAttachView = UIImageView()
     var imageIconFileView = UIImageView()
     var fileTitleLabel = UILabel()
+    var loader: UIActivityIndicatorView? = nil
     
     private let kIndentImage: CGFloat = 4
     private let kVideoViewHeight: CGFloat = 16
     
-    func setingCell(image: UIImage? = nil, type: UDFileType, videoDuration: Double? = nil, urlFile: URL? = nil, index: Int) {
+    func setingCell(image: UIImage? = nil, type: UDFileType?, videoDuration: Double? = nil, urlFile: URL? = nil, index: Int) {
+        loader?.removeFromSuperview()
+        loader = nil
         imageAttachView.image = image
+        imageAttachView.backgroundColor = UIColor(hexString: "F0F0F0")
         imageAttachView.frame = CGRect(x: kIndentImage, y: kIndentImage, width: configurationStyle.inputViewStyle.heightAssetsCollection - kIndentImage * 2, height: configurationStyle.inputViewStyle.heightAssetsCollection - kIndentImage * 2)
         imageAttachView.layer.masksToBounds = true
         imageAttachView.layer.cornerRadius = 4
+        imageAttachView.contentMode = .scaleAspectFill
         if imageAttachView.superview == nil {
             self.addSubview(imageAttachView)
         }
@@ -92,14 +97,13 @@ class UDAttachCollectionViewCell: UICollectionViewCell {
             videoView.removeFromSuperview()
         }
         if type == .file {
-            imageAttachView.backgroundColor = UIColor(hexString: "F0F0F0")
             imageIconFileView.image = UIImage.named("udFileIconCircle")
             imageIconFileView.frame = CGRect(x: imageAttachView.frame.origin.x + 6, y: imageAttachView.frame.origin.y + 6, width: self.frame.width * 0.47, height: self.frame.height * 0.47)
             if imageIconFileView.superview == nil {
                 self.addSubview(imageIconFileView)
             }
             if urlFile != nil {
-                fileTitleLabel.text = urlFile!.localizedName ?? urlFile!.lastPathComponent
+                fileTitleLabel.text = urlFile!.lastPathComponent
                 fileTitleLabel.frame = CGRect(x: imageAttachView.frame.origin.x + 4, y: imageAttachView.frame.origin.y + imageAttachView.frame.height - 4 - 16, width: imageAttachView.frame.width - (4 * 2), height: 16)
                 fileTitleLabel.font = UIFont.systemFont(ofSize: 12)
                 fileTitleLabel.textColor = UIColor(hexString: "454D63")
@@ -114,6 +118,29 @@ class UDAttachCollectionViewCell: UICollectionViewCell {
         }
         self.layoutIfNeeded()
         self.index = index
+    }
+    
+    func showLoader() {
+//        videoView.removeFromSuperview()
+//        imageIconFileView.removeFromSuperview()
+//        fileTitleLabel.removeFromSuperview()
+//        imageAttachView.removeFromSuperview()
+//        imageAttachView.backgroundColor = UIColor(hexString: "F0F0F0")
+//        imageAttachView.frame = CGRect(x: kIndentImage, y: kIndentImage, width: configurationStyle.inputViewStyle.heightAssetsCollection - kIndentImage * 2, height: configurationStyle.inputViewStyle.heightAssetsCollection - kIndentImage * 2)
+//        imageAttachView.layer.masksToBounds = true
+//        imageAttachView.layer.cornerRadius = 4
+//        if imageAttachView.superview == nil {
+//            self.addSubview(imageAttachView)
+//        }
+        if loader == nil {
+            loader = UIActivityIndicatorView(style: .white)
+            loader!.translatesAutoresizingMaskIntoConstraints = false
+            self.addSubview(loader!)
+            let horizontalConstraint = NSLayoutConstraint(item: loader!, attribute: NSLayoutConstraint.Attribute.centerX, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.centerX, multiplier: 1, constant: 0)
+            let verticalConstraint = NSLayoutConstraint(item: loader!, attribute: NSLayoutConstraint.Attribute.centerY, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.centerY, multiplier: 1, constant: 0)
+            NSLayoutConstraint.activate([horizontalConstraint, verticalConstraint])
+            loader?.startAnimating()
+        }
     }
     
     @objc func deleteAction(sender: UIButton!) {

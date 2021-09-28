@@ -68,7 +68,7 @@ class UDTextMessageCellNode: UDMessageCellNode {
         vMessageStack.direction = .vertical
         vMessageStack.style.flexShrink = 1.0
         vMessageStack.style.flexGrow = 1.0
-        vMessageStack.style.maxWidth = ASDimensionMakeWithPoints(sizeMessagesManager.maxWidthBubbleMessage)
+        vMessageStack.style.maxWidth = sizeMessagesManager.maxWidthBubbleMessageDimension
         vMessageStack.spacing = 0
         vMessageStack.alignItems = .start
         vMessageStack.setChild(textMessageInsets, at: 0)
@@ -79,8 +79,20 @@ class UDTextMessageCellNode: UDMessageCellNode {
         if message.buttons.count > 0 {
             let insetSpec = ASInsetLayoutSpec(insets: messageButtonStyle.margin, child: tableButtonsNode)
             tableButtonsNode.style.minWidth = ASDimensionMakeWithPoints(60000.0)
-            tableButtonsNode.style.flexGrow = 1.0
-            tableButtonsNode.style.minHeight = ASDimensionMakeWithPoints(CGFloat(message.buttons.count) * (messageButtonStyle.height + messageButtonStyle.spacing) - messageButtonStyle.spacing)
+            var height: CGFloat = 0 // height tableButtonsNode
+            let heightLine = "1".size(availableWidth: sizeMessagesManager.maxWidthBubbleMessage - messageButtonStyle.margin.left - messageButtonStyle.margin.right, attributes: [.font : messageButtonStyle.textFont, .foregroundColor : messageButtonStyle.textColor]).height
+            for index in 0..<message.buttons.count {
+                let heightTitle = message.buttons[index].title.size(availableWidth: sizeMessagesManager.maxWidthBubbleMessage - messageButtonStyle.margin.left - messageButtonStyle.margin.right - 16, attributes: [.font : messageButtonStyle.textFont, .foregroundColor : messageButtonStyle.textColor]).height
+                if (heightTitle / heightLine).rounded(.up) > CGFloat(messageButtonStyle.maximumLine) {
+                    height += heightLine * CGFloat(messageButtonStyle.maximumLine)
+                } else {
+                    height += heightTitle
+                }
+                height += 16
+                height += messageButtonStyle.spacing
+            }
+            height += messageButtonStyle.margin.top + messageButtonStyle.margin.bottom
+            tableButtonsNode.style.minHeight = ASDimensionMakeWithPoints(height)
             vMessageStack.setChild(insetSpec, at: 1)
         }
         
@@ -111,7 +123,8 @@ extension UDTextMessageCellNode: ASTableDelegate, ASTableDataSource {
     
     func tableNode(_ tableNode: ASTableNode, nodeForRowAt indexPath: IndexPath) -> ASCellNode {
         let cell = UDMessageButtonCellNode()
-        cell.setCell(titleButton: message.buttons[indexPath.row].title)
+        cell.configurationStyle = configurationStyle
+        cell.setCell(titleButton: message.buttons[indexPath.row].title, spacing: indexPath.row == 0 ? 0 : configurationStyle.messageButtonStyle.spacing)
         return cell
     }
     
@@ -131,8 +144,8 @@ extension UDTextMessageCellNode: ASTableDelegate, ASTableDataSource {
     
     func tableNode(_ tableNode: ASTableNode, constrainedSizeForRowAt indexPath: IndexPath) -> ASSizeRange {
         let messageButtonStyle = configurationStyle.messageButtonStyle
-        let min = CGSize(width: UIScreen.main.bounds.size.width, height: indexPath.row == 0 ? messageButtonStyle.height : messageButtonStyle.height + messageButtonStyle.spacing)
-        let max = CGSize(width: UIScreen.main.bounds.size.width, height: indexPath.row == 0 ? messageButtonStyle.height : messageButtonStyle.height + messageButtonStyle.spacing)
+        let min = CGSize(width: UIScreen.main.bounds.size.width, height: indexPath.row == 0 ? messageButtonStyle.minHeight : messageButtonStyle.minHeight + messageButtonStyle.spacing)
+        let max = CGSize(width: UIScreen.main.bounds.size.width, height: indexPath.row == 0 ? (messageButtonStyle.minHeight * CGFloat(messageButtonStyle.maximumLine)) : (messageButtonStyle.minHeight * CGFloat(messageButtonStyle.maximumLine)) + messageButtonStyle.spacing)
         return ASSizeRange(min: min, max: max)
     }
 }

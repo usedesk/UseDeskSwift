@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES">
     <device id="retina4_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -33,6 +33,12 @@
                 <outlet property="buttonSendLoader" destination="4CI-2b-YLv" id="jUd-S4-cm0"/>
                 <outlet property="buttonSendTC" destination="Wny-R1-Wnx" id="G4k-MO-knW"/>
                 <outlet property="buttonSendWC" destination="mFz-Hz-yj8" id="lhe-gX-5Sh"/>
+                <outlet property="loader" destination="Gaj-ut-CEu" id="qjz-w9-j0M"/>
+                <outlet property="scrollButton" destination="v4h-AJ-Jn3" id="Lll-4b-bYh"/>
+                <outlet property="scrollButtonBC" destination="0dg-fw-lbq" id="HQu-op-hq0"/>
+                <outlet property="scrollButtonHC" destination="Pjx-Hh-sHI" id="M2A-ee-dER"/>
+                <outlet property="scrollButtonTC" destination="N0Z-mu-Bcz" id="Uy5-7a-0Vb"/>
+                <outlet property="scrollButtonWC" destination="nLy-eM-Ejg" id="eyx-E1-j2E"/>
                 <outlet property="textInput" destination="WF4-Ti-KqT" id="FSc-Lc-lva"/>
                 <outlet property="textInputBC" destination="0QF-3K-Leo" id="kGo-RE-VxI"/>
                 <outlet property="textInputHC" destination="VTd-c8-c4g" id="knR-oc-TMc"/>
@@ -53,6 +59,9 @@
                     <rect key="frame" x="0.0" y="0.0" width="320" height="518"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                 </view>
+                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="Gaj-ut-CEu">
+                    <rect key="frame" x="141.5" y="240.5" width="37" height="37"/>
+                </activityIndicatorView>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xuU-RB-86v">
                     <rect key="frame" x="0.0" y="518" width="320" height="50"/>
                     <subviews>
@@ -125,6 +134,21 @@
                         <constraint firstItem="4CI-2b-YLv" firstAttribute="centerX" secondItem="aaP-dQ-ykO" secondAttribute="centerX" id="sCY-3q-GPB"/>
                     </constraints>
                 </view>
+                <button opaque="NO" alpha="0.0" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="v4h-AJ-Jn3">
+                    <rect key="frame" x="278" y="479" width="34" height="35"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="35" id="Pjx-Hh-sHI"/>
+                        <constraint firstAttribute="width" constant="34" id="nLy-eM-Ejg"/>
+                    </constraints>
+                    <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <state key="normal">
+                        <color key="titleColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </state>
+                    <connections>
+                        <action selector="scrollButtonAction:" destination="-1" eventType="touchUpInside" id="kAD-7w-cHF"/>
+                    </connections>
+                </button>
                 <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vWE-cl-xhX">
                     <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                     <subviews>
@@ -239,14 +263,18 @@
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
+                <constraint firstItem="xuU-RB-86v" firstAttribute="top" secondItem="v4h-AJ-Jn3" secondAttribute="bottom" constant="4" id="0dg-fw-lbq"/>
                 <constraint firstItem="vWE-cl-xhX" firstAttribute="top" secondItem="PpO-Gc-0B7" secondAttribute="top" id="6P0-D6-5Yb"/>
                 <constraint firstAttribute="trailing" secondItem="vWE-cl-xhX" secondAttribute="trailing" id="78l-dh-pjR"/>
                 <constraint firstItem="SGa-4e-nkS" firstAttribute="top" secondItem="PpO-Gc-0B7" secondAttribute="top" id="7hl-zF-iDI"/>
                 <constraint firstItem="xuU-RB-86v" firstAttribute="top" secondItem="SGa-4e-nkS" secondAttribute="bottom" id="9ko-0h-yVx"/>
                 <constraint firstItem="vWE-cl-xhX" firstAttribute="leading" secondItem="PpO-Gc-0B7" secondAttribute="leading" id="9pg-xZ-50x"/>
                 <constraint firstAttribute="trailing" secondItem="xuU-RB-86v" secondAttribute="trailing" id="H1D-Pa-OaA"/>
+                <constraint firstItem="Gaj-ut-CEu" firstAttribute="centerX" secondItem="SGa-4e-nkS" secondAttribute="centerX" id="HYf-Yd-5HW"/>
                 <constraint firstAttribute="bottom" secondItem="xuU-RB-86v" secondAttribute="bottom" id="M5j-Eh-ief"/>
+                <constraint firstAttribute="trailing" secondItem="v4h-AJ-Jn3" secondAttribute="trailing" constant="8" id="N0Z-mu-Bcz"/>
                 <constraint firstItem="xuU-RB-86v" firstAttribute="leading" secondItem="PpO-Gc-0B7" secondAttribute="leading" id="P6d-Se-fzz"/>
+                <constraint firstItem="Gaj-ut-CEu" firstAttribute="centerY" secondItem="SGa-4e-nkS" secondAttribute="centerY" id="RsW-Y0-9eK"/>
                 <constraint firstAttribute="bottom" secondItem="vWE-cl-xhX" secondAttribute="bottom" id="Rtg-cg-66a"/>
                 <constraint firstAttribute="trailing" secondItem="SGa-4e-nkS" secondAttribute="trailing" id="VJm-qC-2SS"/>
                 <constraint firstItem="SGa-4e-nkS" firstAttribute="leading" secondItem="PpO-Gc-0B7" secondAttribute="leading" id="yzg-dd-8y5"/>

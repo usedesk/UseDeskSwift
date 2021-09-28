@@ -1,38 +1,33 @@
-// swift-tools-version:4.2
+// swift-tools-version:5.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
-//import PackageDescription
-//
-//let package = Package(
-//    name: "socket.io-test",
-//    products: [
-//        .executable(name: "socket.io-test", targets: ["UseDeskTest"])
-//    ],
-//    dependencies: [
-//        .package(url: "https://github.com/socketio/socket.io-client-swift", .upToNextMinor(from: "14.0.0"))
-//    ],
-//    targets: [
-//        .target(name: "UseDeskTest", dependencies: ["SocketIO"], path: "./Socket.IO-Client-Swift")
-//    ]
-//    name: "Classes",
-//    products: [
-//        // Products define the executables and libraries produced by a package, and make them visible to other packages.
-//        .library(
-//            name: "Classes",
-//            targets: ["Classes"]),
-//    ],
-//    dependencies: [
-//        // Dependencies declare other packages that this package depends on.
-//        // .package(url: /* package url */, from: "1.0.0"),
-//    ],
-//    targets: [
-//        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-//        // Targets can depend on other targets in this package, and on products in packages which this package depends on.
-//        .target(
-//            name: "Classes",
-//            dependencies: []),
-//        .testTarget(
-//            name: "ClassesTests",
-//            dependencies: ["Classes"]),
-//    ]
-//)
+import PackageDescription
+
+let package = Package (
+     name: "UseDesk_SDK_Swift",
+    platforms: [
+        .iOS(.v10)
+    ],
+     products: [
+         .library(name: "UseDesk_SDK_Swift", targets: ["UseDesk"])
+     ],
+     dependencies: [
+        .package(name: "SocketIO", url: "https://github.com/socketio/socket.io-client-swift", from: "16.0.0"),
+         .package(url: "https://github.com/Alamofire/Alamofire", from: "5.0.0"),
+         .package(url: "https://github.com/sendyhalim/Swime", from: "3.0.0"),
+         .package(url: "https://github.com/johnxnguyen/Down", from: "0.11.0")
+     ],
+     targets: [
+         .target(
+             name: "UseDesk_SDK_Swift",
+             dependencies: [
+                 "Alamofire",
+                 "SocketIO",
+                 "Swime",
+                 "Down"
+             ],
+             path: "Core"
+         )
+     ],
+     swiftLanguageVersions: [.v5]
+ )

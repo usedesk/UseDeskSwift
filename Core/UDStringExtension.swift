@@ -61,8 +61,8 @@ extension String {
             sizeWithAttributedString.height = totalHeight
         }
         
-        let size = CGSize(width: sizeWithAttributedString.width,
-                          height: sizeWithAttributedString.height)
+        let size = CGSize(width: sizeWithAttributedString.width.rounded(.up),
+                          height: sizeWithAttributedString.height.rounded(.up))
         
         return size
     }
