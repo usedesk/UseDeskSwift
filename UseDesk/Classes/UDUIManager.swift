@@ -52,24 +52,19 @@ class UDUIManager: UDUIProtocole {
         }
     }
     
-    func reloadDialogFlow(success: Bool, error: String?, url: String, in parentController: UIViewController?) {
-        let parentController = parentController ?? RootView
+    func reloadDialogFlow(success: Bool, feedBackStatus: UDFeedbackStatus, url: String) { 
         if success {
             dialogflowVC.usedesk = useDesk
             dialogflowVC.reloadHistory()
         } else {
-            if error == "feedback_form" || error == "feedback_form_and_chat" {
+            if feedBackStatus == .feedbackForm || feedBackStatus == .feedbackFormAndChat {
                 if offlineVC.presentingViewController == nil {
-                    dialogflowVC.actionDone()
                     offlineVC = UDOfflineForm()
                     offlineVC.url = url
                     offlineVC.usedesk = useDesk
-                    navController = UDNavigationController(rootViewController: offlineVC)
-                    navController.configurationStyle = configurationStyle
-                    navController.setProperties()
-                    navController.setTitleTextAttributes()
-                    navController.modalPresentationStyle = .fullScreen
-                    parentController?.present(navController, animated: true)
+                    pushViewController(offlineVC)
+                    dialogflowVC.closeVC()
+                    dialogflowVC = DialogflowView()
                 }
             }
         }
@@ -81,6 +76,12 @@ class UDUIManager: UDUIProtocole {
 
     func dismiss() {
         navController.dismiss(animated: true, completion: nil)
+    }
+    
+    func chatViewController() -> UIViewController? {
+        guard useDesk != nil else {return nil}
+        dialogflowVC.view.layoutSubviews()
+        return dialogflowVC
     }
 }
 

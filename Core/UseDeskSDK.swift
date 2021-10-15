@@ -8,13 +8,14 @@ import UserNotifications
 import Down
 
 
-public typealias UDSStartBlock = (Bool, String?, String) -> Void
-public typealias UDSBaseBlock = (Bool, [UDBaseCollection]?, String?) -> Void
-public typealias UDSArticleBlock = (Bool, UDArticle?, String?) -> Void
-public typealias UDSArticleSearchBlock = (Bool, UDSearchArticle?, String?) -> Void
-public typealias UDSConnectBlock = (Bool, String?) -> Void
+public typealias UDSStartBlock = (Bool, UDFeedbackStatus, String) -> Void
+public typealias UDSBaseBlock = (Bool, [UDBaseCollection]?) -> Void
+public typealias UDSArticleBlock = (Bool, UDArticle?) -> Void
+public typealias UDSArticleSearchBlock = (Bool, UDSearchArticle?) -> Void
+public typealias UDSConnectBlock = (Bool) -> Void
 public typealias UDSNewMessageBlock = (Bool, UDMessage?) -> Void
-public typealias UDSErrorBlock = ([Any]?) -> Void
+public typealias UDSErrorSocketBlock = ([Any]?) -> Void
+public typealias UDSErrorBlock = (UDError, String?) -> Void
 public typealias UDSFeedbackMessageBlock = (UDMessage?) -> Void
 public typealias UDSFeedbackAnswerMessageBlock = (Bool) -> Void
 
@@ -26,7 +27,7 @@ public typealias UDSFeedbackAnswerMessageBlock = (Bool) -> Void
 public class UseDeskSDK: NSObject, UDUISetupable {
     @objc public var newMessageBlock: UDSNewMessageBlock?
     @objc public var connectBlock: UDSConnectBlock?
-    @objc public var errorBlock: UDSErrorBlock?
+    @objc public var errorBlock: UDSErrorSocketBlock?
     @objc public var feedbackMessageBlock: UDSFeedbackMessageBlock?
     @objc public var feedbackAnswerMessageBlock: UDSFeedbackAnswerMessageBlock?
     @objc public var historyMess: [UDMessage] = []
@@ -43,7 +44,8 @@ public class UseDeskSDK: NSObject, UDUISetupable {
     var manager: SocketManager?
     var socket: SocketIOClient?
     // closure StartBlock
-    var closure: UDSStartBlock? = nil
+    var closureStartBlock: UDSStartBlock? = nil
+    var closureErrorBlock: UDSErrorBlock? = nil
     // Storage
     var storage: UDStorage? = nil
     var isCacheMessagesWithFile: Bool = true
@@ -67,20 +69,26 @@ public class UseDeskSDK: NSObject, UDUISetupable {
     var firstMessage = ""
     var note = ""
     var token = ""
+    var additionalFields: [Int : String] = [:]
+    var additionalNestedFields: [[Int : String]] = []
     // Lolace
     var locale: [String:String] = [:]
     
     var idLoadingMessages: [String] = []
     
     private var serverToken = ""
+    private var isSendedAdditionalField = false
     
-    @objc public func start(withCompanyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, token _token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, storage storageOutside: UDStorage? = nil, isCacheMessagesWithFile: Bool = true, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: @escaping UDSStartBlock) {
+    @objc public func start(withCompanyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, additionalFields _additionalFields: [Int : String] = [:], additionalNestedFields _additionalNestedFields: [[Int : String]] = [], token _token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, storage storageOutside: UDStorage? = nil, isCacheMessagesWithFile: Bool = true, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: @escaping UDSStartBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         setupUI()
-        closure = startBlock
+        closureStartBlock = startBlock
+        closureErrorBlock = errorBlock
+        additionalFields = _additionalFields
+        additionalNestedFields = _additionalNestedFields
         
         companyID = _companyID
         guard _chanelId.trimmingCharacters(in: .whitespaces).count > 0 && Int(_chanelId) != nil else {
-            startBlock(false, "chanelIdError", "")
+            errorBlock(.chanelIdError, UDError.chanelIdError.description)
             return
         }
         chanelId = _chanelId
@@ -93,7 +101,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         }
         
         guard isValidSite(path: _url) else {
-            startBlock(false, "urlError", "")
+            errorBlock(.urlError, UDError.urlError.description)
             return
         }
         urlWithoutPort = _url
@@ -108,7 +116,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             if _email != "" {
                 email = _email!
                 if !email.udIsValidEmail() {
-                    startBlock(false, "emailError", "")
+                    errorBlock(.emailError, UDError.emailError.description)
                     return
                 }
             }
@@ -117,7 +125,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         if _urlToSendFile != nil {
             if _urlToSendFile != "" {
                 guard isValidSite(path: _urlToSendFile!) else {
-                    startBlock(false, "urlToSendFileError", "")
+                    errorBlock(.urlToSendFileError, UDError.urlToSendFileError.description)
                     return
                 }
                 if isExistProtocol(url: _urlToSendFile!) {
@@ -140,7 +148,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
                     urlAPI = "https://" + _urlAPI!
                 }
                 guard isValidSite(path: urlAPI) else {
-                    startBlock(false, "urlAPIError", "")
+                    errorBlock(.urlAPIError, UDError.urlAPIError.description)
                     return
                 }
             }
@@ -160,7 +168,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             if _phone != "" {
                 phone = _phone!
                 guard isValidPhone(phone: _phone!) else {
-                    startBlock(false, "phoneError", "")
+                    errorBlock(.phoneError, UDError.phoneError.description)
                     return
                 }
             }
@@ -188,7 +196,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         if _token != nil {
             if _token != "" {
                 if !_token!.udIsValidToken() {
-                    startBlock(false, "tokenError", "")
+                    errorBlock(.tokenError, UDError.tokenError.description)
                     return
                 }
                 token = _token!
@@ -220,11 +228,13 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             uiManager?.showBaseView(in: parentController, url: url)
         } else {
             uiManager?.startDialogFlow(in: parentController)
-            startWithoutGUICompanyID(companyID: companyID, chanelId: chanelId, knowledgeBaseID: knowledgeBaseID, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, operatorName: operatorName, nameChat: _nameChat, connectionStatus: { [weak self] success, error, token in
+            startWithoutGUICompanyID(companyID: companyID, chanelId: chanelId, knowledgeBaseID: knowledgeBaseID, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, operatorName: operatorName, nameChat: _nameChat, additionalFields: additionalFields, additionalNestedFields: additionalNestedFields) { [weak self] success, feedbackStatus, token in
                 guard let wSelf = self else { return }
-                startBlock(success, error, token)
-                wSelf.uiManager?.reloadDialogFlow(success: success, error: error, url: wSelf.url, in: parentController)
-            })
+                startBlock(success, feedbackStatus, token)
+                wSelf.uiManager?.reloadDialogFlow(success: success, feedBackStatus: feedbackStatus, url: wSelf.url)
+            } errorStatus: { error, description in
+                errorBlock(error, description)
+            }
         }
     }
 
@@ -262,20 +272,21 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         } else {
             status(false, "Тhe file is not accepted by the server ")
         }
-        
     }
     
-    @objc public func startWithoutGUICompanyID(companyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, token _token: String? = nil, isBeforeFeedbackForm: Bool = false, connectionStatus startBlock: @escaping UDSStartBlock) {
+    @objc public func startWithoutGUICompanyID(companyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, additionalFields _additionalFields: [Int : String] = [:], additionalNestedFields _additionalNestedFields: [[Int : String]] = [], token _token: String? = nil, isBeforeFeedbackForm: Bool = false, connectionStatus startBlock: @escaping UDSStartBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         
         var isAuthInited = false
         
         companyID = _companyID
         guard _chanelId.trimmingCharacters(in: .whitespaces).count > 0 && Int(_chanelId) != nil else {
-            startBlock(false, "chanelIdError", "")
+            errorBlock(.chanelIdError, UDError.chanelIdError.description)
             return
         }
         chanelId = _chanelId
         api_token = _api_token
+        additionalFields = _additionalFields
+        additionalNestedFields = _additionalNestedFields
         
         if _port != nil {
             if _port != "" {
@@ -284,7 +295,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         }
         
         guard isValidSite(path: _url) else {
-            startBlock(false, "urlError", "")
+            errorBlock(.urlError, UDError.urlError.description)
             return
         }
         if isExistProtocol(url: _url) {
@@ -297,7 +308,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             if _email != "" {
                 email = _email!
                 if !email.udIsValidEmail() {
-                    startBlock(false, "emailError", "")
+                    errorBlock(.emailError, UDError.emailError.description)
                     return
                 }
             }
@@ -306,7 +317,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         if _urlToSendFile != nil {
             if _urlToSendFile != "" {
                 guard isValidSite(path: _urlToSendFile!) else {
-                    startBlock(false, "urlToSendFileError", "")
+                    errorBlock(.urlToSendFileError, UDError.urlToSendFileError.description)
                     return
                 }
                 if isExistProtocol(url: _urlToSendFile!) {
@@ -329,7 +340,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
                     urlAPI = "https://" + _urlAPI!
                 }
                 guard isValidSite(path: urlAPI) else {
-                    startBlock(false, "urlAPIError", "")
+                    errorBlock(.urlAPIError, UDError.urlAPIError.description)
                     return
                 }
             }
@@ -372,7 +383,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         if _token != nil {
             if _token != "" {
                 if !_token!.udIsValidToken() {
-                    startBlock(false, "tokenError", "")
+                    errorBlock(.tokenError, UDError.tokenError.description)
                     return
                 }
                 token = _token!
@@ -385,13 +396,13 @@ public class UseDeskSDK: NSObject, UDUISetupable {
 //        }
         // validation
         guard isValidPhone(phone: phone) || phone == "" else {
-            startBlock(false, "phoneError", "")
+            errorBlock(.phoneError, UDError.phoneError.description)
             return
         }
         
         let urlAdress = URL(string: url)
         guard urlAdress != nil else {
-            startBlock(false, "urlError", "")
+            errorBlock(.urlError, UDError.urlError.description)
             return
         }
         
@@ -414,7 +425,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             if (wSelf.errorBlock != nil) {
                 wSelf.errorBlock!(data)
                 if !isAuthInited {
-                    startBlock(false, "false inited", "")
+                    errorBlock(.falseInitChatError, UDError.falseInitChatError.description)
                 }
             }
         })
@@ -439,9 +450,9 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             wSelf.action_INITED_callback_settings(data)
             
             if no_operators || wSelf.callbackSettings.type == .always {
-                startBlock(false, "feedback_form", wSelf.token)
+                startBlock(false, .feedbackForm, wSelf.token)
             } else if wSelf.callbackSettings.type == .always_and_chat && !isBeforeFeedbackForm {
-                startBlock(false, "feedback_form_and_chat", wSelf.token)
+                startBlock(false, .feedbackFormAndChat, wSelf.token)
             } else {
                 let auth_success = wSelf.action_ADD_INIT(data)
                 
@@ -453,7 +464,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
                         wSelf.firstMessage = ""
                     }
                     isAuthInited = true
-                    startBlock(auth_success, "", wSelf.token)
+                    startBlock(auth_success, .never, wSelf.token)
                 }
                 
                 wSelf.action_Feedback_Answer(data)
@@ -465,110 +476,134 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         })
     }
     
-    @objc public func getCollections(connectionStatus baseBlock: @escaping UDSBaseBlock) {
-        if knowledgeBaseID != "" {
-            var url = ""
-            if self.urlAPI != "" {
-                url += self.urlAPI + "/uapi"
-            } else {
-                url += "api.usedesk.ru"
+    private func sendAdditionalFields(fields: [Int : String], nestedFields: [[Int : String]]) {
+        guard !isSendedAdditionalField && (fields.count > 0 || nestedFields.count > 0) else {return}
+        isSendedAdditionalField = true
+        var allFields: [Any] = []
+        for (id, value) in fields {
+            allFields.append([
+                "id" : id,
+                "value" : value
+            ])
+        }
+        for nestedField in nestedFields {
+            var fieldsArray: [[String : Any]] = []
+            for (id, value) in nestedField {
+                if id > 0 {
+                    fieldsArray.append([
+                        "id" : id,
+                        "value" : value
+                    ])
+                }
             }
+            allFields.append(fieldsArray)
+        }
+        let parameters: [String : Any] = [
+            "additional_fields" : allFields,
+            "chat_token" : token
+        ]
+        var url = urlBase()
+        url += "/v1/addFieldsToChat"
+        AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default).responseJSON{ responseJSON in }
+    }
+    
+    @objc public func getCollections(connectionStatus baseBlock: @escaping UDSBaseBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
+        if knowledgeBaseID != "" {
+            var url = urlBase()
             url += "/support/\(self.knowledgeBaseID)/list?api_token=\(self.api_token)"
             AF.request(url).responseJSON{  responseJSON in
                 switch responseJSON.result {
                 case .success(let value):
                     guard let collections = UDBaseCollection.getArray(from: value) else {
-                        baseBlock(false, nil, "error parsing")
-                        return }
-                    baseBlock(true, collections, "")
+                        if let valueDictionary = value as? [String : Any] {
+                            if valueDictionary["error"] != nil {
+                                if let code = valueDictionary["code"] as? Int {
+                                    errorBlock(UDError(errorCode: code), UDError(errorCode: code).description)
+                                }
+                            }
+                        } else {
+                            errorBlock(.serverError, UDError.serverError.description)
+                        }
+                        return
+                    }
+                    baseBlock(true, collections)
                 case .failure(let error):
-                    baseBlock(false, nil, error.localizedDescription)
+                    errorBlock(.null, error.localizedDescription)
                 }
             }
         } else {
-            baseBlock(false, nil, "You did not specify knowledgeBaseID")
+            errorBlock(.emptyKnowledgeBaseID, UDError.emptyKnowledgeBaseID.description)
         }
     }
     
-    @objc public func getArticle(articleID: Int, connectionStatus baseBlock: @escaping UDSArticleBlock) {
+    @objc public func getArticle(articleID: Int, connectionStatus baseBlock: @escaping UDSArticleBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         if knowledgeBaseID != "" {
-            var url = ""
-            if self.urlAPI != "" {
-                url += self.urlAPI + "/uapi"
-            } else {
-                url += "api.usedesk.ru"
-            }
+            var url = urlBase()
             url += "/support/\(self.knowledgeBaseID)/articles/\(articleID)?api_token=\(self.api_token)"
             AF.request(url).responseJSON{ responseJSON in
                 switch responseJSON.result {
                 case .success(let value):
                     guard let article = UDArticle.get(from: value) else {
-                        baseBlock(false, nil, "error parsing")
-                        return }
-                    baseBlock(true, article, "")
+                        if let valueDictionary = value as? [String : Any] {
+                            if valueDictionary["error"] != nil {
+                                if let code = valueDictionary["code"] as? Int {
+                                    errorBlock(UDError(errorCode: code), UDError(errorCode: code).description)
+                                }
+                            }
+                        } else {
+                            errorBlock(.serverError, UDError.serverError.description)
+                        }
+                        return
+                    }
+                    baseBlock(true, article)
                 case .failure(let error):
-                    baseBlock(false, nil, error.localizedDescription)
+                    errorBlock(.serverError, error.localizedDescription)
                 }
             }
         } else {
-            baseBlock(false, nil, "You did not specify knowledgeBaseID")
+            errorBlock(.emptyKnowledgeBaseID, UDError.emptyKnowledgeBaseID.description)
         }
     }
     
-    @objc public func addViewsArticle(articleID: Int, count: Int, connectionStatus connectBlock: @escaping UDSConnectBlock) {
+    @objc public func addViewsArticle(articleID: Int, count: Int, connectionStatus connectBlock: @escaping UDSConnectBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         if knowledgeBaseID != "" {
-            var url = ""
-            if self.urlAPI != "" {
-                url += self.urlAPI + "/uapi"
-            } else {
-                url += "api.usedesk.ru"
-            }
+            var url = urlBase()
             url += "/support/\(self.knowledgeBaseID)/articles/\(articleID)/add-views?api_token=\(self.api_token)&count=\(count)"
             AF.request(url).responseJSON{ responseJSON in
                 switch responseJSON.result {
                 case .success( _):
-                    connectBlock(true, "")
+                    connectBlock(true)
                 case .failure(let error):
-                    connectBlock(false, error.localizedDescription)
+                    errorBlock(.serverError, error.localizedDescription)
                 }
             }
         } else {
-            connectBlock(false, "You did not specify knowledgeBaseID")
+            errorBlock(.emptyKnowledgeBaseID, UDError.emptyKnowledgeBaseID.description)
         }
     }
     
-    @objc public func addReviewArticle(articleID: Int, countPositiv: Int = 0, countNegativ: Int = 0, connectionStatus connectBlock: @escaping UDSConnectBlock) {
+    @objc public func addReviewArticle(articleID: Int, countPositiv: Int = 0, countNegativ: Int = 0, connectionStatus connectBlock: @escaping UDSConnectBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         if knowledgeBaseID != "" {
-            var url = ""
-            if self.urlAPI != "" {
-                url += self.urlAPI + "/uapi"
-            } else {
-                url += "api.usedesk.ru"
-            }
+            var url = urlBase()
             url += "/support/\(self.knowledgeBaseID)/articles/\(articleID)/change-rating?api_token=\(self.api_token)"
             url += countPositiv > 0 ? "&count_positive=\(countPositiv)" : ""
             url += countNegativ > 0 ? "&count_negative=\(countNegativ)" : ""
             AF.request(url).responseJSON{ responseJSON in
                 switch responseJSON.result {
                 case .success( _):
-                    connectBlock(true, "")
+                    connectBlock(true)
                 case .failure(let error):
-                    connectBlock(false, error.localizedDescription)
+                    errorBlock(.serverError, error.localizedDescription)
                 }
             }
         } else {
-            connectBlock(false, "You did not specify knowledgeBaseID")
+            errorBlock(.emptyKnowledgeBaseID, UDError.emptyKnowledgeBaseID.description)
         }
     }
     
-    @objc public func sendReviewArticleMesssage(articleID: Int, message: String, connectionStatus connectBlock: @escaping UDSConnectBlock) {
+    @objc public func sendReviewArticleMesssage(articleID: Int, message: String, connectionStatus connectBlock: @escaping UDSConnectBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         if knowledgeBaseID != "" {
-            var url = ""
-            if self.urlAPI != "" {
-                url += self.urlAPI + "/uapi"
-            } else {
-                url += "api.usedesk.ru"
-            }
+            var url = urlBase()
             url += "/create/ticket?api_token=\(self.api_token)"
             var parameters = [
                 "subject" : stringFor("ArticleReviewForSubject"),
@@ -582,24 +617,19 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             AF.request(url, method: .post, parameters: parameters).responseJSON{ responseJSON in
                 switch responseJSON.result {
                 case .success( _):
-                    connectBlock(true, "")
+                    connectBlock(true)
                 case .failure(let error):
-                    connectBlock(false, error.localizedDescription)
+                    errorBlock(.serverError, error.localizedDescription)
                 }
             }
         } else {
-            connectBlock(false, "You did not specify knowledgeBaseID")
+            errorBlock(.emptyKnowledgeBaseID, UDError.emptyKnowledgeBaseID.description)
         }
     }
     
-    @objc public func getSearchArticles(collection_ids:[Int], category_ids:[Int], article_ids:[Int], count: Int = 20, page: Int = 1, query: String, type: TypeArticle = .all, sort: SortArticle = .id, order: OrderArticle = .asc, connectionStatus searchBlock: @escaping UDSArticleSearchBlock) {
+    @objc public func getSearchArticles(collection_ids:[Int], category_ids:[Int], article_ids:[Int], count: Int = 20, page: Int = 1, query: String, type: TypeArticle = .all, sort: SortArticle = .id, order: OrderArticle = .asc, connectionStatus searchBlock: @escaping UDSArticleSearchBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         if knowledgeBaseID != "" {
-            var url = ""
-            if self.urlAPI != "" {
-                url += self.urlAPI + "/uapi"
-            } else {
-                url += "api.usedesk.ru"
-            }
+            var url = urlBase()
             url += "/support/\(knowledgeBaseID)/articles/list?api_token=\(api_token)"
             var urlForEncode = "&query=\(query)&count=\(count)&page=\(page)&short_text=\(1)"
             switch type {
@@ -677,20 +707,28 @@ public class UseDeskSDK: NSObject, UDUISetupable {
                 switch responseJSON.result {
                 case .success(let value):
                     guard let articles = UDSearchArticle(from: value) else {
-                        searchBlock(false, nil, "error parsing")
-                        return }
-                    searchBlock(true, articles, "")
+                        if let valueDictionary = value as? [String : Any] {
+                            if valueDictionary["error"] != nil {
+                                if let code = valueDictionary["code"] as? Int {
+                                    errorBlock(UDError(errorCode: code), UDError(errorCode: code).description)
+                                }
+                            }
+                        } else {
+                            errorBlock(.serverError, UDError.serverError.description)
+                        }
+                        return
+                    }
+                    searchBlock(true, articles)
                 case .failure(let error):
-                    searchBlock(false, nil, error.localizedDescription)
+                    errorBlock(.serverError, error.localizedDescription)
                 }
             }
         } else {
-            searchBlock(false, nil, "You did not specify knowledgeBaseID")
+            errorBlock(.emptyKnowledgeBaseID, UDError.emptyKnowledgeBaseID.description)
         }
-        
     }
     
-    func sendOfflineForm(name nameClient: String?, email emailClient: String?, message: String, topic: String? = nil, fields: [UDCallbackCustomField]? = nil, callback resultBlock: @escaping UDSConnectBlock) {
+    func sendOfflineForm(name nameClient: String?, email emailClient: String?, message: String, topic: String? = nil, fields: [UDCallbackCustomField]? = nil, callback resultBlock: @escaping UDSConnectBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         var param = [
             "company_id" : companyID,
             "message" : message
@@ -714,11 +752,21 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         AF.request(urlStr, method: .post, parameters: param as Parameters, encoding: JSONEncoding.default).responseJSON{ responseJSON in
             switch responseJSON.result {
             case .success( _):
-                resultBlock(true, nil)
+                resultBlock(true)
             case .failure(let error):
-                resultBlock(false, error.localizedDescription)
+                errorBlock(.serverError, error.localizedDescription)
             }
         }
+    }
+    
+    private func urlBase() -> String {
+        var url = ""
+        if self.urlAPI != "" {
+            url += self.urlAPI + "/uapi"
+        } else {
+            url += "api.usedesk.ru"
+        }
+        return url
     }
     
     func action_INITED(_ data: [Any]?) {
@@ -875,12 +923,12 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
         }
         if createdAt != "" {
-            if dateFormatter.date(from: createdAt) != nil {
-                m.date = dateFormatter.date(from: createdAt)!
+            if let date = dateFormatter.date(from: createdAt) {
+                m.date = date
             } else {
                 dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-                if dateFormatter.date(from: createdAt) != nil {
-                    m.date = dateFormatter.date(from: createdAt)!
+                if let date = dateFormatter.date(from: createdAt) {
+                    m.date = date
                 }
             }
         }
@@ -1034,7 +1082,6 @@ public class UseDeskSDK: NSObject, UDUISetupable {
                             if let statusNumber = ticket["status_id"] as? Int {
                                 if statusNumber == 1 || statusNumber == 5 || statusNumber == 6 || statusNumber == 8 {
                                     callbackSettings.typeString = "NEVER"
-                                    return
                                 }
                             }
                         }
@@ -1205,21 +1252,29 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             }
             m = parseMessageDic(message, textWithoutLinkImage: textWithoutLinkImage, attributedString: mutableAttributedString)
             
+            var isAddMessage = false
             if m != nil {
                 if m?.type == UD_TYPE_Feedback && (feedbackMessageBlock != nil) {
                     feedbackMessageBlock!(m)
+                    isAddMessage = true
                     return
                 } else {
                     if newMessageBlock != nil {
                         newMessageBlock!(true, m)
+                        isAddMessage = true
                     }
                 }
             }
             if messageFile != nil {
                 newMessageBlock!(true, messageFile!)
+                isAddMessage = true
             }
             for m in messagesImageLink {
                 newMessageBlock!(true, m)
+                isAddMessage = true
+            }
+            if isAddMessage && token.count > 0 {
+                sendAdditionalFields(fields: additionalFields, nestedFields: additionalNestedFields)
             }
         }
     }
@@ -1292,13 +1347,19 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         }
     }
     
+    @objc public func chatViewController() -> UIViewController? {
+        return uiManager?.chatViewController()
+    }
+    
     @objc public func closeChat() {
         uiManager?.resetUI()
         socket?.disconnect()
         historyMess = []
+        isSendedAdditionalField = false
     }
     
     @objc public func releaseChat() {
+        isSendedAdditionalField = false
         uiManager?.resetUI()
         idLoadingMessages = []
         socket?.disconnect()

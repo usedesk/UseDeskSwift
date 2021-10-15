@@ -80,7 +80,8 @@ class UDFileViewingVC: UIViewController, UIScrollViewDelegate {
     @IBAction func shareButtonAction(_ sender: Any) {
         guard filePath != nil else {return}
         let activityVC = UIActivityViewController(activityItems: [URL(fileURLWithPath: filePath!)], applicationActivities: nil)
-        
+        activityVC.popoverPresentationController?.sourceView = self.view
+        activityVC.popoverPresentationController?.sourceRect = CGRect(x: 0, y: self.view.frame.height, width: self.view.frame.width, height: 0)
         self.present(activityVC, animated: true, completion: nil)
     }
     

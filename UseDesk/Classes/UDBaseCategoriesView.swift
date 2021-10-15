@@ -173,18 +173,19 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
             self.loaderChatButton.alpha = 1
             self.loaderChatButton.startAnimating()
         }
-        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, phone: usedesk!.phone, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, token: usedesk!.token, connectionStatus: { [weak self] success, error, token in
+        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, phone: usedesk!.phone, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, token: usedesk!.token, connectionStatus: { [weak self] success, feedbackStatus, token in
             guard let wSelf = self else {return}
             guard wSelf.usedesk != nil else {return}
-            if wSelf.usedesk!.closure != nil {
-                wSelf.usedesk!.closure!(success, error, token)
+            if wSelf.usedesk!.closureStartBlock != nil {
+                wSelf.usedesk!.closureStartBlock!(success, feedbackStatus, token)
             }
-            if success {
+            if success && feedbackStatus.isNotOpenFeedbackForm {
                 if wSelf.navigationController?.visibleViewController != wSelf.dialogflowVC {
                     DispatchQueue.main.async(execute: {
                         wSelf.dialogflowVC.usedesk = wSelf.usedesk
                         wSelf.dialogflowVC.isFromBase = true
                         wSelf.usedesk?.uiManager?.pushViewController(wSelf.dialogflowVC)
+                        wSelf.dialogflowVC.reloadHistory()
                         UIView.animate(withDuration: 0.3) {
                             wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
                             wSelf.loaderChatButton.alpha = 0
@@ -192,25 +193,28 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
                         }
                     })
                 }
-            } else {
-                if error == "feedback_form" || error == "feedback_form_and_chat" {
-                    if wSelf.navigationController?.visibleViewController != wSelf.offlineVC {
-                        wSelf.offlineVC = UDOfflineForm()
-                        if wSelf.url != nil {
-                            wSelf.offlineVC.url = wSelf.url!
-                        }
-                        wSelf.offlineVC.usedesk = wSelf.usedesk
-                        wSelf.offlineVC.isFromBase = true
-                        wSelf.usedesk?.uiManager?.pushViewController(wSelf.offlineVC)
-                        UIView.animate(withDuration: 0.3) {
-                            wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
-                            wSelf.loaderChatButton.alpha = 0
-                            wSelf.loaderChatButton.stopAnimating()
-                        }
+            } else if feedbackStatus.isOpenFeedbackForm {
+                if wSelf.navigationController?.visibleViewController != wSelf.offlineVC {
+                    wSelf.offlineVC = UDOfflineForm()
+                    if wSelf.url != nil {
+                        wSelf.offlineVC.url = wSelf.url!
+                    }
+                    wSelf.offlineVC.usedesk = wSelf.usedesk
+                    wSelf.offlineVC.isFromBase = true
+                    wSelf.usedesk?.uiManager?.pushViewController(wSelf.offlineVC)
+                    UIView.animate(withDuration: 0.3) {
+                        wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
+                        wSelf.loaderChatButton.alpha = 0
+                        wSelf.loaderChatButton.stopAnimating()
                     }
                 }
             }
-            
+        }, errorStatus: {  [weak self] error, description  in
+            guard let wSelf = self else {return}
+            guard wSelf.usedesk != nil else {return}
+            if wSelf.usedesk!.closureErrorBlock != nil {
+                wSelf.usedesk!.closureErrorBlock!(error, description)
+            }
         })
     }
     
@@ -250,6 +254,7 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
     
     @objc func backAction() {
         self.navigationController?.popViewController(animated: true)
+        self.removeFromParent()
     }
     
     // MARK: - TableView
@@ -283,11 +288,10 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard usedesk != nil else {return}
         if isSearch {
-            usedesk!.addViewsArticle(articleID: searchArticles?.articles[indexPath.row].id ?? 0, count: searchArticles?.articles[indexPath.row].id != nil ? 1 : 0, connectionStatus: { success, error in
-
-            })
+            usedesk!.addViewsArticle(articleID: searchArticles?.articles[indexPath.row].id ?? 0, count: searchArticles?.articles[indexPath.row].id != nil ? 1 : 0, connectionStatus: { _ in
+            }, errorStatus: { _, _ in})
             indexOpenedArticle = indexPath.row
-            usedesk!.getArticle(articleID: searchArticles!.articles[indexPath.row].id, connectionStatus: { [weak self] success, article, error in
+            usedesk!.getArticle(articleID: searchArticles!.articles[indexPath.row].id, connectionStatus: { [weak self] success, article in
                 guard let wSelf = self else {return}
                 if success {
                     wSelf.openedArticle = article
@@ -312,7 +316,7 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
                         cell.selectionStyle = .none
                     }
                 }
-            })
+            }, errorStatus: { _, _ in})
         } else {
             let articlesVC : UDBaseArticlesView = UDBaseArticlesView()
             articlesVC.usedesk = usedesk!
@@ -337,7 +341,7 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
             UIView.animate(withDuration: 0.3) {
                 self.loadingView.alpha = 1
             }
-            usedesk!.getSearchArticles(collection_ids: [], category_ids: [], article_ids: [], query: searchText, type: .all, sort: .title, order: .asc) { [weak self] (success, searchArticle, error) in
+            usedesk!.getSearchArticles(collection_ids: [], category_ids: [], article_ids: [], query: searchText, type: .all, sort: .title, order: .asc) { [weak self] (success, searchArticle) in
                 guard let wSelf = self else {return}
                 UIView.animate(withDuration: 0.3) {
                     wSelf.loadingView.alpha = 0
@@ -346,10 +350,11 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
                     wSelf.searchArticles = searchArticle
                     wSelf.isSearch = true
                     wSelf.tableView.reloadData()
-                } else {
-                    wSelf.isSearch = false
-                    wSelf.tableView.reloadData()
                 }
+            } errorStatus: { [weak self] (_, _) in
+                guard let wSelf = self else {return}
+                wSelf.isSearch = false
+                wSelf.tableView.reloadData()
             }
         } else {
             isSearch = false

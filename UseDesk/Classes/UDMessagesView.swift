@@ -19,7 +19,7 @@ enum LandscapeOrientation {
     case right
 }
 
-class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, ASTableDataSource, ASTableDelegate {
+class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, ASTableDataSource, ASTableDelegate, PHPhotoLibraryChangeObserver {
 
     @IBOutlet weak var viewForTable: UIView!
     @IBOutlet weak var viewInput: UIView!
@@ -115,6 +115,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         
         loader.alpha = 1
@@ -124,7 +125,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         self.view.backgroundColor = tableNode.backgroundColor
         tableNode.view.transform = CGAffineTransform(scaleX: 1, y: -1)
         
-        loadAssets()
         loadMessagesFromStorage()
         
         kHeightAttachView = 304
@@ -269,9 +269,11 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         
         buttonSend.isEnabled = false
         buttonAttach.isEnabled = false
+        textInput.isUserInteractionEnabled = false
     }
     
     func loadMessagesFromStorage() {
+        guard usedesk != nil else {return}
         if (usedesk!.storage as? UDStorageMessages) != nil {
             (usedesk!.storage! as! UDStorageMessages).token = usedesk!.token
         }
@@ -291,6 +293,14 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         assets.enumerateObjects({ (object, count, stop) in
             self.assetsGallery.append(object)
         })
+    }
+    
+    func photoLibraryDidChange(_ changeInstance: PHChange) {
+        DispatchQueue.main.async {[weak self] in
+            guard let wSelf = self else {return}
+            wSelf.loadAssets()
+            wSelf.attachCollectionView.reloadData()
+        }
     }
     
     func indexPathForMessage(at id: Int) -> IndexPath? {
@@ -663,37 +673,56 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     func actionAttachMessage() {
         guard usedesk != nil else {return}
+        PHPhotoLibrary.shared().register(self)
         //Photos
         let photos = PHPhotoLibrary.authorizationStatus()
         if photos == .notDetermined || photos == .denied {
-            let alert = UIAlertController(title: usedesk!.stringFor("AllowMedia"), message: usedesk!.stringFor("ToSendMedia"), preferredStyle: .alert)
-            let goToSettingsAction = UIAlertAction(title: usedesk!.stringFor("GoToSettings"), style: .default) { (action) in
-                DispatchQueue.main.async {
-                    let url = URL(string: UIApplication.openSettingsURLString)
-                    UIApplication.shared.open(url!, options:convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]))
+            PHPhotoLibrary.requestAuthorization { status in
+                DispatchQueue.main.async { [weak self] in
+                    guard let wSelf = self else {return}
+                    if status == .notDetermined || status == .denied {
+                        if AVCaptureDevice.authorizationStatus(for: .video) != .authorized {
+                            AVCaptureDevice.requestAccess(for: .video) { success in
+                                DispatchQueue.main.async { [weak self] in
+                                    guard let wSelf = self else {return}
+                                    wSelf.showAlertAllowMedia()
+                                }
+                            }
+                        } else {
+                            wSelf.showAlertAllowMedia()
+                        }
+                    } else {
+                        if AVCaptureDevice.authorizationStatus(for: .video) != .authorized {
+                            AVCaptureDevice.requestAccess(for: .video) { success in
+                                DispatchQueue.main.async { [weak self] in
+                                    guard let wSelf = self else {return}
+                                    wSelf.checkMaxCountAssetsAndShowAttachView()
+                                }
+                            }
+                        } else {
+                            wSelf.checkMaxCountAssetsAndShowAttachView()
+                        }
+                    }
                 }
             }
-            let canselAction = UIAlertAction(title: usedesk!.stringFor("Cancel"), style: .cancel)
-            alert.addAction(goToSettingsAction)
-            alert.addAction(canselAction)
-            self.present(alert, animated: true)
         } else {
-            if assetsGallery.count == 0 {
-                loadAssets()
-            }
-            var maxCountAssets = 10
-            if usedesk != nil {
-                maxCountAssets = usedesk!.maxCountAssets
-            }
-            if countDraftMessagesWithFile < maxCountAssets {
-                buttonAttach.alpha = 0
-                buttonAttachLoader.alpha = 1
-                buttonAttachLoader.startAnimating()
-                showAttachView()
-            } else {
-                showAlertMaxCountAttach()
+            checkMaxCountAssetsAndShowAttachView()
+        }
+    }
+    
+    func showAlertAllowMedia() {
+        guard usedesk != nil else {return}
+        let alert = UIAlertController(title:usedesk!.stringFor("AllowMedia"), message: usedesk!.stringFor("ToSendMedia"), preferredStyle: .alert)
+        let goToSettingsAction = UIAlertAction(title: usedesk!.stringFor("GoToSettings"), style: .default) { (action) in
+            DispatchQueue.main.async {
+                let url = URL(string: UIApplication.openSettingsURLString)
+                UIApplication.shared.open(url!, options:convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]))
             }
         }
+        let canselAction = UIAlertAction(title: usedesk!.stringFor("Cancel"), style: .cancel)
+        alert.addAction(goToSettingsAction)
+        alert.addAction(canselAction)
+        self.present(alert, animated: true)
     }
     
     func actionSendMessage() {
@@ -737,6 +766,24 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     }
     
     // MARK: - Attach Methods
+    func checkMaxCountAssetsAndShowAttachView() {
+        if assetsGallery.count == 0 {
+            loadAssets()
+        }
+        var maxCountAssets = 10
+        if usedesk != nil {
+            maxCountAssets = usedesk!.maxCountAssets
+        }
+        if countDraftMessagesWithFile < maxCountAssets {
+            buttonAttach.alpha = 0
+            buttonAttachLoader.alpha = 1
+            buttonAttachLoader.startAnimating()
+            showAttachView()
+        } else {
+            showAlertMaxCountAttach()
+        }
+    }
+    
     func showAttachCollection() {
         guard countDraftMessagesWithFile > 0 else {return}
         attachCollectionMessageView.reloadData()
@@ -779,7 +826,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 self.view.layoutIfNeeded()
             }
         } else {
-            takePhotoCamera()
+            checkAccessCameraAndOpenCamera()
         }
         buttonAttach.alpha = 1
         buttonAttachLoader.alpha = 0
@@ -812,11 +859,42 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         present(picker, animated: true)
     }
     
+    func checkAccessCameraAndOpenCamera() {
+        guard usedesk != nil else {return}
+        if AVCaptureDevice.authorizationStatus(for: .video) == .authorized {
+            takePhotoCamera()
+        } else {
+            AVCaptureDevice.requestAccess(for: .video) {  [weak self] success in
+                guard let wSelf = self else {return}
+                if !success {
+                    DispatchQueue.main.async {
+                        let alert = UIAlertController(title: wSelf.usedesk!.stringFor("AllowCamera"), message: wSelf.usedesk!.stringFor("ToSendMedia"), preferredStyle: .alert)
+                        let goToSettingsAction = UIAlertAction(title: wSelf.usedesk!.stringFor("GoToSettings"), style: .default) { (action) in
+                            DispatchQueue.main.async {
+                                let url = URL(string: UIApplication.openSettingsURLString)
+                                UIApplication.shared.open(url!, options:[:])
+                            }
+                        }
+                        let canselAction = UIAlertAction(title: wSelf.usedesk!.stringFor("Cancel"), style: .cancel)
+                        alert.addAction(goToSettingsAction)
+                        alert.addAction(canselAction)
+                        wSelf.present(alert, animated: true)
+                    }
+                }
+            }
+        }
+    }
+    
     func selectPhoto() {
         if #available(iOS 14, *) {
             var configuration = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
             let maxCountAssets = usedesk != nil ? usedesk!.maxCountAssets - countDraftMessagesWithFile : 10 - countDraftMessagesWithFile
             configuration.selectionLimit = maxCountAssets
+            if usedesk!.isSupportedAttachmentOnlyPhoto {
+                configuration.filter = .images
+            } else if usedesk!.isSupportedAttachmentOnlyVideo {
+                configuration.filter = .videos
+            }
             let picker = PHPickerViewController(configuration: configuration)
             picker.delegate = self
             present(picker, animated: true)
@@ -1024,6 +1102,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             cell.bindData(messagesView: self, message: message ?? UDMessage(), avatarImage: avatarImage(indexPath))
             cell.view.transform = CGAffineTransform(scaleX: 1, y: -1)
             cell.selectionStyle = .none
+            cell.delegateText = self
             return cell
         } else if message?.type == UD_TYPE_Feedback {
             let cell = UDFeedbackMessageCellNode()
@@ -1306,7 +1385,7 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
             }
             if indexPath.row == 0 {
                 if (countDraftMessagesWithFile + selectedAssets.count < maxCountAssets) {
-                    takePhotoCamera()
+                    checkAccessCameraAndOpenCamera()
                 } else {
                     showAlertMaxCountAttach()
                 }
@@ -1473,6 +1552,29 @@ extension UDMessagesView: PHPickerViewControllerDelegate {
                 showAttachCollection()
                 buttonSend.isEnabled = true
             }
+        }
+    }
+}
+
+// MARK: - TextMessageCellNodeDelegate
+extension UDMessagesView: TextMessageCellNodeDelegate {
+    
+    func longPressText(text: String) {
+        guard usedesk != nil else {return}
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+
+        let copyAction = UIAlertAction(title: usedesk!.stringFor("Copy"), style: .default, handler: {(alert: UIAlertAction!) in
+            UIPasteboard.general.string = text
+        })
+
+        let cancelAction = UIAlertAction(title: usedesk!.stringFor("Cancel"), style: .cancel, handler: {(alert: UIAlertAction!) in
+        })
+
+        alertController.addAction(copyAction)
+        alertController.addAction(cancelAction)
+
+        DispatchQueue.main.async {
+            self.present(alertController, animated: true, completion:{})
         }
     }
 }

@@ -28,8 +28,7 @@ public class UDStorageMessages: NSObject, UDStorage {
                 let jsonString = try String(contentsOf: urlStorage!, encoding: .utf8)
                 let messages = try JSONDecoder().decode([UDMessage].self, from: jsonString.data(using: .utf8)!)
                 return messages
-            } catch let error as NSError {
-//                print(error)
+            } catch _ {
             }
         }
         return []
@@ -46,8 +45,7 @@ public class UDStorageMessages: NSObject, UDStorage {
                     try jsonString.write(to: urlStorage!, atomically: true, encoding: .utf8)
                 }
             }
-        } catch let error as NSError {
-//            print(error)
+        } catch _ {
         }
     }
     

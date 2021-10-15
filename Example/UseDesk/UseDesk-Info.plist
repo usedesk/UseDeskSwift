@@ -27,9 +27,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera usage description</string>
+	<string>Запрос доступа</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Запрос доступа</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Our application needs permission to write photos...</string>
+	<string>Запрос доступа</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

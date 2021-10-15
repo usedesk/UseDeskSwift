@@ -56,7 +56,6 @@ class UDOfflineFormTopicsSelect: UIViewController {
     // MARK: - Private
     func firstState() {
         configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
-        let selectTopicFeedbackFormStyle = configurationStyle.selectTopicFeedbackFormStyle
         title = usedesk?.callbackSettings.titleTopics ?? "Тема обращения"
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: configurationStyle.navigationBarStyle.backButtonImage, style: .plain, target: self, action: #selector(self.backAction))
         tableView.register(UINib(nibName: "UDSimpleSelectCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDSimpleSelectCell")

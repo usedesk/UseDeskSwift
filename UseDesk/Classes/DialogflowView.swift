@@ -17,6 +17,7 @@ class DialogflowView: UDMessagesView {
 
     var messages: [UDMessage] = []
     var isFromBase = false
+    var isFromOfflineForm = false
     
     weak var delegate: DialogflowVCDelegate?
     
@@ -44,8 +45,7 @@ class DialogflowView: UDMessagesView {
         
         messages = [UDMessage]()
         
-        usedesk?.connectBlock = { [weak self] success, error in
-            guard let wSelf = self else {return}
+        usedesk?.connectBlock = { success in
         }
         
         usedesk?.newMessageBlock = { success, messageOptional in
@@ -116,16 +116,19 @@ class DialogflowView: UDMessagesView {
                 for index in 0..<countNewMessages {
                     messages.insert(usedesk!.historyMess[countMessages + index], at: 0)
                 }
-                DispatchQueue.main.async { [weak self] in
-                    guard let wSelf = self else {return}
-                    wSelf.loadMessagesFromStorage()
-                    wSelf.generateSectionFromModel()
-                    wSelf.configurationViews()
-                    wSelf.buttonSend.isEnabled = true
-                    wSelf.buttonAttach.isEnabled = true
+            }
+            DispatchQueue.main.async { [weak self] in
+                guard let wSelf = self else {return}
+                wSelf.loadMessagesFromStorage()
+                wSelf.generateSectionFromModel()
+                wSelf.configurationViews()
+                wSelf.buttonSend.isEnabled = true
+                wSelf.buttonAttach.isEnabled = true
+                if !wSelf.isFromOfflineForm && !wSelf.isFromBase {
+                    wSelf.tableNode.reloadData()
+                    wSelf.textInput.isUserInteractionEnabled = true
                     wSelf.loader.stopAnimating()
                     wSelf.loader.alpha = 0
-                    wSelf.tableNode.reloadData()
                 }
             }
         }
@@ -245,14 +248,19 @@ class DialogflowView: UDMessagesView {
             guard let wSelf = self else {return}
             wSelf.messages.append(message)
             if wSelf.messagesWithSection.count > 0 {
-                wSelf.messagesWithSection[0].insert(message, at: 0)
+                if wSelf.messagesWithSection[0].count > 0 {
+                    if wSelf.messagesWithSection[0].first?.date?.dateFormatString == message.date?.dateFormatString {
+                        wSelf.messagesWithSection[0].insert(message, at: 0)
+                    } else {
+                        wSelf.messagesWithSection.insert([message], at: 0)
+                    }
+                } else {
+                    wSelf.messagesWithSection.insert([message], at: 0)
+                }
             } else {
-                wSelf.messagesWithSection.append([message])
+                wSelf.messagesWithSection.insert([message], at: 0)
             }
-            wSelf.tableNode.insertRows(at: [IndexPath(row: 0, section: 0)], with: .bottom)
-            if wSelf.messagesWithSection[0].count > 1 {
-                wSelf.tableNode.reloadRows(at: [IndexPath(row: 1, section: 0)], with: .none)
-            }
+            wSelf.tableNode.reloadData()
         })
     }
     func chekSentMessage(_ message: UDMessage) {
@@ -375,12 +383,20 @@ class DialogflowView: UDMessagesView {
             wSelf.messages = newMessages
             wSelf.generateSectionFromModel()
             wSelf.tableNode.reloadData()
+            if wSelf.isFromOfflineForm || wSelf.isFromBase {
+                wSelf.buttonSend.isEnabled = true
+                wSelf.buttonAttach.isEnabled = true
+                wSelf.textInput.isUserInteractionEnabled = true
+                wSelf.loader.stopAnimating()
+                wSelf.loader.alpha = 0
+            }
         }
     }
     
     // MARK: - Send methods
     func sendMessage(_ message: UDMessage) {
         message.date = Date()
+        message.typeSenderMessageString = "client_to_operator"
         if let id = usedesk?.newIdLoadingMessages() {
             usedesk!.idLoadingMessages.append(id)
             message.loadingMessageId = id
@@ -415,6 +431,12 @@ class DialogflowView: UDMessagesView {
     }
     
     // MARK: - User actions
+    func closeVC() {
+        if let index = navigationController?.viewControllers.firstIndex(of: self) {
+            navigationController?.viewControllers.remove(at: index)
+        }
+        self.removeFromParent()
+    }
     @objc func actionDone() {
         for message in messages {
             if message.statusSend == UD_STATUS_SEND_SUCCEED && (message.file.path != "" || message.file.defaultPath != "" || message.file.previewPath != "") {
@@ -436,6 +458,7 @@ class DialogflowView: UDMessagesView {
                 }
             }
         }
+        saveMessagesDraftAndFail()
         delegate?.close()
         if isFromBase {
             usedesk?.closeChat()
@@ -444,7 +467,6 @@ class DialogflowView: UDMessagesView {
             usedesk?.releaseChat()
             usedesk?.uiManager?.dismiss()
         }
-        saveMessagesDraftAndFail()
         self.view.removeFromSuperview()
     }
     
@@ -581,77 +603,8 @@ class DialogflowView: UDMessagesView {
         }
     }
 }
-// MARK: - Extension Date
-extension Date {
-    var isToday: Bool {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd MM yyyy"
-        dateFormatter.locale = .current
-        dateFormatter.timeZone = TimeZone.current
-        let date1 = dateFormatter.string(from: self)
-        let date2 = dateFormatter.string(from: Date())
-        if date1 == date2 {
-            return true
-        } else {
-            return false
-        }
-    }
-    
-    var time: String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm"
-        dateFormatter.locale = .current
-        dateFormatter.timeZone = TimeZone.current
-        return dateFormatter.string(from: self)
-    }
-    
-    var timeAndDayString: String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM.yyyy HH:mm"
-        dateFormatter.locale = .current
-        dateFormatter.timeZone = TimeZone.current
-        return dateFormatter.string(from: self)
-    }
-    
-    func dateFromHeaderChat(_ usedesk : UseDeskSDK) -> String {
-        let calendar = Calendar.current
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = .current
-        dateFormatter.timeZone = TimeZone.current
-        var dayString = ""
-        if calendar.isDateInYesterday(self) {
-            dayString = usedesk.stringFor("Yesterday")
-        } else if calendar.isDateInToday(self) {
-            dayString = usedesk.stringFor("Today")
-        } else {
-            dateFormatter.dateFormat = "d MMMM"
-            dayString = dateFormatter.string(from: self)
-        }
-        return dayString
-    }
-    
-    var dateFormatString: String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.locale = .current
-        dateFormatter.timeZone = TimeZone.current
-        return dateFormatter.string(from: self)
-    }
-}
 
 // Helper function inserted by Swift 4.2 migrator.
 fileprivate func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
 	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
-}
-extension UIImage {
-    func toData (options: NSDictionary, type: CFString) -> Data? {
-        guard let cgImage = cgImage else { return nil }
-        return autoreleasepool { () -> Data? in
-            let data = NSMutableData()
-            guard let imageDestination = CGImageDestinationCreateWithData(data as CFMutableData, type, 1, nil) else { return nil }
-            CGImageDestinationAddImage(imageDestination, cgImage, options)
-            CGImageDestinationFinalize(imageDestination)
-            return data as Data
-        }
-    }
 }

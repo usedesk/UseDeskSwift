@@ -147,11 +147,11 @@ class UDMessageCellNode: ASCellNode {
         var insetshMessageStack = UIEdgeInsets.zero
         let isLast = indexPath?.section == 0 && indexPath?.row == 0
         if message.outgoing {
-            insetshMessageStack = UIEdgeInsets(top: sizeMessagesManager.marginBottomBubble(), left: bubbleStyle.marginAfter, bottom: isLast ? bubbleStyle.spacingOneSender : 0, right: bubbleStyle.marginBefore)
+            insetshMessageStack = UIEdgeInsets(top: sizeMessagesManager.marginTopBubble(), left: bubbleStyle.marginAfter, bottom: isLast ? bubbleStyle.spacingOneSender : 0, right: bubbleStyle.marginBefore)
         } else if avatarStyle.avatarIncomingHidden {
-            insetshMessageStack = UIEdgeInsets(top: sizeMessagesManager.marginBottomBubble(), left: bubbleStyle.marginBefore, bottom: isLast ? bubbleStyle.spacingOneSender : 0, right: bubbleStyle.marginAfter)
+            insetshMessageStack = UIEdgeInsets(top: sizeMessagesManager.marginTopBubble(), left: bubbleStyle.marginBefore, bottom: isLast ? bubbleStyle.spacingOneSender : 0, right: bubbleStyle.marginAfter)
         } else {
-            insetshMessageStack = UIEdgeInsets(top: sizeMessagesManager.marginBottomBubble(), left: 0, bottom: isLast ? bubbleStyle.spacingOneSender : 0, right: bubbleStyle.marginAfter)
+            insetshMessageStack = UIEdgeInsets(top: sizeMessagesManager.marginTopBubble(), left: 0, bottom: isLast ? bubbleStyle.spacingOneSender : 0, right: bubbleStyle.marginAfter)
         }
         let insethMessageSpec = ASInsetLayoutSpec(insets: insetshMessageStack, child: hMessageStack)
         

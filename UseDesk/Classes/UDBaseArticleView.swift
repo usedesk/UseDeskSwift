@@ -398,7 +398,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
         webView.navigationDelegate = self
         webView.contentMode = .left
         webView.uiDelegate = self
-        var correctoredHtml = HTMLImageCorrector(HTMLString:selectedArticle?.text ?? "")
+        let correctoredHtml = HTMLImageCorrector(HTMLString:selectedArticle?.text ?? "")
         let styleContent = "<html><head><style>img{max-width:100%;height: auto;};</style></head>"
             + "<body style='margin:0; padding:0;'>" + correctoredHtml + "</body></html>"
         webView.loadHTMLString(styleContent, baseURL: nil)
@@ -708,35 +708,36 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
     // MARK: - User actions
     @objc func reviewPositivButtonDidTap() {
         guard selectedArticle != nil && usedesk != nil else {return}
-        usedesk!.addReviewArticle(articleID: selectedArticle!.id, countPositiv: 1, countNegativ: 0) { [weak self] (success, _) in
+        usedesk!.addReviewArticle(articleID: selectedArticle!.id, countPositiv: 1, countNegativ: 0) { [weak self] (success) in
             guard let wSelf = self else {return}
             if success {
                 wSelf.showSendedReviewState()
+                wSelf.reviewTextView.becomeFirstResponder()
             }
-        }
+        } errorStatus: { _, _ in}
     }
     
     @objc func reviewNegativButtonDidTap() {
         guard selectedArticle != nil && usedesk != nil else {return}
-        usedesk!.addReviewArticle(articleID: selectedArticle!.id, countPositiv: 0, countNegativ: 1) { [weak self] (success, _) in
+        usedesk!.addReviewArticle(articleID: selectedArticle!.id, countPositiv: 0, countNegativ: 1) { [weak self] (success) in
             guard let wSelf = self else {return}
             if success {
                 wSelf.showSendReviewState()
                 wSelf.reviewTextView.becomeFirstResponder()
             }
-        }
+        } errorStatus: { _, _ in}
     }
     
     @objc func reviewNegativSendMessageButtonDidTap() {
         if reviewTextView.text.count > 0 {
             dismissKeyboard()
             guard selectedArticle != nil && usedesk != nil && reviewTextView.text?.count ?? -1 > 0 else {return}
-            usedesk!.sendReviewArticleMesssage(articleID: selectedArticle!.id, message: reviewTextView.text!) { [weak self] (success, _) in
+            usedesk!.sendReviewArticleMesssage(articleID: selectedArticle!.id, message: reviewTextView.text!) { [weak self] (success) in
                 guard let wSelf = self else {return}
                 if success {
                     wSelf.showSendedReviewState()
                 }
-            }
+            } errorStatus: { _, _ in}
         }
     }
     
@@ -745,7 +746,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
             UIView.animate(withDuration: 0.3) {
                 self.loadingView.alpha = 1
             }
-            usedesk?.getArticle(articleID: articles[indexSelectedArticle - 1].id, connectionStatus: { [weak self] success, article, error in
+            usedesk?.getArticle(articleID: articles[indexSelectedArticle - 1].id, connectionStatus: { [weak self] success, article in
                 guard let wSelf = self else {return}
                 if success {
                     wSelf.selectedArticle = article
@@ -762,6 +763,11 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
                         wSelf.loadingView.alpha = 0
                     }
                 }
+            }, errorStatus: { [weak self] _, _ in
+                guard let wSelf = self else {return}
+                UIView.animate(withDuration: 0.3) {
+                    wSelf.loadingView.alpha = 0
+                }
             })
         }
     }
@@ -771,7 +777,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
             UIView.animate(withDuration: 0.3) {
                 self.loadingView.alpha = 1
             }
-            usedesk?.getArticle(articleID: articles[indexSelectedArticle + 1].id, connectionStatus: { [weak self] success, article, error in
+            usedesk?.getArticle(articleID: articles[indexSelectedArticle + 1].id, connectionStatus: { [weak self] success, article in
                 guard let wSelf = self else {return}
                 if success {
                     wSelf.selectedArticle = article
@@ -788,12 +794,18 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
                         wSelf.loadingView.alpha = 0
                     }
                 }
+            }, errorStatus: { [weak self] _, _ in
+                guard let wSelf = self else {return}
+                UIView.animate(withDuration: 0.3) {
+                    wSelf.loadingView.alpha = 0
+                }
             })
         }
     }
     
     @IBAction func closeAction(_ sender: Any) {
         self.dismiss(animated: true)
+        self.removeFromParent()
     }
     
     @objc func actionChat() {
@@ -803,35 +815,33 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
             self.loaderChatButton.alpha = 1
             self.loaderChatButton.startAnimating()
         }
-        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, token: usedesk!.token, connectionStatus: { [weak self] success, error, token in
+        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, token: usedesk!.token, connectionStatus: { [weak self] success, feedbackStatus, token in
             guard let wSelf = self else {return}
             guard wSelf.usedesk != nil else {return}
-            if wSelf.usedesk!.closure != nil {
-                wSelf.usedesk!.closure!(success, error, token)
+            if wSelf.usedesk!.closureStartBlock != nil {
+                wSelf.usedesk!.closureStartBlock!(success, feedbackStatus, token)
             }
-            if success {
+            if success && feedbackStatus.isNotOpenFeedbackForm {
                 DispatchQueue.main.async(execute: {
                     wSelf.delegate?.openChat()
                     wSelf.dismiss(animated: true)
-                    UIView.animate(withDuration: 0.3) {
-                        wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
-                        wSelf.loaderChatButton.alpha = 0
-                        wSelf.loaderChatButton.stopAnimating()
-                    }
                 })
-            } else {
-                if error == "feedback_form" || error == "feedback_form_and_chat" {
-                    wSelf.delegate?.openOfflineForm()
-                    wSelf.dismiss(animated: true)
-                }
-                UIView.animate(withDuration: 0.3) {
-                    wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
-                    wSelf.loaderChatButton.alpha = 0
-                    wSelf.loaderChatButton.stopAnimating()
-                }
+            } else if feedbackStatus.isOpenFeedbackForm {
+                wSelf.delegate?.openOfflineForm()
+                wSelf.dismiss(animated: true)
+            }
+            UIView.animate(withDuration: 0.3) {
+                wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
+                wSelf.loaderChatButton.alpha = 0
+                wSelf.loaderChatButton.stopAnimating()
+            }
+        }, errorStatus: {  [weak self] error, description  in
+            guard let wSelf = self else {return}
+            guard wSelf.usedesk != nil else {return}
+            if wSelf.usedesk!.closureErrorBlock != nil {
+                wSelf.usedesk!.closureErrorBlock!(error, description)
             }
         })
-        
     }
 }
 // MARK: - WKNavigationDelegate

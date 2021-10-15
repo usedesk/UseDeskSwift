@@ -115,7 +115,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
         UIView.animate(withDuration: 0.3) {
             self.loadingView.alpha = 1
         }
-        usedesk?.getCollections(connectionStatus: { [weak self] success, collections, error in
+        usedesk?.getCollections(connectionStatus: {[weak self] success, collections in
             guard let wSelf = self else {return}
             if success {
                 wSelf.arrayCollections = collections!
@@ -125,6 +125,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
                 }
                 wSelf.tableView.reloadData()
             }
+        }, errorStatus: { _, _ in
         })
         configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         let baseStyle = configurationStyle.baseStyle
@@ -221,18 +222,19 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
             self.loaderChatButton.alpha = 1
             self.loaderChatButton.startAnimating()
         }
-        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, phone: usedesk!.phone, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, token: usedesk!.token, connectionStatus: { [weak self] success, error, token in
+        usedesk?.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, phone: usedesk!.phone, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, token: usedesk!.token, connectionStatus: { [weak self] success, feedbackStatus, token in
             guard let wSelf = self else {return}
             guard wSelf.usedesk != nil else {return}
-            if wSelf.usedesk!.closure != nil {
-                wSelf.usedesk!.closure!(success, error, token)
+            if wSelf.usedesk!.closureStartBlock != nil {
+                wSelf.usedesk!.closureStartBlock!(success, feedbackStatus, token)
             }
-            if success {
+            if success && feedbackStatus.isNotOpenFeedbackForm {
                 if wSelf.navigationController?.visibleViewController != wSelf.dialogflowVC {
                     DispatchQueue.main.async(execute: {
                         wSelf.dialogflowVC.usedesk = wSelf.usedesk
                         wSelf.dialogflowVC.isFromBase = true
                         wSelf.usedesk?.uiManager?.pushViewController(wSelf.dialogflowVC)
+                        wSelf.dialogflowVC.reloadHistory()
                         UIView.animate(withDuration: 0.3) {
                             wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
                             wSelf.loaderChatButton.alpha = 0
@@ -241,7 +243,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
                     })
                 }
             } else {
-                if error == "feedback_form" || error == "feedback_form_and_chat" {
+                if feedbackStatus.isOpenFeedbackForm {
                     if wSelf.navigationController?.visibleViewController != wSelf.offlineVC {
                         wSelf.offlineVC = UDOfflineForm()
                         if wSelf.url != nil {
@@ -258,7 +260,12 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
                     }
                 }
             }
-            
+        }, errorStatus: {  [weak self] error, description  in
+            guard let wSelf = self else {return}
+            guard wSelf.usedesk != nil else {return}
+            if wSelf.usedesk!.closureErrorBlock != nil {
+                wSelf.usedesk!.closureErrorBlock!(error, description)
+            }
         })
     }
     
@@ -297,6 +304,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
     
     @objc func backAction() {
         self.dismiss(animated: true, completion: nil)
+        self.removeFromParent()
     }
     
     // MARK: - TableView    
@@ -330,11 +338,10 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard usedesk != nil else {return}
         if isSearch {
-            usedesk!.addViewsArticle(articleID: searchArticles?.articles[indexPath.row].id ?? 0, count: searchArticles?.articles[indexPath.row].id != nil ? 1 : 0, connectionStatus: { success, error in
-
-            })
+            usedesk!.addViewsArticle(articleID: searchArticles?.articles[indexPath.row].id ?? 0, count: searchArticles?.articles[indexPath.row].id != nil ? 1 : 0, connectionStatus: { _ in
+            }, errorStatus: { _, _ in})
             indexOpenedArticle = indexPath.row
-            usedesk!.getArticle(articleID: searchArticles!.articles[indexPath.row].id, connectionStatus: { [weak self] success, article, error in
+            usedesk!.getArticle(articleID: searchArticles!.articles[indexPath.row].id, connectionStatus: { [weak self] success, article in
                 guard let wSelf = self else {return}
                 if success {
                     wSelf.openedArticle = article
@@ -359,7 +366,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
                         cell.selectionStyle = .none
                     }
                 }
-            })
+            }, errorStatus: { _, _ in})
         } else {
             let baseCategoriesVC : UDBaseCategoriesView = UDBaseCategoriesView()
             baseCategoriesVC.usedesk = usedesk!
@@ -384,7 +391,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
             UIView.animate(withDuration: 0.3) {
                 self.loadingView.alpha = 1
             }
-            usedesk!.getSearchArticles(collection_ids: [], category_ids: [], article_ids: [], query: searchText, type: .all, sort: .title, order: .asc) { [weak self] (success, searchArticle, error) in
+            usedesk!.getSearchArticles(collection_ids: [], category_ids: [], article_ids: [], query: searchText, type: .all, sort: .title, order: .asc) { [weak self] (success, searchArticle) in
                 guard let wSelf = self else {return}
                 UIView.animate(withDuration: 0.3) {
                     wSelf.loadingView.alpha = 0
@@ -393,10 +400,11 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
                     wSelf.searchArticles = searchArticle
                     wSelf.isSearch = true
                     wSelf.tableView.reloadData()
-                } else {
-                    wSelf.isSearch = false
-                    wSelf.tableView.reloadData()
-                }
+                } 
+            } errorStatus: { [weak self] (_, _) in
+                guard let wSelf = self else {return}
+                wSelf.isSearch = false
+                wSelf.tableView.reloadData()
             }
         } else {
             isSearch = false

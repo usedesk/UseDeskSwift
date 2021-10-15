@@ -5,7 +5,7 @@
 
 import UIKit
 
-protocol UDAttachSmallCollectionLayoutDelegate: class {
+protocol UDAttachSmallCollectionLayoutDelegate: AnyObject {
     func sizeCell() -> CGSize
 }
 

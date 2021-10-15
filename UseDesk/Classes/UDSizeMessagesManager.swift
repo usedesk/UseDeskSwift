@@ -23,7 +23,7 @@ class UDSizeMessagesManager: NSObject {
         setMaxWidthBubbleMessage()
     }
     
-    func marginBottomBubble() -> CGFloat {
+    func marginTopBubble() -> CGFloat {
         var marginBottom: CGFloat = 0
         let bubbleStyle = configurationStyle.bubbleStyle
         guard indexPath != nil else {return marginBottom}

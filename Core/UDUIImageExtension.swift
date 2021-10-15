@@ -86,6 +86,7 @@ extension UIImage {
             return self.pngData()
         })
     }
+
 }
 
 public enum StorageError: Error {

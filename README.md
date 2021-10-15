@@ -68,6 +68,8 @@ pod 'UseDesk_SDK_Swift'
 | NameChat | String | Имя чата. Отображается в шапке |
 | FirstMessage | String | Автоматическое сообщение. Отправиться сразу после иницилизации от имени клиента |
 | Note | String | Текст заметки |
+| AdditionalFields | [Int : String] | Массив дополнительный полей в формате - id : "значение". Для текстовых полей значение - строка, для списка - строка с точно совпадающим значением списка, для флага - строка "false" или "true" |
+| AdditionalNestedFields | [[Int : String]] | Массив допл полей типа вложенный список. Каждый подмассив представляет один вложенный список. Формат фложенного списка - [id1: "значение", id2 : "значение", id3 : "значение"], где id1, id2, id3 идентификаторы значений по уровням вложенности |
 | Token | String | Подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах для сохранения истории переписки. (генерирует наша система,  ограничение не меньше 64 символа) |
 | LocaleIdentifier | String | Идентификатор языка. Доступные языки: русский ("ru"), английский ("en"), португальский ("pt"), испанский ("es"). Если переданный идентификатор не поддерживается, будет выбран русский язык. |
 | CustomLocale | [String : String] | Можно передать свой словарь переводов |
@@ -81,16 +83,26 @@ pod 'UseDesk_SDK_Swift'
 
 ### Блок возвращает следующие параметры:
 
-| Переменная  | Тип | Описание |
-| -------------| ------------- | ------------- |
-| Success | Bool | статус подключения к серверу |
-| Error | String | описание ошибки при неудачном подключении |
-| Token | String | токен пользователя |
+#### СonnectionStatus:
+
+| Тип | Описание |
+| ------------- | ------------- |
+| Bool | Успешность подключения к чату |
+| UDFeedbackStatus | Статус показа формы обратной связи |
+| String | Токен пользователя |
+
+#### ErrorStatus:
+
+| Тип | Описание |
+| ------------- | ------------- |
+| UDError | Задокументированый тип ошибки |
+| UDFeedbackStatus | Описание ошибки |
+
 
 #### Пример c использованием базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", chanelId: "1234", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "pubsubsec.usedesk.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", token: "Token", localeIdentifier: "en", customLocale: customLocaleDictionary, presentIn: self, connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", chanelId: "1234", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "pubsubsec.usedesk.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", additionalFields: [1 : "value"], additionalNestedFields: [[1 : "value1", 2 : "value2", 3 : "value3"]], token: "Token", localeIdentifier: "en", customLocale: customLocaleDictionary, presentIn: self, connectionStatus: { success, error in
 
 })
 ```
@@ -124,6 +136,8 @@ usedesk.start(withCompanyID: "1234567", chanelId: "1234", api_token: "143ed59g90
 | NameChat | String | Имя чата. Отображается в шапке |
 | FirstMessage | String | Автоматическое сообщение. Отправиться сразу после иницилизации от имени клиента |
 | Note | String | Текст заметки |
+| AdditionalFields | [Int : String] | Массив дополнительный полей в формате - id : "значение". Для текстовых полей значение - строка, для списка - строка с точно совпадающим значением списка, для флага - строка "false" или "true" |
+| AdditionalNestedFields | [[Int : String]] | Массив допл полей типа вложенный список. Каждый подмассив представляет один вложенный список. Формат фложенного списка - [id1: "значение", id2 : "значение", id3 : "значение"], где id1, id2, id3 идентификаторы значений по уровням вложенности |
 | Token | String | Подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах для сохранения истории переписки. (генерирует наша система,  ограничение не меньше 64 символа) |
 | isUseBase | Bool | Начиная с версии 0.3.19 не используется |
 | Signature | String | Начиная с версии 2.0.0 не используется |
@@ -133,20 +147,27 @@ usedesk.start(withCompanyID: "1234567", chanelId: "1234", api_token: "143ed59g90
 #### Пример:
 ```swift
 let usedesk = UseDeskSDK()
-usedesk.startWithoutGUICompanyID(companyID: "1234567", chanelId: "1234", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "pubsubsec.usedesk.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", token: "Token", connectionStatus: { (success, error) in
+usedesk.startWithoutGUICompanyID(companyID: "1234567", chanelId: "1234", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "pubsubsec.usedesk.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", additionalFields: [1 : "value"], additionalNestedFields: [[1 : "value1", 2 : "value2", 3 : "value3"]], token: "Token", connectionStatus: { (success, error) in
 
 })
 ```
 
 ### Блок возвращает следующие параметры:
 
-| Переменная  | Тип | Описание |
-| -------------| ------------- | ------------- |
-| Success | Bool| статус подключения к серверу |
-| Error | String | описание ошибки при неудачном подключении |
-| Token | String | токен пользователя |
+#### СonnectionStatus:
 
-Если тип ошибки noOperators то нет доступных операторов в данный момент времени
+| Тип | Описание |
+| ------------- | ------------- |
+| Bool | Успешность подключения к чату |
+| UDFeedbackStatus | Статус показа формы обратной связи |
+| String | Токен пользователя |
+
+#### ErrorStatus:
+
+| Тип | Описание |
+| ------------- | ------------- |
+| UDError | Задокументированый тип ошибки |
+| UDFeedbackStatus | Описание ошибки |
 
 
 # Документация:

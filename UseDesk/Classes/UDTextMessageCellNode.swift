@@ -6,11 +6,17 @@
 import Foundation
 import AsyncDisplayKit
 
+protocol TextMessageCellNodeDelegate: AnyObject {
+    func longPressText(text: String)
+}
+
 class UDTextMessageCellNode: UDMessageCellNode {
     
     private var isOutgoing = false
     private var textMessageNode =  ASTextNode()
     private var tableButtonsNode = ASTableNode()
+    
+    weak var delegateText: TextMessageCellNodeDelegate?
     
     override init() {
         super.init()
@@ -43,7 +49,7 @@ class UDTextMessageCellNode: UDMessageCellNode {
         textMessageNode.attributedText = attributedString
         textMessageNode.isUserInteractionEnabled = true
         textMessageNode.delegate = self
-        
+        textMessageNode.view.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(self.longPressTextAction)))
         addSubnode(textMessageNode)
 
         if message.buttons.count > 0 {
@@ -108,6 +114,10 @@ class UDTextMessageCellNode: UDMessageCellNode {
         contentMessageInsetSpec = ASInsetLayoutSpec(insets: UIEdgeInsets.zero, child: messageAndTimeAndSendedStack)
         let messageLayoutSpec = super.layoutSpecThatFits(constrainedSize)
         return messageLayoutSpec
+    }
+    
+    @objc func longPressTextAction() {
+        delegateText?.longPressText(text: message.text)
     }
 }
 

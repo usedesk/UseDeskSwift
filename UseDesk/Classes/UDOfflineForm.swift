@@ -4,6 +4,21 @@
 import Foundation
 import Alamofire
 
+@objc public enum UDFeedbackStatus: Int {
+    case null
+    case never
+    case feedbackForm
+    case feedbackFormAndChat
+    
+    var isNotOpenFeedbackForm: Bool {
+        return self == .null || self == .never
+    }
+    
+    var isOpenFeedbackForm: Bool {
+        return self == .feedbackForm || self == .feedbackFormAndChat
+    }
+}
+
 class UDOfflineForm: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var scrollView: UIScrollView!
@@ -257,36 +272,48 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
             showSendedView()
             return
         }
-        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, phone: usedesk!.phone, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, token: usedesk!.token, isBeforeFeedbackForm: true, connectionStatus: { [weak self] success, error, token in
+        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, phone: usedesk!.phone, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, token: usedesk!.token, isBeforeFeedbackForm: true, connectionStatus: { [weak self] success, feedbackStatus, token in
             guard let wSelf = self else {return}
             guard wSelf.usedesk != nil else {return}
-            if wSelf.usedesk!.closure != nil {
-                wSelf.usedesk!.closure!(success, error, token)
+            if wSelf.usedesk!.closureStartBlock != nil {
+                wSelf.usedesk!.closureStartBlock!(success, feedbackStatus, token)
             }
-            if !success && error == "feedback_form" {
+            if !success && feedbackStatus == .feedbackForm {
                 wSelf.showSendedView()
             } else {
                 if wSelf.navigationController?.visibleViewController != wSelf.dialogflowVC {
                     DispatchQueue.main.async(execute: {
                         wSelf.dialogflowVC.usedesk = wSelf.usedesk
                         wSelf.dialogflowVC.isFromBase = wSelf.isFromBase
+                        wSelf.dialogflowVC.isFromOfflineForm = true
                         wSelf.dialogflowVC.delegate = self
                         wSelf.usedesk?.uiManager?.pushViewController(wSelf.dialogflowVC)
+                        wSelf.dialogflowVC.reloadHistory()
                         wSelf.usedesk?.sendMessage(text)
+                        if let index = wSelf.navigationController?.viewControllers.firstIndex(of: wSelf) {
+                            wSelf.navigationController?.viewControllers.remove(at: index)
+                        }
                     })
                 }
             }
+        }, errorStatus: {  [weak self] error, description  in
+            guard let wSelf = self else {return}
+            guard wSelf.usedesk != nil else {return}
+            if wSelf.usedesk!.closureErrorBlock != nil {
+                wSelf.usedesk!.closureErrorBlock!(error, description)
+            }
+            wSelf.close()
         })
-
     }
     
     @objc func backAction() {
         if isFromBase {
             usedesk?.closeChat()
+            navigationController?.popViewController(animated: true)
         } else {
             usedesk?.releaseChat()
+            dismiss(animated: true)
         }
-        dismiss(animated: true)
     }
 // MARK: - IB Actions
     @IBAction func sendMessage(_ sender: Any) {
@@ -307,7 +334,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         var isValidFields = true
         var indexErrorFields: [Int] = []
         for index in 3..<fields.count {
-            if var fieldItem = fields[index].value as? UDCustomFieldItem {
+            if let fieldItem = fields[index].value as? UDCustomFieldItem {
                 if fieldItem.field.text != "" {
                     customFields.append(fieldItem.field)
                 } else {
@@ -323,7 +350,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         if email.udIsValidEmail() && name != "" && isValidTopic && isValidFields {
             self.view.endEditing(true)
             if let message = fields[indexFieldsForType(.message)].value as? UDTextItem {
-                usedesk!.sendOfflineForm(name: name, email: email, message: message.text, topic: topic, fields: customFields) { [weak self] (result, error) in
+                usedesk!.sendOfflineForm(name: name, email: email, message: message.text, topic: topic, fields: customFields) { [weak self] (result) in
                     guard let wSelf = self else {return}
                     if result {
                         if wSelf.usedesk != nil {
@@ -343,11 +370,12 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                                 wSelf.showSendedView()
                             }
                         }
-                    } else {
-                        wSelf.sendLoader.alpha = 0
-                        wSelf.sendLoader.stopAnimating()
-                        wSelf.showAlert(wSelf.usedesk!.stringFor("Error"), text: wSelf.usedesk!.stringFor("ServerError"))
-                    }
+                    } 
+                } errorStatus: { [weak self] (_, _) in
+                    guard let wSelf = self else {return}
+                    wSelf.sendLoader.alpha = 0
+                    wSelf.sendLoader.stopAnimating()
+                    wSelf.showAlert(wSelf.usedesk!.stringFor("Error"), text: wSelf.usedesk!.stringFor("ServerError"))
                 }
             }
         } else {
@@ -623,7 +651,7 @@ extension UDOfflineForm: ChangeabelTextCellDelegate {
                 sendMessageButton.backgroundColor = value.count > 0 ? configurationStyle.feedbackFormStyle.buttonColor : configurationStyle.feedbackFormStyle.buttonColorDisabled
             }
         case .custom:
-            if var fieldItem = fields[indexPath.row].value as? UDCustomFieldItem {
+            if let fieldItem = fields[indexPath.row].value as? UDCustomFieldItem {
                 fieldItem.field.text = value
                 fieldItem.field.isValid = fieldItem.field.isRequired && fieldItem.field.text == "" ? false : true
                 fields[indexPath.row].value = fieldItem
