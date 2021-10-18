@@ -79,7 +79,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
     private var serverToken = ""
     private var isSendedAdditionalField = false
     
-    @objc public func start(withCompanyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, additionalFields _additionalFields: [Int : String] = [:], additionalNestedFields _additionalNestedFields: [[Int : String]] = [], token _token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, storage storageOutside: UDStorage? = nil, isCacheMessagesWithFile: Bool = true, presentIn parentController: UIViewController? = nil, connectionStatus startBlock: @escaping UDSStartBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
+    @objc public func start(withCompanyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, additionalFields _additionalFields: [Int : String] = [:], additionalNestedFields _additionalNestedFields: [[Int : String]] = [], token _token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, storage storageOutside: UDStorage? = nil, isCacheMessagesWithFile: Bool = true, presentIn parentController: UIViewController? = nil, isPresentDefaultControllers: Bool = true, connectionStatus startBlock: @escaping UDSStartBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         setupUI()
         closureStartBlock = startBlock
         closureErrorBlock = errorBlock
@@ -225,9 +225,13 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         
         isOpenSDKUI = true
         if knowledgeBaseID != "" {
-            uiManager?.showBaseView(in: parentController, url: url)
+            if isPresentDefaultControllers {
+                uiManager?.showBaseView(in: parentController, url: url)
+            }
         } else {
-            uiManager?.startDialogFlow(in: parentController)
+            if isPresentDefaultControllers {
+                uiManager?.startDialogFlow(in: parentController)
+            }
             startWithoutGUICompanyID(companyID: companyID, chanelId: chanelId, knowledgeBaseID: knowledgeBaseID, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, operatorName: operatorName, nameChat: _nameChat, additionalFields: additionalFields, additionalNestedFields: additionalNestedFields) { [weak self] success, feedbackStatus, token in
                 guard let wSelf = self else { return }
                 startBlock(success, feedbackStatus, token)

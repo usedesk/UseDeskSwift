@@ -75,7 +75,8 @@ pod 'UseDesk_SDK_Swift'
 | CustomLocale | [String : String] | Можно передать свой словарь переводов |
 | Storage | UDStorage | Хранилище поддерживающее протокол [UDStorage](https://github.com/usedesk/UseDeskSwift/blob/master/Core/UseDeskSDK.swift). Для каждого отдельного чата нужно передавать свое отдельное хранилище. |
 | isCacheMessagesWithFile | Bool | Сохранять ли сообщения содержащие файлы |
-| PresentIn | UIViewController | В каком контроллере открывать |
+| PresentIn | UIViewController | В каком контроллере открывать | 
+| isPresentDefaultControllers | Bool | Показывать ли контроллеры автоматически в указанном родительском контроллере |
 | isUseBase | Bool | Начиная с версии 0.3.19 не используется |
 | Signature | String | Начиная с версии 2.0.0 не используется |
 
@@ -102,7 +103,7 @@ pod 'UseDesk_SDK_Swift'
 #### Пример c использованием базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", chanelId: "1234", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "pubsubsec.usedesk.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", additionalFields: [1 : "value"], additionalNestedFields: [[1 : "value1", 2 : "value2", 3 : "value3"]], token: "Token", localeIdentifier: "en", customLocale: customLocaleDictionary, presentIn: self, connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", chanelId: "1234", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "pubsubsec.usedesk.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", additionalFields: [1 : "value"], additionalNestedFields: [[1 : "value1", 2 : "value2", 3 : "value3"]], token: "Token", localeIdentifier: "en", customLocale: customLocaleDictionary, presentIn: self, isPresentDefaultControllers: true, connectionStatus: { success, error in
 
 })
 ```
