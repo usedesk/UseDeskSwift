@@ -6,7 +6,7 @@ import SocketIO
 import Alamofire
 import UserNotifications
 import Down
-
+import UIKit
 
 public typealias UDSStartBlock = (Bool, UDFeedbackStatus, String) -> Void
 public typealias UDSBaseBlock = (Bool, [UDBaseCollection]?) -> Void

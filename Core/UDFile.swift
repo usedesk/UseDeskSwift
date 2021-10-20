@@ -3,7 +3,7 @@
 //  UseDesk_SDK_Swift
 //
 
-import Foundation
+import UIKit
 
 enum UDTypeSourceFile: String {
     case UIImage = "UIImage"
