@@ -4,12 +4,12 @@
 import PackageDescription
 
 let package = Package (
-     name: "UseDesk_SDK_Swift",
+     name: "UseDesk",
     platforms: [
         .iOS(.v10)
     ],
      products: [
-         .library(name: "UseDesk_SDK_Swift", targets: ["UseDesk"])
+         .library(name: "UseDesk", targets: ["UseDesk"])
      ],
      dependencies: [
         .package(name: "SocketIO", url: "https://github.com/socketio/socket.io-client-swift", from: "16.0.0"),
