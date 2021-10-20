@@ -19,7 +19,7 @@ let package = Package (
      ],
      targets: [
          .target(
-             name: "UseDesk_SDK_Swift",
+             name: "UseDesk",
              dependencies: [
                  "Alamofire",
                  "SocketIO",
