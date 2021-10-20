@@ -3,6 +3,7 @@
 
 import Foundation
 import Photos
+import UIKit
 
 public class UDMessage: NSObject, Codable {
     // MARK: - Properties
