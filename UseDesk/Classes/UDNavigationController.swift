@@ -29,9 +29,24 @@ class UDNavigationController: UINavigationController {
         
         titleTextColor = configurationStyle.navigationBarStyle.textColor
         titleTextFont = configurationStyle.navigationBarStyle.font
-        
-        navigationBar.barTintColor = configurationStyle.navigationBarStyle.backgroundColor
-        navigationBar.tintColor = configurationStyle.navigationBarStyle.textColor
+
+        if #available(iOS 13.0, *) {
+            let navBar = self.navigationBar
+
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.titleTextAttributes = [
+                .foregroundColor: configurationStyle.navigationBarStyle.textColor,
+                .font: configurationStyle.navigationBarStyle.font,
+            ]
+            appearance.backgroundColor = configurationStyle.navigationBarStyle.backgroundColor
+
+            navBar.standardAppearance = appearance
+            navBar.scrollEdgeAppearance = navBar.standardAppearance
+        } else {
+            navigationBar.barTintColor = configurationStyle.navigationBarStyle.backgroundColor
+            navigationBar.tintColor = configurationStyle.navigationBarStyle.textColor
+        }
     }
     
     func setTitleTextAttributes() {
