@@ -4,7 +4,7 @@
 
 import Foundation
 import UIKit
-import UseDesk_SDK_Swift
+import UseDesk
 
 
 class UDStartViewController: UIViewController, UITextFieldDelegate {

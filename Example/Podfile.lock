@@ -40,7 +40,7 @@ PODS:
     - Texture/Core
   - Texture/Video (3.0.0):
     - Texture/Core
-  - UseDesk_SDK_Swift (2.1.0):
+  - UseDesk (2.2.1):
     - Alamofire (~> 5)
     - Down
     - Socket.IO-Client-Swift (~> 16.0)
@@ -48,7 +48,7 @@ PODS:
     - Texture
 
 DEPENDENCIES:
-  - UseDesk_SDK_Swift (from `../`)
+  - UseDesk (from `../`)
 
 SPEC REPOS:
   trunk:
@@ -63,7 +63,7 @@ SPEC REPOS:
     - Texture
 
 EXTERNAL SOURCES:
-  UseDesk_SDK_Swift:
+  UseDesk:
     :path: "../"
 
 SPEC CHECKSUMS:
@@ -76,8 +76,8 @@ SPEC CHECKSUMS:
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   Swime: d7b2c277503b6cea317774aedc2dce05613f8b0b
   Texture: 2f109e937850d94d1d07232041c9c7313ccddb81
-  UseDesk_SDK_Swift: 56578b83db33d2489f17dcbd346ce2b1d87b364f
+  UseDesk: c8ddd5f36023c5296ed959a378ff4efd2d7e2475
 
-PODFILE CHECKSUM: 97034e1e97015f1d3c41c42409060ef8482278be
+PODFILE CHECKSUM: 9007bda9d1a8d5246b425130a7cc60216887875a
 
 COCOAPODS: 1.10.1

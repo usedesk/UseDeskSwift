@@ -78,7 +78,7 @@
                         <activityIndicatorView opaque="NO" alpha="0.0" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="yEt-FB-L4p">
                             <rect key="frame" x="14" y="14" width="20" height="20"/>
                         </activityIndicatorView>
-                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WF4-Ti-KqT" customClass="UDTextView" customModule="UseDesk_SDK_Swift">
+                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WF4-Ti-KqT" customClass="UDTextView" customModule="UseDesk" customModuleProvider="target">
                             <rect key="frame" x="48" y="7" width="219" height="36"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <constraints>
@@ -281,7 +281,7 @@
             </constraints>
             <point key="canvasLocation" x="266.25" y="762.67605633802816"/>
         </view>
-        <collectionViewCell opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" restorationIdentifier="UDAttachCollectionViewCell" reuseIdentifier="UDAttachCollectionViewCell" id="C8H-QZ-X3t" customClass="UDAttachCollectionViewCell" customModule="UseDesk_SDK_Swift">
+        <collectionViewCell opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" restorationIdentifier="UDAttachCollectionViewCell" reuseIdentifier="UDAttachCollectionViewCell" id="C8H-QZ-X3t" customClass="UDAttachCollectionViewCell" customModule="UseDesk" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="58" height="58"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">

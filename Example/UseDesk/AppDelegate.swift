@@ -4,7 +4,7 @@
 
 
 import UIKit
-import UseDesk_SDK_Swift
+import UseDesk
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
