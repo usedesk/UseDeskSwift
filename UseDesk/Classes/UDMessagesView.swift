@@ -22,6 +22,7 @@ enum LandscapeOrientation {
 class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, ASTableDataSource, ASTableDelegate, PHPhotoLibraryChangeObserver {
 
     @IBOutlet weak var viewForTable: UIView!
+    @IBOutlet weak var viewFotTableTopC: NSLayoutConstraint!
     @IBOutlet weak var viewInput: UIView!
     @IBOutlet weak var viewInputHC: NSLayoutConstraint!
     @IBOutlet weak var loader: UIActivityIndicatorView!
@@ -324,12 +325,12 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     func updateOrientation() {
         if UIScreen.main.bounds.height > UIScreen.main.bounds.width {
             if centerPortait == CGPoint.zero && !isFirstOpen {
-                centerPortait = view.center
+                centerPortait = view.center //viewForTable.center
             }
             if keyboardHeightPortait != 0 && centerPortaitWithKeyboard == CGPoint.zero {
                 centerPortaitWithKeyboard = CGPoint(x: centerPortait.x, y: centerPortait.y - keyboardHeightPortait)
             }
-            tableNode.frame = CGRect(x: viewForTable.frame.origin.x, y: viewForTable.frame.origin.y, width: viewForTable.frame.width, height: viewForTable.frame.height)
+            viewFotTableTopC.constant = configurationStyle.chatStyle.topMarginPortrait
             if previousOrientation != .portrait {
                 self.view.center = isShowKeyboard ? centerPortaitWithKeyboard : centerPortait
                 previousOrientation = .portrait
@@ -340,18 +341,17 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             }
         } else {
             if centerLandscape == CGPoint.zero && !isFirstOpen {
-                centerLandscape = view.center
+                centerLandscape = view.center  //viewForTable.center
             }
             if keyboardHeightLandscape != 0 && centerLandscapeWithKeyboard == CGPoint.zero {
                 centerLandscapeWithKeyboard = CGPoint(x: centerPortait.x, y: centerPortait.y - keyboardHeightLandscape)
             }
+            viewFotTableTopC.constant = configurationStyle.chatStyle.topMarginLandscape
             if #available(iOS 11.0, *) {
                 if UIDevice.current.orientation == .landscapeLeft && previousOrientation != .landscape{
                     safeAreaInsetsLeftOrRight = view.safeAreaInsets.left
-                    tableNode.frame = CGRect(x: viewForTable.frame.origin.x + safeAreaInsetsLeftOrRight, y: viewForTable.frame.origin.y, width: viewForTable.frame.width - safeAreaInsetsLeftOrRight, height: viewForTable.frame.height)
                 } else if previousOrientation != .landscape {
                     safeAreaInsetsLeftOrRight = view.safeAreaInsets.right
-                    tableNode.frame = CGRect(x: viewForTable.frame.origin.x, y: viewForTable.frame.origin.y, width: viewForTable.frame.width - safeAreaInsetsLeftOrRight, height: viewForTable.frame.height)
                 }
             }
             if previousOrientation != .landscape {
@@ -362,6 +362,11 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                     wSelf.tableNode.reloadData()
                 }
             }
+        }
+        DispatchQueue.main.async { [weak self] in
+            guard let wSelf = self else {return}
+            wSelf.self.view.setNeedsLayout()
+            wSelf.self.view.layoutIfNeeded()
         }
     }
     
@@ -533,7 +538,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     @objc func keyboardHide(_ notification: Notification?) {
         if isShowKeyboard {
-            updateTextInputComment()
             let info = notification?.userInfo
             let duration = TimeInterval((info?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
             UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
@@ -606,14 +610,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             buttonSend.isEnabled = textInput.text.count != 0 || countDraftMessagesWithFile > 0
         } else {
             buttonSend.isEnabled = countDraftMessagesWithFile > 0 ? true : false
-        }
-    }
-    
-    func updateTextInputComment() {
-        guard usedesk != nil else {return}
-        if textInput.text.count == 0 {
-            textInput.text = usedesk!.stringFor("Write") + "..."
-            textInput.textColor = configurationStyle.inputViewStyle.placeholderTextColor
         }
     }
     
@@ -1199,7 +1195,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                             DispatchQueue.main.async(execute: {
                                 if let indexPathVideo = wSelf.indexPathForMessage(at: message.id) {
                                     message.file.path = url.path
-//                                    message.file.picture = UDFileManager.videoPreview(filePath: message.file.path)
                                     message.file.name = URL(fileURLWithPath: message.file.path).localizedName ?? "Video"
                                     message.status = UD_STATUS_SUCCEED
                                     wSelf.messagesWithSection[indexPathVideo.section][indexPathVideo.row] = message
@@ -1232,7 +1227,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                                 if let indexPathVideo = wSelf.indexPathForMessage(at: message.id) {
                                                     message.type = UD_TYPE_VIDEO
                                                     message.file.path = NSURL(fileURLWithPath: FileManager.default.udWriteDataToCacheDirectory(data: data!) ?? "").path ?? ""
-//                                                    message.file.picture = UDFileManager.videoPreview(filePath: message.file.path)
                                                     message.file.name = URL(fileURLWithPath: message.file.path).localizedName ?? "Video"
                                                     message.file.type = "video"
                                                     wSelf.messagesWithSection[indexPathVideo.section][indexPathVideo.row] = message
@@ -1241,7 +1235,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                                 }
                                             } else if mimeType.mime.contains("image") {
                                                 if let indexPathPicture = wSelf.indexPathForMessage(at: message.id) {
-//                                                    message.file.picture = UIImage(data: data!)?.udResizeImage()
                                                     message.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!) ?? ""
                                                     message.file.name = message.file.path != "" ? (URL(fileURLWithPath: message.file.path).localizedName ?? "Image") : "Image"
                                                     message.file.type = "image"
@@ -1253,7 +1246,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                         }
                                         if isFile {
                                             if let indexPathFile = wSelf.indexPathForMessage(at: message.id) {
-//                                                message.file.picture = UIImage(data: data!)
                                                 message.file.path = NSURL(fileURLWithPath: FileManager.default.udWriteDataToCacheDirectory(data: data!) ?? "").path ?? ""
                                                 message.file.type = "file"
                                                 message.file.sizeInt = data!.count

@@ -30,6 +30,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var lastViewBC: NSLayoutConstraint!
     @IBOutlet weak var isNeedChatSwitch: UISwitch!
     @IBOutlet weak var isNeedReviewSwitch: UISwitch!
+    @IBOutlet weak var isTabBarSwitch: UISwitch!
     
     @IBOutlet weak var idField1: UITextField!
     @IBOutlet weak var value1: UITextField!
@@ -47,6 +48,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     
     var collection: UDBaseCollection? = nil
     var usedesk = UseDeskSDK()
+    let tabBarVC = UITabBarController()
     
     override func viewDidLoad() {
         
@@ -172,11 +174,31 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
                 nameChat = nameChatTextField.text!
             }
         }
-        
-        usedesk.configurationStyle = ConfigurationStyle(baseStyle: BaseStyle(isNeedChat: isNeedChatSwitch.isOn), baseArticleStyle: BaseArticleStyle(isNeedReview: isNeedReviewSwitch.isOn))
-
-        usedesk.start(withCompanyID: companyIdTextField.text!, chanelId: chanelIdTextField.text != nil ? chanelIdTextField.text! : "", urlAPI: urlBaseTextField.text != nil ? urlBaseTextField.text! : nil, knowledgeBaseID: knowledgeBaseID, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, urlToSendFile: urlToSendFileTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, operatorName: operatorNameTextField.text != nil ? operatorNameTextField.text! : nil, nameChat: nameChat, firstMessage: firstMessageTextField.text != nil ? firstMessageTextField.text : nil, note: noteTextField.text != nil ? noteTextField.text : nil, additionalFields: additionalFields(), additionalNestedFields: additionalNestedFields(), token: tokenTextField.text != nil ? tokenTextField.text : nil, localeIdentifier: localeIdTextField.text != nil ? localeIdTextField.text : nil, presentIn: self, connectionStatus: { success, feedbackStatus, token in
-            
+        if isTabBarSwitch.isOn {
+            usedesk.configurationStyle = ConfigurationStyle(chatStyle: ChatStyle(topMarginPortrait: 80, topMarginLandscape: 40), baseStyle: BaseStyle(isNeedChat: isNeedChatSwitch.isOn), baseArticleStyle: BaseArticleStyle(isNeedReview: isNeedReviewSwitch.isOn))
+        } else {
+            usedesk.configurationStyle = ConfigurationStyle(baseStyle: BaseStyle(isNeedChat: isNeedChatSwitch.isOn), baseArticleStyle: BaseArticleStyle(isNeedReview: isNeedReviewSwitch.isOn))
+        }
+        usedesk.start(withCompanyID: companyIdTextField.text!, chanelId: chanelIdTextField.text != nil ? chanelIdTextField.text! : "", urlAPI: urlBaseTextField.text != nil ? urlBaseTextField.text! : nil, knowledgeBaseID: knowledgeBaseID, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, urlToSendFile: urlToSendFileTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, operatorName: operatorNameTextField.text != nil ? operatorNameTextField.text! : nil, nameChat: nameChat, firstMessage: firstMessageTextField.text != nil ? firstMessageTextField.text : nil, note: noteTextField.text != nil ? noteTextField.text : nil, additionalFields: additionalFields(), additionalNestedFields: additionalNestedFields(), token: tokenTextField.text != nil ? tokenTextField.text : nil, localeIdentifier: localeIdTextField.text != nil ? localeIdTextField.text : nil, presentIn: self, isPresentDefaultControllers: !isTabBarSwitch.isOn, connectionStatus: { success, feedbackStatus, token in
+            if self.isTabBarSwitch.isOn && success {
+                let chatVC = self.usedesk.chatViewController() ?? UIViewController()
+                let firstVC = ViewController()
+                firstVC.title = "Second"
+                chatVC.title = "Chat"
+                self.tabBarVC.setViewControllers([chatVC, firstVC], animated: true)
+                self.navigationController?.pushViewController(self.tabBarVC, animated: true)
+            }
         }, errorStatus: {  _, _ in})
+        
+        usedesk.presentationCompletionBlock = {
+            print("close SDK")
+        }
+    }
+}
+class ViewController: UIViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.view.backgroundColor = .red
     }
 }

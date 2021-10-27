@@ -18,6 +18,7 @@ public typealias UDSErrorSocketBlock = ([Any]?) -> Void
 public typealias UDSErrorBlock = (UDError, String?) -> Void
 public typealias UDSFeedbackMessageBlock = (UDMessage?) -> Void
 public typealias UDSFeedbackAnswerMessageBlock = (Bool) -> Void
+public typealias UDSVoidBlock = () -> Void
 
 @objc public protocol UDStorage {
     func getMessages() -> [UDMessage]
@@ -27,9 +28,9 @@ public typealias UDSFeedbackAnswerMessageBlock = (Bool) -> Void
 public class UseDeskSDK: NSObject, UDUISetupable {
     @objc public var newMessageBlock: UDSNewMessageBlock?
     @objc public var connectBlock: UDSConnectBlock?
-    @objc public var errorBlock: UDSErrorSocketBlock?
     @objc public var feedbackMessageBlock: UDSFeedbackMessageBlock?
     @objc public var feedbackAnswerMessageBlock: UDSFeedbackAnswerMessageBlock?
+    @objc public var presentationCompletionBlock: UDSVoidBlock?
     @objc public var historyMess: [UDMessage] = []
     @objc public var maxCountAssets: Int = 10
     @objc public var isSupportedAttachmentOnlyPhoto: Bool = false
@@ -71,6 +72,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
     var token = ""
     var additionalFields: [Int : String] = [:]
     var additionalNestedFields: [[Int : String]] = []
+    var isPresentDefaultControllers = true
     // Lolace
     var locale: [String:String] = [:]
     
@@ -79,7 +81,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
     private var serverToken = ""
     private var isSendedAdditionalField = false
     
-    @objc public func start(withCompanyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, additionalFields _additionalFields: [Int : String] = [:], additionalNestedFields _additionalNestedFields: [[Int : String]] = [], token _token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, storage storageOutside: UDStorage? = nil, isCacheMessagesWithFile: Bool = true, presentIn parentController: UIViewController? = nil, isPresentDefaultControllers: Bool = true, connectionStatus startBlock: @escaping UDSStartBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
+    @objc public func start(withCompanyID _companyID: String, chanelId _chanelId: String, urlAPI _urlAPI: String? = nil, knowledgeBaseID _knowledgeBaseID: String? = nil, api_token _api_token: String, email _email: String? = nil, phone _phone: String? = nil, url _url: String, urlToSendFile _urlToSendFile: String? = nil, port _port: String? = nil, name _name: String? = nil, operatorName _operatorName: String? = nil, nameChat _nameChat: String? = nil, firstMessage _firstMessage: String? = nil, note _note: String? = nil, additionalFields _additionalFields: [Int : String] = [:], additionalNestedFields _additionalNestedFields: [[Int : String]] = [], token _token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, storage storageOutside: UDStorage? = nil, isCacheMessagesWithFile: Bool = true, presentIn parentController: UIViewController? = nil, isPresentDefaultControllers _isPresentDefaultControllers: Bool = true, connectionStatus startBlock: @escaping UDSStartBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         setupUI()
         closureStartBlock = startBlock
         closureErrorBlock = errorBlock
@@ -220,6 +222,8 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             locale = UDLocalizeManager().getLocaleFor(localeId: "ru")!
         }
         
+        isPresentDefaultControllers = _isPresentDefaultControllers
+        
         storage = storageOutside != nil ? storageOutside : UDStorageMessages(token: token)
         self.isCacheMessagesWithFile = isCacheMessagesWithFile
         
@@ -234,8 +238,8 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             }
             startWithoutGUICompanyID(companyID: companyID, chanelId: chanelId, knowledgeBaseID: knowledgeBaseID, api_token: api_token, email: email, phone: _phone, url: urlWithoutPort, port: port, name: _name, operatorName: operatorName, nameChat: _nameChat, additionalFields: additionalFields, additionalNestedFields: additionalNestedFields) { [weak self] success, feedbackStatus, token in
                 guard let wSelf = self else { return }
-                startBlock(success, feedbackStatus, token)
                 wSelf.uiManager?.reloadDialogFlow(success: success, feedBackStatus: feedbackStatus, url: wSelf.url)
+                startBlock(success, feedbackStatus, token)
             } errorStatus: { error, description in
                 errorBlock(error, description)
             }
@@ -424,13 +428,11 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             wSelf.socket?.emit("dispatch", with: arrConfStart!, completion: nil)
         })
         
-        socket?.on("error", callback: { [weak self] data, ack in
-            guard let wSelf = self else {return}
-            if (wSelf.errorBlock != nil) {
-                wSelf.errorBlock!(data)
-                if !isAuthInited {
-                    errorBlock(.falseInitChatError, UDError.falseInitChatError.description)
-                }
+        socket?.on("error", callback: { data, ack in
+            if !isAuthInited {
+                errorBlock(.falseInitChatError, UDError.falseInitChatError.description)
+            } else {
+                errorBlock(.socketError, data.description)
             }
         })
         socket?.on("disconnect", callback: { [weak self] data, ack in
@@ -508,7 +510,9 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         ]
         var url = urlBase()
         url += "/v1/addFieldsToChat"
-        AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default).responseJSON{ responseJSON in }
+        AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default).responseJSON{ responseJSON in
+            
+        }
     }
     
     @objc public func getCollections(connectionStatus baseBlock: @escaping UDSBaseBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
@@ -768,7 +772,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         if self.urlAPI != "" {
             url += self.urlAPI + "/uapi"
         } else {
-            url += "api.usedesk.ru"
+            url += "https://secure.usedesk.ru/uapi"
         }
         return url
     }
@@ -830,6 +834,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
                 }
             }
             socket?.emit("dispatch", with: UseDeskSDKHelp.dataClient(email, phone: phone, name: name, note: note, token: serverToken)!, completion: nil)
+            serverToken = ""
         }
     }
     
@@ -1385,7 +1390,9 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         firstMessage = ""
         note = ""
         token = ""
+        serverToken = ""
         isOpenSDKUI = false
+        presentationCompletionBlock?()
     }
     
     public func newIdLoadingMessages() -> String {

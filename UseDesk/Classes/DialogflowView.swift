@@ -116,20 +116,24 @@ class DialogflowView: UDMessagesView {
                 for index in 0..<countNewMessages {
                     messages.insert(usedesk!.historyMess[countMessages + index], at: 0)
                 }
+                updateChat()
             }
-            DispatchQueue.main.async { [weak self] in
-                guard let wSelf = self else {return}
-                wSelf.loadMessagesFromStorage()
-                wSelf.generateSectionFromModel()
-                wSelf.configurationViews()
-                wSelf.buttonSend.isEnabled = true
-                wSelf.buttonAttach.isEnabled = true
-                if !wSelf.isFromOfflineForm && !wSelf.isFromBase {
-                    wSelf.tableNode.reloadData()
-                    wSelf.textInput.isUserInteractionEnabled = true
-                    wSelf.loader.stopAnimating()
-                    wSelf.loader.alpha = 0
-                }
+        }
+    }
+    
+    func updateChat() {
+        DispatchQueue.main.async { [weak self] in
+            guard let wSelf = self else {return}
+            wSelf.loadMessagesFromStorage()
+            wSelf.generateSectionFromModel()
+            wSelf.configurationViews()
+            wSelf.buttonSend.isEnabled = true
+            wSelf.buttonAttach.isEnabled = true
+            if !wSelf.isFromOfflineForm && !wSelf.isFromBase {
+                wSelf.tableNode.reloadData()
+                wSelf.textInput.isUserInteractionEnabled = true
+                wSelf.loader.stopAnimating()
+                wSelf.loader.alpha = 0
             }
         }
     }
@@ -577,6 +581,8 @@ class DialogflowView: UDMessagesView {
             (navigationController as? UDNavigationController)?.isDark = true
             navigationController?.navigationBar.layoutSubviews()
             fileViewingVC = UDFileViewingVC()
+            fileViewingVC.configurationStyle = configurationStyle
+            fileViewingVC.isShowBackButton = !(usedesk?.isPresentDefaultControllers ?? true)
             self.addChild(self.fileViewingVC)
             self.view.addSubview(self.fileViewingVC.view)
             fileViewingVC.setBottomViewHC(safeAreaInsetsBottom)

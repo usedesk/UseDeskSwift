@@ -185,7 +185,7 @@ class UDBaseCategoriesView: UIViewController, UITableViewDelegate, UITableViewDa
                         wSelf.dialogflowVC.usedesk = wSelf.usedesk
                         wSelf.dialogflowVC.isFromBase = true
                         wSelf.usedesk?.uiManager?.pushViewController(wSelf.dialogflowVC)
-                        wSelf.dialogflowVC.reloadHistory()
+                        wSelf.dialogflowVC.updateChat()
                         UIView.animate(withDuration: 0.3) {
                             wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
                             wSelf.loaderChatButton.alpha = 0

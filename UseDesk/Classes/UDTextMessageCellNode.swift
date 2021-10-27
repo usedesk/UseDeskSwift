@@ -49,7 +49,7 @@ class UDTextMessageCellNode: UDMessageCellNode {
         textMessageNode.attributedText = attributedString
         textMessageNode.isUserInteractionEnabled = true
         textMessageNode.delegate = self
-        textMessageNode.view.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(self.longPressTextAction)))
+        view.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(self.longPressTextAction)))
         addSubnode(textMessageNode)
 
         if message.buttons.count > 0 {
@@ -117,7 +117,7 @@ class UDTextMessageCellNode: UDMessageCellNode {
     }
     
     @objc func longPressTextAction() {
-        delegateText?.longPressText(text: message.text)
+        delegateText?.longPressText(text: textMessageNode.attributedText?.string ?? (message.attributedString?.string ?? message.text))
     }
 }
 

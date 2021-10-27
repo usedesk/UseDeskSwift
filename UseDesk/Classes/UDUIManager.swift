@@ -34,7 +34,7 @@ class UDUIManager: UDUIProtocole {
         navController.setProperties()
         navController.setTitleTextAttributes()
         navController.modalPresentationStyle = .fullScreen
-        parentController?.present(navController, animated: true)
+        parentController?.present(navController, animated: true) 
     }
     
     func startDialogFlow(in parentController: UIViewController?) {
@@ -48,7 +48,7 @@ class UDUIManager: UDUIProtocole {
             navController.modalPresentationStyle = .fullScreen
             parentController?.present(navController, animated: true)
         } else {
-            dialogflowVC.reloadHistory()
+            dialogflowVC.updateChat()
         }
     }
     

@@ -46,6 +46,7 @@
                 <outlet property="textInputTC" destination="BOa-0Q-yIe" id="OcO-gb-TXK"/>
                 <outlet property="view" destination="PpO-Gc-0B7" id="ccK-Tu-foM"/>
                 <outlet property="viewForTable" destination="SGa-4e-nkS" id="zox-RV-h8o"/>
+                <outlet property="viewFotTableTopC" destination="7hl-zF-iDI" id="6gY-qa-XIR"/>
                 <outlet property="viewInput" destination="xuU-RB-86v" id="9Gh-xP-iGY"/>
                 <outlet property="viewInputHC" destination="ZgX-0c-wgP" id="yeH-eB-sI0"/>
             </connections>
@@ -56,11 +57,11 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SGa-4e-nkS">
-                    <rect key="frame" x="0.0" y="0.0" width="320" height="518"/>
+                    <rect key="frame" x="0.0" y="85" width="320" height="433"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                 </view>
                 <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="Gaj-ut-CEu">
-                    <rect key="frame" x="141.5" y="240.5" width="37" height="37"/>
+                    <rect key="frame" x="141.5" y="283" width="37" height="37"/>
                 </activityIndicatorView>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xuU-RB-86v">
                     <rect key="frame" x="0.0" y="518" width="320" height="50"/>
@@ -266,7 +267,7 @@
                 <constraint firstItem="xuU-RB-86v" firstAttribute="top" secondItem="v4h-AJ-Jn3" secondAttribute="bottom" constant="4" id="0dg-fw-lbq"/>
                 <constraint firstItem="vWE-cl-xhX" firstAttribute="top" secondItem="PpO-Gc-0B7" secondAttribute="top" id="6P0-D6-5Yb"/>
                 <constraint firstAttribute="trailing" secondItem="vWE-cl-xhX" secondAttribute="trailing" id="78l-dh-pjR"/>
-                <constraint firstItem="SGa-4e-nkS" firstAttribute="top" secondItem="PpO-Gc-0B7" secondAttribute="top" id="7hl-zF-iDI"/>
+                <constraint firstItem="SGa-4e-nkS" firstAttribute="top" secondItem="PpO-Gc-0B7" secondAttribute="top" constant="85" id="7hl-zF-iDI"/>
                 <constraint firstItem="xuU-RB-86v" firstAttribute="top" secondItem="SGa-4e-nkS" secondAttribute="bottom" id="9ko-0h-yVx"/>
                 <constraint firstItem="vWE-cl-xhX" firstAttribute="leading" secondItem="PpO-Gc-0B7" secondAttribute="leading" id="9pg-xZ-50x"/>
                 <constraint firstAttribute="trailing" secondItem="xuU-RB-86v" secondAttribute="trailing" id="H1D-Pa-OaA"/>

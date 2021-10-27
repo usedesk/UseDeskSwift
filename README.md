@@ -55,7 +55,7 @@ pod 'UseDesk_SDK_Swift'
 | -------------| ------------- | ------------- |
 | CompanyID\* | String | Идентификатор компании. Как найти описано в [документации](https://docs.usedesk.ru/article/61) |
 | ChanelId\* | String | Идентификатор канала (добавлен  в v1.1.5). Как найти описано в [документации](https://docs.usedesk.ru/article/10167) |
-| UrlAPI\* | String | Адрес API. Стандартное значение `secure.usedesk.ru/` |
+| UrlAPI\* | String | Адрес API. Стандартное значение `secure.usedesk.ru/uapi` |
 | Knowledge Base ID | String | Идентификатор базы знаний. Если не указан, база знаний не используется |
 | API Token\* | String | Личный API ключ |
 | Email | String | Почта клиента |
@@ -124,7 +124,7 @@ usedesk.start(withCompanyID: "1234567", chanelId: "1234", api_token: "143ed59g90
 | -------------| ------------- | ------------- |
 | CompanyID\* | String | Идентификатор компании. Как найти описано в [документации](https://docs.usedesk.ru/article/61) |
 | ChanelId\* | String | Идентификатор канала (добавлен  в v1.1.5). Как найти описано в [документации](https://docs.usedesk.ru/article/10167) |
-| UrlAPI\* | String | Адрес  - devsecure.usedesk.ru/uapi |
+| UrlAPI\* | String | Адрес API. Стандартное значение `secure.usedesk.ru/uapi` |
 | API Token\* | String | Личный API ключ |
 | Url\* | String | Адрес сервера в формате - pubsubsec.usedesk.ru |
 | Knowledge Base ID | String | Идентификатор базы знаний. Если не указан, база знаний не используется |

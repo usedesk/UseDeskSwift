@@ -57,6 +57,7 @@ public struct ConfigurationStyle {
     public var pictureStyle: PictureStyle
     public var videoStyle: VideoStyle
     public var fileStyle: FileStyle
+    public var fileViewingStyle: FileViewingStyle
     public var inputViewStyle: InputViewStyle
     public var attachButtonStyle: AttachButtonStyle
     public var sendButtonStyle: SendButtonStyle
@@ -80,6 +81,7 @@ public struct ConfigurationStyle {
                 pictureStyle: PictureStyle = PictureStyle(),
                 videoStyle: VideoStyle = VideoStyle(),
                 fileStyle: FileStyle = FileStyle(),
+                fileViewingStyle: FileViewingStyle = FileViewingStyle(),
                 inputViewStyle: InputViewStyle = InputViewStyle(),
                 attachButtonStyle: AttachButtonStyle = AttachButtonStyle(),
                 sendButtonStyle: SendButtonStyle = SendButtonStyle(),
@@ -103,6 +105,7 @@ public struct ConfigurationStyle {
         self.pictureStyle = pictureStyle
         self.videoStyle = videoStyle
         self.fileStyle = fileStyle
+        self.fileViewingStyle = fileViewingStyle
         self.inputViewStyle = inputViewStyle
         self.attachButtonStyle = attachButtonStyle
         self.sendButtonStyle = sendButtonStyle
@@ -153,19 +156,25 @@ public struct ChatStyle {
     public var scrollButtonImage: UIImage
     public var scrollButtonSize: CGSize
     public var scrollButtonMargin: UIEdgeInsets
+    public var topMarginPortrait: CGFloat
+    public var topMarginLandscape: CGFloat
     
     public init(backgroundColor: UIColor? = nil,
                 backgroundColorLoaderView: UIColor? = nil,
                 alphaLoaderView: CGFloat = 0.8,
                 scrollButtonImage: UIImage? = nil,
                 scrollButtonSize: CGSize = CGSize(width: 40, height: 40),
-                scrollButtonMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 12)) {
+                scrollButtonMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 12),
+                topMarginPortrait: CGFloat = 0,
+                topMarginLandscape: CGFloat = 0) {
         self.backgroundColor = backgroundColor != nil ? backgroundColor! : UIColor(hexString: "FFFFFF")
         self.backgroundColorLoaderView = backgroundColorLoaderView != nil ? backgroundColorLoaderView! : .lightGray
         self.alphaLoaderView = alphaLoaderView
         self.scrollButtonImage = scrollButtonImage != nil ? scrollButtonImage! : UIImage.named("udScrollButton")
         self.scrollButtonSize = scrollButtonSize
         self.scrollButtonMargin = scrollButtonMargin
+        self.topMarginPortrait = topMarginPortrait
+        self.topMarginLandscape = topMarginLandscape
     }
 }
 // MARK: -  Date messages section
@@ -465,6 +474,22 @@ public struct FileStyle {
         self.sizeIncomingColor = sizeIncomingColor != nil ? sizeIncomingColor! : UIColor(hexString: "989FB3")
     }
 }
+
+// MARK: -  FileViewing
+public struct FileViewingStyle {
+    public var backButtonMargin: UIEdgeInsets
+    public var backButtonImage: UIImage
+    public var backButtonSize: CGSize
+
+    public init(backButtonMargin: UIEdgeInsets = UIEdgeInsets(top: 5, left: 2, bottom: 0, right: 0),
+                backButtonImage: UIImage? = nil,
+                backButtonSize: CGSize = CGSize(width: 26, height: 26)) {
+        self.backButtonMargin = backButtonMargin
+        self.backButtonImage = backButtonImage != nil ? backButtonImage! : UIImage.named("udBackInFileButton")
+        self.backButtonSize = backButtonSize
+    }
+}
+
 // MARK: -  Input View
 public struct InputViewStyle {
     public var viewBackColor: UIColor

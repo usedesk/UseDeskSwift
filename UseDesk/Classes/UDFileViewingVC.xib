@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="UDFileViewingVC" customModule="UseDesk_SDK_Swift" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="UDFileViewingVC" customModule="UseDesk" customModuleProvider="target">
             <connections>
+                <outlet property="backButton" destination="o4C-Yt-y1U" id="AQW-Ur-tse"/>
+                <outlet property="backButtonHC" destination="KcJ-Nf-skK" id="PeS-DC-Dbh"/>
+                <outlet property="backButtonLC" destination="znO-FD-yBU" id="WLz-8A-gBH"/>
+                <outlet property="backButtonTopC" destination="YL2-1w-3u1" id="1aI-F3-V9T"/>
+                <outlet property="backButtonWC" destination="1XT-VL-ZZZ" id="qwg-c8-wxL"/>
                 <outlet property="bottomViewHC" destination="cvI-rd-taQ" id="cKi-PM-vWq"/>
                 <outlet property="fileNameLabel" destination="214-La-BnH" id="qJ6-ay-eY0"/>
                 <outlet property="fileSizeLabel" destination="1nH-y6-Vyh" id="Cr1-tc-GJb"/>
@@ -116,33 +121,40 @@
                         <constraint firstAttribute="trailing" secondItem="1nH-y6-Vyh" secondAttribute="trailing" constant="16" id="q1u-AF-m0j"/>
                     </constraints>
                 </view>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="o4C-Yt-y1U">
+                    <rect key="frame" x="2" y="5" width="26" height="26"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="26" id="1XT-VL-ZZZ"/>
+                        <constraint firstAttribute="height" constant="26" id="KcJ-Nf-skK"/>
+                    </constraints>
+                    <connections>
+                        <action selector="backButtonAction:" destination="-1" eventType="touchUpInside" id="1bk-PV-BwS"/>
+                    </connections>
+                </button>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="R1h-vq-46K">
                     <rect key="frame" x="0.0" y="623" width="375" height="44"/>
-                    <subviews>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xa7-hd-qP9">
-                            <rect key="frame" x="16" y="7" width="30" height="30"/>
-                            <constraints>
-                                <constraint firstAttribute="width" constant="30" id="U6G-4Z-9nX"/>
-                                <constraint firstAttribute="height" constant="30" id="rVj-aK-uwU"/>
-                            </constraints>
-                            <state key="normal" backgroundImage="udShare"/>
-                            <connections>
-                                <action selector="shareButtonAction:" destination="-1" eventType="touchUpInside" id="yjr-JB-n6P"/>
-                            </connections>
-                        </button>
-                    </subviews>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstItem="Xa7-hd-qP9" firstAttribute="centerY" secondItem="R1h-vq-46K" secondAttribute="centerY" id="Ocj-Zt-PbL"/>
                         <constraint firstAttribute="height" constant="44" id="cvI-rd-taQ"/>
-                        <constraint firstItem="Xa7-hd-qP9" firstAttribute="leading" secondItem="R1h-vq-46K" secondAttribute="leading" constant="16" id="kDm-Sj-7Um"/>
                     </constraints>
                 </view>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xa7-hd-qP9">
+                    <rect key="frame" x="16" y="630" width="30" height="30"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="30" id="U6G-4Z-9nX"/>
+                        <constraint firstAttribute="height" constant="30" id="rVj-aK-uwU"/>
+                    </constraints>
+                    <state key="normal" backgroundImage="udShare"/>
+                    <connections>
+                        <action selector="shareButtonAction:" destination="-1" eventType="touchUpInside" id="yjr-JB-n6P"/>
+                    </connections>
+                </button>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
                 <constraint firstItem="52V-ie-bZs" firstAttribute="bottom" secondItem="iN0-l3-epB" secondAttribute="bottom" id="2Ry-h5-Ym2"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="Xa7-hd-qP9" secondAttribute="bottom" constant="7" id="2dH-u0-Eke"/>
                 <constraint firstAttribute="trailing" secondItem="52V-ie-bZs" secondAttribute="trailing" id="4px-dC-wZp"/>
                 <constraint firstItem="mQP-n9-fgb" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="82f-aw-Qra"/>
                 <constraint firstItem="UqP-k2-Hsu" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="AIf-pB-KCe"/>
@@ -163,6 +175,9 @@
                 <constraint firstItem="52V-ie-bZs" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="jcv-10-wWH"/>
                 <constraint firstItem="mQP-n9-fgb" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="ra2-CT-Fli"/>
                 <constraint firstItem="95h-JZ-2Or" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="s0z-hW-jwq"/>
+                <constraint firstItem="Xa7-hd-qP9" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="sWN-ed-qUk"/>
+                <constraint firstItem="o4C-Yt-y1U" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="5" id="xdq-QC-q02"/>
+                <constraint firstItem="o4C-Yt-y1U" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="2" id="znO-FD-yBU"/>
             </constraints>
             <point key="canvasLocation" x="53.600000000000001" y="151.57421289355324"/>
         </view>

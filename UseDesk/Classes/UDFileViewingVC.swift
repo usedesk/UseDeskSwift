@@ -22,7 +22,14 @@ class UDFileViewingVC: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var fileNameLabel: UILabel!
     @IBOutlet weak var fileSizeLabel: UILabel!
     @IBOutlet weak var bottomViewHC: NSLayoutConstraint!
-
+    @IBOutlet weak var backButton: UIButton!
+    @IBOutlet weak var backButtonLC: NSLayoutConstraint!
+    @IBOutlet weak var backButtonTopC: NSLayoutConstraint!
+    @IBOutlet weak var backButtonWC: NSLayoutConstraint!
+    @IBOutlet weak var backButtonHC: NSLayoutConstraint!
+    
+    var configurationStyle: ConfigurationStyle = ConfigurationStyle()
+    var isShowBackButton: Bool = false
     var filePath: String?
     var typeFile: UDTypeFile = .image
     var videoImage: UIImage?
@@ -41,6 +48,17 @@ class UDFileViewingVC: UIViewController, UIScrollViewDelegate {
         scrollView.minimumZoomScale = 1.0
         scrollView.maximumZoomScale = 6.0
         scrollView.delegate = self
+        if isShowBackButton {
+            backButton.alpha = 1
+            backButton.tintColor = .white
+            backButton.setImage(configurationStyle.fileViewingStyle.backButtonImage, for: .normal)
+            backButtonLC.constant = configurationStyle.fileViewingStyle.backButtonMargin.left
+            backButtonTopC.constant = configurationStyle.fileViewingStyle.backButtonMargin.top
+            backButtonWC.constant = configurationStyle.fileViewingStyle.backButtonSize.width
+            backButtonHC.constant = configurationStyle.fileViewingStyle.backButtonSize.height
+        } else {
+            backButton.alpha = 0
+        }
     }
     
     func updateState() {
@@ -94,6 +112,11 @@ class UDFileViewingVC: UIViewController, UIScrollViewDelegate {
         self.present(playerViewController, animated: true) {
             playerViewController.player?.play()
         }
+    }
+    
+    @IBAction func backButtonAction(_ sender: Any) {
+        self.removeFromParent()
+        self.view.removeFromSuperview()
     }
 }
 

@@ -288,7 +288,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                         wSelf.dialogflowVC.isFromOfflineForm = true
                         wSelf.dialogflowVC.delegate = self
                         wSelf.usedesk?.uiManager?.pushViewController(wSelf.dialogflowVC)
-                        wSelf.dialogflowVC.reloadHistory()
+                        wSelf.dialogflowVC.updateChat()
                         wSelf.usedesk?.sendMessage(text)
                         if let index = wSelf.navigationController?.viewControllers.firstIndex(of: wSelf) {
                             wSelf.navigationController?.viewControllers.remove(at: index)

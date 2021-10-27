@@ -18,6 +18,7 @@ import Alamofire
     case tokenError
     case falseInitChatError
     case serverError
+    case socketError
     case emptyKnowledgeBaseID
     
     public init(errorCode: Int) {
@@ -51,6 +52,8 @@ import Alamofire
             return "False init chat"
         case .serverError:
             return "Error in server"
+        case .socketError:
+            return "Error in socket"
         case .emptyKnowledgeBaseID:
             return "Empty knowledgeBaseID"
         }
