@@ -87,12 +87,13 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
     
     // MARK: - Private
     func firstState() {
+        configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
+        self.view.backgroundColor = configurationStyle.chatStyle.backgroundColor
         guard usedesk != nil else {return}
         scrollView.delegate = self
         scrollView.backgroundColor = configurationStyle.chatStyle.backgroundColor
         contentView.backgroundColor = configurationStyle.chatStyle.backgroundColor
         sendLoader.alpha = 0
-        configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         title = usedesk?.callbackSettings.title ?? usedesk!.stringFor("Chat")
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: configurationStyle.navigationBarStyle.backButtonImage, style: .plain, target: self, action: #selector(self.backAction))

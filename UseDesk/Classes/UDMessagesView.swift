@@ -1554,7 +1554,8 @@ extension UDMessagesView: TextMessageCellNodeDelegate {
     func longPressText(text: String) {
         guard usedesk != nil else {return}
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-
+        alertController.popoverPresentationController?.sourceView = self.view
+        alertController.popoverPresentationController?.sourceRect = CGRect(x: 0, y: self.view.frame.height, width: self.view.frame.width, height: 0)
         let copyAction = UIAlertAction(title: usedesk!.stringFor("Copy"), style: .default, handler: {(alert: UIAlertAction!) in
             UIPasteboard.general.string = text
         })
