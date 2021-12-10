@@ -46,7 +46,6 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
     private var textViewYPositionCursor: CGFloat = 0.0
     private var keyboardHeight: CGFloat = 336
     private var isShowKeyboard = false
-    private var isSelectingCell = false
     private var isFirstOpen = true
     private var previousOrientation: Orientation = .portrait
     private var selectedTopicIndex: Int? = nil
@@ -87,14 +86,15 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
     
     // MARK: - Private
     func firstState() {
+        guard usedesk != nil else {return}
         configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         self.view.backgroundColor = configurationStyle.chatStyle.backgroundColor
-        guard usedesk != nil else {return}
         scrollView.delegate = self
         scrollView.backgroundColor = configurationStyle.chatStyle.backgroundColor
         contentView.backgroundColor = configurationStyle.chatStyle.backgroundColor
         sendLoader.alpha = 0
-        title = usedesk?.callbackSettings.title ?? usedesk!.stringFor("Chat")
+        configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
+        title = usedesk?.callbackSettings.title ?? usedesk!.model.stringFor("Chat")
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: configurationStyle.navigationBarStyle.backButtonImage, style: .plain, target: self, action: #selector(self.backAction))
         let feedbackFormStyle = configurationStyle.feedbackFormStyle
@@ -106,14 +106,14 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         tableView.backgroundColor = configurationStyle.chatStyle.backgroundColor
         textLabel.textColor = feedbackFormStyle.textColor
         textLabel.font = feedbackFormStyle.textFont
-        textLabel.text = usedesk?.callbackSettings.greeting ?? usedesk!.stringFor("FeedbackText")
+        textLabel.text = usedesk?.callbackSettings.greeting ?? usedesk!.model.stringFor("FeedbackText")
         sendMessageButton.backgroundColor = feedbackFormStyle.buttonColorDisabled
         sendMessageButton.tintColor = feedbackFormStyle.buttonTextColor
         sendMessageButton.titleLabel?.font = feedbackFormStyle.buttonFont
         sendMessageButton.isEnabled = false
         sendMessageButton.layer.masksToBounds = true
         sendMessageButton.layer.cornerRadius = feedbackFormStyle.buttonCornerRadius
-        sendMessageButton.setTitle(usedesk!.stringFor("Send"), for: .normal)
+        sendMessageButton.setTitle(usedesk!.model.stringFor("Send"), for: .normal)
         
         sendedViewBC.constant = -400
         sendedCornerRadiusView.layer.cornerRadius = 13
@@ -126,16 +126,16 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         sendedView.layer.shadowRadius = 20.0
 
         sendedImage.image = feedbackFormStyle.sendedImage
-        sendedLabel.text = usedesk!.stringFor("FeedbackSendedMessage")
+        sendedLabel.text = usedesk!.model.stringFor("FeedbackSendedMessage")
         closeButton.backgroundColor = feedbackFormStyle.buttonColor
         closeButton.tintColor = feedbackFormStyle.buttonTextColor
         closeButton.titleLabel?.font = feedbackFormStyle.buttonFont
         closeButton.layer.masksToBounds = true
         closeButton.layer.cornerRadius = feedbackFormStyle.buttonCornerRadius
-        closeButton.setTitle(usedesk!.stringFor("Close"), for: .normal)
+        closeButton.setTitle(usedesk!.model.stringFor("Close"), for: .normal)
         
         if usedesk != nil {
-            fields = [UDInfoItem(type: .name, value: UDTextItem(text: usedesk!.name)), UDInfoItem(type: .email, value: UDContactItem(contact: usedesk?.email ?? "")), UDInfoItem(type: .selectTopic, value: UDTextItem(text: ""))]
+            fields = [UDInfoItem(type: .name, value: UDTextItem(text: usedesk!.model.name)), UDInfoItem(type: .email, value: UDContactItem(contact: usedesk?.model.email ?? "")), UDInfoItem(type: .selectTopic, value: UDTextItem(text: ""))]
             for custom_field in usedesk!.callbackSettings.checkedCustomFields {
                 fields.append(UDInfoItem(type: .custom, value: UDCustomFieldItem(field: custom_field)))
             }
@@ -153,7 +153,17 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                 keyboardHeight = keyboardSize.height
                 UIView.animate(withDuration: 0.4) {
                     self.scrollViewBC.constant = self.keyboardHeight
+                    var offsetPlus: CGFloat = 0
+                    if self.selectedIndexPath != nil {
+                        if let cell = self.tableView.cellForRow(at: self.selectedIndexPath!) as? UDTextAnimateTableViewCell {
+                            offsetPlus = cell.frame.origin.y + cell.frame.height + self.tableView.frame.origin.y - self.scrollView.contentOffset.y
+                        }
+                    }
+                    self.view.layoutSubviews()
                     self.view.layoutIfNeeded()
+                    if offsetPlus > (self.view.frame.height - self.keyboardHeight) {
+                        self.scrollView.contentOffset.y += offsetPlus - (self.view.frame.height - self.keyboardHeight)
+                    }
                 }
             }
         }
@@ -163,34 +173,28 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         if isShowKeyboard {
             UIView.animate(withDuration: 0.4) {
                 self.scrollViewBC.constant = 0
-            }
-            if scrollView.contentSize.height <= scrollView.frame.height {
-                UIView.animate(withDuration: 0.4) {
-                    self.scrollView.contentOffset.y = 0
-                }
-            } else {
-                let offset = keyboardHeight - 138
-                UIView.animate(withDuration: 0.4) {
-                    if offset > self.scrollView.contentOffset.y {
+                if self.scrollView.contentSize.height <= self.scrollView.frame.height {
+                    UIView.animate(withDuration: 0.4) {
                         self.scrollView.contentOffset.y = 0
-                    } else {
-                        self.scrollView.contentOffset.y -= offset
+                    }
+                } else {
+                    let offset = self.keyboardHeight - 138
+                    UIView.animate(withDuration: 0.4) {
+                        if offset > self.scrollView.contentOffset.y {
+                            self.scrollView.contentOffset.y = 0
+                        } else {
+                            self.scrollView.contentOffset.y -= offset
+                        }
                     }
                 }
+                self.view.layoutIfNeeded()
             }
             isShowKeyboard = false
-            if !isSelectingCell {
-                selectedIndexPath = nil
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
-            }
-            isSelectingCell = false
         }
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if scrollView.isTracking {
+        if scrollView.isTracking && selectedIndexPath != nil {
             selectedIndexPath = nil
             DispatchQueue.main.async {
                 self.tableView.reloadData()
@@ -220,7 +224,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         guard usedesk != nil else {return}
         let alert = UIAlertController(title: title, message: text, preferredStyle: .alert)
         
-        let ok = UIAlertAction(title: usedesk!.stringFor("Understand"), style: .default, handler: {_ in
+        let ok = UIAlertAction(title: usedesk!.model.stringFor("Understand"), style: .default, handler: {_ in
         })
         alert.addAction(ok)
         present(alert, animated: true)
@@ -273,7 +277,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
             showSendedView()
             return
         }
-        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, phone: usedesk!.phone, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, token: usedesk!.token, isBeforeFeedbackForm: true, connectionStatus: { [weak self] success, feedbackStatus, token in
+        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.model.companyID, chanelId: usedesk!.model.chanelId, knowledgeBaseID: usedesk!.model.knowledgeBaseID, api_token: usedesk!.model.api_token, email: usedesk!.model.email, phone: usedesk!.model.phone, url: usedesk!.model.urlWithoutPort, port: usedesk!.model.port, name: usedesk!.model.name, operatorName: usedesk!.model.operatorName, nameChat: usedesk!.model.nameChat, token: usedesk!.model.token, connectionStatus: { [weak self] success, feedbackStatus, token in
             guard let wSelf = self else {return}
             guard wSelf.usedesk != nil else {return}
             if wSelf.usedesk!.closureStartBlock != nil {
@@ -323,7 +327,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         sendLoader.startAnimating()
         sendMessageButton.setTitle("", for: .normal)
         let email = (fields[indexFieldsForType(.email)].value as? UDContactItem)?.contact ?? ""
-        let name = (fields[indexFieldsForType(.name)].value as? UDTextItem)?.text ?? (usedesk?.name ?? "")
+        let name = (fields[indexFieldsForType(.name)].value as? UDTextItem)?.text ?? (usedesk?.model.name ?? "")
         let topic = (fields[indexFieldsForType(.selectTopic)].value as? UDTextItem)?.text ?? ""
         var isValidTopic = true
         if usedesk!.callbackSettings.isRequiredTopic {
@@ -376,7 +380,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                     guard let wSelf = self else {return}
                     wSelf.sendLoader.alpha = 0
                     wSelf.sendLoader.stopAnimating()
-                    wSelf.showAlert(wSelf.usedesk!.stringFor("Error"), text: wSelf.usedesk!.stringFor("ServerError"))
+                    wSelf.showAlert(wSelf.usedesk!.model.stringFor("Error"), text: wSelf.usedesk!.model.stringFor("ServerError"))
                 }
             }
         } else {
@@ -393,11 +397,10 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
             if !isValidFields {
                 selectedIndexPath = IndexPath(row: indexErrorFields[0], section: 0)
             }
-            isSelectingCell = true
             tableView.reloadData()
             sendLoader.alpha = 0
             sendLoader.stopAnimating()
-            sendMessageButton.setTitle(usedesk!.stringFor("Send"), for: .normal)
+            sendMessageButton.setTitle(usedesk!.model.stringFor("Send"), for: .normal)
         }
     }
     
@@ -418,7 +421,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         if let nameClient = fields[indexPath.row].value as? UDTextItem {
             if usedesk != nil {
                 let isValid = nameClient.text == "" && indexPath != selectedIndexPath ? false : true
-                var title = usedesk!.stringFor("Name")
+                var title = usedesk!.model.stringFor("Name")
                 var attributedTitleString: NSMutableAttributedString? = nil
                 var text = nameClient.text
                 var attributedTextString: NSMutableAttributedString? = nil
@@ -430,7 +433,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                 if !isValid {
                     attributedTextString = attributedTitleString
                     text = title
-                    title = usedesk!.stringFor("MandatoryField")
+                    title = usedesk!.model.stringFor("MandatoryField")
                     attributedTitleString = nil
                 }
                 cell.setCell(title: title, titleAttributed: attributedTitleString, text: text, textAttributed: attributedTextString, indexPath: indexPath, isValid: isValid, isTitleErrorState: !isValid, isLimitLengthText: false)
@@ -451,13 +454,13 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         if let emailClient = fields[indexPath.row].value as? UDContactItem {
             if usedesk != nil {
                 var isValid = emailClient.isValid
-                var title = usedesk!.stringFor("Email")
+                var title = usedesk!.model.stringFor("Email")
                 var attributedTitleString: NSMutableAttributedString? = nil
                 var text = emailClient.contact
                 var attributedTextString: NSMutableAttributedString? = nil
                 
                 if !isValid {
-                    title = usedesk!.stringFor("ErrorEmail")
+                    title = usedesk!.model.stringFor("ErrorEmail")
                 } else {
                     attributedTitleString = NSMutableAttributedString()
                     attributedTitleString!.append(NSAttributedString(string: title, attributes: [NSAttributedString.Key.font : usedesk!.configurationStyle.feedbackFormStyle.headerFont, NSAttributedString.Key.foregroundColor : usedesk!.configurationStyle.feedbackFormStyle.headerColor]))
@@ -466,7 +469,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                 if emailClient.contact == "" && indexPath != selectedIndexPath {
                     attributedTextString = attributedTitleString
                     text = title
-                    title = usedesk!.stringFor("MandatoryField")
+                    title = usedesk!.model.stringFor("MandatoryField")
                     attributedTitleString = nil
                     isValid = false
                 }
@@ -487,7 +490,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         if let titleTopics = fields[indexPath.row].value as? UDTextItem {
             if usedesk != nil {
-                var title = usedesk!.stringFor("TopicTitle")
+                var title = usedesk!.model.stringFor("TopicTitle")
                 var attributedTitleString: NSMutableAttributedString? = nil
                 var text = titleTopics.text
                 var attributedTextString: NSMutableAttributedString? = nil
@@ -501,7 +504,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                 if !titleTopics.isValid {
                     attributedTextString = attributedTitleString
                     text = title
-                    title = usedesk!.stringFor("MandatoryField")
+                    title = usedesk!.model.stringFor("MandatoryField")
                     attributedTitleString = nil
                 }
                 cell.setCell(title: title, titleAttributed: attributedTitleString, text: text, textAttributed: attributedTextString, indexPath: indexPath, isValid: titleTopics.isValid, isNeedSelectImage: true, isUserInteractionEnabled: false, isLimitLengthText: false)
@@ -522,7 +525,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                 if !fieldItem.isChanged {
                     isValid = true
                 }
-                var title = usedesk!.stringFor("CustomField")
+                var title = usedesk!.model.stringFor("CustomField")
                 var attributedTitleString: NSMutableAttributedString? = nil
                 var text = fieldItem.field.text
                 var attributedTextString: NSMutableAttributedString? = nil
@@ -535,17 +538,19 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                 } else {
                     title = fieldItem.field.title
                 }
-                if !isValid {
-                    attributedTextString = attributedTitleString
-                    text = title
-                    title = usedesk!.stringFor("MandatoryField")
-                    attributedTitleString = nil
-                }
-                cell.setCell(title: title, titleAttributed: attributedTitleString, text: text, textAttributed: attributedTextString, indexPath: indexPath, isValid: isValid, isLimitLengthText: false)
+                
                 if indexPath == selectedIndexPath {
                     fieldItem.isChanged = true
                     fields[indexPath.row].value = fieldItem
+                } else {
+                    if !isValid {
+                        attributedTextString = attributedTitleString
+                        text = title
+                        title = usedesk!.model.stringFor("MandatoryField")
+                        attributedTitleString = nil
+                    }
                 }
+                cell.setCell(title: title, titleAttributed: attributedTitleString, text: text, textAttributed: attributedTextString, indexPath: indexPath, isValid: isValid, isLimitLengthText: false)
             }
         }
         cell.delegate = self
@@ -562,7 +567,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         if let message = fields[indexPath.row].value as? UDTextItem {
             if usedesk != nil {
-                let title = usedesk!.stringFor("Message")
+                let title = usedesk!.model.stringFor("Message")
                 cell.setCell(title: title, text: message.text, indexPath: indexPath, isLimitLengthText: false)
             }
         }
@@ -573,6 +578,33 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
             cell.setNotSelectedAnimate()
         }
         return cell
+    }
+    
+    func setSelectedCell(indexPath: IndexPath, isNeedFocusedTextView: Bool = true) {
+        if let cell = tableView.cellForRow(at: indexPath) as? UDTextAnimateTableViewCell {
+            if !cell.isValid && cell.teextAttributed != nil {
+                cell.isValid = true
+                cell.titleAttributed = cell.teextAttributed
+                cell.defaultAttributedTitle = cell.teextAttributed
+                if var contactItem = fields[indexPath.row].value as? UDContactItem {
+                    contactItem.isValid = true
+                    fields[indexPath.row].value = contactItem
+                } else if var textItem = fields[indexPath.row].value as? UDTextItem {
+                    textItem.isValid = true
+                    fields[indexPath.row].value = textItem
+                } else if var fieldItem = fields[indexPath.row].value as? UDCustomFieldItem {
+                    fieldItem.field.isValid = true
+                    fields[indexPath.row].value = fieldItem
+                }
+            }
+            if fields[indexPath.row].type == .custom {
+                if var fieldItem = fields[indexPath.row].value as? UDCustomFieldItem {
+                    fieldItem.isChanged = true
+                    fields[indexPath.row].value = fieldItem
+                }
+            }
+            cell.setSelectedAnimate(isNeedFocusedTextView: isNeedFocusedTextView)
+        }
     }
 }
 
@@ -610,11 +642,17 @@ extension UDOfflineForm: UITableViewDelegate, UITableViewDataSource {
                 offlineFormTopicsSelectVC.selectedIndexPath = IndexPath(row: selectedTopicIndex!, section: 0)
             }
             offlineFormTopicsSelectVC.delegate = self
+            selectedIndexPath = nil
             self.navigationController?.pushViewController(offlineFormTopicsSelectVC, animated: true)
-        } else if selectedIndexPath != indexPath {
-            isSelectingCell = true
-            selectedIndexPath = indexPath
             tableView.reloadData()
+        } else if selectedIndexPath != indexPath {
+            if selectedIndexPath != nil {
+                if let cellDidNotSelect = tableView.cellForRow(at: selectedIndexPath!) as? UDTextAnimateTableViewCell {
+                    cellDidNotSelect.setNotSelectedAnimate()
+                }
+            }
+            selectedIndexPath = indexPath
+            setSelectedCell(indexPath: selectedIndexPath!)
         }
     }
 }
@@ -640,6 +678,7 @@ extension UDOfflineForm: UDOfflineFormTopicsSelectDelegate {
 
 // MARK: - ChangeabelTextCellDelegate
 extension UDOfflineForm: ChangeabelTextCellDelegate {
+
     func newValue(indexPath: IndexPath, value: String, isValid: Bool, positionCursorY: CGFloat) {
         textViewYPositionCursor = positionCursorY
         switch fields[indexPath.row].type {
@@ -670,24 +709,15 @@ extension UDOfflineForm: ChangeabelTextCellDelegate {
     }
     
     func tapingTextView(indexPath: IndexPath, position: CGFloat) {
-        if let cell = tableView.cellForRow(at:indexPath) as? UDTextAnimateTableViewCell {
-            selectedIndexPath = indexPath
-            if !cell.isValid && cell.teextAttributed != nil {
-                cell.isValid = true
-                cell.titleAttributed = cell.teextAttributed
-                cell.defaultAttributedTitle = cell.teextAttributed
-                if var contactItem = fields[indexPath.row].value as? UDContactItem {
-                    contactItem.isValid = true
-                    fields[indexPath.row].value = contactItem
-                } else if var textItem = fields[indexPath.row].value as? UDTextItem {
-                    textItem.isValid = true
-                    fields[indexPath.row].value = textItem
-                } else if var fieldItem = fields[indexPath.row].value as? UDCustomFieldItem {
-                    fieldItem.field.isValid = true
-                    fields[indexPath.row].value = fieldItem
+        guard selectedIndexPath != indexPath else {return}
+        if let cell = tableView.cellForRow(at: indexPath) as? UDTextAnimateTableViewCell {
+            if selectedIndexPath != nil {
+                if let cellDidNotSelect = tableView.cellForRow(at: selectedIndexPath!) as? UDTextAnimateTableViewCell {
+                    cellDidNotSelect.setNotSelectedAnimate()
                 }
             }
-            cell.setSelectedAnimate(isNeedFocusedTextView: false)
+            selectedIndexPath = indexPath
+            setSelectedCell(indexPath: selectedIndexPath!, isNeedFocusedTextView: false)
             let textFieldRealYPosition = position + cell.frame.origin.y + tableView.frame.origin.y - scrollView.contentOffset.y
             let heightNavigationBar = navigationController?.navigationBar.frame.height ?? 44
             if  textFieldRealYPosition > (self.view.frame.height - heightNavigationBar - keyboardHeight - 30) {
@@ -697,11 +727,13 @@ extension UDOfflineForm: ChangeabelTextCellDelegate {
             }
         }
     }
-    
-    func endWrite() {
-        selectedIndexPath = nil
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
+
+    func endWrite(indexPath: IndexPath) {
+        if selectedIndexPath == indexPath {
+            if let cellDidNotSelect = tableView.cellForRow(at: selectedIndexPath!) as? UDTextAnimateTableViewCell {
+                cellDidNotSelect.setNotSelectedAnimate()
+            }
+            selectedIndexPath = nil
         }
     }
 }

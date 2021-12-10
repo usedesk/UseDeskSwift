@@ -31,13 +31,12 @@ class DialogflowView: UDMessagesView {
             isDark = navController.isDark
         }
         
-        if let backButtonImage = configurationStyle.navigationBarStyle.backButtonImage {
-            navigationItem.leftBarButtonItem = UIBarButtonItem(image: backButtonImage, style: .plain, target: self, action: #selector(self.actionDone))
-        } else {
-            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .reply, target: self, action: #selector(self.actionDone))
-        }
-        
-        navigationItem.title = usedesk?.nameChat
+        navigationController?.navigationBar.barTintColor = configurationStyle.navigationBarStyle.backgroundColor
+        navigationController?.navigationBar.tintColor = configurationStyle.navigationBarStyle.textColor
+        navigationController?.navigationBar.titleTextAttributes?[.foregroundColor] = configurationStyle.navigationBarStyle.textColor
+        (navigationController as? UDNavigationController)?.setTitleTextAttributes()
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: configurationStyle.navigationBarStyle.backButtonImage, style: .plain, target: self, action: #selector(self.actionDone))
+        navigationItem.title = usedesk?.model.nameChat
         
         //Notification
         NotificationCenter.default.addObserver(self, selector: #selector(self.openUrlFromMessageButton(_:)), name: Notification.Name("messageButtonURLOpen"), object: nil)
@@ -48,7 +47,7 @@ class DialogflowView: UDMessagesView {
         usedesk?.connectBlock = { success in
         }
         
-        usedesk?.newMessageBlock = { success, messageOptional in
+        usedesk?.newMessageBlock = { messageOptional in
             DispatchQueue.main.async(execute: { [weak self] in
                 guard let wSelf = self else {return}
                 guard let message = messageOptional else {return}
@@ -88,6 +87,11 @@ class DialogflowView: UDMessagesView {
                             wSelf.messages[index] = message
                         }
                     }
+                    if !isFind {
+                        message.loadingMessageId = ""
+                        message.statusSend = UD_STATUS_SEND_SUCCEED
+                        wSelf.addMessage(message)
+                    }
                 } else {
                     wSelf.addMessage(message)
                 }
@@ -116,6 +120,8 @@ class DialogflowView: UDMessagesView {
                 for index in 0..<countNewMessages {
                     messages.insert(usedesk!.historyMess[countMessages + index], at: 0)
                 }
+                updateChat()
+            } else if usedesk!.historyMess.count == 0 {
                 updateChat()
             }
         }
@@ -363,7 +369,7 @@ class DialogflowView: UDMessagesView {
     
     override func menuItems(_ indexPath: IndexPath?) -> [Any]? {
         guard usedesk != nil else {return nil}
-        let menuItemCopy = UDMenuItem(title: usedesk!.stringFor("Copy"), action: #selector(self.actionMenuCopy(_:)))
+        let menuItemCopy = UDMenuItem(title: usedesk!.model.stringFor("Copy"), action: #selector(self.actionMenuCopy(_:)))
         menuItemCopy.indexPath = indexPath
         return [menuItemCopy]
     }
@@ -401,8 +407,7 @@ class DialogflowView: UDMessagesView {
     func sendMessage(_ message: UDMessage) {
         message.date = Date()
         message.typeSenderMessageString = "client_to_operator"
-        if let id = usedesk?.newIdLoadingMessages() {
-            usedesk!.idLoadingMessages.append(id)
+        if let id = usedesk?.networkManager?.newIdLoadingMessages() {
             message.loadingMessageId = id
             if message.type == UD_TYPE_TEXT {
                 usedesk?.sendMessage(message.text, messageId: id)
@@ -412,13 +417,12 @@ class DialogflowView: UDMessagesView {
                 chekSentMessage(message)
             } else {
                 if let data = message.file.data {
-                    usedesk?.sendFile(fileName: message.file.name, data: data, messageId: id, status: {[weak self] success, error in
+                    usedesk?.sendFile(fileName: message.file.name, data: data, messageId: id, connectBlock: { [weak self] _ in
                         guard let wSelf = self else {return}
-                        if success {
-                            wSelf.chekSentMessage(message)
-                        } else {
-                            wSelf.setNotSendMessageFor(message)
-                        }
+                        wSelf.chekSentMessage(message)
+                    }, errorBlock: { [weak self] _, _ in
+                        guard let wSelf = self else {return}
+                        wSelf.setNotSendMessageFor(message)
                     })
                 }
             }
@@ -426,9 +430,9 @@ class DialogflowView: UDMessagesView {
             if message.type == UD_TYPE_TEXT {
                 usedesk?.sendMessage(message.text)
             } else {
-                if let data = message.file.data {
-                    usedesk?.sendFile(fileName: message.file.name, data: data, status: {_,_ in })
-                }
+//                if let data = message.file.data {
+//                    usedesk?.sendFile(fileName: message.file.name, data: data, status: {_,_ in })
+//                }
             }
         }
         addMessage(message)
@@ -476,7 +480,7 @@ class DialogflowView: UDMessagesView {
     
     @objc func closeFileViewingVC() {
         fileViewingVC.view.removeFromSuperview()
-        navigationItem.title = usedesk?.nameChat
+        navigationItem.title = usedesk?.model.nameChat
         navigationController?.navigationBar.barTintColor = configurationStyle.navigationBarStyle.backgroundColor
         navigationController?.navigationBar.tintColor = configurationStyle.navigationBarStyle.textColor
         navigationController?.navigationBar.titleTextAttributes?[.foregroundColor] = configurationStyle.navigationBarStyle.textColor
@@ -522,7 +526,7 @@ class DialogflowView: UDMessagesView {
         if messagesWithSection[indexPath.section][indexPath.row].statusSend == UD_STATUS_SEND_FAIL {
             let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
 
-            let removeAction = UIAlertAction(title: usedesk!.stringFor("DeleteMessage"), style: .destructive, handler: { [weak self] (alert: UIAlertAction!)  in
+            let removeAction = UIAlertAction(title: usedesk!.model.stringFor("DeleteMessage"), style: .destructive, handler: { [weak self] (alert: UIAlertAction!)  in
                 guard let wSelf = self else {return}
                 if let removeMessage = wSelf.messages.filter({ $0.loadingMessageId == wSelf.messagesWithSection[indexPath.section][indexPath.row].loadingMessageId}).first {
                     if let index = wSelf.messages.firstIndex(of: removeMessage) {
@@ -536,7 +540,7 @@ class DialogflowView: UDMessagesView {
                 })
             })
 
-            let repeatAction = UIAlertAction(title: usedesk!.stringFor("SendAgain"), style: .default, handler: { [weak self] (alert: UIAlertAction!) in
+            let repeatAction = UIAlertAction(title: usedesk!.model.stringFor("SendAgain"), style: .default, handler: { [weak self] (alert: UIAlertAction!) in
                 guard let wSelf = self else {return}
                 let message = wSelf.messagesWithSection[indexPath.section][indexPath.row]
                 if let removeMessage = wSelf.messages.filter({ $0.loadingMessageId == wSelf.messagesWithSection[indexPath.section][indexPath.row].loadingMessageId}).first {
@@ -582,9 +586,15 @@ class DialogflowView: UDMessagesView {
             navigationController?.navigationBar.layoutSubviews()
             fileViewingVC = UDFileViewingVC()
             fileViewingVC.configurationStyle = configurationStyle
-            fileViewingVC.isShowBackButton = !(usedesk?.isPresentDefaultControllers ?? true)
-            self.addChild(self.fileViewingVC)
-            self.view.addSubview(self.fileViewingVC.view)
+            fileViewingVC.isShowBackButton = !(usedesk?.model.isPresentDefaultControllers ?? true)
+            fileViewingVC.isPresentDefaultControllers = usedesk?.model.isPresentDefaultControllers ?? true
+            if usedesk?.model.isPresentDefaultControllers ?? true {
+                self.addChild(self.fileViewingVC)
+                self.view.addSubview(self.fileViewingVC.view)
+            } else {
+                fileViewingVC.modalPresentationStyle = .fullScreen
+                self.present(fileViewingVC, animated: false, completion: nil)
+            }
             fileViewingVC.setBottomViewHC(safeAreaInsetsBottom)
             var width: CGFloat = self.view.frame.width
             if UIScreen.main.bounds.height < UIScreen.main.bounds.width {
@@ -606,6 +616,8 @@ class DialogflowView: UDMessagesView {
                 fileViewingVC.fileSize = file.sizeString
             }
             fileViewingVC.updateState()
+            
+            
         }
     }
 }

@@ -8,6 +8,7 @@ import Alamofire
 import Swime
 import MobileCoreServices
 import AsyncDisplayKit
+import MapKit
 
 enum Orientation {
     case portrait
@@ -22,11 +23,12 @@ enum LandscapeOrientation {
 class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, ASTableDataSource, ASTableDelegate, PHPhotoLibraryChangeObserver {
 
     @IBOutlet weak var viewForTable: UIView!
-    @IBOutlet weak var viewFotTableTopC: NSLayoutConstraint!
+//    @IBOutlet weak var viewFotTableTopC: NSLayoutConstraint!
     @IBOutlet weak var viewInput: UIView!
     @IBOutlet weak var viewInputHC: NSLayoutConstraint!
     @IBOutlet weak var loader: UIActivityIndicatorView!
     // TextView input
+    @IBOutlet weak var textInputViewBC: NSLayoutConstraint!
     @IBOutlet weak var textInput: UDTextView!
     @IBOutlet weak var textInputHC: NSLayoutConstraint!
     @IBOutlet weak var textInputBC: NSLayoutConstraint!
@@ -117,6 +119,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        NSLayoutConstraint.activate([viewForTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)])
+        
         configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         
         loader.alpha = 1
@@ -179,6 +183,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         super.viewWillAppear(animated)
         dismissKeyboard()
         if isFirstOpen {
+            updateOrientation()
             tableNode.view.translatesAutoresizingMaskIntoConstraints = false
             viewForTable.addSubview(tableNode.view)
             let constraints = [
@@ -234,19 +239,19 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 textInput.text = messageText.text
                 textInput.textColor = configurationStyle.inputViewStyle.textColor
             } else {
-                textInput.text = usedesk!.stringFor("Write") + "..."
+                textInput.text = usedesk!.model.stringFor("Write") + "..."
                 
             }
         } else {
-            textInput.text = usedesk!.stringFor("Write") + "..."
+            textInput.text = usedesk!.model.stringFor("Write") + "..."
         }
         
         textInput.isNeedCustomTextContainerInset = true
         textInput.customTextContainerInset = configurationStyle.inputViewStyle.textMargin
         
-        attachFirstButton.setTitle(usedesk!.stringFor("Gallery"), for: .normal)
-        attachFileButton.setTitle(usedesk!.stringFor("File").capitalized, for: .normal)
-        attachCancelButton.setTitle(usedesk!.stringFor("Cancel"), for: .normal)
+        attachFirstButton.setTitle(usedesk!.model.stringFor("Gallery"), for: .normal)
+        attachFileButton.setTitle(usedesk!.model.stringFor("File").capitalized, for: .normal)
+        attachCancelButton.setTitle(usedesk!.model.stringFor("Cancel"), for: .normal)
         
         attachFirstButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
         attachFileButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
@@ -276,7 +281,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     func loadMessagesFromStorage() {
         guard usedesk != nil else {return}
         if (usedesk!.storage as? UDStorageMessages) != nil {
-            (usedesk!.storage! as! UDStorageMessages).token = usedesk!.token
+            (usedesk!.storage! as! UDStorageMessages).token = usedesk!.model.token
         }
         if let messeges = usedesk!.storage?.getMessages() {
             draftMessages = messeges.filter({$0.statusSend == UD_STATUS_SEND_DRAFT})
@@ -325,14 +330,14 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     func updateOrientation() {
         if UIScreen.main.bounds.height > UIScreen.main.bounds.width {
             if centerPortait == CGPoint.zero && !isFirstOpen {
-                centerPortait = view.center //viewForTable.center
+                centerPortait = view.center
             }
             if keyboardHeightPortait != 0 && centerPortaitWithKeyboard == CGPoint.zero {
                 centerPortaitWithKeyboard = CGPoint(x: centerPortait.x, y: centerPortait.y - keyboardHeightPortait)
             }
-            viewFotTableTopC.constant = configurationStyle.chatStyle.topMarginPortrait
             if previousOrientation != .portrait {
-                self.view.center = isShowKeyboard ? centerPortaitWithKeyboard : centerPortait
+//                self.view.center = isShowKeyboard ? centerPortaitWithKeyboard : centerPortait
+                self.textInputViewBC.constant =  isShowKeyboard ? keyboardHeightPortait : 0
                 previousOrientation = .portrait
                 DispatchQueue.main.async { [weak self] in
                     guard let wSelf = self else {return}
@@ -341,12 +346,11 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             }
         } else {
             if centerLandscape == CGPoint.zero && !isFirstOpen {
-                centerLandscape = view.center  //viewForTable.center
+                centerLandscape = view.center
             }
             if keyboardHeightLandscape != 0 && centerLandscapeWithKeyboard == CGPoint.zero {
                 centerLandscapeWithKeyboard = CGPoint(x: centerPortait.x, y: centerPortait.y - keyboardHeightLandscape)
             }
-            viewFotTableTopC.constant = configurationStyle.chatStyle.topMarginLandscape
             if #available(iOS 11.0, *) {
                 if UIDevice.current.orientation == .landscapeLeft && previousOrientation != .landscape{
                     safeAreaInsetsLeftOrRight = view.safeAreaInsets.left
@@ -355,7 +359,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 }
             }
             if previousOrientation != .landscape {
-                self.view.center = isShowKeyboard ? centerLandscapeWithKeyboard : centerLandscape
+//                self.view.center = isShowKeyboard ? centerLandscapeWithKeyboard : centerLandscape
+                self.textInputViewBC.constant = isShowKeyboard ? keyboardHeightLandscape : 0
                 previousOrientation = .landscape
                 DispatchQueue.main.async { [weak self] in
                     guard let wSelf = self else {return}
@@ -508,32 +513,29 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     // MARK: - Keyboard methods
     @objc func keyboardShow(_ notification: Notification) {
-        if !isShowKeyboard {
-            let info = notification.userInfo
-            let keyboard: CGRect? = (info?[UIResponder.keyboardFrameEndUserInfoKey] as AnyObject).cgRectValue
-            let duration = TimeInterval((info?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
-            
-            UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
-                if UIScreen.main.bounds.height > UIScreen.main.bounds.width {
-                    if self.keyboardHeightPortait == 0 {
-                        self.keyboardHeightPortait = CGFloat(keyboard?.size.height ?? 0)
-                    }
-                    self.view.center = CGPoint(x: self.centerPortait.x, y: self.centerPortait.y - self.keyboardHeightPortait)
-                } else {
-                    if self.view.center == self.centerLandscape {
-                        if self.keyboardHeightLandscape == 0 {
-                            self.keyboardHeightLandscape = CGFloat(keyboard?.size.height ?? 0)
-                        }
-                        self.view.center = CGPoint(x: self.centerLandscape.x, y: self.centerLandscape.y - self.keyboardHeightLandscape)
-                    }
+        let info = notification.userInfo
+        let keyboard: CGRect? = (info?[UIResponder.keyboardFrameEndUserInfoKey] as AnyObject).cgRectValue
+        let duration = TimeInterval((info?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
+        
+        UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
+            if UIScreen.main.bounds.height > UIScreen.main.bounds.width {
+                self.keyboardHeightPortait = CGFloat(keyboard?.size.height ?? 0)
+            } else {
+                if self.view.center == self.centerLandscape {
+                    self.keyboardHeightLandscape = CGFloat(keyboard?.size.height ?? 0)
                 }
-                self.tableNode.style.width = ASDimensionMake(self.viewForTable.frame.width)
-                self.tableNode.style.height = ASDimensionMake(self.viewForTable.frame.height)
-            })
-            isShowKeyboard = true
-            UIMenuController.shared.menuItems = nil
-            inputPanelUpdate()
-        }
+            }
+            var keyboardHeight = self.previousOrientation == .portrait ? self.keyboardHeightPortait : self.keyboardHeightLandscape
+            if CGFloat(keyboard?.size.height ?? 0) > keyboardHeight {
+                keyboardHeight = CGFloat(keyboard?.size.height ?? 0)
+            }
+            self.textInputViewBC.constant = keyboardHeight
+            self.tableNode.style.width = ASDimensionMake(self.viewForTable.frame.width)
+            self.tableNode.style.height = ASDimensionMake(self.viewForTable.frame.height)
+            self.view.layoutIfNeeded()
+        })
+        isShowKeyboard = true
+        inputPanelUpdate()
     }
     
     @objc func keyboardHide(_ notification: Notification?) {
@@ -541,11 +543,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             let info = notification?.userInfo
             let duration = TimeInterval((info?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
             UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
-                if UIScreen.main.bounds.height > UIScreen.main.bounds.width {
-                    self.view.center = self.centerPortait
-                } else {
-                    self.view.center = self.centerLandscape
-                }
+                self.textInputViewBC.constant = 0
+                self.view.layoutIfNeeded()
             })
             isShowKeyboard = false
             inputPanelUpdate()
@@ -606,7 +605,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             textInputLC.constant = textInputLC.constant + safeAreaInsetsLeftOrRight
         }
         textInputHC.constant = heightInput
-        if !((textInput.text == usedesk!.stringFor("Write") + "..." && textInput.textColor == configurationStyle.inputViewStyle.placeholderTextColor)) {
+        if !((textInput.text == usedesk!.model.stringFor("Write") + "..." && textInput.textColor == configurationStyle.inputViewStyle.placeholderTextColor)) {
             buttonSend.isEnabled = textInput.text.count != 0 || countDraftMessagesWithFile > 0
         } else {
             buttonSend.isEnabled = countDraftMessagesWithFile > 0 ? true : false
@@ -626,7 +625,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     @IBAction func actionInputSend(_ sender: Any) {
         guard usedesk != nil else {return}
         actionSendMessage()
-        if !((textInput.text == usedesk!.stringFor("Write") + "..." && textInput.textColor == configurationStyle.inputViewStyle.placeholderTextColor)) {
+        if !((textInput.text == usedesk!.model.stringFor("Write") + "..." && textInput.textColor == configurationStyle.inputViewStyle.placeholderTextColor)) {
             textInput.text = ""
         }
         inputPanelUpdate()
@@ -708,14 +707,14 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     func showAlertAllowMedia() {
         guard usedesk != nil else {return}
-        let alert = UIAlertController(title:usedesk!.stringFor("AllowMedia"), message: usedesk!.stringFor("ToSendMedia"), preferredStyle: .alert)
-        let goToSettingsAction = UIAlertAction(title: usedesk!.stringFor("GoToSettings"), style: .default) { (action) in
+        let alert = UIAlertController(title:usedesk!.model.stringFor("AllowMedia"), message: usedesk!.model.stringFor("ToSendMedia"), preferredStyle: .alert)
+        let goToSettingsAction = UIAlertAction(title: usedesk!.model.stringFor("GoToSettings"), style: .default) { (action) in
             DispatchQueue.main.async {
                 let url = URL(string: UIApplication.openSettingsURLString)
                 UIApplication.shared.open(url!, options:convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]))
             }
         }
-        let canselAction = UIAlertAction(title: usedesk!.stringFor("Cancel"), style: .cancel)
+        let canselAction = UIAlertAction(title: usedesk!.model.stringFor("Cancel"), style: .cancel)
         alert.addAction(goToSettingsAction)
         alert.addAction(canselAction)
         self.present(alert, animated: true)
@@ -812,7 +811,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         guard usedesk != nil else {return}
         selectedAssets = []
         isAttachmentActive = true
-        attachFirstButton.setTitle(usedesk!.stringFor("Gallery"), for: .normal)
+        attachFirstButton.setTitle(usedesk!.model.stringFor("Gallery"), for: .normal)
         if assetsGallery.count > 0 {
             attachCollectionView.reloadData()
             attachCollectionView.contentOffset.x = 0
@@ -841,7 +840,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             self.attachViewBC.constant = -self.kHeightAttachView
             self.view.layoutIfNeeded()
         }) { (_) in
-            self.attachFirstButton.setTitle(self.usedesk!.stringFor("Gallery"), for: .normal)
+            self.attachFirstButton.setTitle(self.usedesk!.model.stringFor("Gallery"), for: .normal)
             self.attachCollectionView.contentOffset.x = 0
             self.attachCollectionView.reloadData()
         }
@@ -864,14 +863,14 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 guard let wSelf = self else {return}
                 if !success {
                     DispatchQueue.main.async {
-                        let alert = UIAlertController(title: wSelf.usedesk!.stringFor("AllowCamera"), message: wSelf.usedesk!.stringFor("ToSendMedia"), preferredStyle: .alert)
-                        let goToSettingsAction = UIAlertAction(title: wSelf.usedesk!.stringFor("GoToSettings"), style: .default) { (action) in
+                        let alert = UIAlertController(title: wSelf.usedesk!.model.stringFor("AllowCamera"), message: wSelf.usedesk!.model.stringFor("ToSendMedia"), preferredStyle: .alert)
+                        let goToSettingsAction = UIAlertAction(title: wSelf.usedesk!.model.stringFor("GoToSettings"), style: .default) { (action) in
                             DispatchQueue.main.async {
                                 let url = URL(string: UIApplication.openSettingsURLString)
                                 UIApplication.shared.open(url!, options:[:])
                             }
                         }
-                        let canselAction = UIAlertAction(title: wSelf.usedesk!.stringFor("Cancel"), style: .cancel)
+                        let canselAction = UIAlertAction(title: wSelf.usedesk!.model.stringFor("Cancel"), style: .cancel)
                         alert.addAction(goToSettingsAction)
                         alert.addAction(canselAction)
                         wSelf.present(alert, animated: true)
@@ -951,8 +950,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     func showAlertMaxCountAttach() {
         guard usedesk != nil else {return}
-        let alertController = UIAlertController(title: usedesk!.stringFor("AttachmentLimit"), message: nil, preferredStyle: UIAlertController.Style.alert)
-        let okAction = UIAlertAction(title: usedesk!.stringFor("Ok"), style: .default) { (_) -> Void in }
+        let alertController = UIAlertController(title: usedesk!.model.stringFor("AttachmentLimit"), message: nil, preferredStyle: UIAlertController.Style.alert)
+        let okAction = UIAlertAction(title: usedesk!.model.stringFor("Ok"), style: .default) { (_) -> Void in }
         alertController.addAction(okAction)
         self.present(alertController, animated: true, completion: nil)
     }
@@ -961,9 +960,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         guard usedesk != nil else {return}
         var indexAlert = 0
         indexAlert = alertsLimitSizeFile.count
-        let sizeFile = message.file.size(mbString: usedesk!.stringFor("Mb"), gbString: usedesk!.stringFor("Gb"))
-        let messageString = usedesk!.stringFor("ThisFileSize") + " " + sizeFile + " " + usedesk!.stringFor("ExceededMaximumSize") + " \(kLimitSizeFile) " + usedesk!.stringFor("Mb")
-        let alertController = UIAlertController(title: usedesk!.stringFor("LimitIsExceeded"), message: messageString, preferredStyle: .alert)
+        let sizeFile = message.file.size(mbString: usedesk!.model.stringFor("Mb"), gbString: usedesk!.model.stringFor("Gb"))
+        let messageString = usedesk!.model.stringFor("ThisFileSize") + " " + sizeFile + " " + usedesk!.model.stringFor("ExceededMaximumSize") + " \(kLimitSizeFile) " + usedesk!.model.stringFor("Mb")
+        let alertController = UIAlertController(title: usedesk!.model.stringFor("LimitIsExceeded"), message: messageString, preferredStyle: .alert)
         switch message.file.sourceType {
         case .PHAsset:
             if message.type == UD_TYPE_VIDEO {
@@ -984,7 +983,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         default:
             break
         }
-        let understandAction = UIAlertAction(title: usedesk!.stringFor("Understand"), style: .default) { [weak self] (action) in
+        let understandAction = UIAlertAction(title: usedesk!.model.stringFor("Understand"), style: .default) { [weak self] (action) in
             guard let wSelf = self else {return}
             wSelf.isShowAlertLimitSizeFile = false
             if let alertLimitSizeFile = wSelf.alertsLimitSizeFile.first {
@@ -1046,7 +1045,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     func textViewDidBeginEditing(_ textView: UITextView) {
         guard usedesk != nil else {return}
         if textView == textInput {
-            if (textView.text == usedesk!.stringFor("Write") + "..." && textView.textColor == configurationStyle.inputViewStyle.placeholderTextColor) {
+            if (textView.text == usedesk!.model.stringFor("Write") + "..." && textView.textColor == configurationStyle.inputViewStyle.placeholderTextColor) {
                 textInput.text = ""
                 textInput.textColor = configurationStyle.inputViewStyle.textColor
             }
@@ -1057,7 +1056,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         guard usedesk != nil else {return}
         if textView == textInput {
             if (textView.text == "") {
-                textInput.text = usedesk!.stringFor("Write") + "..."
+                textInput.text = usedesk!.model.stringFor("Write") + "..."
                 textInput.textColor = configurationStyle.inputViewStyle.placeholderTextColor
             }
         }
@@ -1075,9 +1074,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     func tableNode(_ tableNode: ASTableNode, nodeForRowAt indexPath: IndexPath) -> ASCellNode {
         if usedesk != nil {
-            if usedesk?.operatorName != "" {
+            if usedesk?.model.operatorName != "" {
                 if let message = getMessage(indexPath) {
-                    message.operatorName = usedesk!.operatorName
+                    message.operatorName = usedesk!.model.operatorName
                 }
             }
         }
@@ -1121,6 +1120,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         } else if message?.type == UD_TYPE_VIDEO {
             let cell = UDVideoMessageCellNode()
             cell.isNeedShowSender = isNeedShowSender
+            cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
             cell.view.transform = CGAffineTransform(scaleX: 1, y: -1)
             cell.selectionStyle = .none
             cell.bindData(messagesView: self, message: message ?? UDMessage(), avatarImage: avatarImage(indexPath))
@@ -1195,6 +1195,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                             DispatchQueue.main.async(execute: {
                                 if let indexPathVideo = wSelf.indexPathForMessage(at: message.id) {
                                     message.file.path = url.path
+//                                    message.file.picture = UDFileManager.videoPreview(filePath: message.file.path)
                                     message.file.name = URL(fileURLWithPath: message.file.path).localizedName ?? "Video"
                                     message.status = UD_STATUS_SUCCEED
                                     wSelf.messagesWithSection[indexPathVideo.section][indexPathVideo.row] = message
@@ -1227,6 +1228,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                                 if let indexPathVideo = wSelf.indexPathForMessage(at: message.id) {
                                                     message.type = UD_TYPE_VIDEO
                                                     message.file.path = NSURL(fileURLWithPath: FileManager.default.udWriteDataToCacheDirectory(data: data!) ?? "").path ?? ""
+//                                                    message.file.picture = UDFileManager.videoPreview(filePath: message.file.path)
                                                     message.file.name = URL(fileURLWithPath: message.file.path).localizedName ?? "Video"
                                                     message.file.type = "video"
                                                     wSelf.messagesWithSection[indexPathVideo.section][indexPathVideo.row] = message
@@ -1235,6 +1237,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                                 }
                                             } else if mimeType.mime.contains("image") {
                                                 if let indexPathPicture = wSelf.indexPathForMessage(at: message.id) {
+//                                                    message.file.picture = UIImage(data: data!)?.udResizeImage()
                                                     message.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!) ?? ""
                                                     message.file.name = message.file.path != "" ? (URL(fileURLWithPath: message.file.path).localizedName ?? "Image") : "Image"
                                                     message.file.type = "image"
@@ -1246,6 +1249,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                         }
                                         if isFile {
                                             if let indexPathFile = wSelf.indexPathForMessage(at: message.id) {
+//                                                message.file.picture = UIImage(data: data!)
                                                 message.file.path = NSURL(fileURLWithPath: FileManager.default.udWriteDataToCacheDirectory(data: data!) ?? "").path ?? ""
                                                 message.file.type = "file"
                                                 message.file.sizeInt = data!.count
@@ -1279,6 +1283,12 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return configurationStyle.sectionHeaderStyle.heightHeader
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
+        if view is UDSectionHeaderCell {
+            (view as! UDSectionHeaderCell).backView.alpha = 1
+        }
     }
 }
 
@@ -1391,7 +1401,7 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
                     }
                     if selectedAssets.count > 0 {
                         isSelectAttachment = true
-                        attachFirstButton.setTitle("\(usedesk!.stringFor("Attach")) \(selectedAssets.count.countFilesString(usedesk!))", for: .normal)
+                        attachFirstButton.setTitle("\(usedesk!.model.stringFor("Attach")) \(selectedAssets.count.countFilesString(usedesk!))", for: .normal)
                         if let cell = attachCollectionView.cellForItem(at: indexPath) as? UDAttachSmallCollectionViewCell {
                             if selectedAssets.contains(assetsGallery[indexPath.row - 1]) {
                                 cell.setSelected(number: selectedAssets.firstIndex(of: assetsGallery[indexPath.row - 1])! + 1)
@@ -1415,7 +1425,7 @@ extension UDMessagesView: UICollectionViewDelegate, UICollectionViewDataSource, 
                         }
                     } else {
                         isSelectAttachment = false
-                        attachFirstButton.setTitle(usedesk!.stringFor("Gallery"), for: .normal)
+                        attachFirstButton.setTitle(usedesk!.model.stringFor("Gallery"), for: .normal)
                         if let cell = attachCollectionView.cellForItem(at: indexPath) as? UDAttachSmallCollectionViewCell {
                             cell.notSelected()
                         }
@@ -1474,8 +1484,8 @@ extension UDMessagesView: UDFeedbackMessageCellNodeDelegate {
     func feedbackAction(indexPath: IndexPath, feedback: Bool) {
         guard usedesk != nil else {return}
         if getMessage(indexPath) != nil {
-            messagesWithSection[indexPath.section][indexPath.row].text = usedesk!.stringFor("ArticleReviewSendedTitle")
-            messagesWithSection[indexPath.section][indexPath.row].attributedString = NSMutableAttributedString(string: usedesk!.stringFor("ArticleReviewSendedTitle"))
+            messagesWithSection[indexPath.section][indexPath.row].text = usedesk!.model.stringFor("ArticleReviewSendedTitle")
+            messagesWithSection[indexPath.section][indexPath.row].attributedString = NSMutableAttributedString(string: usedesk!.model.stringFor("ArticleReviewSendedTitle"))
             var feedbackActionInt = -1
             switch feedback {
             case false:
@@ -1556,11 +1566,12 @@ extension UDMessagesView: TextMessageCellNodeDelegate {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         alertController.popoverPresentationController?.sourceView = self.view
         alertController.popoverPresentationController?.sourceRect = CGRect(x: 0, y: self.view.frame.height, width: self.view.frame.width, height: 0)
-        let copyAction = UIAlertAction(title: usedesk!.stringFor("Copy"), style: .default, handler: {(alert: UIAlertAction!) in
+
+        let copyAction = UIAlertAction(title: usedesk!.model.stringFor("Copy"), style: .default, handler: {(alert: UIAlertAction!) in
             UIPasteboard.general.string = text
         })
 
-        let cancelAction = UIAlertAction(title: usedesk!.stringFor("Cancel"), style: .cancel, handler: {(alert: UIAlertAction!) in
+        let cancelAction = UIAlertAction(title: usedesk!.model.stringFor("Cancel"), style: .cancel, handler: {(alert: UIAlertAction!) in
         })
 
         alertController.addAction(copyAction)

@@ -24,8 +24,8 @@ class UDUIManager: UDUIProtocole {
         offlineVC = UDOfflineForm()
     }
 
-    func showBaseView(in parentController: UIViewController?, url: String?) {
-        let parentController = parentController ?? RootView
+    func showBaseView(in parentControllerOptional: UIViewController?, url: String?) {
+        let parentController = parentControllerOptional ?? RootView
         let baseView = UDBaseSectionsView()
         baseView.usedesk = useDesk
         baseView.url = url
@@ -37,8 +37,8 @@ class UDUIManager: UDUIProtocole {
         parentController?.present(navController, animated: true) 
     }
     
-    func startDialogFlow(in parentController: UIViewController?) {
-        let parentController = parentController ?? RootView
+    func startDialogFlow(in parentControllerOptional: UIViewController?) {
+        let parentController = parentControllerOptional ?? RootView
         dialogflowVC.usedesk = useDesk
         if navController.presentingViewController == nil {
             navController = UDNavigationController(rootViewController: dialogflowVC)

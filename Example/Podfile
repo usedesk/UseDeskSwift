@@ -4,7 +4,8 @@ target 'UseDesk_Example' do
   use_frameworks!
   
   pod 'UseDesk_SDK_Swift', :path => '../'
-
+  pod 'IQKeyboardManagerSwift'
+  
   target 'UseDesk_Tests' do
     inherit! :search_paths
   end

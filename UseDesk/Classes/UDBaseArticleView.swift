@@ -480,7 +480,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
             reviewTitleLabel.numberOfLines = 0
             reviewTitleLabel.textColor = baseArticleStyle.reviewColor
             reviewTitleLabel.font = baseArticleStyle.reviewFont
-            reviewTitleLabel.text = usedesk!.stringFor("ArticleReviewFirstTitle")
+            reviewTitleLabel.text = usedesk!.model.stringFor("ArticleReviewFirstTitle")
             let widthReviewTitle = self.view.frame.width - (baseArticleStyle.reviewMargin.left + baseArticleStyle.reviewMargin.right)
             let heightReviewTitleText = reviewTitleLabel.text!.size(availableWidth: widthReviewTitle, attributes: [NSAttributedString.Key.font : baseArticleStyle.reviewFont]).height
             reviewTitleLabel.frame = CGRect(x: baseArticleStyle.reviewMargin.left, y: baseArticleStyle.reviewMargin.top, width: widthReviewTitle, height: heightReviewTitleText)
@@ -496,9 +496,9 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
             // Review Yes No Buttons
             reviewPositivButton.layer.masksToBounds = true
             reviewPositivButton.layer.cornerRadius = baseArticleStyle.reviewYesButtonCornerRadius
-            let reviewPositivButtonSize = usedesk!.stringFor("Yes").size(attributes: [NSAttributedString.Key.font : baseArticleStyle.reviewYesFont])
+            let reviewPositivButtonSize = usedesk!.model.stringFor("Yes").size(attributes: [NSAttributedString.Key.font : baseArticleStyle.reviewYesFont])
             reviewPositivButton.frame = CGRect(x: baseArticleStyle.reviewYesButtonMargin.left, y: heightReviewView, width: reviewPositivButtonSize.width + baseArticleStyle.reviewYesButtonTextMargin.left + baseArticleStyle.reviewYesButtonTextMargin.right, height: reviewPositivButtonSize.height + baseArticleStyle.reviewYesButtonTextMargin.top + baseArticleStyle.reviewYesButtonTextMargin.bottom)
-            reviewPositivButton.setTitle(usedesk!.stringFor("Yes").uppercased(), for: .normal)
+            reviewPositivButton.setTitle(usedesk!.model.stringFor("Yes").uppercased(), for: .normal)
             reviewPositivButton.setTitleColor(baseArticleStyle.reviewYesColor, for: .normal)
             reviewPositivButton.backgroundColor = baseArticleStyle.reviewYesButtonColor
             reviewPositivButton.titleLabel?.font = baseArticleStyle.reviewYesFont
@@ -512,14 +512,14 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
             }
             reviewNegativButton.layer.masksToBounds = true
             reviewNegativButton.layer.cornerRadius = baseArticleStyle.reviewNoButtonCornerRadius
-            let reviewNegativButtonSize = usedesk!.stringFor("No").size(attributes: [NSAttributedString.Key.font : baseArticleStyle.reviewNoFont])
+            let reviewNegativButtonSize = usedesk!.model.stringFor("No").size(attributes: [NSAttributedString.Key.font : baseArticleStyle.reviewNoFont])
             var widthReviewNegativButton = reviewNegativButtonSize.width + baseArticleStyle.reviewNoButtonTextMargin.left + baseArticleStyle.reviewNoButtonTextMargin.right
             let maxWidthReviewNegativButton = self.view.frame.width - baseArticleStyle.reviewYesButtonMargin.left - reviewPositivButton.frame.width - baseArticleStyle.reviewNoButtonMargin.left - baseArticleStyle.reviewNoButtonMargin.right
             if widthReviewNegativButton > maxWidthReviewNegativButton {
                 widthReviewNegativButton = maxWidthReviewNegativButton
             }
             reviewNegativButton.frame = CGRect(x: baseArticleStyle.reviewYesButtonMargin.left + reviewPositivButton.frame.width + baseArticleStyle.reviewNoButtonMargin.left, y: heightReviewView, width: widthReviewNegativButton, height: reviewNegativButtonSize.height + baseArticleStyle.reviewNoButtonTextMargin.top + baseArticleStyle.reviewNoButtonTextMargin.bottom)
-            reviewNegativButton.setTitle(usedesk!.stringFor("No").uppercased(), for: .normal)
+            reviewNegativButton.setTitle(usedesk!.model.stringFor("No").uppercased(), for: .normal)
             reviewNegativButton.setTitleColor(baseArticleStyle.reviewNoColor, for: .normal)
             reviewNegativButton.backgroundColor = baseArticleStyle.reviewNoButtonColor
             reviewNegativButton.titleLabel?.font = baseArticleStyle.reviewNoFont
@@ -557,7 +557,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
         reviewNegativButton.removeFromSuperview()
         reviewPositivButton.removeFromSuperview()
         // Title
-        reviewTitleLabel.text = usedesk!.stringFor("ArticleReviewSendTitle")
+        reviewTitleLabel.text = usedesk!.model.stringFor("ArticleReviewSendTitle")
         let baseArticleStyle = configurationStyle.baseArticleStyle
         let widthReviewTitle = self.view.frame.width - (baseArticleStyle.reviewMargin.left + baseArticleStyle.reviewMargin.right)
         let heightReviewTitleText = reviewTitleLabel.text!.size(availableWidth: widthReviewTitle, attributes: [NSAttributedString.Key.font : baseArticleStyle.reviewFont]).height
@@ -606,14 +606,14 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
         }
         heightReviewView += baseArticleStyle.reviewLineHeight + baseArticleStyle.reviewSendButtonMargin.top
         // Send button
-        let reviewSendButtonSize = usedesk!.stringFor("Send").size(attributes: [NSAttributedString.Key.font : baseArticleStyle.reviewSendFont])
+        let reviewSendButtonSize = usedesk!.model.stringFor("Send").size(attributes: [NSAttributedString.Key.font : baseArticleStyle.reviewSendFont])
         var widthReviewSendButtonSize = reviewSendButtonSize.width + baseArticleStyle.reviewSendButtonTextMargin.left + baseArticleStyle.reviewSendButtonTextMargin.right
         let maxWidthReviewSendButton = self.view.frame.width - baseArticleStyle.reviewSendButtonMargin.left - baseArticleStyle.reviewSendButtonMargin.right
         if widthReviewSendButtonSize > maxWidthReviewSendButton {
             widthReviewSendButtonSize = maxWidthReviewSendButton
         }
         reviewSendButton.frame = CGRect(x: baseArticleStyle.reviewSendButtonMargin.left, y: heightReviewView, width: widthReviewSendButtonSize, height: reviewSendButtonSize.height + baseArticleStyle.reviewSendButtonTextMargin.top + baseArticleStyle.reviewSendButtonTextMargin.bottom)
-        reviewSendButton.setTitle(usedesk!.stringFor("Send").uppercased(), for: .normal)
+        reviewSendButton.setTitle(usedesk!.model.stringFor("Send").uppercased(), for: .normal)
         reviewSendButton.setTitleColor(baseArticleStyle.reviewSendTextColor, for: .normal)
         reviewSendButton.backgroundColor = baseArticleStyle.reviewSendButtonColor
         reviewSendButton.titleLabel?.font = baseArticleStyle.reviewSendFont
@@ -641,7 +641,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
         reviewPositivButton.removeFromSuperview()
         reviewNegativButton.removeFromSuperview()
         isSendReviewState = false
-        reviewTitleLabel.text = usedesk!.stringFor("ArticleReviewSendedTitle")
+        reviewTitleLabel.text = usedesk!.model.stringFor("ArticleReviewSendedTitle")
         let baseArticleStyle = configurationStyle.baseArticleStyle
         let widthReviewTitle = view.frame.width - (baseArticleStyle.reviewMargin.left + baseArticleStyle.reviewMargin.right)
         let heightReviewTitleText = reviewTitleLabel.text!.size(availableWidth: widthReviewTitle, attributes: [NSAttributedString.Key.font : baseArticleStyle.reviewFont]).height
@@ -714,7 +714,8 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
                 wSelf.showSendedReviewState()
                 wSelf.reviewTextView.becomeFirstResponder()
             }
-        } errorStatus: { _, _ in}
+        } errorStatus: { error, des in
+        }
     }
     
     @objc func reviewNegativButtonDidTap() {
@@ -815,7 +816,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
             self.loaderChatButton.alpha = 1
             self.loaderChatButton.startAnimating()
         }
-        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, token: usedesk!.token, connectionStatus: { [weak self] success, feedbackStatus, token in
+        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.model.companyID, chanelId: usedesk!.model.chanelId, knowledgeBaseID: usedesk!.model.knowledgeBaseID, api_token: usedesk!.model.api_token, email: usedesk!.model.email, url: usedesk!.model.urlWithoutPort, port: usedesk!.model.port, name: usedesk!.model.name, operatorName: usedesk!.model.operatorName, nameChat: usedesk!.model.nameChat, token: usedesk!.model.token, connectionStatus: { [weak self] success, feedbackStatus, token in
             guard let wSelf = self else {return}
             guard wSelf.usedesk != nil else {return}
             if wSelf.usedesk!.closureStartBlock != nil {

@@ -93,6 +93,10 @@ class UDVideoMessageCellNode: UDMessageCellNode {
         addSubnode(loaderNode)
         
         super.bindData(messagesView: messagesView, message: message, avatarImage: avatarImage)
+        
+        if !videoStyle.isNeedBubble {
+            bubbleImageNode.image = nil
+        }
     }
     
     override public func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
@@ -130,7 +134,8 @@ class UDVideoMessageCellNode: UDMessageCellNode {
         timeBackSpec.child = ASInsetLayoutSpec(insets: UIEdgeInsets(top: messageStyle.timeBackViewPadding.top, left: messageStyle.timeBackViewPadding.left, bottom: messageStyle.timeBackViewPadding.bottom, right: messageStyle.timeBackViewPadding.right), child: horizonTimeAndSendedSpec)
         
         let timeFromImageOverlaySpec = ASOverlayLayoutSpec()
-        let timeCenterSpec = ASCenterLayoutSpec(horizontalPosition: .end, verticalPosition: .end, sizingOption: .minimumWidth, child: timeBackSpec)
+        let timeBackSpecInset = ASInsetLayoutSpec(insets: messageStyle.timeBackViewMargin, child: timeBackSpec)
+        let timeCenterSpec = ASCenterLayoutSpec(horizontalPosition: .end, verticalPosition: .end, sizingOption: .minimumWidth, child: timeBackSpecInset)
         timeFromImageOverlaySpec.overlay = timeCenterSpec
         timeFromImageOverlaySpec.child = imageWithLoaderStack
         

@@ -41,16 +41,16 @@ extension Date {
         let calendar = Calendar.current
         let dateFormatter = DateFormatter()
         var locale = Locale.current
-        if usedesk.locale == UDLocalizeManager().getLocaleFor(localeId: "ru") {
+        if usedesk.model.locale == UDLocalizeManager().getLocaleFor(localeId: "ru") {
             locale = Locale(identifier: "RU_RU")
         }
         dateFormatter.locale = locale
         dateFormatter.timeZone = TimeZone.current
         var dayString = ""
         if calendar.isDateInYesterday(self) {
-            dayString = usedesk.stringFor("Yesterday")
+            dayString = usedesk.model.stringFor("Yesterday")
         } else if calendar.isDateInToday(self) {
-            dayString = usedesk.stringFor("Today")
+            dayString = usedesk.model.stringFor("Today")
         } else {
             dateFormatter.dateFormat = "d MMMM"
             dayString = dateFormatter.string(from: self)

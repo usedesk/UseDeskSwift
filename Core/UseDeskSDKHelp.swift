@@ -9,7 +9,7 @@ class UseDeskSDKHelp {
         let payload = [
             "sdk" : "iOS",
             "type" : "sdk",
-            "version" : "2.2.3"
+            "version" : "2.3.0"
         ]
         var dic = [
             "type" : "@@server/chat/INIT",
@@ -32,15 +32,12 @@ class UseDeskSDKHelp {
         ]
         var payload: [String : Any] = [
             "email"    : email,
-            "username" : name,
             "phone"    : phone,
             "note"     : note
         ]
-//        if additional_id != nil {
-//            if additional_id != "" {
-//                payload["additional_id"] = additional_id
-//            }
-//        }
+        if name.count > 0 {
+            payload["username"] = name
+        }
         if token != "" {
             payload["token"] = token
         }

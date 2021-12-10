@@ -27,24 +27,6 @@ var MAX_WIDTH_MESSAGE: CGFloat {
     }
 }
 
-let UD_TYPE_TEXT = 1
-let UD_TYPE_EMOJI = 2
-let UD_TYPE_PICTURE = 3
-let UD_TYPE_VIDEO = 4
-let UD_TYPE_File = 5
-let UD_TYPE_Feedback = 6
-
-let UD_STATUS_LOADING = 1
-let UD_STATUS_SUCCEED = 2
-let UD_STATUS_OPENIMAGE = 3
-
-let UD_STATUS_SEND_FAIL = 1
-let UD_STATUS_SEND_DRAFT = 2
-let UD_STATUS_SEND_SUCCEED = 3
-
-let UD_AUDIOSTATUS_STOPPED = 1
-let UD_AUDIOSTATUS_PLAYING = 2
-
 // MARK: - Configuration desigen
 public struct ConfigurationStyle {
     public var navigationBarStyle: NavigationBarStyle
@@ -291,6 +273,7 @@ public struct MessageStyle {
     public var timeBackViewOpacity: CGFloat
     public var timeBackViewCornerRadius: CGFloat
     public var timeBackViewPadding: UIEdgeInsets
+    public var timeBackViewMargin: UIEdgeInsets
     // Sended Status
     public var sendStatusImage: UIImage
     public var sendedStatusImage: UIImage
@@ -324,6 +307,7 @@ public struct MessageStyle {
                 timeBackViewOpacity: CGFloat = 0.6,
                 timeBackViewCornerRadius: CGFloat = 7,
                 timeBackViewPadding: UIEdgeInsets = UIEdgeInsets(top: 1, left: 4, bottom: 0, right: 4),
+                timeBackViewMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 2, right: 2),
                 sendStatusImage: UIImage? = nil,
                 sendedStatusImage: UIImage? = nil,
                 sendStatusImageForImageMessage: UIImage? = nil,
@@ -353,10 +337,11 @@ public struct MessageStyle {
         self.timeBackViewOpacity = timeBackViewOpacity
         self.timeBackViewCornerRadius = timeBackViewCornerRadius
         self.timeBackViewPadding = timeBackViewPadding
+        self.timeBackViewMargin = timeBackViewMargin
         self.sendStatusImage = sendStatusImage != nil ? sendStatusImage! : UIImage.named("udSendStatusImage")
         self.sendedStatusImage = sendedStatusImage != nil ? sendedStatusImage! : UIImage.named("udSendedStatusImage")
-        self.sendStatusImageForImageMessage = sendStatusImage != nil ? sendStatusImage! : UIImage.named("udSendStatusImageWhite")
-        self.sendedStatusImageForImageMessage = sendStatusImage != nil ? sendStatusImage! : UIImage.named("udSendedStatusImageWhite")
+        self.sendStatusImageForImageMessage = sendStatusImageForImageMessage != nil ? sendStatusImageForImageMessage! : UIImage.named("udSendStatusImageWhite")
+        self.sendedStatusImageForImageMessage = sendedStatusImageForImageMessage != nil ? sendedStatusImageForImageMessage! : UIImage.named("udSendedStatusImageWhite")
         self.sendedStatusSize = sendedStatusSize
         self.sendedStatusMargin = sendedStatusMargin
         self.notSentImage = notSentImage != nil ? notSentImage! : UIImage.named("udNotSentImage")
@@ -376,6 +361,7 @@ public struct FeedbackMessageStyle {
     public var likeOffImage: UIImage
     public var dislikeOnImage: UIImage
     public var dislikeOffImage: UIImage
+    public var isFirstDislike: Bool
     public var textColor: UIColor
     public var font: UIFont
     public var textMargin: UIEdgeInsets
@@ -387,6 +373,7 @@ public struct FeedbackMessageStyle {
                 likeOffImage: UIImage? = nil,
                 dislikeOnImage: UIImage? = nil,
                 dislikeOffImage: UIImage? = nil,
+                isFirstDislike: Bool = true,
                 textColor: UIColor? = nil,
                 font: UIFont = UIFont.systemFont(ofSize: 17),
                 textMargin: UIEdgeInsets = UIEdgeInsets(top: 17, left: 28, bottom: 14, right: 28)) {
@@ -397,6 +384,7 @@ public struct FeedbackMessageStyle {
         self.likeOffImage = likeOffImage != nil ? likeOffImage! : UIImage.named("udLikeOff")
         self.dislikeOnImage = dislikeOnImage != nil ? dislikeOnImage! : UIImage.named("udDislikeOn")
         self.dislikeOffImage = dislikeOffImage != nil ? dislikeOffImage! : UIImage.named("udDislikeOff")
+        self.isFirstDislike = isFirstDislike
         self.textColor = textColor != nil ? textColor! : UIColor(hexString: "333333")
         self.font = font
         self.textMargin = textMargin
@@ -408,15 +396,18 @@ public struct PictureStyle {
     public var cornerRadius: CGFloat
     public var imageDefault: UIImage
     public var sizeDefault: CGSize
+    public var isNeedBubble: Bool
     
     public init(margin: UIEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2),
                 cornerRadius: CGFloat = 8,
                 imageDefault: UIImage? = nil,
-                sizeDefault: CGSize = CGSize(width: 150, height: 150)) {
+                sizeDefault: CGSize = CGSize(width: 150, height: 150),
+                isNeedBubble: Bool = true) {
         self.margin = margin
         self.cornerRadius = cornerRadius
         self.imageDefault = imageDefault != nil ? imageDefault! : UIImage.named("udPictureDefault")
         self.sizeDefault = sizeDefault
+        self.isNeedBubble = isNeedBubble
     }
 }
 // MARK: -  Video cell
@@ -425,15 +416,18 @@ public struct VideoStyle {
     public var cornerRadius: CGFloat
     public var imageDefault: UIImage
     public var sizeDefault: CGSize
+    public var isNeedBubble: Bool
 
     public init(margin: UIEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2),
                 cornerRadius: CGFloat = 8,
                 imageDefault: UIImage? = nil,
-                sizeDefault: CGSize = CGSize(width: 150, height: 170)) {
+                sizeDefault: CGSize = CGSize(width: 150, height: 170),
+                isNeedBubble: Bool = true) {
         self.margin = margin
         self.cornerRadius = cornerRadius
         self.imageDefault = imageDefault != nil ? imageDefault! : UIImage.named("udVideoDefault")
         self.sizeDefault = sizeDefault
+        self.isNeedBubble = isNeedBubble
     }
 }
 // MARK: -  File cell

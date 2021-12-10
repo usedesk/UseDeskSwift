@@ -56,6 +56,7 @@ public class UDCallbackTopic: NSObject {
 }
 
 public class UDCallbackCustomField: NSObject {
+    @objc public var key = ""
     @objc public var title = ""
     @objc public var text = ""
     @objc public var isRequired = false

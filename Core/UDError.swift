@@ -20,6 +20,7 @@ import Alamofire
     case serverError
     case socketError
     case emptyKnowledgeBaseID
+    case emptyTokenAPI
     
     public init(errorCode: Int) {
         switch errorCode {
@@ -56,6 +57,8 @@ import Alamofire
             return "Error in socket"
         case .emptyKnowledgeBaseID:
             return "Empty knowledgeBaseID"
+        case .emptyTokenAPI:
+            return "Empty api_token"
         }
     }
 }

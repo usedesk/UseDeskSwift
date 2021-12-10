@@ -5,7 +5,7 @@
 import Foundation
 import UIKit
 import UseDesk_SDK_Swift
-
+import IQKeyboardManagerSwift
 
 class UDStartViewController: UIViewController, UITextFieldDelegate {
     
@@ -28,6 +28,8 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var tokenTextField: UITextField!
     @IBOutlet weak var localeIdTextField: UITextField!
     @IBOutlet weak var lastViewBC: NSLayoutConstraint!
+    @IBOutlet weak var isNeedBubbleSwitch: UISwitch!
+    @IBOutlet weak var isFirstDislikeSwitch: UISwitch!
     @IBOutlet weak var isNeedChatSwitch: UISwitch!
     @IBOutlet weak var isNeedReviewSwitch: UISwitch!
     @IBOutlet weak var isTabBarSwitch: UISwitch!
@@ -54,11 +56,32 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
         
         super.viewDidLoad()
         
+        IQKeyboardManager.shared.enableAutoToolbar = false
+        IQKeyboardManager.shared.enable = true
+        
         navigationController?.navigationBar.titleTextAttributes = [
             NSAttributedString.Key.foregroundColor: UIColor.white
         ]
         
         navigationController?.navigationBar.barStyle = .black
+
+        if #available(iOS 13.0, *) {
+            let appearance = UINavigationBarAppearance()
+
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = .red
+            appearance.titleTextAttributes = [.font: UIFont.boldSystemFont(ofSize: 18.0),
+                                              .foregroundColor: UIColor.white]
+
+            // Customizing our navigation bar
+            navigationController?.navigationBar.tintColor = .white
+            navigationController?.navigationBar.barTintColor = .red
+            navigationController?.navigationBar.standardAppearance = appearance
+            navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        } else {
+            navigationController?.navigationBar.tintColor = .white
+            navigationController?.navigationBar.barTintColor = .red
+        }
         
         title = "UseDesk SDK"
         let singleTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleSingleTap(_:)))
@@ -73,9 +96,11 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     
     @objc func keyboardWillShow(notification: Notification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            UIView.animate(withDuration: 0.4) {
-                self.lastViewBC.constant = keyboardSize.height + 70
-                self.loadViewIfNeeded()
+            if lastViewBC.constant == 70 {
+                UIView.animate(withDuration: 0.4) {
+                    self.lastViewBC.constant = keyboardSize.height + 70
+                    self.loadViewIfNeeded()
+                }
             }
         }
 
@@ -175,10 +200,11 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
             }
         }
         if isTabBarSwitch.isOn {
-            usedesk.configurationStyle = ConfigurationStyle(chatStyle: ChatStyle(topMarginPortrait: 80, topMarginLandscape: 40), baseStyle: BaseStyle(isNeedChat: isNeedChatSwitch.isOn), baseArticleStyle: BaseArticleStyle(isNeedReview: isNeedReviewSwitch.isOn))
+            usedesk.configurationStyle = ConfigurationStyle(chatStyle: ChatStyle(topMarginPortrait: 80, topMarginLandscape: 40), feedbackMessageStyle: FeedbackMessageStyle(isFirstDislike: isFirstDislikeSwitch.isOn), pictureStyle: PictureStyle(isNeedBubble: isNeedBubbleSwitch.isOn), videoStyle: VideoStyle(isNeedBubble: isNeedBubbleSwitch.isOn), baseStyle: BaseStyle(isNeedChat: isNeedChatSwitch.isOn), baseArticleStyle: BaseArticleStyle(isNeedReview: isNeedReviewSwitch.isOn))
         } else {
-            usedesk.configurationStyle = ConfigurationStyle(baseStyle: BaseStyle(isNeedChat: isNeedChatSwitch.isOn), baseArticleStyle: BaseArticleStyle(isNeedReview: isNeedReviewSwitch.isOn))
+            usedesk.configurationStyle = ConfigurationStyle(feedbackMessageStyle: FeedbackMessageStyle(isFirstDislike: isFirstDislikeSwitch.isOn), pictureStyle: PictureStyle(isNeedBubble: isNeedBubbleSwitch.isOn), videoStyle: VideoStyle(isNeedBubble: isNeedBubbleSwitch.isOn), baseStyle: BaseStyle(isNeedChat: isNeedChatSwitch.isOn), baseArticleStyle: BaseArticleStyle(isNeedReview: isNeedReviewSwitch.isOn))
         }
+        
         usedesk.start(withCompanyID: companyIdTextField.text!, chanelId: chanelIdTextField.text != nil ? chanelIdTextField.text! : "", urlAPI: urlBaseTextField.text != nil ? urlBaseTextField.text! : nil, knowledgeBaseID: knowledgeBaseID, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, urlToSendFile: urlToSendFileTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, operatorName: operatorNameTextField.text != nil ? operatorNameTextField.text! : nil, nameChat: nameChat, firstMessage: firstMessageTextField.text != nil ? firstMessageTextField.text : nil, note: noteTextField.text != nil ? noteTextField.text : nil, additionalFields: additionalFields(), additionalNestedFields: additionalNestedFields(), token: tokenTextField.text != nil ? tokenTextField.text : nil, localeIdentifier: localeIdTextField.text != nil ? localeIdTextField.text : nil, presentIn: self, isPresentDefaultControllers: !isTabBarSwitch.isOn, connectionStatus: { success, feedbackStatus, token in
             if self.isTabBarSwitch.isOn && success {
                 let chatVC = self.usedesk.chatViewController() ?? UIViewController()

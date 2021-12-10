@@ -38,7 +38,7 @@ class UDBaseSearchCell: UITableViewCell {
         guard usedesk != nil else {return}
         let baseSearchStyle = configurationStyle.baseSearchStyle
         
-        titleLabel.text = article?.title ?? usedesk!.stringFor("ErrorLoading")
+        titleLabel.text = article?.title ?? usedesk!.model.stringFor("ErrorLoading")
         titleLabel.font = baseSearchStyle.titleFont
         titleLabel.textColor = baseSearchStyle.titleColor
         titleLabelLC.constant = baseSearchStyle.titleMargin.left
@@ -49,7 +49,7 @@ class UDBaseSearchCell: UITableViewCell {
         let height = titleLabel.text!.size(availableWidth: labelText.frame.width, attributes: [NSAttributedString.Key.font : baseSearchStyle.titleFont], usesFontLeading: true).height + 2
         titleLabelHC.constant = height
         
-        var textWithoutHtmlTags = article?.text ?? usedesk!.stringFor("ErrorLoading")
+        var textWithoutHtmlTags = article?.text ?? usedesk!.model.stringFor("ErrorLoading")
         textWithoutHtmlTags = textWithoutHtmlTags.replacingOccurrences(of: "<[^>]+>", with: "", options: String.CompareOptions.regularExpression, range: nil)
         textWithoutHtmlTags = textWithoutHtmlTags.replacingOccurrences(of: "\r\n", with: "", options: String.CompareOptions.regularExpression, range: nil)
         textWithoutHtmlTags = textWithoutHtmlTags.replacingOccurrences(of: "&nbsp;", with: "", options: String.CompareOptions.regularExpression, range: nil)
@@ -60,7 +60,7 @@ class UDBaseSearchCell: UITableViewCell {
         labelTextTC.constant = baseSearchStyle.textMargin.right
         labelTextBC.constant = baseSearchStyle.textMargin.bottom
         
-        pathLabel.text = "\(article?.section_title ?? usedesk!.stringFor("ErrorLoading")) > \(article?.category_title ?? usedesk!.stringFor("ErrorLoading"))"
+        pathLabel.text = "\(article?.section_title ?? usedesk!.model.stringFor("ErrorLoading")) > \(article?.category_title ?? usedesk!.model.stringFor("ErrorLoading"))"
         pathLabel.font = baseSearchStyle.pathFont
         pathLabel.textColor = baseSearchStyle.pathColor
         pathLabelLC.constant = baseSearchStyle.pathMargin.left

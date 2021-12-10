@@ -9,7 +9,7 @@ import UIKit
 protocol ChangeabelTextCellDelegate: AnyObject {
     func newValue(indexPath: IndexPath, value: String, isValid: Bool, positionCursorY: CGFloat)
     func tapingTextView(indexPath: IndexPath, position: CGFloat)
-    func endWrite()
+    func endWrite(indexPath: IndexPath)
 }
 
 class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFieldDelegate {
@@ -89,14 +89,14 @@ class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFie
             myTextView.attributedText = textAttributed
         }
         
-        if self.myTextView.text.count == 0 {
-            if self.teextAttributed != nil {
-                self.titleLabelTopC.constant = self.teextAttributed!.string.count > 0 ? 10 : 34
+        if myTextView.text.count == 0 {
+            if teextAttributed != nil {
+                titleLabelTopC.constant = teextAttributed!.string.count > 0 ? 10 : 34
             } else {
-                self.titleLabelTopC.constant = 34
+                titleLabelTopC.constant = 34
             }
         } else {
-            self.titleLabelTopC.constant = 10
+            titleLabelTopC.constant = 10
         }
         
         selectImageView.image = configurationStyle.feedbackFormStyle.arrowImage
@@ -109,6 +109,7 @@ class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFie
         lineView.backgroundColor = isValid ? feedbackFormStyle.lineSeparatorColor : feedbackFormStyle.lineSeparatorActiveColor
         self.backgroundColor = .clear
         self.selectionStyle = .none
+        self.layoutIfNeeded()
     }
     
     func setSelectedAnimate(isNeedFocusedTextView: Bool = true) {
@@ -127,12 +128,10 @@ class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFie
                     self.myTextView.text = ""
                     self.myTextView.textColor = feedbackFormStyle.valueColor
                 }
-            } else {
-                if self.myTextView.text == self.title {
+            } else if self.myTextView.text == self.title || self.myTextView.attributedText == self.teextAttributed {
                     self.titleLabel.text = self.title
                     self.myTextView.text = ""
                     self.myTextView.textColor = feedbackFormStyle.valueColor
-                }
             }
             self.titleLabel.textColor = self.isValid && !self.isTitleErrorState ? feedbackFormStyle.headerSelectedColor : feedbackFormStyle.errorColor
             self.titleLabelTopC.constant = 10
@@ -165,16 +164,8 @@ class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFie
     
     // MARK: - TextView
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
-        DispatchQueue.main.async {
-            self.delegate?.tapingTextView(indexPath: self.indexPath, position: self.positionIn(textView: textView))
-        }
+        self.delegate?.tapingTextView(indexPath: self.indexPath, position: self.positionIn(textView: textView))
         return true
-    }
-    
-    func textViewDidEndEditing(_ textView: UITextView) {
-        DispatchQueue.main.async {
-            self.delegate?.endWrite()
-        }
     }
     
     func textViewDidChange(_ textView: UITextView) {
@@ -196,6 +187,9 @@ class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFie
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "\n" {
+            DispatchQueue.main.async {
+                self.delegate?.endWrite(indexPath: self.indexPath)
+            }
             textView.resignFirstResponder()
             return false
         }

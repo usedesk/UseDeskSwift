@@ -30,6 +30,7 @@ class UDFileViewingVC: UIViewController, UIScrollViewDelegate {
     
     var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     var isShowBackButton: Bool = false
+    var isPresentDefaultControllers: Bool = false
     var filePath: String?
     var typeFile: UDTypeFile = .image
     var videoImage: UIImage?
@@ -115,8 +116,12 @@ class UDFileViewingVC: UIViewController, UIScrollViewDelegate {
     }
     
     @IBAction func backButtonAction(_ sender: Any) {
-        self.removeFromParent()
-        self.view.removeFromSuperview()
+        if isPresentDefaultControllers {
+            self.removeFromParent()
+            self.view.removeFromSuperview()
+        } else {
+            self.dismiss(animated: false, completion: nil)
+        }
     }
 }
 

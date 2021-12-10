@@ -128,7 +128,7 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
         if let searchButtonImage = configurationStyle.navigationBarStyle.searchButtonImage {
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: searchButtonImage, style: .plain, target: self, action: #selector(self.searchAction))
         }
-        navigationItem.title = сategory?.title ?? usedesk!.stringFor("Article")
+        navigationItem.title = сategory?.title ?? usedesk!.model.stringFor("Article")
         
         tableView.register(UINib(nibName: "UDBaseArticleViewCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDBaseArticleViewCell")
         tableView.register(UINib(nibName: "UDBaseSearchCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDBaseSearchCell")
@@ -175,7 +175,7 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
             self.loaderChatButton.alpha = 1
             self.loaderChatButton.startAnimating()
         }
-        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.companyID, chanelId: usedesk!.chanelId, knowledgeBaseID: usedesk!.knowledgeBaseID, api_token: usedesk!.api_token, email: usedesk!.email, url: usedesk!.urlWithoutPort, port: usedesk!.port, name: usedesk!.name, operatorName: usedesk!.operatorName, nameChat: usedesk!.nameChat, token: usedesk!.token, connectionStatus: { [weak self] success, feedbackStatus, token  in
+        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.model.companyID, chanelId: usedesk!.model.chanelId, knowledgeBaseID: usedesk!.model.knowledgeBaseID, api_token: usedesk!.model.api_token, email: usedesk!.model.email, url: usedesk!.model.urlWithoutPort, port: usedesk!.model.port, name: usedesk!.model.name, operatorName: usedesk!.model.operatorName, nameChat: usedesk!.model.nameChat, token: usedesk!.model.token, connectionStatus: { [weak self] success, feedbackStatus, token  in
             guard let wSelf = self else {return}
             guard wSelf.usedesk != nil else {return}
             if wSelf.usedesk!.closureStartBlock != nil {
@@ -225,16 +225,16 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
         navigationView = UIView(frame: navigationController?.navigationBar.bounds ?? .zero)
         navigationItem.titleView = navigationView
         searchBar = UISearchBar()
-        searchBar.placeholder = usedesk!.stringFor("Search")
+        searchBar.placeholder = usedesk!.model.stringFor("Search")
         searchBar.delegate = self
         let textFieldInsideSearchBar = searchBar.value(forKey: "searchField") as? UITextField
         textFieldInsideSearchBar?.backgroundColor = configurationStyle.baseStyle.searchBarTextBackgroundColor
         textFieldInsideSearchBar?.textColor = configurationStyle.baseStyle.searchBarTextColor
         navigationItem.leftBarButtonItem = nil
         navigationItem.setHidesBackButton(true, animated: false)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: usedesk!.stringFor("Cancel"), style: .plain, target: self, action: #selector(self.cancelSearchAction))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: usedesk!.model.stringFor("Cancel"), style: .plain, target: self, action: #selector(self.cancelSearchAction))
         navigationItem.rightBarButtonItem?.tintColor = configurationStyle.baseStyle.searchCancelButtonColor
-        let widthCancel = usedesk!.stringFor("Cancel").size(attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 17)], usesFontLeading: true).width + 2
+        let widthCancel = usedesk!.model.stringFor("Cancel").size(attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 17)], usesFontLeading: true).width + 2
         searchBar.frame = CGRect(x: 8, y: 0, width: navigationView.frame.width - 38 - widthCancel, height: navigationView.frame.height)
         navigationView.addSubview(searchBar)
         searchBar.becomeFirstResponder()
@@ -251,7 +251,7 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: searchButtonImage, style: .plain, target: self, action: #selector(self.searchAction))
         }
         navigationItem.titleView = nil
-        navigationItem.title = сategory?.title ?? usedesk!.stringFor("Article")
+        navigationItem.title = сategory?.title ?? usedesk!.model.stringFor("Article")
 
         tableView.reloadData()
     }
@@ -371,7 +371,7 @@ extension UDBaseArticlesView: UDBaseArticleViewDelegate {
             dialogflowVC.usedesk = usedesk
             dialogflowVC.isFromBase = true
             navigationController?.pushViewController(dialogflowVC, animated: true)
-            dialogflowVC.updateChat()
+            dialogflowVC.reloadHistory()
         }
     }
     

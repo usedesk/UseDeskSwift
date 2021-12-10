@@ -97,8 +97,13 @@ class UDFeedbackMessageCellNode: UDMessageCellNode {
                 hButtonsStack.setChild(dislikeButtonNode, at: 0)
             }
         } else {
-            hButtonsStack.setChild(dislikeButtonNode, at: 0)
-            hButtonsStack.setChild(likeButtonNode, at: 1)
+            if feedbackMessageStyle.isFirstDislike {
+                hButtonsStack.setChild(dislikeButtonNode, at: 0)
+                hButtonsStack.setChild(likeButtonNode, at: 1)
+            } else {
+                hButtonsStack.setChild(likeButtonNode, at: 0)
+                hButtonsStack.setChild(dislikeButtonNode, at: 1)
+            }
         }
         let hButtonsInsetStack = ASInsetLayoutSpec(insets: UIEdgeInsets(top: feedbackMessageStyle.buttonsMarginTop, left: 0, bottom: 0, right: 0), child: hButtonsStack)
         
@@ -138,7 +143,12 @@ class UDFeedbackMessageCellNode: UDMessageCellNode {
         feedbackAction = false
         likeButtonNode.isUserInteractionEnabled = false
         var frame = dislikeButtonNode.frame
-        frame.origin.x += ((configurationStyle.feedbackMessageStyle.buttonSize.width / 2) + (configurationStyle.feedbackMessageStyle.buttonsSpacing / 2))
+        let changePosition = ((configurationStyle.feedbackMessageStyle.buttonSize.width / 2) + (configurationStyle.feedbackMessageStyle.buttonsSpacing / 2))
+        if configurationStyle.feedbackMessageStyle.isFirstDislike {
+            frame.origin.x += changePosition
+        } else {
+            frame.origin.x -= changePosition
+        }
         dislikeButtonNode.setBackgroundImage(configurationStyle.feedbackMessageStyle.dislikeOnImage, for: .normal)
         UIView.animate(withDuration: 0.4) {
             self.dislikeButtonNode.frame = frame
@@ -156,7 +166,12 @@ class UDFeedbackMessageCellNode: UDMessageCellNode {
         feedbackAction = true
         likeButtonNode.isUserInteractionEnabled = false
         var frame = likeButtonNode.frame
-        frame.origin.x -= ((configurationStyle.feedbackMessageStyle.buttonSize.width / 2) + (configurationStyle.feedbackMessageStyle.buttonsSpacing / 2))
+        let changePosition = ((configurationStyle.feedbackMessageStyle.buttonSize.width / 2) + (configurationStyle.feedbackMessageStyle.buttonsSpacing / 2))
+        if configurationStyle.feedbackMessageStyle.isFirstDislike {
+            frame.origin.x -= changePosition
+        } else {
+            frame.origin.x += changePosition
+        }
         likeButtonNode.setBackgroundImage(configurationStyle.feedbackMessageStyle.likeOnImage, for: .normal)
         UIView.animate(withDuration: 0.4) {
             self.likeButtonNode.frame = frame
