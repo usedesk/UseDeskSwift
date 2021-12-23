@@ -513,7 +513,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
     
     @objc public func getCollections(connectionStatus baseBlock: @escaping UDSBaseBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         if knowledgeBaseID != "" {
-            var url = urlBase()
+            var url = "https://" + urlBase()
             url += "/support/\(self.knowledgeBaseID)/list?api_token=\(self.api_token)"
             AF.request(url).responseJSON{  responseJSON in
                 switch responseJSON.result {
@@ -542,7 +542,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
     
     @objc public func getArticle(articleID: Int, connectionStatus baseBlock: @escaping UDSArticleBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         if knowledgeBaseID != "" {
-            var url = urlBase()
+            var url = "https://" + urlBase()
             url += "/support/\(self.knowledgeBaseID)/articles/\(articleID)?api_token=\(self.api_token)"
             AF.request(url).responseJSON{ responseJSON in
                 switch responseJSON.result {
