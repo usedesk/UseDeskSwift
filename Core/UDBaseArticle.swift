@@ -23,16 +23,16 @@ import Foundation
 }
 
 @objc public class UDArticle: NSObject {
-    var title: String = ""
-    var id: Int = 0
-    var text: String = ""
-    var open: Bool = true
-    var category_id: Int = 0
-    var collection_id: Int = 0
-    var category_title: String = ""
-    var section_title: String = ""
-    var views: Int = 0
-    var created_at: String = ""
+    public var title: String = ""
+    public var id: Int = 0
+    public var text: String = ""
+    public var open: Bool = true
+    public var category_id: Int = 0
+    public var collection_id: Int = 0
+    public var category_title: String = ""
+    public var section_title: String = ""
+    public var views: Int = 0
+    public var created_at: String = ""
     
     init?(json: [String: Any]) {
         
