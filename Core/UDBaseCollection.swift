@@ -6,11 +6,11 @@ import Foundation
 import UIKit
 
 @objc public class UDBaseCategory: NSObject {
-    var title: String = ""
-    var descriptionCategory: String = ""
-    var id: Int = 0
-    var articlesTitles: [UDArticleTitle] = []
-    var open: Bool = true
+    public var title: String = ""
+    public var descriptionCategory: String = ""
+    public var id: Int = 0
+    public var articlesTitles: [UDArticleTitle] = []
+    public var open: Bool = true
     
     init?(json: [String: Any]) {
         guard
@@ -37,9 +37,9 @@ import UIKit
 }
 
 @objc public class UDArticleTitle: NSObject {
-    var title: String = ""
-    var id: Int = 0
-    var views: Int = 0
+    public var title: String = ""
+    public var id: Int = 0
+    public var views: Int = 0
     
     init?(json: [String: Any]) {
         guard
@@ -54,12 +54,12 @@ import UIKit
 }
 
 @objc public class UDBaseCollection: NSObject {
-    var title: String = ""
-    var id: Int = 0
-    var imageUrl: String = ""
-    var image: UIImage? = nil
-    var сategories: [UDBaseCategory] = []
-    var open: Bool = true
+    public var title: String = ""
+    public var id: Int = 0
+    public var imageUrl: String = ""
+    public var image: UIImage? = nil
+    public var сategories: [UDBaseCategory] = []
+    public var open: Bool = true
     
     init?(json: [String: Any]) {
         guard
