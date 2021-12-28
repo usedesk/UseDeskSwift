@@ -633,7 +633,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
     
     @objc public func getSearchArticles(collection_ids:[Int], category_ids:[Int], article_ids:[Int], count: Int = 20, page: Int = 1, query: String, type: TypeArticle = .all, sort: SortArticle = .id, order: OrderArticle = .asc, connectionStatus searchBlock: @escaping UDSArticleSearchBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         if knowledgeBaseID != "" {
-            var url = urlBase()
+            var url = "https://" + urlBase()
             url += "/support/\(knowledgeBaseID)/articles/list?api_token=\(api_token)"
             var urlForEncode = "&query=\(query)&count=\(count)&page=\(page)&short_text=\(1)"
             switch type {
