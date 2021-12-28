@@ -74,11 +74,11 @@ import Foundation
 }
 
 @objc public class UDSearchArticle: NSObject {
-    var page: Int = 0
-    var last_page: Int = 0
-    var count: Int = 0
-    var total_count: Int = 0
-    var articles: [UDArticle] = []
+    public var page: Int = 0
+    public var last_page: Int = 0
+    public var count: Int = 0
+    public var total_count: Int = 0
+    public var articles: [UDArticle] = []
     
     init?(from: Any) {
         guard let json = from as? [String: Any] else { return nil }
