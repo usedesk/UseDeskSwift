@@ -1264,17 +1264,17 @@ public class UseDeskSDK: NSObject, UDUISetupable {
                     return
                 } else {
                     if newMessageBlock != nil {
-                        newMessageBlock!(true, m)
+                        newMessageBlock?(true, m)
                         isAddMessage = true
                     }
                 }
             }
             if messageFile != nil {
-                newMessageBlock!(true, messageFile!)
+                newMessageBlock?(true, messageFile!)
                 isAddMessage = true
             }
             for m in messagesImageLink {
-                newMessageBlock!(true, m)
+                newMessageBlock?(true, m)
                 isAddMessage = true
             }
             if isAddMessage && token.count > 0 {
