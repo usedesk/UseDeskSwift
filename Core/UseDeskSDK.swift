@@ -242,9 +242,9 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         }
     }
 
-    @objc public func sendMessage(_ text: String, messageId: String? = nil) {
+    @objc public func sendMessage(_ text: String, messageId: String? = nil, completion: (() -> Void)?) {
         let mess = UseDeskSDKHelp.messageText(text, messageId: messageId)
-        socket?.emit("dispatch", with: mess!, completion: nil)
+        socket?.emit("dispatch", with: mess!, completion: completion)
     }
     
     @objc public func sendFile(fileName: String, data: Data, messageId: String? = nil, status: @escaping (Bool, String?) -> Void) {
