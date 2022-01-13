@@ -464,7 +464,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
                     if wSelf.firstMessage != "" {
                         let id = wSelf.newIdLoadingMessages()
                         wSelf.idLoadingMessages.append(id)
-                        wSelf.sendMessage(wSelf.firstMessage, messageId: id)
+                        wSelf.sendMessage(wSelf.firstMessage, messageId: id, completion: nil)
                         wSelf.firstMessage = ""
                     }
                     isAuthInited = true
