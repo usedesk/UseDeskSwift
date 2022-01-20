@@ -35,8 +35,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
     var indexSelectedArticle: Int = 0
     weak var usedesk: UseDeskSDK?
     weak var delegate: UDBaseArticleViewDelegate?
-    
-    private var fileViewingVC: UDFileViewingVC!
+
     private var webView: WKWebView!
     // Title View
     private var titleView = UIView()

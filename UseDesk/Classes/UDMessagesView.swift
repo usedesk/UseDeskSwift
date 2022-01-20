@@ -77,7 +77,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     public var safeAreaInsetsBottom: CGFloat = 0.0
     public var tableNode = ASTableNode()
     
-    private let kLimitSizeFile: Double = 150
+    private let kLimitSizeFile: Double = 128
     
     private var isFirstOpen = true
     private var previousOrientation: Orientation = .portrait
@@ -102,6 +102,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     private var imagePicker: ImagePicker!
     private var isShowAlertLimitSizeFile = false
     private var alertsLimitSizeFile: [Int : UDMessage] = [:]
+    private var downloadFileIndexCell: [Int] = []
     
     private var countDraftMessagesWithFile: Int {
         return draftMessages.filter({$0.type != UD_TYPE_TEXT && $0.type != UD_TYPE_EMOJI && $0.type != UD_TYPE_Feedback}).count
@@ -171,12 +172,16 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         if #available(iOS 11.0, *) {
             safeAreaInsetsBottom = view.safeAreaInsets.bottom
         }
-        updateOrientation()
+        
         attachCollectionView.frame = CGRect(origin: attachCollectionView.frame.origin, size: CGSize(width: attachChangeView.frame.width, height: attachCollectionView.frame.height))
         attachFirstButton.frame = CGRect(origin: attachFirstButton.frame.origin, size: CGSize(width: attachChangeView.frame.width, height: attachFirstButton.frame.height))
         attachSeparatorView.frame = CGRect(origin: attachSeparatorView.frame.origin, size: CGSize(width: attachChangeView.frame.width, height: attachSeparatorView.frame.height))
         attachFileButton.frame = CGRect(origin: attachFileButton.frame.origin, size: CGSize(width: attachChangeView.frame.width, height: attachFileButton.frame.height))
         inputPanelUpdate()
+    }
+    
+    override func viewSafeAreaInsetsDidChange() {
+        updateOrientation()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -193,7 +198,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 tableNode.view.rightAnchor.constraint(equalTo: viewForTable.rightAnchor)
             ]
             NSLayoutConstraint.activate(constraints)
-            tableNode.reloadData()
         }
     }
     
@@ -265,7 +269,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         
         tableNode.dataSource = self
         tableNode.delegate = self
-        
+        tableNode.contentInset.top = 4
         scrollButtonTC.constant = configurationStyle.chatStyle.scrollButtonMargin.right
         scrollButtonBC.constant = configurationStyle.chatStyle.scrollButtonMargin.bottom
         scrollButtonHC.constant = configurationStyle.chatStyle.scrollButtonSize.height
@@ -336,13 +340,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 centerPortaitWithKeyboard = CGPoint(x: centerPortait.x, y: centerPortait.y - keyboardHeightPortait)
             }
             if previousOrientation != .portrait {
-//                self.view.center = isShowKeyboard ? centerPortaitWithKeyboard : centerPortait
                 self.textInputViewBC.constant =  isShowKeyboard ? keyboardHeightPortait : 0
                 previousOrientation = .portrait
-                DispatchQueue.main.async { [weak self] in
-                    guard let wSelf = self else {return}
-                    wSelf.tableNode.reloadData()
-                }
             }
         } else {
             if centerLandscape == CGPoint.zero && !isFirstOpen {
@@ -359,13 +358,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 }
             }
             if previousOrientation != .landscape {
-//                self.view.center = isShowKeyboard ? centerLandscapeWithKeyboard : centerLandscape
                 self.textInputViewBC.constant = isShowKeyboard ? keyboardHeightLandscape : 0
                 previousOrientation = .landscape
-                DispatchQueue.main.async { [weak self] in
-                    guard let wSelf = self else {return}
-                    wSelf.tableNode.reloadData()
-                }
             }
         }
         DispatchQueue.main.async { [weak self] in
@@ -417,7 +411,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             message.setAsset(asset: asset, isCacheFile: usedesk?.isCacheMessagesWithFile ?? false) {
                 DispatchQueue.main.async { [weak self] in
                     guard let wSelf = self else {return}
-                    if (Double(message.file.data?.count ?? 0) / Double(1048576)) > wSelf.kLimitSizeFile {
+                    if (message.file.data?.size ?? 0) > wSelf.kLimitSizeFile {
                         wSelf.showAlertLimitSizeFile(with: message)
                         wSelf.updateAttachCollectionView()
                     } else {
@@ -448,14 +442,14 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         } else if let image = asset as? UIImage {
             let message = UDMessage(image: image, isCacheFile: usedesk?.isCacheMessagesWithFile ?? false)
             draftMessages.append(message)
-            if (Double(message.file.data?.count ?? 0) / Double(1048576)) > kLimitSizeFile {
+            if (message.file.data?.size ?? 0) > kLimitSizeFile {
                 showAlertLimitSizeFile(with: message)
                 deleteDraftMessage(with: message)
             }
         } else if let urlFile = asset as? URL {
             let message = UDMessage(urlFile: urlFile, isCacheFile: usedesk?.isCacheMessagesWithFile ?? false)
             draftMessages.append(message)
-            if (Double(message.file.data?.count ?? 0) / Double(1048576)) > kLimitSizeFile {
+            if (message.file.data?.size ?? 0) > kLimitSizeFile {
                 showAlertLimitSizeFile(with: message)
                 deleteDraftMessage(with: message)
             }
@@ -847,11 +841,13 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     }
     
     func takePhotoCamera() {
-        let picker = UIImagePickerController()
-        picker.delegate = self
-        picker.allowsEditing = true
-        picker.sourceType = .camera
-        present(picker, animated: true)
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            let picker = UIImagePickerController()
+            picker.delegate = self
+            picker.allowsEditing = true
+            picker.sourceType = .camera
+            present(picker, animated: true)
+        }
     }
     
     func checkAccessCameraAndOpenCamera() {
@@ -1137,10 +1133,26 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     }
     
     func tableNode(_ tableNode: ASTableNode, willDisplayRowWith node: ASCellNode) {
+        if let cell = node as? UDMessageCellNode {
+            if let indexPath = cell.indexPath {
+                let count = 60
+                for index in indexPath.row..<indexPath.row + count {
+                    if let cellDownload = tableNode.nodeForRow(at: IndexPath(row: index, section: indexPath.section)) as? UDMessageCellNode {
+                        if !downloadFileIndexCell.contains(cellDownload.message.id) {
+                            downloadFileIndexCell.append(cellDownload.message.id)
+                            downloadFile(node: cellDownload)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func downloadFile(node: ASCellNode) {
         if let pictureCell = node as? UDPictureMessageCellNode {
             if let indexPath = pictureCell.indexPath {
                 guard let message = getMessage(indexPath) else {return}
-                if message.status == UD_STATUS_SUCCEED {
+                if message.status == UD_STATUS_SUCCEED && pictureCell.message != message {
                     pictureCell.bindData(messagesView: self, message: message, avatarImage: avatarImage(indexPath))
                     pictureCell.setNeedsLayout()
                 } else {
@@ -1184,7 +1196,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         } else if let videoCell = node as? UDVideoMessageCellNode {
             if let indexPath = videoCell.indexPath {
                 guard let message = getMessage(indexPath) else {return}
-                if message.status == UD_STATUS_SUCCEED {
+                if message.status == UD_STATUS_SUCCEED && videoCell.message != message {
                     videoCell.bindData(messagesView: self, message: message, avatarImage: avatarImage(indexPath))
                     videoCell.setNeedsLayout()
                 } else {
@@ -1195,7 +1207,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                             DispatchQueue.main.async(execute: {
                                 if let indexPathVideo = wSelf.indexPathForMessage(at: message.id) {
                                     message.file.path = url.path
-//                                    message.file.picture = UDFileManager.videoPreview(filePath: message.file.path)
                                     message.file.name = URL(fileURLWithPath: message.file.path).localizedName ?? "Video"
                                     message.status = UD_STATUS_SUCCEED
                                     wSelf.messagesWithSection[indexPathVideo.section][indexPathVideo.row] = message
@@ -1209,7 +1220,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         } else if let fileCell = node as? UDFileMessageCellNode {
             if let indexPath = fileCell.indexPath {
                 guard let message = getMessage(indexPath) else {return}
-                if message.status == UD_STATUS_SUCCEED {
+                if message.status == UD_STATUS_SUCCEED && fileCell.message != message {
                     fileCell.bindData(messagesView: self, message: message, avatarImage: avatarImage(indexPath))
                     fileCell.setNeedsLayout()
                 } else {
@@ -1228,7 +1239,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                                 if let indexPathVideo = wSelf.indexPathForMessage(at: message.id) {
                                                     message.type = UD_TYPE_VIDEO
                                                     message.file.path = NSURL(fileURLWithPath: FileManager.default.udWriteDataToCacheDirectory(data: data!) ?? "").path ?? ""
-//                                                    message.file.picture = UDFileManager.videoPreview(filePath: message.file.path)
                                                     message.file.name = URL(fileURLWithPath: message.file.path).localizedName ?? "Video"
                                                     message.file.type = "video"
                                                     wSelf.messagesWithSection[indexPathVideo.section][indexPathVideo.row] = message
@@ -1237,7 +1247,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                                 }
                                             } else if mimeType.mime.contains("image") {
                                                 if let indexPathPicture = wSelf.indexPathForMessage(at: message.id) {
-//                                                    message.file.picture = UIImage(data: data!)?.udResizeImage()
                                                     message.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!) ?? ""
                                                     message.file.name = message.file.path != "" ? (URL(fileURLWithPath: message.file.path).localizedName ?? "Image") : "Image"
                                                     message.file.type = "image"
@@ -1249,14 +1258,14 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                         }
                                         if isFile {
                                             if let indexPathFile = wSelf.indexPathForMessage(at: message.id) {
-//                                                message.file.picture = UIImage(data: data!)
                                                 message.file.path = NSURL(fileURLWithPath: FileManager.default.udWriteDataToCacheDirectory(data: data!) ?? "").path ?? ""
                                                 message.file.type = "file"
                                                 message.file.sizeInt = data!.count
                                                 wSelf.messagesWithSection[indexPathFile.section][indexPathFile.row] = message
                                                 if let cell = (wSelf.tableNode.nodeForRow(at: indexPathFile) as? UDFileMessageCellNode) {
-                                                    cell.setLoadedFileStatus()
+                                                    cell.removeLoader()
                                                     cell.setNeedsLayout()
+                                                    cell.layoutIfNeeded()
                                                 } else {
                                                     wSelf.tableNode.reloadRows(at: [indexPathFile], with: .none)
                                                 }
@@ -1278,6 +1287,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         cell.bindData(IndexPath(row: 0, section: section), messagesView: self)
         cell.transform = CGAffineTransform(scaleX: 1, y: -1)
+        cell.backgroundColor = .clear
         return cell
     }
 

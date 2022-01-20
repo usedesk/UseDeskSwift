@@ -148,22 +148,20 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
     
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            if !isShowKeyboard {
-                isShowKeyboard = true
-                keyboardHeight = keyboardSize.height
-                UIView.animate(withDuration: 0.4) {
-                    self.scrollViewBC.constant = self.keyboardHeight
-                    var offsetPlus: CGFloat = 0
-                    if self.selectedIndexPath != nil {
-                        if let cell = self.tableView.cellForRow(at: self.selectedIndexPath!) as? UDTextAnimateTableViewCell {
-                            offsetPlus = cell.frame.origin.y + cell.frame.height + self.tableView.frame.origin.y - self.scrollView.contentOffset.y
-                        }
+            isShowKeyboard = true
+            keyboardHeight = keyboardSize.height
+            UIView.animate(withDuration: 0.4) {
+                self.scrollViewBC.constant = self.keyboardHeight
+                var offsetPlus: CGFloat = 0
+                if self.selectedIndexPath != nil {
+                    if let cell = self.tableView.cellForRow(at: self.selectedIndexPath!) as? UDTextAnimateTableViewCell {
+                        offsetPlus = cell.frame.origin.y + cell.frame.height + self.tableView.frame.origin.y - self.scrollView.contentOffset.y
                     }
-                    self.view.layoutSubviews()
-                    self.view.layoutIfNeeded()
-                    if offsetPlus > (self.view.frame.height - self.keyboardHeight) {
-                        self.scrollView.contentOffset.y += offsetPlus - (self.view.frame.height - self.keyboardHeight)
-                    }
+                }
+                self.view.layoutSubviews()
+                self.view.layoutIfNeeded()
+                if offsetPlus > (self.view.frame.height - self.keyboardHeight) {
+                    self.scrollView.contentOffset.y += offsetPlus - (self.view.frame.height - self.keyboardHeight)
                 }
             }
         }
@@ -260,7 +258,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         let yPositionCursor = (textViewYPositionCursor + (selectedCellPositionY - scrollView.contentOffset.y))
         if yPositionCursor > self.view.frame.height - heightNavigationBar - keyboardHeight - 30 {
             UIView.animate(withDuration: 0.3) {
-                self.scrollView.contentOffset.y = (yPositionCursor + self.scrollView.contentOffset.y) - (self.view.frame.height - heightNavigationBar - self.keyboardHeight - 30)
+                self.scrollView.contentOffset.y = (yPositionCursor + self.scrollView.contentOffset.y) - (self.view.frame.height - heightNavigationBar - self.keyboardHeight)
             }
         }
     }
@@ -286,14 +284,13 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
             if !success && feedbackStatus == .feedbackForm {
                 wSelf.showSendedView()
             } else {
-                if wSelf.navigationController?.visibleViewController != wSelf.dialogflowVC {
+                if wSelf.usedesk?.uiManager?.visibleViewController() != wSelf.dialogflowVC {
                     DispatchQueue.main.async(execute: {
                         wSelf.dialogflowVC.usedesk = wSelf.usedesk
                         wSelf.dialogflowVC.isFromBase = wSelf.isFromBase
                         wSelf.dialogflowVC.isFromOfflineForm = true
                         wSelf.dialogflowVC.delegate = self
                         wSelf.usedesk?.uiManager?.pushViewController(wSelf.dialogflowVC)
-                        wSelf.dialogflowVC.updateChat()
                         wSelf.usedesk?.sendMessage(text)
                         if let index = wSelf.navigationController?.viewControllers.firstIndex(of: wSelf) {
                             wSelf.navigationController?.viewControllers.remove(at: index)
@@ -461,14 +458,14 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                 
                 if !isValid {
                     title = usedesk!.model.stringFor("ErrorEmail")
-                } else {
-                    attributedTitleString = NSMutableAttributedString()
-                    attributedTitleString!.append(NSAttributedString(string: title, attributes: [NSAttributedString.Key.font : usedesk!.configurationStyle.feedbackFormStyle.headerFont, NSAttributedString.Key.foregroundColor : usedesk!.configurationStyle.feedbackFormStyle.headerColor]))
-                    attributedTitleString!.append(NSAttributedString(string: " *", attributes: [NSAttributedString.Key.font : usedesk!.configurationStyle.feedbackFormStyle.headerFont, NSAttributedString.Key.foregroundColor : usedesk!.configurationStyle.feedbackFormStyle.headerSelectedColor]))
                 }
+                attributedTitleString = NSMutableAttributedString()
+                attributedTitleString!.append(NSAttributedString(string: title, attributes: [NSAttributedString.Key.font : usedesk!.configurationStyle.feedbackFormStyle.headerFont, NSAttributedString.Key.foregroundColor : usedesk!.configurationStyle.feedbackFormStyle.headerColor]))
+                attributedTitleString!.append(NSAttributedString(string: " *", attributes: [NSAttributedString.Key.font : usedesk!.configurationStyle.feedbackFormStyle.headerFont, NSAttributedString.Key.foregroundColor : usedesk!.configurationStyle.feedbackFormStyle.headerSelectedColor]))
+
                 if emailClient.contact == "" && indexPath != selectedIndexPath {
                     attributedTextString = attributedTitleString
-                    text = title
+                    text = usedesk!.model.stringFor("Email")
                     title = usedesk!.model.stringFor("MandatoryField")
                     attributedTitleString = nil
                     isValid = false

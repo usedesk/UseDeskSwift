@@ -40,6 +40,7 @@ public struct ConfigurationStyle {
     public var videoStyle: VideoStyle
     public var fileStyle: FileStyle
     public var fileViewingStyle: FileViewingStyle
+    public var noInternetStyle: NoInternetStyle
     public var inputViewStyle: InputViewStyle
     public var attachButtonStyle: AttachButtonStyle
     public var sendButtonStyle: SendButtonStyle
@@ -64,6 +65,7 @@ public struct ConfigurationStyle {
                 videoStyle: VideoStyle = VideoStyle(),
                 fileStyle: FileStyle = FileStyle(),
                 fileViewingStyle: FileViewingStyle = FileViewingStyle(),
+                noInternetStyle: NoInternetStyle = NoInternetStyle(),
                 inputViewStyle: InputViewStyle = InputViewStyle(),
                 attachButtonStyle: AttachButtonStyle = AttachButtonStyle(),
                 sendButtonStyle: SendButtonStyle = SendButtonStyle(),
@@ -88,6 +90,7 @@ public struct ConfigurationStyle {
         self.videoStyle = videoStyle
         self.fileStyle = fileStyle
         self.fileViewingStyle = fileViewingStyle
+        self.noInternetStyle = noInternetStyle
         self.inputViewStyle = inputViewStyle
         self.attachButtonStyle = attachButtonStyle
         self.sendButtonStyle = sendButtonStyle
@@ -104,7 +107,7 @@ public struct ConfigurationStyle {
     }
 }
 
-// MARK: -  NavigationBar
+// MARK: - NavigationBar
 public struct NavigationBarStyle {
     public var backgroundColor: UIColor
     public var textColor: UIColor
@@ -130,7 +133,7 @@ public struct NavigationBarStyle {
         self.searchButtonImage = searchButtonImage != nil ? searchButtonImage! : UIImage.named("udSearch")
     }
 }
-// MARK: -  ChatStyle
+// MARK: - ChatStyle
 public struct ChatStyle {
     public var backgroundColor: UIColor
     public var backgroundColorLoaderView: UIColor
@@ -159,7 +162,7 @@ public struct ChatStyle {
         self.topMarginLandscape = topMarginLandscape
     }
 }
-// MARK: -  Date messages section
+// MARK: - Date messages section
 public struct SectionHeaderStyle {
     public var margin: UIEdgeInsets
     public var textColor: UIColor
@@ -193,7 +196,7 @@ public struct SectionHeaderStyle {
         return textHeight + backViewPadding.top + backViewPadding.bottom + margin.top + margin.bottom
     }
 }
-// MARK: -  Bubble
+// MARK: - Bubble
 public struct BubbleStyle {
     public var backgroundImageOutgoing: UIImage
     public var backgroundImageIncoming: UIImage
@@ -228,7 +231,7 @@ public struct BubbleStyle {
         self.bubbleColorIncoming = bubbleColorIncoming != nil ? bubbleColorIncoming! : UIColor(hexString: "F0F0F0")
     }
 }
-// MARK: -  Avatar
+// MARK: - Avatar
 public struct AvatarStyle {
     public var avatarDiameter: CGFloat
     public var margin: UIEdgeInsets
@@ -251,7 +254,7 @@ public struct AvatarStyle {
         self.avatarFont = avatarFont
     }
 }
-// MARK: -  Text cell
+// MARK: - Text cell
 public struct MessageStyle {
     // Text Message
     public var textOutgoingColor: UIColor
@@ -352,7 +355,7 @@ public struct MessageStyle {
         self.senderTextMargin = senderTextMargin
     }
 }
-// MARK: -  Feedback Message cell
+// MARK: - Feedback Message cell
 public struct FeedbackMessageStyle {
     public var buttonSize: CGSize
     public var buttonsMarginTop: CGFloat
@@ -390,7 +393,7 @@ public struct FeedbackMessageStyle {
         self.textMargin = textMargin
     }
 }
-// MARK: -  Picture cell
+// MARK: - Picture cell
 public struct PictureStyle {
     public var margin: UIEdgeInsets
     public var cornerRadius: CGFloat
@@ -410,7 +413,7 @@ public struct PictureStyle {
         self.isNeedBubble = isNeedBubble
     }
 }
-// MARK: -  Video cell
+// MARK: - Video cell
 public struct VideoStyle {
     public var margin: UIEdgeInsets
     public var cornerRadius: CGFloat
@@ -430,7 +433,7 @@ public struct VideoStyle {
         self.isNeedBubble = isNeedBubble
     }
 }
-// MARK: -  File cell
+// MARK: - File cell
 public struct FileStyle {
     public var iconMargin: UIEdgeInsets
     public var imageIcon: UIImage
@@ -469,7 +472,7 @@ public struct FileStyle {
     }
 }
 
-// MARK: -  FileViewing
+// MARK: - FileViewing
 public struct FileViewingStyle {
     public var backButtonMargin: UIEdgeInsets
     public var backButtonImage: UIImage
@@ -484,7 +487,34 @@ public struct FileViewingStyle {
     }
 }
 
-// MARK: -  Input View
+// MARK: - NoInternetStyle
+public struct NoInternetStyle {
+    public var backgroundColor: UIColor
+    public var iconImage: UIImage
+    public var iconImageSize: CGSize
+    public var titleMargin: UIEdgeInsets
+    public var titleFont: UIFont
+    public var textMargin: UIEdgeInsets
+    public var textFont: UIFont
+    
+    public init(backgroundColor: UIColor = .white,
+                iconImage: UIImage? = nil,
+                iconImageSize: CGSize = CGSize(width: 70, height: 70),
+                titleMargin: UIEdgeInsets = UIEdgeInsets(top: 15, left: 20, bottom: 8, right: 20),
+                titleFont: UIFont = UIFont.systemFont(ofSize: 21, weight: .semibold),
+                textMargin: UIEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 0, right: 12),
+                textFont: UIFont = UIFont.systemFont(ofSize: 17, weight: .medium)) {
+        self.backgroundColor = backgroundColor
+        self.iconImage = iconImage != nil ? iconImage! : UIImage.named("udNoInternet")
+        self.iconImageSize = iconImageSize
+        self.titleMargin = titleMargin
+        self.titleFont = titleFont
+        self.textMargin = textMargin
+        self.textFont = textFont
+    }
+}
+
+// MARK: - Input View
 public struct InputViewStyle {
     public var viewBackColor: UIColor
     public var textBackColor: UIColor
@@ -531,7 +561,7 @@ public struct InputViewStyle {
         self.topMarginAssetsCollection = topMarginAssetsCollection
     }
 }
-// MARK: -  AttachButtonStyle
+// MARK: - AttachButtonStyle
 public struct AttachButtonStyle {
     public var margin: UIEdgeInsets
     public var size: CGSize
@@ -546,7 +576,7 @@ public struct AttachButtonStyle {
     }
 }
 
-// MARK: -  SendButtonStyle
+// MARK: - SendButtonStyle
 public struct SendButtonStyle {
     public var margin: UIEdgeInsets
     public var size: CGSize
@@ -561,7 +591,7 @@ public struct SendButtonStyle {
     }
 }
 
-// MARK: -  Message Button
+// MARK: - Message Button
 public struct MessageButtonStyle {
     public var color: UIColor
     public var textColor: UIColor
@@ -591,7 +621,7 @@ public struct MessageButtonStyle {
     }
 }
 
-// MARK: -  FeedbackFormStyle
+// MARK: - FeedbackFormStyle
 public struct FeedbackFormStyle {
     public var buttonColor: UIColor
     public var buttonColorDisabled: UIColor
@@ -651,7 +681,7 @@ public struct FeedbackFormStyle {
     }
 }
 
-// MARK: -  SelectTopicFeedbackFormStyle
+// MARK: - SelectTopicFeedbackFormStyle
 public struct SelectTopicFeedbackFormStyle {
     public var titleTopicFont: UIFont
     public var titleTopicColor: UIColor
@@ -682,7 +712,7 @@ public struct SelectTopicFeedbackFormStyle {
 }
 
 
-// MARK: -  Base
+// MARK: - Base
 public struct BaseStyle {
     public var backColor: UIColor
     public var isNeedChat: Bool
@@ -732,7 +762,7 @@ public struct BaseStyle {
         self.searchCancelButtonColor = searchCancelButtonColor != nil ? searchCancelButtonColor! : UIColor(hexString: "EB5757") 
     }
 }
-// MARK: -  Base Section
+// MARK: - Base Section
 public struct BaseSectionsStyle {
     // Cell Style
     public var textFont: UIFont
@@ -780,7 +810,7 @@ public struct BaseSectionsStyle {
         self.separatorHeight = separatorHeight
     }
 }
-// MARK: -  Base Categories
+// MARK: - Base Categories
 public struct BaseCategoriesStyle {
     // Cell Style
     public var textFont: UIFont
@@ -831,7 +861,7 @@ public struct BaseCategoriesStyle {
         self.separatorHeight = separatorHeight
     }
 }
-// MARK: -  Articles List
+// MARK: - Articles List
 public struct BaseArticlesListStyle {
     // Cell Style
     public var textFont: UIFont
@@ -855,7 +885,7 @@ public struct BaseArticlesListStyle {
         self.separatorHeight = separatorHeight
     }
 }
-// MARK: -  Base Search
+// MARK: - Base Search
 public struct BaseSearchStyle {
     // Cell Style
     public var titleFont: UIFont
@@ -897,7 +927,7 @@ public struct BaseSearchStyle {
         self.separatorHeight = separatorHeight
     }
 }
-// MARK: -  Base Article
+// MARK: - Base Article
 public struct BaseArticleStyle {
 
     public var titleFont: UIFont

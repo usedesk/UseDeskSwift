@@ -31,9 +31,7 @@ class UDAttachSmallCameraCollectionViewCell: UICollectionViewCell {
                     prevLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
                     cameraPreviewView.layer.addSublayer(prevLayer!)
                     session?.startRunning()
-                } catch {
-                    print(error)
-                }
+                } catch {}
             }
         } else {
             prevLayer?.frame.size = cameraPreviewView.frame.size

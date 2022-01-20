@@ -63,7 +63,7 @@ public class UDNetworkManager {
     
     public func sendFile(url: String, fileName: String, data: Data, messageId: String? = nil, connectBlock: @escaping UDSConnectBlock, errorBlock: @escaping UDSErrorBlock) {
         if let currentToken = token {
-            DispatchQueue.global(qos: .background).async { 
+            DispatchQueue.global(qos: .utility).async { 
                 AF.upload(multipartFormData: { multipartFormData in
                     multipartFormData.append(currentToken.data(using: String.Encoding.utf8)!, withName: "chat_token")
                     multipartFormData.append(data, withName: "file", fileName: fileName)
@@ -287,10 +287,11 @@ public class UDNetworkManager {
     }
     
     // MARK: - Socket Methods
-    public func socketConnect(socket: SocketIOClient?) {
+    public func socketConnect(socket: SocketIOClient?, connectBlock: UDSConnectBlock? = nil) {
         socket?.connect()
         socket?.on("connect", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
+            connectBlock?(true)
             print("socket connected")
             let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.model.companyID, chanelId: wSelf.model.chanelId, email: wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, url: wSelf.model.url, token: wSelf.token)
             socket?.emit("dispatch", with: arrConfStart!, completion: nil)
@@ -308,9 +309,10 @@ public class UDNetworkManager {
         })
     }
     
-    public func socketDisconnect(socket: SocketIOClient?) {
+    public func socketDisconnect(socket: SocketIOClient?, connectBlock: UDSConnectBlock? = nil) {
         socket?.on("disconnect", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
+            connectBlock?(false)
             print("socket disconnect")
             let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.model.companyID, chanelId: wSelf.model.chanelId, email: wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, url: wSelf.model.url, token: wSelf.token)
             socket?.emit("dispatch", with: arrConfStart!, completion: nil)
@@ -323,7 +325,6 @@ public class UDNetworkManager {
             if data.count == 0 {
                 return
             }
-            
             UDSocketResponse.actionItited(data, model: wSelf.model, historyMessagesBlock: historyMessagesBlock, serverTokenBlock: { [weak self] token in
                 self?.save(token: token)
             }, setClientBlock: { [weak self] in
@@ -355,11 +356,9 @@ public class UDNetworkManager {
                 
                 UDSocketResponse.actionFeedbackAnswer(data, feedbackAnswerMessageBlock: feedbackAnswerMessageBlock)
                 
-                DispatchQueue.global(qos: .userInitiated).async {
-                    UDSocketResponse.actionAddMessage(data, newMessageBlock: newMessageBlock, feedbackMessageBlock: feedbackMessageBlock, sendAdditionalFieldsBlock: {
-                        wSelf.sendAdditionalFields()
-                    }, isSendedAdditionalField: wSelf.isSendedAdditionalField, model: wSelf.model)
-                }
+                UDSocketResponse.actionAddMessage(data, newMessageBlock: newMessageBlock, feedbackMessageBlock: feedbackMessageBlock, sendAdditionalFieldsBlock: {
+                    wSelf.sendAdditionalFields()
+                }, isSendedAdditionalField: wSelf.isSendedAdditionalField, model: wSelf.model)
             }
         })
     }
@@ -402,13 +401,15 @@ public class UDNetworkManager {
     }
     
     private func loadToken() -> String? {
-        let key = "usedeskClientToken\(model.email)\(model.phone)\(model.name)"
+        let key = "usedeskClientToken\(model.email)\(model.phone)\(model.name)\(model.chanelId)"
         return UserDefaults.standard.string(forKey: key)
     }
     
     private func save(token: String) {
-        let key = "usedeskClientToken\(model.email)\(model.phone)\(model.name)"
+        let key = "usedeskClientToken\(model.email)\(model.phone)\(model.name)\(model.chanelId)"
         model.token = token
-        UserDefaults.standard.set(token, forKey: key)
+        if model.isSaveTokensInUserDefaults {
+            UserDefaults.standard.set(token, forKey: key)
+        }
     }
 }

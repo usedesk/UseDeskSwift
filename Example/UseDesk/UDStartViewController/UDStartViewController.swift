@@ -33,6 +33,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var isNeedChatSwitch: UISwitch!
     @IBOutlet weak var isNeedReviewSwitch: UISwitch!
     @IBOutlet weak var isTabBarSwitch: UISwitch!
+    @IBOutlet weak var versionLabel: UILabel!
     
     @IBOutlet weak var idField1: UITextField!
     @IBOutlet weak var value1: UITextField!
@@ -50,6 +51,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     
     var collection: UDBaseCollection? = nil
     var usedesk = UseDeskSDK()
+    var isOpenVCWithTabBar = false
     let tabBarVC = UITabBarController()
     
     override func viewDidLoad() {
@@ -85,9 +87,14 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
         
         title = "UseDesk SDK"
         let singleTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleSingleTap(_:)))
-        
         singleTapGestureRecognizer.numberOfTapsRequired = 1
         view.addGestureRecognizer(singleTapGestureRecognizer)
+        
+        var versionNumber = ""
+        if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+            versionNumber = "v. " + appVersion
+        }
+        versionLabel.text = versionNumber
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -204,6 +211,10 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
         } else {
             usedesk.configurationStyle = ConfigurationStyle(feedbackMessageStyle: FeedbackMessageStyle(isFirstDislike: isFirstDislikeSwitch.isOn), pictureStyle: PictureStyle(isNeedBubble: isNeedBubbleSwitch.isOn), videoStyle: VideoStyle(isNeedBubble: isNeedBubbleSwitch.isOn), baseStyle: BaseStyle(isNeedChat: isNeedChatSwitch.isOn), baseArticleStyle: BaseArticleStyle(isNeedReview: isNeedReviewSwitch.isOn))
         }
+        isOpenVCWithTabBar = false
+        usedesk.connectBlock = { bool in
+            print("Connect = ", bool)
+        }
         
         usedesk.start(withCompanyID: companyIdTextField.text!, chanelId: chanelIdTextField.text != nil ? chanelIdTextField.text! : "", urlAPI: urlBaseTextField.text != nil ? urlBaseTextField.text! : nil, knowledgeBaseID: knowledgeBaseID, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, urlToSendFile: urlToSendFileTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, operatorName: operatorNameTextField.text != nil ? operatorNameTextField.text! : nil, nameChat: nameChat, firstMessage: firstMessageTextField.text != nil ? firstMessageTextField.text : nil, note: noteTextField.text != nil ? noteTextField.text : nil, additionalFields: additionalFields(), additionalNestedFields: additionalNestedFields(), token: tokenTextField.text != nil ? tokenTextField.text : nil, localeIdentifier: localeIdTextField.text != nil ? localeIdTextField.text : nil, presentIn: self, isPresentDefaultControllers: !isTabBarSwitch.isOn, connectionStatus: { success, feedbackStatus, token in
             if self.isTabBarSwitch.isOn && success {
@@ -212,13 +223,17 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
                 firstVC.title = "Second"
                 chatVC.title = "Chat"
                 self.tabBarVC.setViewControllers([chatVC, firstVC], animated: true)
-                self.navigationController?.pushViewController(self.tabBarVC, animated: true)
+                if !self.isOpenVCWithTabBar {
+                    self.isOpenVCWithTabBar = true
+                    self.navigationController?.pushViewController(self.tabBarVC, animated: true)
+                }
             }
         }, errorStatus: {  _, _ in})
         
         usedesk.presentationCompletionBlock = {
             print("close SDK")
         }
+        
     }
 }
 class ViewController: UIViewController {
@@ -227,4 +242,8 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .red
     }
+}
+
+struct EasyQuestion {
+    var someProperty = 0
 }

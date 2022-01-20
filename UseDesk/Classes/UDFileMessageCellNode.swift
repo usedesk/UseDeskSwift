@@ -26,6 +26,12 @@ class UDFileMessageCellNode: UDMessageCellNode {
         bubbleImageNode.addTarget(self, action: #selector(self.actionTapBubble), forControlEvents: .touchUpInside)
     }
     
+    func removeLoader() {
+        activityIndicator.stopAnimating()
+        activityIndicator.alpha = 0
+        iconNode.alpha = 1
+    }
+    
     override func bindData(messagesView messagesView_: UDMessagesView?, message : UDMessage, avatarImage: UIImage?) {
         messagesView = messagesView_
         self.message = message
@@ -68,10 +74,14 @@ class UDFileMessageCellNode: UDMessageCellNode {
         sizeAttributedString.addAttributes([NSAttributedString.Key.font : fileStyle.fontSize, .foregroundColor : message.outgoing ? fileStyle.sizeOutgoingColor : fileStyle.sizeIncomingColor], range: NSRange(location: 0, length: sizeAttributedString.length))
         sizeTextNode.attributedText = sizeAttributedString
 
-        addSubnode(iconNode)
-        addSubnode(nameFileTextNode)
-        addSubnode(sizeTextNode)
-        addSubnode(loaderNode)
+        if iconNode.supernode == nil {
+            addSubnode(iconNode)
+            addSubnode(nameFileTextNode)
+            addSubnode(sizeTextNode)
+            addSubnode(loaderNode)
+        }
+        
+        
         
         super.bindData(messagesView: messagesView, message: message, avatarImage: avatarImage)
         

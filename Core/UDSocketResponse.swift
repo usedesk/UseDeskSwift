@@ -215,7 +215,7 @@ class UDSocketResponse {
                     return
                 } else {
                     if newMessageBlock != nil && m!.text != "​" {
-                        newMessageBlock!(m)
+                        newMessageBlock?(m)
                         isAddMessage = true
                     }
                 }

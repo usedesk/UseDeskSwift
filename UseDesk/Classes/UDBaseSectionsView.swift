@@ -34,7 +34,10 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
     private var landscapeOrientation: LandscapeOrientation? = nil
     
     private var dialogflowVC : DialogflowView = DialogflowView()
+    private var noInternetVC: UDNoInternetVC!
     private var offlineVC = UDOfflineForm(nibName: "UDOfflineForm", bundle: nil)
+    private var isCanShowNoInternet = true
+    private var isShownNoInternet = false
     
     convenience init() {
         let nibName: String = "UDBaseSectionsView"
@@ -110,8 +113,12 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
             }
         }
     }
-    // MARK: - Private
+    public func isLoaded() -> Bool {
+        return !isFirstLoaded
+    }
     
+    
+    // MARK: - Private
     private func firstState() {
         guard usedesk != nil else {return}
         self.modalPresentationStyle = .fullScreen
@@ -130,7 +137,9 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
             }
         }, errorStatus: { [weak self] _, _ in
             guard let wSelf = self else {return}
-            wSelf.backAction()
+            if !wSelf.isCanShowNoInternet {
+                wSelf.showAlert(wSelf.usedesk!.model.stringFor("Error"), text: wSelf.usedesk!.model.stringFor("ServerError"))
+            }
         })
         configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         let baseStyle = configurationStyle.baseStyle
@@ -152,8 +161,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
         navigationItem.title = usedesk!.model.stringFor("KnowlengeBase")
       
         tableView.register(UINib(nibName: "UDBaseSearchCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDBaseSearchCell")
-        tableView.register(UINib(nibName: "UDBaseSectionViewCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDBaseSectionViewCell")
-        
+        tableView.register(UINib(nibName: "UDBaseSectionViewCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDBaseSectionViewCell")        
     }
     
     private func setChatButton() {
@@ -218,6 +226,17 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
         }
     }
     
+    private func showAlert(_ title: String?, text: String?) {
+        guard usedesk != nil else {return}
+        let alert = UIAlertController(title: title, message: text, preferredStyle: .alert)
+        
+        let ok = UIAlertAction(title: usedesk!.model.stringFor("Understand"), style: .default, handler: { [weak self] _ in
+            self?.backAction()
+        })
+        alert.addAction(ok)
+        present(alert, animated: true)
+    }
+    
     
     // MARK: - User actions
     @objc func actionChat() {
@@ -275,7 +294,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     @objc func searchAction() {
-        guard usedesk != nil else {return}
+        guard usedesk != nil, !isShownNoInternet else {return}
         navigationView = UIView(frame: navigationController?.navigationBar.bounds ?? .zero)
         navigationItem.titleView = navigationView
         searchBar = UISearchBar()
@@ -309,7 +328,43 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
     
     @objc func backAction() {
         self.dismiss(animated: true, completion: nil)
-        self.removeFromParent()
+    }
+    
+    // MARK: - TableNode
+    func showNoInternet() {
+        guard isCanShowNoInternet else {return}
+        isShownNoInternet = true
+        noInternetVC = UDNoInternetVC()
+        noInternetVC.usedesk = usedesk
+        if usedesk?.model.isPresentDefaultControllers ?? true {
+            self.addChild(self.noInternetVC)
+            self.view.addSubview(self.noInternetVC.view)
+        } else {
+            noInternetVC.modalPresentationStyle = .fullScreen
+            self.present(noInternetVC, animated: false, completion: nil)
+        }
+        var width: CGFloat = self.view.frame.width
+        if UIScreen.main.bounds.height < UIScreen.main.bounds.width {
+            width += safeAreaInsetsLeftOrRight * 2
+        }
+        noInternetVC.view.frame = CGRect(x:0, y:0, width: width, height: self.view.frame.height)
+        noInternetVC.setViews()
+        chatButton.alpha = 0
+        navigationItem.rightBarButtonItem?.customView?.alpha = 0
+    }
+    
+    func closeNoInternet() {
+        guard isCanShowNoInternet else {return}
+        isShownNoInternet = false
+        firstState()
+        chatButton.alpha = 1
+        if usedesk?.model.isPresentDefaultControllers ?? true {
+            noInternetVC.removeFromParent()
+            noInternetVC.view.removeFromSuperview()
+        } else {
+            noInternetVC.dismiss(animated: false, completion: nil)
+        }
+        isCanShowNoInternet = false
     }
     
     // MARK: - TableView    

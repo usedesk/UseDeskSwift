@@ -224,8 +224,11 @@ class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFie
     }
     
     func positionIn(textView: UITextView) -> CGFloat {
-        let countCharacters = (textView.offset(from: textView.beginningOfDocument, to: textView.selectedTextRange?.start ?? UITextPosition()))
+        var countCharacters = (textView.offset(from: textView.beginningOfDocument, to: textView.selectedTextRange?.start ?? UITextPosition()))
         let text: String = textView.text
+        if countCharacters > text.count {
+            countCharacters = text.count
+        }
         let endIndex = text.index(textView.text.startIndex, offsetBy: countCharacters)
         let stringBeforeCursor = String(text[text.startIndex..<endIndex])
         return stringBeforeCursor.size(availableWidth: textView.frame.width, attributes: [NSAttributedString.Key.font : configurationStyle.feedbackFormStyle.valueFont], usesFontLeading: true).height

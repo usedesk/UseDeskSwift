@@ -79,6 +79,8 @@ class UDLocalizeManager {
             "Mb"                       : "Мб",
             "Gb"                       : "Гб",
             "ExceededMaximumSize"      : "превышает максимальный размер файла в",
+            "NotInternet"              : "Нет интернета",
+            "NotInternetCheck"         : "Попробуйте отключить режим полета, включить Wi-FI или мобильный интернет и проверить уровень сигнала сети",
             //Статья
             "Send"                     : "Отправить",
             "ArticleReviewSendTitle"   : "Посоветуйте, как нам улучшить статью?",
@@ -142,6 +144,8 @@ class UDLocalizeManager {
             "Mb"                       : "Mb",
             "Gb"                       : "Gb",
             "ExceededMaximumSize"      : "exceeded maximum file size",
+            "NotInternet"              : "No Internet",
+            "NotInternetCheck"         : "Try turning off airplane mode, turning on Wi-Fi or mobile internet and checking the network signal strength",
             //Статья
             "Send"                     : "Send",
             "ArticleReviewSendTitle"   : "Let us know how we could do better?",
@@ -205,6 +209,8 @@ class UDLocalizeManager {
             "Mb"                       : "Mb",
             "Gb"                       : "Gb",
             "ExceededMaximumSize"      : "excedeu o tamanho máximo do arquivo",
+            "NotInternet"              : "Sin conexión al internet",
+            "NotInternetCheck"         : "Intente apagar el modo avión, encienda Wi-FI o Internet móvil y verifique la intensidad de la señal de la red",
             //Статья
             "Send"                     : "Enviar",
             "ArticleReviewSendTitle"   : "¿Háganos saber cómo podríamos hacerlo mejor",
@@ -268,6 +274,8 @@ class UDLocalizeManager {
             "Mb"                       : "Mb",
             "Gb"                       : "GB",
             "ExceededMaximumSize"      : "superó el tamaño máximo de archivo",
+            "NotInternet"              : "Sem internet",
+            "NotInternetCheck"         : "Tente desligar o modo avião, ligue o Wi-Fi ou a internet móvel e verifique a força do sinal da rede",
             //Статья
             "Send"                     : "Enviar",
             "ArticleReviewSendTitle"   : "Conte para nós o que podemos fazer para melhorar?",

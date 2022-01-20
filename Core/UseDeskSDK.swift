@@ -4,6 +4,7 @@
 import Foundation
 import SocketIO
 import UserNotifications
+import Reachability
 
 public class UseDeskSDK: NSObject, UDUISetupable {
     @objc public var newMessageBlock: UDSNewMessageBlock?
@@ -41,24 +42,27 @@ public class UseDeskSDK: NSObject, UDUISetupable {
     // Network
     var networkManager: UDNetworkManager? = nil
     
+    
     private var isStartWithDefaultGUI = false
+    private var reachability: Reachability?
     
     // MARK: - Start Methods
-    @objc public func start(withCompanyID companyID: String, chanelId: String, urlAPI: String? = nil, knowledgeBaseID: String? = nil, api_token: String? = nil, email: String? = nil, phone: String? = nil, url: String, urlToSendFile: String? = nil, port: String? = nil, name: String? = nil, operatorName: String? = nil, nameChat: String? = nil, firstMessage: String? = nil, note: String? = nil, additionalFields: [Int : String] = [:], additionalNestedFields: [[Int : String]] = [], token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, storage storageOutside: UDStorage? = nil, isCacheMessagesWithFile: Bool = true, presentIn parentController: UIViewController? = nil, isPresentDefaultControllers: Bool = true, connectionStatus startBlock: @escaping UDSStartBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
+    @objc public func start(withCompanyID companyID: String, chanelId: String, urlAPI: String? = nil, knowledgeBaseID: String? = nil, api_token: String? = nil, email: String? = nil, phone: String? = nil, url: String, urlToSendFile: String? = nil, port: String? = nil, name: String? = nil, operatorName: String? = nil, nameChat: String? = nil, firstMessage: String? = nil, note: String? = nil, additionalFields: [Int : String] = [:], additionalNestedFields: [[Int : String]] = [], token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, storage storageOutside: UDStorage? = nil, isCacheMessagesWithFile: Bool = true, isSaveTokensInUserDefaults: Bool = true, presentIn parentController: UIViewController? = nil, isPresentDefaultControllers: Bool = true, connectionStatus startBlock: @escaping UDSStartBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         
         closureStartBlock = startBlock
         closureErrorBlock = errorBlock
         isStartWithDefaultGUI = true
         
-        model = UDValidationManager.validateInitionalsFields(companyID: companyID, chanelId: chanelId, urlAPI: urlAPI, knowledgeBaseID: knowledgeBaseID, api_token: api_token, email: email, phone: phone, url: url, urlToSendFile: urlToSendFile, port: port, name: name, operatorName: operatorName, nameChat: nameChat, firstMessage: firstMessage, note: note, additionalFields: additionalFields, additionalNestedFields: additionalNestedFields, token: token, localeIdentifier: localeIdentifier, customLocale: customLocale, isPresentDefaultControllers: isPresentDefaultControllers, errorStatus: errorBlock) ?? UseDeskModel()
+        model = UDValidationManager.validateInitionalsFields(companyID: companyID, chanelId: chanelId, urlAPI: urlAPI, knowledgeBaseID: knowledgeBaseID, api_token: api_token, email: email, phone: phone, url: url, urlToSendFile: urlToSendFile, port: port, name: name, operatorName: operatorName, nameChat: nameChat, firstMessage: firstMessage, note: note, additionalFields: additionalFields, additionalNestedFields: additionalNestedFields, token: token, localeIdentifier: localeIdentifier, customLocale: customLocale, isSaveTokensInUserDefaults: isSaveTokensInUserDefaults, isPresentDefaultControllers: isPresentDefaultControllers, errorStatus: errorBlock) ?? UseDeskModel()
         
         storage = storageOutside != nil ? storageOutside : UDStorageMessages(token: model.token)
         self.isCacheMessagesWithFile = isCacheMessagesWithFile
         
         networkManager = UDNetworkManager(model: model)
         setupUI()
+        
         isOpenSDKUI = true
-        if knowledgeBaseID != "" {
+        if model.isOpenKnowledgeBase {
             if model.isPresentDefaultControllers {
                 uiManager?.showBaseView(in: parentController, url: url)
             }
@@ -70,16 +74,19 @@ public class UseDeskSDK: NSObject, UDUISetupable {
                 guard let wSelf = self else { return }
                 wSelf.uiManager?.reloadDialogFlow(success: success, feedBackStatus: feedbackStatus, url: wSelf.model.url)
                 startBlock(success, feedbackStatus, token)
-            } errorStatus: { error, description in
+            } errorStatus: { [weak self] error, description in
+                guard let wSelf = self else { return }
                 errorBlock(error, description)
+                wSelf.closureErrorBlock?(error, description)
             }
         }
+        setNetworkTracking()
     }
     
-    @objc public func startWithoutGUICompanyID(companyID: String, chanelId: String, urlAPI: String? = nil, knowledgeBaseID: String? = nil, api_token: String? = nil, email: String? = nil, phone: String? = nil, url: String, urlToSendFile: String? = nil, port: String? = nil, name: String? = nil, operatorName: String? = nil, nameChat: String? = nil, firstMessage: String? = nil, note: String? = nil, additionalFields: [Int : String] = [:], additionalNestedFields: [[Int : String]] = [], token: String? = nil, connectionStatus startBlock: @escaping UDSStartBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
+    @objc public func startWithoutGUICompanyID(companyID: String, chanelId: String, urlAPI: String? = nil, knowledgeBaseID: String? = nil, api_token: String? = nil, email: String? = nil, phone: String? = nil, url: String, urlToSendFile: String? = nil, port: String? = nil, name: String? = nil, operatorName: String? = nil, nameChat: String? = nil, firstMessage: String? = nil, note: String? = nil, additionalFields: [Int : String] = [:], additionalNestedFields: [[Int : String]] = [], token: String? = nil, isSaveTokensInUserDefaults: Bool = true, connectionStatus startBlock: @escaping UDSStartBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         
         if !isStartWithDefaultGUI {
-            model = UDValidationManager.validateInitionalsFields(companyID: companyID, chanelId: chanelId, urlAPI: urlAPI, knowledgeBaseID: knowledgeBaseID, api_token: api_token, email: email, phone: phone, url: url, urlToSendFile: urlToSendFile, port: port, name: name, operatorName: operatorName, nameChat: nameChat, firstMessage: firstMessage, note: note, additionalFields: additionalFields, additionalNestedFields: additionalNestedFields, token: token, errorStatus: errorBlock) ?? UseDeskModel()
+            model = UDValidationManager.validateInitionalsFields(companyID: companyID, chanelId: chanelId, urlAPI: urlAPI, knowledgeBaseID: knowledgeBaseID, api_token: api_token, email: email, phone: phone, url: url, urlToSendFile: urlToSendFile, port: port, name: name, operatorName: operatorName, nameChat: nameChat, firstMessage: firstMessage, note: note, additionalFields: additionalFields, additionalNestedFields: additionalNestedFields, token: token, isSaveTokensInUserDefaults: isSaveTokensInUserDefaults, errorStatus: errorBlock) ?? UseDeskModel()
         }
         
         let urlAdress = URL(string: model.url)
@@ -88,16 +95,23 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             return
         }
         
-        manager = SocketManager(socketURL: urlAdress!, config: [.log(true), .version(.three)])
+        var isNeedLogSocket = false
+        #if DEBUG
+            isNeedLogSocket = true
+        #endif
+        manager = SocketManager(socketURL: urlAdress!, config: [.log(isNeedLogSocket), .version(.three)])
         socket = manager?.defaultSocket
 
         networkManager?.model = model
         networkManager?.socket = socket
         
-        networkManager?.socketConnect(socket: socket)
+        networkManager?.socketConnect(socket: socket, connectBlock: connectBlock)
         networkManager?.socketError(socket: socket, errorBlock: errorBlock)
-        networkManager?.socketDisconnect(socket: socket)
-        networkManager?.socketDispatch(socket: socket, startBlock: startBlock, historyMessagesBlock: { [weak self] messages in
+        networkManager?.socketDisconnect(socket: socket, connectBlock: connectBlock)
+        networkManager?.socketDispatch(socket: socket, startBlock: { [weak self] success, feedbackstatus, error in
+            startBlock(success, feedbackstatus, error)
+            self?.connectBlock?(true)
+        }, historyMessagesBlock: { [weak self] messages in
             self?.historyMess = messages
         }, callbackSettingsBlock: { [weak self] callbackSettings in
             self?.callbackSettings = callbackSettings
@@ -177,4 +191,19 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         presentationCompletionBlock?()
     }
     
+    // MARK: - Ppivate Methods
+    func setNetworkTracking() {
+        reachability = try! Reachability()
+        reachability?.whenReachable = { [weak self] _ in
+            guard let wSelf = self else { return }
+            wSelf.uiManager?.closeNoInternet()
+        }
+        reachability?.whenUnreachable = { [weak self] _ in
+            guard let wSelf = self else { return }
+            wSelf.uiManager?.showNoInternet()
+        }
+        do {
+            try reachability?.startNotifier()
+        } catch {}
+    }
 }

@@ -8,10 +8,11 @@ import Foundation
 import UIKit
 
 class UDUIManager: UDUIProtocole {
-    var navController = UDNavigationController()
+    private var navController = UDNavigationController()
     private var dialogflowVC: DialogflowView = DialogflowView()
     private var offlineVC: UDOfflineForm = UDOfflineForm()
-
+    private var networkVC = UDNoInternetVC()
+    
     let RootView = UIApplication.shared.keyWindow?.rootViewController
     var configurationStyle: ConfigurationStyle {
         useDesk?.configurationStyle ?? ConfigurationStyle()
@@ -22,6 +23,24 @@ class UDUIManager: UDUIProtocole {
     func resetUI() {
         dialogflowVC = DialogflowView()
         offlineVC = UDOfflineForm()
+    }
+    
+    func showNoInternet() {
+        if let dialogVC = navController.visibleViewController as? DialogflowView {
+            dialogVC.showNoInternet()
+        } else if let baseSectionsVC = navController.visibleViewController as? UDBaseSectionsView {
+            baseSectionsVC.showNoInternet()
+        }
+    }
+    
+    func closeNoInternet() {
+        if let dialogVC = navController.visibleViewController as? DialogflowView {
+            dialogVC.closeNoInternet()
+        } else if let baseSectionsVC = navController.visibleViewController as? UDBaseSectionsView {
+            if baseSectionsVC.isLoaded() {
+                baseSectionsVC.closeNoInternet()
+            }
+        }
     }
 
     func showBaseView(in parentControllerOptional: UIViewController?, url: String?) {
@@ -71,7 +90,9 @@ class UDUIManager: UDUIProtocole {
     }
 
     func pushViewController(_ viewController: UIViewController) {
-        navController.pushViewController(viewController, animated: true)
+        if navController.visibleViewController != viewController {
+            navController.pushViewController(viewController, animated: true)
+        }
     }
 
     func dismiss() {
@@ -82,6 +103,10 @@ class UDUIManager: UDUIProtocole {
         guard useDesk != nil else {return nil}
         dialogflowVC.view.layoutSubviews()
         return dialogflowVC
+    }
+    
+    func visibleViewController() -> UIViewController? {
+        return navController.visibleViewController
     }
 }
 

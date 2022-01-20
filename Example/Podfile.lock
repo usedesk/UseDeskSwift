@@ -1,5 +1,5 @@
 PODS:
-  - Alamofire (5.4.4)
+  - Alamofire (5.5.0)
   - Down (0.11.0)
   - IQKeyboardManagerSwift (6.5.9)
   - PINCache (3.0.3):
@@ -17,6 +17,7 @@ PODS:
   - PINRemoteImage/PINCache (3.0.3):
     - PINCache (~> 3.0.3)
     - PINRemoteImage/Core
+  - ReachabilitySwift (5.0.0)
   - Socket.IO-Client-Swift (16.0.1):
     - Starscream (~> 4.0)
   - Starscream (4.0.4)
@@ -41,9 +42,10 @@ PODS:
     - Texture/Core
   - Texture/Video (3.1.0):
     - Texture/Core
-  - UseDesk_SDK_Swift (2.3.0):
+  - UseDesk_SDK_Swift (2.4.0):
     - Alamofire (~> 5)
     - Down
+    - ReachabilitySwift
     - Socket.IO-Client-Swift (~> 16.0)
     - Swime
     - Texture
@@ -60,6 +62,7 @@ SPEC REPOS:
     - PINCache
     - PINOperation
     - PINRemoteImage
+    - ReachabilitySwift
     - Socket.IO-Client-Swift
     - Starscream
     - Swime
@@ -70,17 +73,18 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Alamofire: f3b09a368f1582ab751b3fff5460276e0d2cf5c9
+  Alamofire: 1c4fb5369c3fe93d2857c780d8bbe09f06f97e7c
   Down: b6ba1bc985c9d2f4e15e3b293d2207766fa12612
   IQKeyboardManagerSwift: 6e839c575c4aa1078d58a596e41244e77abe918f
   PINCache: 7a8fc1a691173d21dbddbf86cd515de6efa55086
   PINOperation: 00c935935f1e8cf0d1e2d6b542e75b88fc3e5e20
   PINRemoteImage: f1295b29f8c5e640e25335a1b2bd9d805171bd01
+  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   Socket.IO-Client-Swift: c116d6dc9fd6be9c259bacfe143f8725bce7d79e
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   Swime: d7b2c277503b6cea317774aedc2dce05613f8b0b
   Texture: 2e8ab2519452515f7f5a520f5a8f7e0a413abfa3
-  UseDesk_SDK_Swift: f9b42705787962e72f22c636e952d3f86688a3a2
+  UseDesk_SDK_Swift: 2d17c63a5f0e742cd95f6d4263611904abbd4ba5
 
 PODFILE CHECKSUM: 38ca86b4f5802b67eb523063e3dd15ab9ab41411
 

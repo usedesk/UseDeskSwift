@@ -130,6 +130,10 @@ public extension Data {
         return hashString
     }
     
+    var size: Double {
+        return (Double(self.count) / Double(1048576))
+    }
+    
 }
 
 extension URL {

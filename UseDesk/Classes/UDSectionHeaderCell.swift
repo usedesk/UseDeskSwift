@@ -3,7 +3,7 @@
 
 import Foundation
 
-class UDSectionHeaderCell: UITableViewCell {
+class UDSectionHeaderCell: UIView {
     let labelSectionHeader = UILabel()
     let backView = UIView()
     
@@ -17,10 +17,10 @@ class UDSectionHeaderCell: UITableViewCell {
         indexPath = indexPath_
         messagesView = messagesView_
         backView.backgroundColor = configurationStyle.sectionHeaderStyle.backViewColor
-        contentView.addSubview(backView)
+        self.addSubview(backView)
         labelSectionHeader.font = configurationStyle.sectionHeaderStyle.font
         labelSectionHeader.textColor = configurationStyle.sectionHeaderStyle.textColor
-        contentView.addSubview(labelSectionHeader)
+        self.addSubview(labelSectionHeader)
         labelSectionHeader.textAlignment = .center
     }
     
@@ -41,7 +41,7 @@ class UDSectionHeaderCell: UITableViewCell {
         let heightText: CGFloat = labelSectionHeader.text != nil ? sectionHeaderStyle.textHeight : 0
         labelSectionHeader.frame = CGRect(x: self.center.x - (widthText / 2), y: sectionHeaderStyle.backViewPadding.top + sectionHeaderStyle.margin.top, width: widthText, height: heightText)
         if UIScreen.main.bounds.height < UIScreen.main.bounds.width {
-            if contentView.frame.origin.x > 0 {
+            if self.frame.origin.x > 0 {
                 labelSectionHeader.frame.origin.x -= 22
             }
         }

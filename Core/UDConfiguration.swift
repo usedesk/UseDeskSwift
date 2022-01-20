@@ -67,8 +67,13 @@ public struct UseDeskModel {
     var additionalNestedFields: [[Int : String]] = []
     var isPresentDefaultControllers = true
     var idLoadingMessages: [String] = []
+    var isSaveTokensInUserDefaults = true
     // Lolace
     var locale: [String:String] = [:]
+    
+    var isOpenKnowledgeBase: Bool {
+        return knowledgeBaseID != ""
+    }
     
     func stringFor(_ key: String) -> String {
         if let word = locale[key] {

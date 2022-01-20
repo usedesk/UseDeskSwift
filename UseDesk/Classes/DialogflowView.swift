@@ -22,7 +22,9 @@ class DialogflowView: UDMessagesView {
     weak var delegate: DialogflowVCDelegate?
     
     private var fileViewingVC: UDFileViewingVC!
+    private var noInternetVC: UDNoInternetVC!
     private var isDark = false
+    private var isShowNoInternet = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,9 +45,6 @@ class DialogflowView: UDMessagesView {
         NotificationCenter.default.addObserver(self, selector: #selector(self.sendMessageButton(_:)), name: Notification.Name("messageButtonSend"), object: nil)
         
         messages = [UDMessage]()
-        
-        usedesk?.connectBlock = { success in
-        }
         
         usedesk?.newMessageBlock = { messageOptional in
             DispatchQueue.main.async(execute: { [weak self] in
@@ -113,18 +112,49 @@ class DialogflowView: UDMessagesView {
     }
     
     func reloadHistory() {
-        if usedesk != nil {
-            if usedesk!.historyMess.count > messages.count {
-                let countNewMessages = usedesk!.historyMess.count - messages.count
-                let countMessages = messages.count
-                for index in 0..<countNewMessages {
-                    messages.insert(usedesk!.historyMess[countMessages + index], at: 0)
+        isShowNoInternet = false
+        DispatchQueue.main.async(execute: { [weak self] in
+            guard let wSelf = self else {return}
+            if wSelf.usedesk != nil {
+                var unknownMessages: [UDMessage] = []
+                for message in wSelf.messages {
+                    if let historyMessage = wSelf.usedesk!.historyMess.filter({$0.id == message.id}).first {
+                        if let index = wSelf.messages.firstIndex(of: message) {
+                            wSelf.messages[index].date = historyMessage.date
+                        }
+                    } else {
+                        unknownMessages.append(message)
+                    }
                 }
-                updateChat()
-            } else if usedesk!.historyMess.count == 0 {
-                updateChat()
+                for message in unknownMessages {
+                    if let index = wSelf.messages.firstIndex(of: message) {
+                        wSelf.messages.remove(at: index)
+                    }
+                }
+                if wSelf.usedesk!.historyMess.count == 0 || wSelf.messages.count == 0 {
+                    if wSelf.messages.count == 0 {
+                        wSelf.messages = wSelf.usedesk!.historyMess
+                    var newMessages: [UDMessage] = []
+                    for index in 0..<wSelf.messages.count {
+                            newMessages.append(wSelf.messages[wSelf.messages.count - 1 - index])
+                    }
+                        wSelf.messages = newMessages
+                    }
+                    wSelf.updateChat()
+                } else if wSelf.usedesk!.historyMess.count > wSelf.messages.count {
+                    let countNewMessages = wSelf.usedesk!.historyMess.count - wSelf.messages.count
+                    let countMessages = wSelf.messages.count
+                    for index in 0..<countNewMessages {
+                        wSelf.addMessage(wSelf.usedesk!.historyMess[countMessages + index])
+                    }
+                }
+                wSelf.textInput.isUserInteractionEnabled = true
+                wSelf.loader.stopAnimating()
+                wSelf.loader.alpha = 0
+                wSelf.buttonSend.isEnabled = true
+                wSelf.buttonAttach.isEnabled = true
             }
-        }
+        })
     }
     
     func updateChat() {
@@ -257,10 +287,12 @@ class DialogflowView: UDMessagesView {
         DispatchQueue.main.async(execute: { [weak self] in
             guard let wSelf = self else {return}
             wSelf.messages.append(message)
+            var isNewSection = true
             if wSelf.messagesWithSection.count > 0 {
                 if wSelf.messagesWithSection[0].count > 0 {
                     if wSelf.messagesWithSection[0].first?.date?.dateFormatString == message.date?.dateFormatString {
                         wSelf.messagesWithSection[0].insert(message, at: 0)
+                        isNewSection = false
                     } else {
                         wSelf.messagesWithSection.insert([message], at: 0)
                     }
@@ -270,7 +302,33 @@ class DialogflowView: UDMessagesView {
             } else {
                 wSelf.messagesWithSection.insert([message], at: 0)
             }
-            wSelf.tableNode.reloadData()
+            if isNewSection {
+                wSelf.tableNode.insertSections([0], with: .top)
+                wSelf.tableNode.setNeedsLayout()
+                wSelf.tableNode.layoutIfNeeded()
+            } else {
+                let secondNodeIndexPath = IndexPath(row: 1, section: 0)
+                let firstNodeIndexPath = IndexPath(row: 0, section: 0)
+                
+                if wSelf.messagesWithSection[0].count > 1 {
+                    if let cellNode = wSelf.tableNode.nodeForRow(at: firstNodeIndexPath) as? UDMessageCellNode {
+                        cellNode.bindData(messagesView: self, message: wSelf.messagesWithSection[0][1], avatarImage: wSelf.avatarImage(secondNodeIndexPath))
+                        cellNode.setNeedsLayout()
+                        cellNode.layoutIfNeeded()
+                    }
+                }
+                wSelf.tableNode.insertRows(at: [firstNodeIndexPath], with: .top)
+                if let cellNode = wSelf.tableNode.nodeForRow(at: firstNodeIndexPath) as? UDMessageCellNode {
+                    cellNode.setNeedsLayout()
+                    cellNode.layoutIfNeeded()
+                }
+                if wSelf.messagesWithSection[0].count > 1 {
+                    if let cellNode = wSelf.tableNode.nodeForRow(at: secondNodeIndexPath) as? UDMessageCellNode {
+                        cellNode.setNeedsLayout()
+                        cellNode.layoutIfNeeded()
+                    }
+                }
+            }
         })
     }
     func chekSentMessage(_ message: UDMessage) {
@@ -429,11 +487,7 @@ class DialogflowView: UDMessagesView {
         } else {
             if message.type == UD_TYPE_TEXT {
                 usedesk?.sendMessage(message.text)
-            } else {
-//                if let data = message.file.data {
-//                    usedesk?.sendFile(fileName: message.file.name, data: data, status: {_,_ in })
-//                }
-            }
+            } 
         }
         addMessage(message)
     }
@@ -445,6 +499,7 @@ class DialogflowView: UDMessagesView {
         }
         self.removeFromParent()
     }
+    
     @objc func actionDone() {
         for message in messages {
             if message.statusSend == UD_STATUS_SEND_SUCCEED && (message.file.path != "" || message.file.defaultPath != "" || message.file.previewPath != "") {
@@ -513,6 +568,37 @@ class DialogflowView: UDMessagesView {
         buttonSendLoader.stopAnimating()
     }
     
+    // MARK: - TableNode
+    func showNoInternet() {
+        guard isShowNoInternet else {return}
+        noInternetVC = UDNoInternetVC()
+        noInternetVC.usedesk = usedesk
+        if usedesk?.model.isPresentDefaultControllers ?? true {
+            self.addChild(self.noInternetVC)
+            self.view.addSubview(self.noInternetVC.view)
+        } else {
+            noInternetVC.modalPresentationStyle = .fullScreen
+            self.present(noInternetVC, animated: false, completion: nil)
+        }
+        var width: CGFloat = self.view.frame.width
+        if UIScreen.main.bounds.height < UIScreen.main.bounds.width {
+            width += safeAreaInsetsLeftOrRight * 2
+        }
+        noInternetVC.view.frame = CGRect(x:0, y:0, width: width, height: self.view.frame.height)
+        noInternetVC.setViews()
+    }
+    
+    func closeNoInternet() {
+        guard isShowNoInternet, noInternetVC != nil else {return}
+        isShowNoInternet = false
+        if usedesk?.model.isPresentDefaultControllers ?? true {
+            noInternetVC.removeFromParent()
+            noInternetVC.view.removeFromSuperview()
+        } else {
+            noInternetVC.dismiss(animated: false, completion: nil)
+        }
+    }
+    
     // MARK: - User actions (menu)
     @objc func actionMenuCopy(_ sender: Any?) {
         if let indexPath: IndexPath = UDMenuItem.indexPath((sender as! UIMenuController)) {
@@ -554,7 +640,6 @@ class DialogflowView: UDMessagesView {
                     wSelf.tableNode.reloadData()
                     wSelf.tableNode.contentOffset.y = 0
                 })
-//                message.statusSend = UD_STATUS_SEND_SUCCEED
                 wSelf.sendMessage(message)
             })
 
