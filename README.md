@@ -76,6 +76,7 @@ pod 'UseDesk_SDK_Swift'
 | Storage | UDStorage | Хранилище поддерживающее протокол [UDStorage](https://github.com/usedesk/UseDeskSwift/blob/master/Core/UseDeskSDK.swift). Для каждого отдельного чата нужно передавать свое отдельное хранилище. |
 | isCacheMessagesWithFile | Bool | Сохранять ли сообщения содержащие файлы |
 | PresentIn | UIViewController | В каком контроллере открывать | 
+| isSaveTokensInUserDefaults | Bool | Сохранять ли токен UserDefaults |
 | isPresentDefaultControllers | Bool | Показывать ли контроллеры автоматически в указанном родительском контроллере |
 | isUseBase | Bool | Начиная с версии 0.3.19 не используется |
 | Signature | String | Начиная с версии 2.0.0 не используется |
@@ -140,6 +141,7 @@ usedesk.start(withCompanyID: "1234567", chanelId: "1234", api_token: "143ed59g90
 | AdditionalFields | [Int : String] | Массив дополнительный полей в формате - id : "значение". Для текстовых полей значение - строка, для списка - строка с точно совпадающим значением списка, для флага - строка "false" или "true" |
 | AdditionalNestedFields | [[Int : String]] | Массив допл полей типа вложенный список. Каждый подмассив представляет один вложенный список. Формат фложенного списка - [id1: "значение", id2 : "значение", id3 : "значение"], где id1, id2, id3 идентификаторы значений по уровням вложенности |
 | Token | String | Подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах для сохранения истории переписки. (генерирует наша система,  ограничение не меньше 64 символа) |
+| isSaveTokensInUserDefaults | Bool | Сохранять ли токен UserDefaults |
 | isUseBase | Bool | Начиная с версии 0.3.19 не используется |
 | Signature | String | Начиная с версии 2.0.0 не используется |
 
