@@ -101,7 +101,10 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         #endif
         manager = SocketManager(socketURL: urlAdress!, config: [.log(isNeedLogSocket), .version(.three)])
         socket = manager?.defaultSocket
-
+        
+        if networkManager == nil {
+            networkManager = UDNetworkManager(model: model)
+        }
         networkManager?.model = model
         networkManager?.socket = socket
         
