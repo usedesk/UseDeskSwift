@@ -16,7 +16,7 @@ let package = Package (
          .package(url: "https://github.com/Alamofire/Alamofire", from: "5.0.0"),
          .package(url: "https://github.com/sendyhalim/Swime", from: "3.0.0"),
          .package(url: "https://github.com/johnxnguyen/Down", from: "0.11.0"),
-         .package(url: "https://github.com/ashleymills/Reachability.swift", from: "5.1.0")
+         .package(name: "Reachability", url: "https://github.com/ashleymills/Reachability.swift", from: "5.1.0")
      ],
      targets: [
          .target(
@@ -25,7 +25,8 @@ let package = Package (
                  "Alamofire",
                  "SocketIO",
                  "Swime",
-                 "Down"
+                 "Down",
+                 "Reachability"
              ],
              path: "Core"
          )
