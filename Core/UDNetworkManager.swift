@@ -329,7 +329,7 @@ public class UDNetworkManager {
                 self?.save(token: token)
             }, setClientBlock: { [weak self] in
                 guard let wSelf = self else {return}
-                wSelf.socket?.emit("dispatch", with: UseDeskSDKHelp.dataClient(wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, note: wSelf.model.note, token: wSelf.token ?? "")!, completion: nil)
+                wSelf.socket?.emit("dispatch", with: UseDeskSDKHelp.dataClient(wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, note: wSelf.model.note, token: wSelf.token ?? "", additional_id: wSelf.model.additional_id)!, completion: nil)
             })
 
             let isNoOperators = UDSocketResponse.isNoOperators(data)

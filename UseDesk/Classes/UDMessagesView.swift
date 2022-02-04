@@ -102,6 +102,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     private var imagePicker: ImagePicker!
     private var isShowAlertLimitSizeFile = false
     private var alertsLimitSizeFile: [Int : UDMessage] = [:]
+    private var isAddingDraftFileMessage = false
     private var downloadFileIndexCell: [Int] = []
     
     private var countDraftMessagesWithFile: Int {
@@ -224,6 +225,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         guard usedesk != nil else {return}
         tableNode.backgroundColor = configurationStyle.chatStyle.backgroundColor
         tableNode.view.separatorStyle = .none
+        tableNode.view.scrollsToTop = true
         
         buttonAttach.setBackgroundImage(configurationStyle.attachButtonStyle.image, for: .normal)
         buttonAttachLC.constant = configurationStyle.attachButtonStyle.margin.left
@@ -401,7 +403,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         return (messagesWithSection[indexPath!.section][indexPath!.row])
     }
     
-    func addDraftMessage(with asset: Any) {
+    func addDraftMessage(with asset: Any, isEnabledButtonSend: Bool = true) {
+        buttonSend.isEnabled = false
+        isAddingDraftFileMessage = true
         let sort = countDraftMessagesWithFile + 1
         if let asset = asset as? PHAsset {
             let message = UDMessage()
@@ -411,32 +415,47 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             message.setAsset(asset: asset, isCacheFile: usedesk?.isCacheMessagesWithFile ?? false) {
                 DispatchQueue.main.async { [weak self] in
                     guard let wSelf = self else {return}
+                    var isShowAlertLimitSizeFile = false
                     if (message.file.data?.size ?? 0) > wSelf.kLimitSizeFile {
-                        wSelf.showAlertLimitSizeFile(with: message)
-                        wSelf.updateAttachCollectionView()
-                    } else {
-                        var index = 0
-                        var flag = true
-                        while index < wSelf.draftMessages.count && flag {
-                            if wSelf.draftMessages[index].file.sort == sort {
-                                wSelf.draftMessages[index] = message
-                                flag = false
-                            }
-                            index += 1
-                        }
-                        let indexPath = IndexPath(row: wSelf.countDraftMessagesWithFile == wSelf.draftMessages.count ? index - 1 : index - 2, section: 0)
-                        if let cell = wSelf.attachCollectionMessageView.cellForItem(at: indexPath) as? UDAttachCollectionViewCell {
-                            if message.type == UD_TYPE_VIDEO {
-                                if let previewImage = message.file.previewImage  {
-                                    cell.setingCell(image: previewImage, type: .video, videoDuration: message.file.duration, index: indexPath.row)
-                                }
+                        isShowAlertLimitSizeFile = true
+                    }
+                    var index = 0
+                    var flag = true
+                    while index < wSelf.draftMessages.count && flag {
+                        if wSelf.draftMessages[index].file.sort == sort {
+                            if isShowAlertLimitSizeFile {
+                                wSelf.showAlertLimitSizeFile(with: message)
+                                wSelf.updateAttachCollectionView()
                             } else {
-                                if let image = message.file.image {
-                                    cell.setingCell(image: image, type: .image, index: indexPath.row)
-                                }
+                                wSelf.draftMessages[index] = message
+                            }
+                            flag = false
+                        }
+                        index += 1
+                    }
+                    guard !isShowAlertLimitSizeFile else {
+                        if isEnabledButtonSend {
+                            wSelf.buttonSend.isEnabled = true
+                        }
+                        wSelf.isAddingDraftFileMessage = false
+                        return
+                    }
+                    let indexPath = IndexPath(row: wSelf.countDraftMessagesWithFile == wSelf.draftMessages.count ? index - 1 : index - 2, section: 0)
+                    if let cell = wSelf.attachCollectionMessageView.cellForItem(at: indexPath) as? UDAttachCollectionViewCell {
+                        if message.type == UD_TYPE_VIDEO {
+                            if let previewImage = message.file.previewImage  {
+                                cell.setingCell(image: previewImage, type: .video, videoDuration: message.file.duration, index: indexPath.row)
+                            }
+                        } else {
+                            if let image = message.file.image {
+                                cell.setingCell(image: image, type: .image, index: indexPath.row)
                             }
                         }
                     }
+                    if isEnabledButtonSend {
+                        wSelf.buttonSend.isEnabled = true
+                    }
+                    wSelf.isAddingDraftFileMessage = false
                 }
             }
         } else if let image = asset as? UIImage {
@@ -445,14 +464,20 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             if (message.file.data?.size ?? 0) > kLimitSizeFile {
                 showAlertLimitSizeFile(with: message)
                 deleteDraftMessage(with: message)
+            } else if isEnabledButtonSend {
+                buttonSend.isEnabled = true
             }
+            isAddingDraftFileMessage = false
         } else if let urlFile = asset as? URL {
             let message = UDMessage(urlFile: urlFile, isCacheFile: usedesk?.isCacheMessagesWithFile ?? false)
             draftMessages.append(message)
             if (message.file.data?.size ?? 0) > kLimitSizeFile {
                 showAlertLimitSizeFile(with: message)
                 deleteDraftMessage(with: message)
+            } else if isEnabledButtonSend {
+                buttonSend.isEnabled = true
             }
+            isAddingDraftFileMessage = false
         }
     }
     
@@ -599,10 +624,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             textInputLC.constant = textInputLC.constant + safeAreaInsetsLeftOrRight
         }
         textInputHC.constant = heightInput
-        if !((textInput.text == usedesk!.model.stringFor("Write") + "..." && textInput.textColor == configurationStyle.inputViewStyle.placeholderTextColor)) {
-            buttonSend.isEnabled = textInput.text.count != 0 || countDraftMessagesWithFile > 0
-        } else {
-            buttonSend.isEnabled = countDraftMessagesWithFile > 0 ? true : false
+        if !(textInput.text == usedesk!.model.stringFor("Write") + "..." && textInput.textColor == configurationStyle.inputViewStyle.placeholderTextColor) && !isAddingDraftFileMessage && countDraftMessagesWithFile == 0 {
+            buttonSend.isEnabled = textInput.text.count != 0
         }
     }
     
@@ -627,8 +650,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     @IBAction func attachFirstButtonAction(_ sender: Any) {
         if selectedAssets.count > 0 {
-            for selectedAsset in selectedAssets {
-                addDraftMessage(with: selectedAsset)
+            for index in 0..<selectedAssets.count {
+                addDraftMessage(with: selectedAssets[index], isEnabledButtonSend: index == selectedAssets.count - 1)
             }
             closeAttachView()
             showAttachCollection()
@@ -719,7 +742,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     @IBAction func scrollButtonAction(_ sender: Any) {
         UIView.animate(withDuration: 0.3) {
-            self.tableNode.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+            self.tableNode.scrollToRow(at: IndexPath(row: 0, section: 0), at: .none, animated: true)
         }
     }
     
@@ -741,15 +764,17 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                     self.scrollButton.alpha = 0
                 }
             }
-            if tableNode.contentOffset.y < 1 {
-                tableNode.contentOffset.y = 1
-            }
         }
     }
     
     func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
-        UIView.animate(withDuration: 0.3) {
-            self.tableNode.scrollToRow(at: IndexPath(row: self.messagesWithSection[self.messagesWithSection.count - 1].count - 1, section: self.messagesWithSection.count - 1), at: .bottom, animated: true)
+        let lastIndexSection = messagesWithSection.count - 1
+        if lastIndexSection < messagesWithSection.count {
+            let indexPath = IndexPath(row: self.messagesWithSection[lastIndexSection].count - 1, section: lastIndexSection)
+            guard tableNode.nodeForRow(at: indexPath) != nil else {return false}
+            UIView.animate(withDuration: 0.3) {
+                self.tableNode.scrollToRow(at: indexPath, at: .bottom, animated: true)
+            }
         }
         return false
     }
@@ -904,7 +929,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             closeAttachView()
             showAttachCollection()
         }
-        buttonSend.isEnabled = true
         picker.dismiss(animated: true)
     }
     
@@ -1480,11 +1504,17 @@ extension UDMessagesView: UDAttachSmallCollectionLayoutDelegate {
 // MARK: - UDAttachCVCellDelegate
 extension UDMessagesView: UDAttachCVCellDelegate {
     func deleteFile(index: Int) {
-        deleteMeessage(from: &draftMessages, index: index)
+        deleteMeessage(from: &draftMessages, index: draftMessages.filter({$0.type == UD_TYPE_TEXT}).count > 0 ? index + 1 : index)
         attachCollectionMessageView.reloadData()
         if countDraftMessagesWithFile == 0 {
-            buttonSend.isEnabled = textInput.text.count != 0
+            if !(textInput.text == usedesk!.model.stringFor("Write") + "..." && textInput.textColor == configurationStyle.inputViewStyle.placeholderTextColor) && !isAddingDraftFileMessage {
+                buttonSend.isEnabled = textInput.text.count != 0
+            } else {
+                buttonSend.isEnabled = false
+            }
             closeAttachCollection()
+        } else if draftMessages.filter({$0.type != UD_TYPE_TEXT}).filter({$0.status == 0}).count == 0 {
+            buttonSend.isEnabled = true
         }
     }
 }
@@ -1531,7 +1561,6 @@ extension UDMessagesView: ImagePickerDelegate {
         }
         closeAttachView()
         showAttachCollection()
-        buttonSend.isEnabled = true
     }
 }
 // MARK: - PHPickerViewControllerDelegate
@@ -1558,11 +1587,10 @@ extension UDMessagesView: PHPickerViewControllerDelegate {
         }
         
         for index in 0..<assetsSort.count {
-            addDraftMessage(with: assetsSort[index])
+            addDraftMessage(with: assetsSort[index], isEnabledButtonSend: index == assetsSort.count - 1)
             if index == assetsSort.count - 1 {
                 closeAttachView()
                 showAttachCollection()
-                buttonSend.isEnabled = true
             }
         }
     }

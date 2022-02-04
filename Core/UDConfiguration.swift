@@ -63,6 +63,7 @@ public struct UseDeskModel {
     var firstMessage = ""
     var note = ""
     var token = ""
+    var additional_id = ""
     var additionalFields: [Int : String] = [:]
     var additionalNestedFields: [[Int : String]] = []
     var isPresentDefaultControllers = true

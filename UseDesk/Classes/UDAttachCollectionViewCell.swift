@@ -121,19 +121,8 @@ class UDAttachCollectionViewCell: UICollectionViewCell {
     }
     
     func showLoader() {
-//        videoView.removeFromSuperview()
-//        imageIconFileView.removeFromSuperview()
-//        fileTitleLabel.removeFromSuperview()
-//        imageAttachView.removeFromSuperview()
-//        imageAttachView.backgroundColor = UIColor(hexString: "F0F0F0")
-//        imageAttachView.frame = CGRect(x: kIndentImage, y: kIndentImage, width: configurationStyle.inputViewStyle.heightAssetsCollection - kIndentImage * 2, height: configurationStyle.inputViewStyle.heightAssetsCollection - kIndentImage * 2)
-//        imageAttachView.layer.masksToBounds = true
-//        imageAttachView.layer.cornerRadius = 4
-//        if imageAttachView.superview == nil {
-//            self.addSubview(imageAttachView)
-//        }
         if loader == nil {
-            loader = UIActivityIndicatorView(style: .white)
+            loader = UIActivityIndicatorView(style: .gray)
             loader!.translatesAutoresizingMaskIntoConstraints = false
             self.addSubview(loader!)
             let horizontalConstraint = NSLayoutConstraint(item: loader!, attribute: NSLayoutConstraint.Attribute.centerX, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.centerX, multiplier: 1, constant: 0)

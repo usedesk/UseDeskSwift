@@ -41,6 +41,11 @@ class UseDeskSDKHelp {
         if token != "" {
             payload["token"] = token
         }
+        if additional_id != nil {
+            if additional_id != "" {
+                payload["additional_id"] = additional_id
+            }
+        }
         dic["payload"] = payload
         return [dic]
     }

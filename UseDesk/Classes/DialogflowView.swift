@@ -151,7 +151,6 @@ class DialogflowView: UDMessagesView {
                 wSelf.textInput.isUserInteractionEnabled = true
                 wSelf.loader.stopAnimating()
                 wSelf.loader.alpha = 0
-                wSelf.buttonSend.isEnabled = true
                 wSelf.buttonAttach.isEnabled = true
             }
         })
@@ -163,7 +162,6 @@ class DialogflowView: UDMessagesView {
             wSelf.loadMessagesFromStorage()
             wSelf.generateSectionFromModel()
             wSelf.configurationViews()
-            wSelf.buttonSend.isEnabled = true
             wSelf.buttonAttach.isEnabled = true
             if !wSelf.isFromOfflineForm && !wSelf.isFromBase {
                 wSelf.tableNode.reloadData()
@@ -452,7 +450,6 @@ class DialogflowView: UDMessagesView {
             wSelf.generateSectionFromModel()
             wSelf.tableNode.reloadData()
             if wSelf.isFromOfflineForm || wSelf.isFromBase {
-                wSelf.buttonSend.isEnabled = true
                 wSelf.buttonAttach.isEnabled = true
                 wSelf.textInput.isUserInteractionEnabled = true
                 wSelf.loader.stopAnimating()
@@ -465,6 +462,7 @@ class DialogflowView: UDMessagesView {
     func sendMessage(_ message: UDMessage) {
         message.date = Date()
         message.typeSenderMessageString = "client_to_operator"
+        addMessage(message)
         if let id = usedesk?.networkManager?.newIdLoadingMessages() {
             message.loadingMessageId = id
             if message.type == UD_TYPE_TEXT {
@@ -489,7 +487,7 @@ class DialogflowView: UDMessagesView {
                 usedesk?.sendMessage(message.text)
             } 
         }
-        addMessage(message)
+        
     }
     
     // MARK: - User actions
@@ -701,8 +699,6 @@ class DialogflowView: UDMessagesView {
                 fileViewingVC.fileSize = file.sizeString
             }
             fileViewingVC.updateState()
-            
-            
         }
     }
 }

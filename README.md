@@ -1,6 +1,5 @@
 # UseDesk_SDK_Swift
 [![CocoaPods Compatible](https://img.shields.io/cocoapods/v/UseDesk_SDK_Swift.svg?style=flat-square)](https://img.shields.io/cocoapods/v/UseDesk_SDK_Swift.svg)
-[![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-compatible-orange?style=flat-square)](https://img.shields.io/badge/Swift_Package_Manager-compatible-orange?style=flat-square)
 
 - [Образец](#образец)
 - [Добавление библиотеки в проект](#добавление-библиотеки-в-проект)
@@ -38,12 +37,6 @@ pod 'UseDesk_SDK_Swift'
 
 -Подключаем библиотеку import UseDesk`
 
-### Swift Package Manager
-
-```swift
-.package(url: "https://github.com/usedesk/UseDeskSwift.git", from: "2.1.0")
-```
-
 ## ВАЖНЫЕ ОБНОВЛЕНИЯ: 
 Начиная с версии 2.0.0 мы заменяем параметр signature на token. Токен выдается в коллбэке после инициализации чата и привязывается к связке почта-телефон-имя пользователя. Для идентификации различных пользователей на одном устройстве вы должны хранить и передавать полученный токен в метод инициализации.
 
@@ -70,6 +63,7 @@ pod 'UseDesk_SDK_Swift'
 | Note | String | Текст заметки |
 | AdditionalFields | [Int : String] | Массив дополнительный полей в формате - id : "значение". Для текстовых полей значение - строка, для списка - строка с точно совпадающим значением списка, для флага - строка "false" или "true" |
 | AdditionalNestedFields | [[Int : String]] | Массив допл полей типа вложенный список. Каждый подмассив представляет один вложенный список. Формат фложенного списка - [id1: "значение", id2 : "значение", id3 : "значение"], где id1, id2, id3 идентификаторы значений по уровням вложенности |
+| AdditionalId | String | Дополнительный идентификатор клиента |
 | Token | String | Подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах для сохранения истории переписки. (генерирует наша система,  ограничение не меньше 64 символа) |
 | LocaleIdentifier | String | Идентификатор языка. Доступные языки: русский ("ru"), английский ("en"), португальский ("pt"), испанский ("es"). Если переданный идентификатор не поддерживается, будет выбран русский язык. |
 | CustomLocale | [String : String] | Можно передать свой словарь переводов |
@@ -104,7 +98,7 @@ pod 'UseDesk_SDK_Swift'
 #### Пример c использованием базы знаний:
 ``` swift
 let usedesk = UseDeskSDK()
-usedesk.start(withCompanyID: "1234567", chanelId: "1234", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "pubsubsec.usedesk.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", additionalFields: [1 : "value"], additionalNestedFields: [[1 : "value1", 2 : "value2", 3 : "value3"]], token: "Token", localeIdentifier: "en", customLocale: customLocaleDictionary, presentIn: self, isPresentDefaultControllers: true, connectionStatus: { success, error in
+usedesk.start(withCompanyID: "1234567", chanelId: "1234", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "pubsubsec.usedesk.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", additionalFields: [1 : "value"], additionalNestedFields: [[1 : "value1", 2 : "value2", 3 : "value3"]], additional_id: "additional_id", token: "Token", localeIdentifier: "en", customLocale: customLocaleDictionary, presentIn: self, isSaveTokensInUserDefaults: true, isPresentDefaultControllers: true, connectionStatus: { success, error in
 
 })
 ```
@@ -140,6 +134,7 @@ usedesk.start(withCompanyID: "1234567", chanelId: "1234", api_token: "143ed59g90
 | Note | String | Текст заметки |
 | AdditionalFields | [Int : String] | Массив дополнительный полей в формате - id : "значение". Для текстовых полей значение - строка, для списка - строка с точно совпадающим значением списка, для флага - строка "false" или "true" |
 | AdditionalNestedFields | [[Int : String]] | Массив допл полей типа вложенный список. Каждый подмассив представляет один вложенный список. Формат фложенного списка - [id1: "значение", id2 : "значение", id3 : "значение"], где id1, id2, id3 идентификаторы значений по уровням вложенности |
+| AdditionalId | String | Дополнительный идентификатор клиента |
 | Token | String | Подпись, однозначно идентифицирующая пользователя и его чат на любых устройствах для сохранения истории переписки. (генерирует наша система,  ограничение не меньше 64 символа) |
 | isSaveTokensInUserDefaults | Bool | Сохранять ли токен UserDefaults |
 | isUseBase | Bool | Начиная с версии 0.3.19 не используется |
@@ -150,7 +145,7 @@ usedesk.start(withCompanyID: "1234567", chanelId: "1234", api_token: "143ed59g90
 #### Пример:
 ```swift
 let usedesk = UseDeskSDK()
-usedesk.startWithoutGUICompanyID(companyID: "1234567", chanelId: "1234", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "pubsubsec.usedesk.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", additionalFields: [1 : "value"], additionalNestedFields: [[1 : "value1", 2 : "value2", 3 : "value3"]], token: "Token", connectionStatus: { (success, error) in
+usedesk.startWithoutGUICompanyID(companyID: "1234567", chanelId: "1234", knowledgeBaseID: "1", api_token: "143ed59g90ef093s", email: "lolo@yandex.ru", phone: "89000000000", url: "pubsubsec.usedesk.ru", urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", port: "213", name: "Name", operatorName: "NameOperator", nameChat: "NameChat", firstMessage: "message", note: "Note text", additionalFields: [1 : "value"], additionalNestedFields: [[1 : "value1", 2 : "value2", 3 : "value3"]], additional_id: "additional_id", token: "Token", isSaveTokensInUserDefaults: true, connectionStatus: { (success, error) in
 
 })
 ```

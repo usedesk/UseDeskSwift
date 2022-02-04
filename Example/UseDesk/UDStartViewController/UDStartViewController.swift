@@ -26,6 +26,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var urlToSendFileTextField: UITextField!
     @IBOutlet weak var noteTextField: UITextField!
     @IBOutlet weak var tokenTextField: UITextField!
+    @IBOutlet weak var additionalIdTextField: UITextField!
     @IBOutlet weak var localeIdTextField: UITextField!
     @IBOutlet weak var lastViewBC: NSLayoutConstraint!
     @IBOutlet weak var isNeedBubbleSwitch: UISwitch!
@@ -215,8 +216,8 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
         usedesk.connectBlock = { bool in
             print("Connect = ", bool)
         }
-        
-        usedesk.start(withCompanyID: companyIdTextField.text!, chanelId: chanelIdTextField.text != nil ? chanelIdTextField.text! : "", urlAPI: urlBaseTextField.text != nil ? urlBaseTextField.text! : nil, knowledgeBaseID: knowledgeBaseID, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text != nil ? phoneTextField.text! : nil, url: urlTextField.text!, urlToSendFile: urlToSendFileTextField.text!, port: portTextField.text!, name: nameTextField.text != nil ? nameTextField.text! : nil, operatorName: operatorNameTextField.text != nil ? operatorNameTextField.text! : nil, nameChat: nameChat, firstMessage: firstMessageTextField.text != nil ? firstMessageTextField.text : nil, note: noteTextField.text != nil ? noteTextField.text : nil, additionalFields: additionalFields(), additionalNestedFields: additionalNestedFields(), token: tokenTextField.text != nil ? tokenTextField.text : nil, localeIdentifier: localeIdTextField.text != nil ? localeIdTextField.text : nil, presentIn: self, isPresentDefaultControllers: !isTabBarSwitch.isOn, connectionStatus: { success, feedbackStatus, token in
+
+        usedesk.start(withCompanyID: companyIdTextField.text!, chanelId: chanelIdTextField.text != nil ? chanelIdTextField.text! : "", urlAPI: urlBaseTextField.text, knowledgeBaseID: knowledgeBaseID, api_token: apiTokenTextField.text!, email: emailTextField.text!, phone: phoneTextField.text, url: urlTextField.text!, urlToSendFile: urlToSendFileTextField.text!, port: portTextField.text!, name: nameTextField.text, operatorName: operatorNameTextField.text, nameChat: nameChat, firstMessage: firstMessageTextField.text, note: noteTextField.text, additionalFields: additionalFields(), additionalNestedFields: additionalNestedFields(), additional_id: additionalIdTextField.text, token: tokenTextField.text, localeIdentifier: localeIdTextField.text, presentIn: self, isPresentDefaultControllers: !isTabBarSwitch.isOn, connectionStatus: { success, feedbackStatus, token in
             if self.isTabBarSwitch.isOn && success {
                 let chatVC = self.usedesk.chatViewController() ?? UIViewController()
                 let firstVC = ViewController()

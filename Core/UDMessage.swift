@@ -103,12 +103,10 @@ public class UDMessage: NSObject, Codable {
             DispatchQueue.global(qos: .userInitiated).async {
                 let options = PHImageRequestOptions()
                 options.isSynchronous = true
+                options.isNetworkAccessAllowed = true
                 PHCachingImageManager.default().requestImageData(for: asset, options: options, resultHandler: { [weak self] data, _, _, info in
                     guard let wSelf = self else {return}
                     if data != nil {
-                        
-                        
-                        
                         let content = "data:image/png;base64,\(data!)"
                         var fileName = String(format: "%ld", content.hash)
                         fileName += ".png"

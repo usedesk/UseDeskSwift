@@ -6,7 +6,7 @@
 
 public class UDValidationManager {
     
-    class func validateInitionalsFields(companyID: String, chanelId: String, urlAPI: String? = nil, knowledgeBaseID: String? = nil, api_token: String? = nil, email: String? = nil, phone: String? = nil, url: String, urlToSendFile: String? = nil, port: String? = nil, name: String? = nil, operatorName: String? = nil, nameChat: String? = nil, firstMessage: String? = nil, note: String? = nil, additionalFields: [Int : String] = [:], additionalNestedFields: [[Int : String]] = [], token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, isSaveTokensInUserDefaults: Bool = true, isPresentDefaultControllers: Bool = true, errorStatus errorBlock: @escaping UDSErrorBlock) -> (UseDeskModel?) {
+    class func validateInitionalsFields(companyID: String, chanelId: String, urlAPI: String? = nil, knowledgeBaseID: String? = nil, api_token: String? = nil, email: String? = nil, phone: String? = nil, url: String, urlToSendFile: String? = nil, port: String? = nil, name: String? = nil, operatorName: String? = nil, nameChat: String? = nil, firstMessage: String? = nil, note: String? = nil, additionalFields: [Int : String] = [:], additionalNestedFields: [[Int : String]] = [], additional_id: String? = nil, token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, isSaveTokensInUserDefaults: Bool = true, isPresentDefaultControllers: Bool = true, errorStatus errorBlock: @escaping UDSErrorBlock) -> (UseDeskModel?) {
         
         var model = UseDeskModel()
         
@@ -134,6 +134,11 @@ public class UDValidationManager {
                 model.note = note!
             }
         }
+        if additional_id != nil {
+            if additional_id != "" {
+                model.additional_id = additional_id!
+            }
+        }
         if token != nil {
             if token != "" {
                 if !token!.udIsValidToken() {
@@ -143,7 +148,6 @@ public class UDValidationManager {
                 model.token = token!
             }
         }
-        
         model.isPresentDefaultControllers = isPresentDefaultControllers
         model.isSaveTokensInUserDefaults = isSaveTokensInUserDefaults
         return model
