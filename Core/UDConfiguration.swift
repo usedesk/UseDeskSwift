@@ -4,7 +4,8 @@
 //
 //
 
-
+import Alamofire
+import Foundation
 
 let UD_TYPE_TEXT = 1
 let UD_TYPE_EMOJI = 2
@@ -35,6 +36,7 @@ public typealias UDSErrorBlock = (UDError, String?) -> Void
 public typealias UDSFeedbackMessageBlock = (UDMessage?) -> Void
 public typealias UDSFeedbackAnswerMessageBlock = (Bool) -> Void
 public typealias UDSVoidBlock = () -> Void
+public typealias UDSProgressUploadBlock = (Progress) -> Void
 
 protocol UDUISetupable {
     func setupUI()

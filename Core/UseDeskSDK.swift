@@ -97,7 +97,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         
         var isNeedLogSocket = false
         #if DEBUG
-//            isNeedLogSocket = true
+            isNeedLogSocket = true
         #endif
         manager = SocketManager(socketURL: urlAdress!, config: [.log(isNeedLogSocket), .version(.three)])
         socket = manager?.defaultSocket
@@ -133,9 +133,9 @@ public class UseDeskSDK: NSObject, UDUISetupable {
         socket?.emit("dispatch", with: mess!, completion: nil)
     }
     
-    @objc public func sendFile(fileName: String, data: Data, messageId: String? = nil, connectBlock: @escaping UDSConnectBlock, errorBlock: @escaping UDSErrorBlock) {
+    @objc public func sendFile(fileName: String, data: Data, messageId: String? = nil, progressBlock: UDSProgressUploadBlock? = nil, connectBlock: @escaping UDSConnectBlock, errorBlock: @escaping UDSErrorBlock) {
         let url = model.urlToSendFile != "" ? model.urlToSendFile : "https://secure.usedesk.ru/uapi/v1/send_file"
-        networkManager?.sendFile(url: url, fileName: fileName, data: data, messageId: messageId, connectBlock: connectBlock, errorBlock: errorBlock)
+        networkManager?.sendFile(url: url, fileName: fileName, data: data, messageId: messageId, progressBlock: progressBlock, connectBlock: connectBlock, errorBlock: errorBlock)
     }
     
     private func sendAdditionalFields(fields: [Int : String], nestedFields: [[Int : String]]) {

@@ -61,7 +61,7 @@ public class UDNetworkManager {
         }, errorBlock: errorBlock)
     }
     
-    public func sendFile(url: String, fileName: String, data: Data, messageId: String? = nil, connectBlock: @escaping UDSConnectBlock, errorBlock: @escaping UDSErrorBlock) {
+    public func sendFile(url: String, fileName: String, data: Data, messageId: String? = nil, progressBlock: UDSProgressUploadBlock? = nil, connectBlock: @escaping UDSConnectBlock, errorBlock: @escaping UDSErrorBlock) {
         if let currentToken = token {
             DispatchQueue.global(qos: .utility).async { 
                 AF.upload(multipartFormData: { multipartFormData in
@@ -72,7 +72,9 @@ public class UDNetworkManager {
                             multipartFormData.append(messageId!.data(using: String.Encoding.utf8)!, withName: "message_id")
                         }
                     }
-                }, to: url).responseJSON { (responseJSON) in
+                }, to: url).uploadProgress(closure: { (progress) in
+                    progressBlock?(progress)
+                }).responseJSON { (responseJSON) in
                     switch responseJSON.result {
                     case .success(let value):
                         let valueJSON = value as! [String:Any]
@@ -406,9 +408,9 @@ public class UDNetworkManager {
     }
     
     private func save(token: String) {
-        let key = "usedeskClientToken\(model.email)\(model.phone)\(model.name)\(model.chanelId)"
         model.token = token
         if model.isSaveTokensInUserDefaults {
+            let key = "usedeskClientToken\(model.email)\(model.phone)\(model.name)\(model.chanelId)"
             UserDefaults.standard.set(token, forKey: key)
         }
     }

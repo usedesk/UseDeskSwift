@@ -179,6 +179,12 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         attachSeparatorView.frame = CGRect(origin: attachSeparatorView.frame.origin, size: CGSize(width: attachChangeView.frame.width, height: attachSeparatorView.frame.height))
         attachFileButton.frame = CGRect(origin: attachFileButton.frame.origin, size: CGSize(width: attachChangeView.frame.width, height: attachFileButton.frame.height))
         inputPanelUpdate()
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let wSelf = self else {return}
+            wSelf.view.setNeedsLayout()
+            wSelf.view.layoutIfNeeded()
+        }
     }
     
     override func viewSafeAreaInsetsDidChange() {
@@ -366,8 +372,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         }
         DispatchQueue.main.async { [weak self] in
             guard let wSelf = self else {return}
-            wSelf.self.view.setNeedsLayout()
-            wSelf.self.view.layoutIfNeeded()
+            wSelf.view.setNeedsLayout()
+            wSelf.view.layoutIfNeeded()
         }
     }
     
@@ -923,9 +929,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         let chosenImage = info[.editedImage] as? UIImage
         if chosenImage != nil {
             addDraftMessage(with: chosenImage!)
-            
             buttonSend.isHidden = false
-            
             closeAttachView()
             showAttachCollection()
         }
@@ -1568,17 +1572,23 @@ extension UDMessagesView: ImagePickerDelegate {
 extension UDMessagesView: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true, completion: nil)
+        var filtredResults: [PHPickerResult] = []
         let identifiers = results.compactMap(\.assetIdentifier)
         let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
         var assetsSort: [PHAsset] = []
         for index in 0..<fetchResult.count {
             assetsSort.append(fetchResult.object(at: index))
         }
+        for result in results {
+            if assetsSort.contains(where: {$0.localIdentifier == result.assetIdentifier}) {
+                filtredResults.append(result)
+            }
+        }
         for index in 0..<fetchResult.count {
             let asset = fetchResult.object(at: index)
             var newIndex = 0
-            for indexSort in 0..<results.count {
-                if asset.localIdentifier == results[indexSort].assetIdentifier {
+            for indexSort in 0..<filtredResults.count {
+                if asset.localIdentifier == filtredResults[indexSort].assetIdentifier {
                     newIndex = indexSort
                 }
             }
