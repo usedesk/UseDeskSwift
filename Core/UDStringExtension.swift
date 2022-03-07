@@ -91,6 +91,20 @@ extension String {
         return links
     }
     
+    func udRemoveFirstSpaces() -> String {
+        return self.udRemoveFirstSymbol(with: " ")
+    }
+    
+    func udRemoveFirstSymbol(with symbol: Character) -> String {
+        var resultString = self
+        var isNeedRemove = resultString.first == symbol ? true : false
+        while isNeedRemove {
+            resultString.removeFirst()
+            isNeedRemove = resultString.first == symbol ? true : false
+        }
+        return resultString
+    }
+    
     mutating func udRemoveMarkdownUrlsAndReturnLinks() -> [String] {
         var links: [String] = []
         var count = 0

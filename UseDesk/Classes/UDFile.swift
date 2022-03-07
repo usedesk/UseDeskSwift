@@ -29,31 +29,30 @@ public class UDFile: NSObject, Codable {
         super.init()
     }
     
-    var sizeString: String {
-        guard self.size == "" else {
-            return self.size
+    // count bytes
+    var sizeValue: Int {
+        if sizeInt > 0 {
+            return sizeInt
         }
-        if self.sizeInt != 0 {
-            if self.sizeInt >= 1024 {
-                var sizeFloat: Float = Float(self.sizeInt)
-                sizeFloat = sizeFloat / 1024
-                if sizeFloat >= 1024 {
-                    sizeFloat = sizeFloat / 1024
-                    if sizeFloat >= 1024 {
-                        sizeFloat = sizeFloat / 1024
-                        return "\((rounded(sizeFloat, toPlaces:2))) ГБ"
-                    } else {
-                        return "\((rounded(sizeFloat, toPlaces: 2))) МБ"
-                    }
-                } else {
-                    return "\((rounded(sizeFloat, toPlaces:2))) КБ"
+        // разбор страка формата - "123 KB"
+        if size.contains(" ") {
+            if let number = Int(size.components(separatedBy: " ")[0]) {
+                let sizeTypeString = size.components(separatedBy: " ")[1]
+                var countBytes = number
+                switch sizeTypeString {
+                case "KB":
+                    countBytes = number * 1024
+                case "MB":
+                    countBytes = number * 1048576
+                case "GB":
+                    countBytes = number * 1073741824
+                default:
+                    break
                 }
-            } else {
-                return "\(self.sizeInt) Б"
+                return countBytes
             }
-        } else {
-            return ""
         }
+        return sizeInt
     }
     
     var data: Data? {
@@ -97,6 +96,48 @@ public class UDFile: NSObject, Codable {
             return .URL
         default:
             return nil
+        }
+    }
+    
+    func sizeString(model: UseDeskModel) -> String {
+        if size.contains(" ") {
+            let numberString = size.components(separatedBy: " ")[0]
+            let sizeTypeString = size.components(separatedBy: " ")[1]
+            var sizeStringLocalized = numberString
+            switch sizeTypeString {
+            case "B":
+                sizeStringLocalized += " " + model.stringFor("B")
+            case "KB":
+                sizeStringLocalized += " " + model.stringFor("KB")
+            case "MB":
+                sizeStringLocalized += " " + model.stringFor("MB")
+            case "GB":
+                sizeStringLocalized += " " + model.stringFor("GB")
+            default:
+                break
+            }
+            return sizeStringLocalized
+        }
+        if sizeInt != 0 {
+            if sizeInt >= 1024 {
+                var sizeFloat: Float = Float(self.sizeInt)
+                sizeFloat = sizeFloat / 1024
+                if sizeFloat >= 1024 {
+                    sizeFloat = sizeFloat / 1024
+                    if sizeFloat >= 1024 {
+                        sizeFloat = sizeFloat / 1024
+                        return "\((rounded(sizeFloat, toPlaces:2))) " + model.stringFor("GB")
+                    } else {
+                        return "\((rounded(sizeFloat, toPlaces: 2))) " + model.stringFor("MB")
+                    }
+                } else {
+                    return "\((rounded(sizeFloat, toPlaces:2))) " + model.stringFor("KB")
+                }
+            } else {
+                return "\(sizeInt) " + model.stringFor("B")
+            }
+        } else {
+            return ""
         }
     }
     

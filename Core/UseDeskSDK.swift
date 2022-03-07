@@ -49,6 +49,11 @@ public class UseDeskSDK: NSObject, UDUISetupable {
     // MARK: - Start Methods
     @objc public func start(withCompanyID companyID: String, chanelId: String, urlAPI: String? = nil, knowledgeBaseID: String? = nil, api_token: String? = nil, email: String? = nil, phone: String? = nil, url: String, urlToSendFile: String? = nil, port: String? = nil, name: String? = nil, operatorName: String? = nil, nameChat: String? = nil, firstMessage: String? = nil, note: String? = nil, additionalFields: [Int : String] = [:], additionalNestedFields: [[Int : String]] = [], additional_id: String? = nil, token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, storage storageOutside: UDStorage? = nil, isCacheMessagesWithFile: Bool = true, isSaveTokensInUserDefaults: Bool = true, presentIn parentController: UIViewController? = nil, isPresentDefaultControllers: Bool = true, connectionStatus startBlock: @escaping UDSStartBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         
+        guard !isOpenSDKUI else {
+            errorBlock(.initChatWhenChatOpenError, "")
+            return
+        }
+        
         closureStartBlock = startBlock
         closureErrorBlock = errorBlock
         isStartWithDefaultGUI = true

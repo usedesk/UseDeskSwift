@@ -10,11 +10,13 @@ class UDAttachSmallCameraCollectionViewCell: UICollectionViewCell {
     
     @IBOutlet weak var cameraPreviewView: UIView!
     
-    var session: AVCaptureSession?
-    var device: AVCaptureDevice?
-    var input: AVCaptureDeviceInput?
-    var output: AVCaptureMetadataOutput?
-    var prevLayer: AVCaptureVideoPreviewLayer?
+    public var orientation: AVCaptureVideoOrientation = .portrait
+    
+    private var session: AVCaptureSession?
+    private var device: AVCaptureDevice?
+    private var input: AVCaptureDeviceInput?
+    private var output: AVCaptureMetadataOutput?
+    private var prevLayer: AVCaptureVideoPreviewLayer?
     
     func createSession() {
         if !(session?.isRunning ?? false) {
@@ -29,12 +31,16 @@ class UDAttachSmallCameraCollectionViewCell: UICollectionViewCell {
                     prevLayer = AVCaptureVideoPreviewLayer(session: session!)
                     prevLayer?.frame.size = cameraPreviewView.frame.size
                     prevLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
+                    prevLayer?.connection?.videoOrientation = orientation
                     cameraPreviewView.layer.addSublayer(prevLayer!)
                     session?.startRunning()
                 } catch {}
             }
         } else {
+            prevLayer?.connection?.videoOrientation = orientation
             prevLayer?.frame.size = cameraPreviewView.frame.size
+            self.setNeedsLayout()
+            self.layoutIfNeeded()
         }
     }
     

@@ -9,7 +9,6 @@ class UDPictureMessageCellNode: UDMessageCellNode {
     private var imageNode = ASImageNode()
     private var loaderNode = ASDisplayNode()
     private var loaderBackNode = ASDisplayNode()
-    private var activityIndicator = UIActivityIndicatorView()
     
     var messageTextParagraphStyle = NSMutableParagraphStyle()
     

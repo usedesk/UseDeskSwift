@@ -12,7 +12,6 @@ class UDVideoMessageCellNode: UDMessageCellNode {
     private var playNode = ASImageNode()
     private var loaderNode = ASDisplayNode()
     private var loaderBackNode = ASDisplayNode()
-    private var activityIndicator = UIActivityIndicatorView()
     
     var messageTextParagraphStyle = NSMutableParagraphStyle()
     

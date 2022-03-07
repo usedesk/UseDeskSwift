@@ -72,6 +72,7 @@ public class UDMessage: NSObject, Codable {
             DispatchQueue.global(qos: .background).async {
                 let options = PHVideoRequestOptions()
                 options.version = .original
+                options.isNetworkAccessAllowed = true
                 PHCachingImageManager.default().requestAVAsset(forVideo: asset, options: options){ [weak self] avasset, _, _ in
                     guard let wSelf = self else {return}
                     if let avassetURL = avasset as? AVURLAsset {

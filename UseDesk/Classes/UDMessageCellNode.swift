@@ -13,6 +13,7 @@ class UDMessageCellNode: ASCellNode {
     var timeNode = ASTextNode()
     var sendedImageNode = ASImageNode()
     var notSentImageNode = ASImageNode()
+    var activityIndicator = UIActivityIndicatorView()
     
     weak var messagesView: UDMessagesView?
     
@@ -25,6 +26,11 @@ class UDMessageCellNode: ASCellNode {
     override init() {
         super.init()
         addSubnode(bubbleImageNode)
+    }
+    
+    func updateAnimateLoader() {
+        guard activityIndicator.alpha == 1 && !activityIndicator.isAnimating else {return}
+        activityIndicator.startAnimating()
     }
     
     func bindData(messagesView messagesView_: UDMessagesView?, message : UDMessage, avatarImage: UIImage?) {

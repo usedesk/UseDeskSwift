@@ -568,6 +568,7 @@ class DialogflowView: UDMessagesView {
     
     // MARK: - TableNode
     func showNoInternet() {
+        startDownloadFileIds.removeAll()
         guard isShowNoInternet else {return}
         noInternetVC = UDNoInternetVC()
         noInternetVC.usedesk = usedesk
@@ -587,6 +588,12 @@ class DialogflowView: UDMessagesView {
     }
     
     func closeNoInternet() {
+        // update download files
+        for node in tableNode.visibleNodes {
+            guard let nodeCell = node as? UDMessageCellNode else {break}
+            downloadFile(node: nodeCell)
+        }
+        // view no internet
         guard isShowNoInternet, noInternetVC != nil else {return}
         isShowNoInternet = false
         if usedesk?.model.isPresentDefaultControllers ?? true {
@@ -654,6 +661,7 @@ class DialogflowView: UDMessagesView {
     }
     
     override func actionTapBubble(_ indexPath: IndexPath?) {
+        guard usedesk != nil else {return}
         let message = messagesWithSection[indexPath!.section][indexPath!.row]
         let file: UDFile = message.file
         if (file.type == "image" || message.type == UD_TYPE_PICTURE || file.type == "video" || message.type == UD_TYPE_VIDEO || file.type == "file" || message.type == UD_TYPE_File) && message.status == UD_STATUS_SUCCEED {
@@ -696,7 +704,7 @@ class DialogflowView: UDMessagesView {
                 fileViewingVC.filePath = file.path
                 fileViewingVC.typeFile = .file
                 fileViewingVC.fileName = file.name
-                fileViewingVC.fileSize = file.sizeString
+                fileViewingVC.fileSize = file.sizeString(model: usedesk!.model)
             }
             fileViewingVC.updateState()
         }

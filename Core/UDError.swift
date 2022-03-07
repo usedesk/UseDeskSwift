@@ -21,6 +21,7 @@ import Alamofire
     case socketError
     case emptyKnowledgeBaseID
     case emptyTokenAPI
+    case initChatWhenChatOpenError
     
     public init(errorCode: Int) {
         switch errorCode {
@@ -59,6 +60,8 @@ import Alamofire
             return "Empty knowledgeBaseID"
         case .emptyTokenAPI:
             return "Empty api_token"
+        case .initChatWhenChatOpenError:
+            return "Chat already open"
         }
     }
 }

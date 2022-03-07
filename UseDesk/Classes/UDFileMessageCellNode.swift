@@ -12,7 +12,6 @@ class UDFileMessageCellNode: UDMessageCellNode {
     private var nameFileTextNode = ASTextNode()
     private var sizeTextNode = ASTextNode()
     private var loaderNode = ASDisplayNode()
-    private var activityIndicator = UIActivityIndicatorView()
     
     var messageTextParagraphStyle = NSMutableParagraphStyle()
     
@@ -33,6 +32,7 @@ class UDFileMessageCellNode: UDMessageCellNode {
     }
     
     override func bindData(messagesView messagesView_: UDMessagesView?, message : UDMessage, avatarImage: UIImage?) {
+        guard usedesk != nil else {return}
         messagesView = messagesView_
         self.message = message
         let fileStyle = configurationStyle.fileStyle
@@ -70,7 +70,7 @@ class UDFileMessageCellNode: UDMessageCellNode {
         nameFileTextNode.maximumNumberOfLines = 1
         nameFileTextNode.truncationMode = .byTruncatingMiddle
         
-        let sizeAttributedString = NSMutableAttributedString(string: message.file.sizeString)
+        let sizeAttributedString = NSMutableAttributedString(string: message.file.sizeString(model: usedesk!.model))
         sizeAttributedString.addAttributes([NSAttributedString.Key.font : fileStyle.fontSize, .foregroundColor : message.outgoing ? fileStyle.sizeOutgoingColor : fileStyle.sizeIncomingColor], range: NSRange(location: 0, length: sizeAttributedString.length))
         sizeTextNode.attributedText = sizeAttributedString
 
@@ -80,8 +80,6 @@ class UDFileMessageCellNode: UDMessageCellNode {
             addSubnode(sizeTextNode)
             addSubnode(loaderNode)
         }
-        
-        
         
         super.bindData(messagesView: messagesView, message: message, avatarImage: avatarImage)
         
@@ -106,6 +104,7 @@ class UDFileMessageCellNode: UDMessageCellNode {
         let loaderAndIconInsetSpec = ASInsetLayoutSpec(insets: fileStyle.iconMargin, child: loaderAndIconOverlaySpec)
         
         let nameFileTextInsetSpec = ASInsetLayoutSpec(insets: fileStyle.nameMargin, child: nameFileTextNode)
+        let sizeTextInsetSpec = ASInsetLayoutSpec(insets: UIEdgeInsets(top: 0, left: 0, bottom: 0, right: fileStyle.nameMargin.right), child: sizeTextNode)
         
         let vTextsStack = ASStackLayoutSpec()
         vTextsStack.direction = .vertical
@@ -114,7 +113,7 @@ class UDFileMessageCellNode: UDMessageCellNode {
         vTextsStack.style.flexShrink = 1
         vTextsStack.style.flexGrow = 0
         vTextsStack.setChild(nameFileTextInsetSpec, at: 0)
-        vTextsStack.setChild(sizeTextNode, at: 1)
+        vTextsStack.setChild(sizeTextInsetSpec, at: 1)
         
         let vTextsStackCenterSpec = ASCenterLayoutSpec(centeringOptions: .Y, sizingOptions: [], child: vTextsStack)
         vTextsStackCenterSpec.style.flexShrink = 1
@@ -123,7 +122,7 @@ class UDFileMessageCellNode: UDMessageCellNode {
         let hIconAndTextsStack = ASStackLayoutSpec()
         hIconAndTextsStack.direction = .horizontal
         hIconAndTextsStack.spacing = 0
-        hIconAndTextsStack.style.flexShrink = 1
+        hIconAndTextsStack.style.flexShrink = 0
         hIconAndTextsStack.style.flexGrow = 0
         hIconAndTextsStack.style.alignSelf = .auto
         hIconAndTextsStack.style.maxWidth = sizeMessagesManager.maxWidthBubbleMessageDimension
