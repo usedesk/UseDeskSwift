@@ -254,17 +254,15 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
             }
             if success && feedbackStatus.isNotOpenFeedbackForm {
                 if wSelf.navigationController?.visibleViewController != wSelf.dialogflowVC {
-                    DispatchQueue.main.async(execute: {
-                        wSelf.dialogflowVC.usedesk = wSelf.usedesk
-                        wSelf.dialogflowVC.isFromBase = true
-                        wSelf.usedesk?.uiManager?.pushViewController(wSelf.dialogflowVC)
-                        wSelf.dialogflowVC.updateChat()
-                        UIView.animate(withDuration: 0.3) {
-                            wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
-                            wSelf.loaderChatButton.alpha = 0
-                            wSelf.loaderChatButton.stopAnimating()
-                        }
-                    })
+                    wSelf.usedesk?.uiManager?.pushViewController(wSelf.dialogflowVC)
+                    wSelf.dialogflowVC.usedesk = wSelf.usedesk
+                    wSelf.dialogflowVC.isFromBase = true
+                    wSelf.dialogflowVC.updateChat()
+                    UIView.animate(withDuration: 0.3) {
+                        wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
+                        wSelf.loaderChatButton.alpha = 0
+                        wSelf.loaderChatButton.stopAnimating()
+                    }
                 }
             } else {
                 if feedbackStatus.isOpenFeedbackForm {
@@ -315,6 +313,9 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
     @objc func cancelSearchAction() {
         isSearch = false
         searchBar.removeFromSuperview()
+        UIView.animate(withDuration: 0.3) {
+            self.loadingView.alpha = 0
+        }
         if let backButtonImage = configurationStyle.navigationBarStyle.backButtonImage {
             navigationItem.leftBarButtonItem = UIBarButtonItem(image: backButtonImage, style: .plain, target: self, action: #selector(self.backAction))
         }
@@ -328,6 +329,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
     
     @objc func backAction() {
         self.dismiss(animated: true, completion: nil)
+        usedesk?.isOpenSDKUI = false
     }
     
     // MARK: - TableNode
@@ -472,7 +474,7 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
         }
     }
 }
-// MARK: - SearchBar
+// MARK: - UDBaseArticleViewDelegate
 extension UDBaseSectionsView: UDBaseArticleViewDelegate {
     func openChat() {
         if navigationController?.visibleViewController != dialogflowVC {

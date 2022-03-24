@@ -73,6 +73,7 @@ class DialogflowView: UDMessagesView {
                                 if let cell = (wSelf.tableNode.nodeForRow(at: IndexPath(row: index, section: indexSection)) as? UDMessageCellNode) {
                                     cell.setSendedStatus()
                                     cell.setNeedsLayout()
+                                    cell.layoutIfNeeded()
                                 } else {
                                     wSelf.tableNode.reloadRows(at: [IndexPath(row: index, section: indexSection)], with: .automatic)
                                 }
@@ -161,11 +162,10 @@ class DialogflowView: UDMessagesView {
             guard let wSelf = self else {return}
             wSelf.loadMessagesFromStorage()
             wSelf.generateSectionFromModel()
-            wSelf.configurationViews()
             wSelf.buttonAttach.isEnabled = true
+            wSelf.textInput.isUserInteractionEnabled = true
             if !wSelf.isFromOfflineForm && !wSelf.isFromBase {
                 wSelf.tableNode.reloadData()
-                wSelf.textInput.isUserInteractionEnabled = true
                 wSelf.loader.stopAnimating()
                 wSelf.loader.alpha = 0
             }
@@ -304,6 +304,23 @@ class DialogflowView: UDMessagesView {
                 wSelf.tableNode.insertSections([0], with: .top)
                 wSelf.tableNode.setNeedsLayout()
                 wSelf.tableNode.layoutIfNeeded()
+                
+                let secondNodeIndexPath = IndexPath(row: 1, section: 1)
+                let firstNodeIndexPath = IndexPath(row: 0, section: 1)
+                
+                if wSelf.messagesWithSection[1].count > 1 {
+                    if let cellNode = wSelf.tableNode.nodeForRow(at: firstNodeIndexPath) as? UDMessageCellNode {
+                        cellNode.bindData(messagesView: self, message: wSelf.messagesWithSection[1][1], avatarImage: wSelf.avatarImage(secondNodeIndexPath))
+                        cellNode.setNeedsLayout()
+                        cellNode.layoutIfNeeded()
+                    }
+                }
+                if wSelf.messagesWithSection[1].count > 1 {
+                    if let cellNode = wSelf.tableNode.nodeForRow(at: secondNodeIndexPath) as? UDMessageCellNode {
+                        cellNode.setNeedsLayout()
+                        cellNode.layoutIfNeeded()
+                    }
+                }
             } else {
                 let secondNodeIndexPath = IndexPath(row: 1, section: 0)
                 let firstNodeIndexPath = IndexPath(row: 0, section: 0)
@@ -329,6 +346,7 @@ class DialogflowView: UDMessagesView {
             }
         })
     }
+    
     func chekSentMessage(_ message: UDMessage) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 7) { [weak self] in
             guard let wSelf = self else {return}
