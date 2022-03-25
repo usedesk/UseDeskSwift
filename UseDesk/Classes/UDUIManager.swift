@@ -9,7 +9,7 @@ import UIKit
 
 class UDUIManager: UDUIProtocole {
     private var navController = UDNavigationController()
-    private var dialogflowVC: DialogflowView = DialogflowView()
+    private var dialogflowVC: DialogflowView? = nil
     private var offlineVC: UDOfflineForm = UDOfflineForm()
     private var networkVC = UDNoInternetVC()
     
@@ -21,7 +21,7 @@ class UDUIManager: UDUIProtocole {
     weak var useDesk: UseDeskSDK?
 
     func resetUI() {
-        dialogflowVC = DialogflowView()
+        dialogflowVC = nil
         offlineVC = UDOfflineForm()
     }
     
@@ -58,23 +58,24 @@ class UDUIManager: UDUIProtocole {
     
     func startDialogFlow(in parentControllerOptional: UIViewController?) {
         let parentController = parentControllerOptional ?? RootView
-        dialogflowVC.usedesk = useDesk
+        dialogflowVC = DialogflowView()
+        dialogflowVC!.usedesk = useDesk
         if navController.presentingViewController == nil {
-            navController = UDNavigationController(rootViewController: dialogflowVC)
+            navController = UDNavigationController(rootViewController: dialogflowVC!)
             navController.configurationStyle = configurationStyle
             navController.setProperties()
             navController.setTitleTextAttributes()
             navController.modalPresentationStyle = .fullScreen
             parentController?.present(navController, animated: true)
         } else {
-            dialogflowVC.updateChat()
+            dialogflowVC!.updateChat()
         }
     }
     
     func reloadDialogFlow(success: Bool, feedBackStatus: UDFeedbackStatus, url: String) { 
         if success {
-            dialogflowVC.usedesk = useDesk
-            dialogflowVC.reloadHistory()
+            dialogflowVC?.usedesk = useDesk
+            dialogflowVC?.reloadHistory()
         } else {
             if feedBackStatus == .feedbackForm || feedBackStatus == .feedbackFormAndChat {
                 if offlineVC.presentingViewController == nil {
@@ -82,7 +83,7 @@ class UDUIManager: UDUIProtocole {
                     offlineVC.url = url
                     offlineVC.usedesk = useDesk
                     pushViewController(offlineVC)
-                    dialogflowVC.closeVC()
+                    dialogflowVC?.closeVC()
                     dialogflowVC = DialogflowView()
                 }
             }
@@ -101,7 +102,7 @@ class UDUIManager: UDUIProtocole {
     
     func chatViewController() -> UIViewController? {
         guard useDesk != nil else {return nil}
-        dialogflowVC.view.layoutSubviews()
+        dialogflowVC?.view.layoutSubviews()
         return dialogflowVC
     }
     

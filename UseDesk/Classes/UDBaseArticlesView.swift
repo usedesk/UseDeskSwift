@@ -186,7 +186,6 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
                     wSelf.usedesk?.uiManager?.pushViewController(wSelf.dialogflowVC)
                     wSelf.dialogflowVC.usedesk = wSelf.usedesk
                     wSelf.dialogflowVC.isFromBase = true
-                    wSelf.dialogflowVC.updateChat()
                     UIView.animate(withDuration: 0.3) {
                         wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
                         wSelf.loaderChatButton.alpha = 0
@@ -372,7 +371,6 @@ extension UDBaseArticlesView: UDBaseArticleViewDelegate {
             dialogflowVC.usedesk = usedesk
             dialogflowVC.isFromBase = true
             navigationController?.pushViewController(dialogflowVC, animated: true)
-            dialogflowVC.reloadHistory()
         }
     }
     

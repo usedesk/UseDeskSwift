@@ -23,7 +23,6 @@ enum LandscapeOrientation {
 class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, ASTableDataSource, ASTableDelegate, PHPhotoLibraryChangeObserver {
 
     @IBOutlet weak var viewForTable: UIView!
-//    @IBOutlet weak var viewFotTableTopC: NSLayoutConstraint!
     @IBOutlet weak var viewInput: UIView!
     @IBOutlet weak var viewInputHC: NSLayoutConstraint!
     @IBOutlet weak var loader: UIActivityIndicatorView!
@@ -1222,7 +1221,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                 if error == nil {
                                     let udMineType = UDMimeType()
                                     let mimeType = udMineType.typeString(for: data)
-                                    DispatchQueue.main.async(execute: { [weak self] in
+                                    DispatchQueue.main.async { [weak self] in
                                         guard let wSelf = self else {return}
                                         if let indexPathPicture = wSelf.indexPathForMessage(at: message.id) {
                                             wSelf.messagesDidLoadFile.append(message)
@@ -1238,7 +1237,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                             }
                                             wSelf.tableNode.reloadRows(at: [indexPathPicture], with: .none)
                                         }
-                                    })
+                                    }
                                 } else if let index = wSelf.startDownloadFileIds.firstIndex(of: message.id) {
                                         wSelf.startDownloadFileIds.remove(at: index)
                                 }
@@ -1257,7 +1256,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                     if message.file.path == "" && message.file.content != "" {
                         UDFileManager.downloadFile(indexPath: indexPath, urlPath: message.file.content, name: message.file.name, extansion: message.file.typeExtension) { [weak self] (indexPath, url) in
                             guard let wSelf = self else {return}
-                            DispatchQueue.main.async(execute: {
+                            DispatchQueue.main.async {
                                 if let indexPathVideo = wSelf.indexPathForMessage(at: message.id) {
                                     wSelf.messagesDidLoadFile.append(message)
                                     message.file.path = url.path
@@ -1266,7 +1265,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                     wSelf.messagesWithSection[indexPathVideo.section][indexPathVideo.row] = message
                                     wSelf.tableNode.reloadRows(at: [indexPathVideo], with: .none)
                                 }
-                            })
+                            }
                         } errorBlock: { [weak self] _ in
                             guard let wSelf = self else {return}
                             if let index = wSelf.startDownloadFileIds.firstIndex(of: message.id) {
@@ -1290,7 +1289,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                 (session.dataTask(with: url, completionHandler: { [weak self] data, response, error in
                                     guard let wSelf = self else {return}
                                     if error == nil && data != nil {
-                                        DispatchQueue.main.async(execute: {
+                                        DispatchQueue.main.async {
                                             wSelf.messagesDidLoadFile.append(message)
                                             var isFile = true
                                             message.status = UD_STATUS_SUCCEED
@@ -1326,7 +1325,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                                     wSelf.tableNode.reloadRows(at: [indexPathFile], with: .none)
                                                 }
                                             }
-                                        })
+                                        }
                                     } else if let index = wSelf.startDownloadFileIds.firstIndex(of: message.id) {
                                             wSelf.startDownloadFileIds.remove(at: index)
                                     }

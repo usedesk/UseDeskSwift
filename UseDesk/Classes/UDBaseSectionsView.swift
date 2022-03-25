@@ -257,28 +257,25 @@ class UDBaseSectionsView: UIViewController, UITableViewDelegate, UITableViewData
                     wSelf.usedesk?.uiManager?.pushViewController(wSelf.dialogflowVC)
                     wSelf.dialogflowVC.usedesk = wSelf.usedesk
                     wSelf.dialogflowVC.isFromBase = true
-                    wSelf.dialogflowVC.updateChat()
                     UIView.animate(withDuration: 0.3) {
                         wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
                         wSelf.loaderChatButton.alpha = 0
                         wSelf.loaderChatButton.stopAnimating()
                     }
                 }
-            } else {
-                if feedbackStatus.isOpenFeedbackForm {
-                    if wSelf.navigationController?.visibleViewController != wSelf.offlineVC {
-                        wSelf.offlineVC = UDOfflineForm()
-                        if wSelf.url != nil {
-                            wSelf.offlineVC.url = wSelf.url!
-                        }
-                        wSelf.offlineVC.usedesk = wSelf.usedesk
-                        wSelf.offlineVC.isFromBase = true
-                        wSelf.usedesk?.uiManager?.pushViewController(wSelf.offlineVC)
-                        UIView.animate(withDuration: 0.3) {
-                            wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
-                            wSelf.loaderChatButton.alpha = 0
-                            wSelf.loaderChatButton.stopAnimating()
-                        }
+            } else if feedbackStatus.isOpenFeedbackForm {
+                if wSelf.navigationController?.visibleViewController != wSelf.offlineVC {
+                    wSelf.offlineVC = UDOfflineForm()
+                    if wSelf.url != nil {
+                        wSelf.offlineVC.url = wSelf.url!
+                    }
+                    wSelf.offlineVC.usedesk = wSelf.usedesk
+                    wSelf.offlineVC.isFromBase = true
+                    wSelf.usedesk?.uiManager?.pushViewController(wSelf.offlineVC)
+                    UIView.animate(withDuration: 0.3) {
+                        wSelf.chatButton.setImage(wSelf.configurationStyle.baseStyle.chatIconImage, for: .normal)
+                        wSelf.loaderChatButton.alpha = 0
+                        wSelf.loaderChatButton.stopAnimating()
                     }
                 }
             }

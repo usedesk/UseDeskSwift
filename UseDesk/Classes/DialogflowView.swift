@@ -47,7 +47,7 @@ class DialogflowView: UDMessagesView {
         messages = [UDMessage]()
         
         usedesk?.newMessageBlock = { messageOptional in
-            DispatchQueue.main.async(execute: { [weak self] in
+            DispatchQueue.main.async { [weak self] in
                 guard let wSelf = self else {return}
                 guard let message = messageOptional else {return}
                 if message.loadingMessageId != "" && message.outgoing {
@@ -95,7 +95,7 @@ class DialogflowView: UDMessagesView {
                 } else {
                     wSelf.addMessage(message)
                 }
-            })
+            }
         }
         
         usedesk?.feedbackMessageBlock = { [weak self] newMessage in
@@ -107,14 +107,9 @@ class DialogflowView: UDMessagesView {
         loadHistory()
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: Notification.Name("messageButtonURLOpen"), object: nil)
-        NotificationCenter.default.removeObserver(self, name: Notification.Name("messageButtonSend"), object: nil)
-    }
-    
     func reloadHistory() {
         isShowNoInternet = false
-        DispatchQueue.main.async(execute: { [weak self] in
+        DispatchQueue.main.async { [weak self] in
             guard let wSelf = self else {return}
             if wSelf.usedesk != nil {
                 var unknownMessages: [UDMessage] = []
@@ -154,7 +149,7 @@ class DialogflowView: UDMessagesView {
                 wSelf.loader.alpha = 0
                 wSelf.buttonAttach.isEnabled = true
             }
-        })
+        }
     }
     
     func updateChat() {
@@ -282,7 +277,7 @@ class DialogflowView: UDMessagesView {
     
     // MARK: - Message methods
     func addMessage(_ message: UDMessage) {
-        DispatchQueue.main.async(execute: { [weak self] in
+        DispatchQueue.main.async { [weak self] in
             guard let wSelf = self else {return}
             wSelf.messages.append(message)
             var isNewSection = true
@@ -344,7 +339,7 @@ class DialogflowView: UDMessagesView {
                     }
                 }
             }
-        })
+        }
     }
     
     func chekSentMessage(_ message: UDMessage) {
@@ -643,10 +638,10 @@ class DialogflowView: UDMessagesView {
                     }
                 }
                 wSelf.messagesWithSection[indexPath.section].remove(at: indexPath.row)
-                DispatchQueue.main.async(execute: { [weak self] in
+                DispatchQueue.main.async { [weak self] in
                     guard let wSelf = self else {return}
                     wSelf.tableNode.reloadData()
-                })
+                }
             })
 
             let repeatAction = UIAlertAction(title: usedesk!.model.stringFor("SendAgain"), style: .default, handler: { [weak self] (alert: UIAlertAction!) in
@@ -658,11 +653,11 @@ class DialogflowView: UDMessagesView {
                     }
                 }
                 wSelf.messagesWithSection[indexPath.section].remove(at: indexPath.row)
-                DispatchQueue.main.async(execute: { [weak self] in
+                DispatchQueue.main.async { [weak self] in
                     guard let wSelf = self else {return}
                     wSelf.tableNode.reloadData()
                     wSelf.tableNode.contentOffset.y = 0
-                })
+                }
                 wSelf.sendMessage(message)
             })
 
