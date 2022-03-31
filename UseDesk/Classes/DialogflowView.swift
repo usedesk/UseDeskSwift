@@ -303,6 +303,7 @@ class DialogflowView: UDMessagesView {
                 let secondNodeIndexPath = IndexPath(row: 1, section: 1)
                 let firstNodeIndexPath = IndexPath(row: 0, section: 1)
                 
+                guard wSelf.messagesWithSection.count > 1 else {return}
                 if wSelf.messagesWithSection[1].count > 1 {
                     if let cellNode = wSelf.tableNode.nodeForRow(at: firstNodeIndexPath) as? UDMessageCellNode {
                         cellNode.bindData(messagesView: self, message: wSelf.messagesWithSection[1][1], avatarImage: wSelf.avatarImage(secondNodeIndexPath))
@@ -541,7 +542,6 @@ class DialogflowView: UDMessagesView {
             usedesk?.releaseChat()
             usedesk?.uiManager?.dismiss()
         }
-        self.view.removeFromSuperview()
     }
     
     @objc func closeFileViewingVC() {
