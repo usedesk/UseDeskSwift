@@ -91,6 +91,14 @@ extension String {
         return links
     }
     
+    func udRemoveSubstrings(with substrings: [String]) -> String {
+        var newString = self
+        substrings.forEach { string in
+            newString = newString.replacingOccurrences(of: string, with: "", options: String.CompareOptions.regularExpression, range: nil)
+        }
+        return newString
+    }
+    
     func udRemoveFirstSpaces() -> String {
         return self.udRemoveFirstSymbol(with: " ")
     }

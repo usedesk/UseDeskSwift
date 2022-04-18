@@ -831,7 +831,7 @@ public struct BaseCategoriesStyle {
     
     public init(textFont: UIFont = UIFont.systemFont(ofSize: 17),
                 textColor: UIColor = .black,
-                textMargin: UIEdgeInsets = UIEdgeInsets(top: 17, left: 14, bottom: 6, right: 14),
+                textMargin: UIEdgeInsets = UIEdgeInsets(top: 17, left: 20, bottom: 6, right: 14),
                 countArticlesFont: UIFont = UIFont.systemFont(ofSize: 15),
                 countArticlesColor: UIColor? = nil,
                 countArticlesMargin: UIEdgeInsets = UIEdgeInsets(top: 16, left: 0, bottom: 0, right: 8),
@@ -1057,7 +1057,7 @@ public struct BaseArticleStyle {
         self.titleMargin = titleMargin
         self.titleBigFont = titleBigFont
         self.titleBigColor = titleBigColor != nil ? titleBigColor! : UIColor(hexString: "333333")
-        self.titleBigMargin = titleMargin
+        self.titleBigMargin = titleBigMargin
         self.closeButtonImage = (closeButtonImage != nil) ? closeButtonImage! : UIImage.named("udCloseArticle")
         self.closeButtonSize = closeButtonSize
         self.closeButtonMargin = closeButtonMargin

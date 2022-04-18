@@ -8,6 +8,7 @@ import Reachability
 
 public class UseDeskSDK: NSObject, UDUISetupable {
     @objc public var newMessageBlock: UDSNewMessageBlock?
+    @objc public var newMessageWithGUIBlock: UDSNewMessageBlock?
     @objc public var connectBlock: UDSConnectBlock?
     @objc public var feedbackMessageBlock: UDSFeedbackMessageBlock?
     @objc public var feedbackAnswerMessageBlock: UDSFeedbackAnswerMessageBlock?
@@ -49,7 +50,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
     // MARK: - Start Methods
     @objc public func start(withCompanyID companyID: String, chanelId: String, urlAPI: String? = nil, knowledgeBaseID: String? = nil, api_token: String? = nil, email: String? = nil, phone: String? = nil, url: String, urlToSendFile: String? = nil, port: String? = nil, name: String? = nil, operatorName: String? = nil, nameChat: String? = nil, firstMessage: String? = nil, note: String? = nil, additionalFields: [Int : String] = [:], additionalNestedFields: [[Int : String]] = [], additional_id: String? = nil, token: String? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, storage storageOutside: UDStorage? = nil, isCacheMessagesWithFile: Bool = true, isSaveTokensInUserDefaults: Bool = true, presentIn parentController: UIViewController? = nil, isPresentDefaultControllers: Bool = true, connectionStatus startBlock: @escaping UDSStartBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
         
-        guard !isOpenSDKUI else {
+        guard !isOpenSDKUI || !isPresentDefaultControllers else {
             errorBlock(.initChatWhenChatOpenError, "")
             return
         }
@@ -77,8 +78,8 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             }
             startWithoutGUICompanyID(companyID: companyID, chanelId: chanelId, knowledgeBaseID: knowledgeBaseID, api_token: api_token, email: email, phone: phone, url: model.urlWithoutPort, port: port, name: name, operatorName: operatorName, nameChat: nameChat, additionalFields: additionalFields, additionalNestedFields: additionalNestedFields) { [weak self] success, feedbackStatus, token in
                 guard let wSelf = self else { return }
-                wSelf.uiManager?.reloadDialogFlow(success: success, feedBackStatus: feedbackStatus, url: wSelf.model.url)
                 startBlock(success, feedbackStatus, token)
+                wSelf.uiManager?.reloadDialogFlow(success: success, feedBackStatus: feedbackStatus, url: wSelf.model.url)
             } errorStatus: { [weak self] error, description in
                 guard let wSelf = self else { return }
                 errorBlock(error, description)
@@ -125,6 +126,7 @@ public class UseDeskSDK: NSObject, UDUISetupable {
             self?.callbackSettings = callbackSettings
         }, newMessageBlock: { [weak self] message in
             self?.newMessageBlock?(message)
+            self?.newMessageWithGUIBlock?(message)
         }, feedbackMessageBlock: { [weak self] message in
             self?.feedbackMessageBlock?(message)
         }, feedbackAnswerMessageBlock: { [weak self] bool in

@@ -212,7 +212,7 @@ public class UDNetworkManager {
             "query"      : query,
             "count"      : count,
             "page"       : page,
-            "short_text" : String(1)
+            "short_text" : "1"
         ]
         switch type {
         case .close:
@@ -372,7 +372,7 @@ public class UDNetworkManager {
     
     // MARK: - Private Methods
     private func request(url: String, method: HTTPMethod = .post, parameters: [String : Any], isJSONEncoding: Bool = false, successBlock: @escaping (Any) -> Void, errorBlock: @escaping UDSErrorBlock) {
-        AF.request(url, method: method, parameters: parameters, encoding: isJSONEncoding ? JSONEncoding.default : URLEncoding.default).responseJSON {  responseJSON in
+        AF.request(url, method: method, parameters: parameters, encoding: isJSONEncoding ? JSONEncoding.default : URLEncoding.default).responseJSON { responseJSON in
             switch responseJSON.result {
             case .success(let value):
                 if let valueDictionary = value as? [String : Any] {

@@ -231,7 +231,7 @@ class UDBaseArticlesView: UIViewController, UITableViewDelegate, UITableViewData
         navigationItem.setHidesBackButton(true, animated: false)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: usedesk!.model.stringFor("Cancel"), style: .plain, target: self, action: #selector(self.cancelSearchAction))
         navigationItem.rightBarButtonItem?.tintColor = configurationStyle.baseStyle.searchCancelButtonColor
-        let widthCancel = usedesk!.model.stringFor("Cancel").size(attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 17)], usesFontLeading: true).width + 2
+        let widthCancel = usedesk!.model.stringFor("Cancel").size(attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 17)], usesFontLeading: true).width + 8
         searchBar.frame = CGRect(x: 8, y: 0, width: navigationView.frame.width - 38 - widthCancel, height: navigationView.frame.height)
         navigationView.addSubview(searchBar)
         searchBar.becomeFirstResponder()

@@ -177,12 +177,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         attachSeparatorView.frame = CGRect(origin: attachSeparatorView.frame.origin, size: CGSize(width: attachChangeView.frame.width, height: attachSeparatorView.frame.height))
         attachFileButton.frame = CGRect(origin: attachFileButton.frame.origin, size: CGSize(width: attachChangeView.frame.width, height: attachFileButton.frame.height))
         inputPanelUpdate()
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let wSelf = self else {return}
-            wSelf.view.setNeedsLayout()
-            wSelf.view.layoutIfNeeded()
-        }
+        updateOrientation()
     }
     
     override func viewSafeAreaInsetsDidChange() {
@@ -349,6 +344,11 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 self.textInputViewBC.constant =  isShowKeyboard ? keyboardHeightPortait : 0
                 previousOrientation = .portrait
                 attachCollectionView.reloadData()
+                DispatchQueue.main.async { [weak self] in
+                    guard let wSelf = self else {return}
+                    wSelf.view.setNeedsLayout()
+                    wSelf.view.layoutIfNeeded()
+                }
             }
         } else {
             if centerLandscape == CGPoint.zero && !isFirstOpen {
@@ -368,12 +368,12 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 self.textInputViewBC.constant = isShowKeyboard ? keyboardHeightLandscape : 0
                 previousOrientation = .landscape
                 attachCollectionView.reloadData()
+                DispatchQueue.main.async { [weak self] in
+                    guard let wSelf = self else {return}
+                    wSelf.view.setNeedsLayout()
+                    wSelf.view.layoutIfNeeded()
+                }
             }
-        }
-        DispatchQueue.main.async { [weak self] in
-            guard let wSelf = self else {return}
-            wSelf.view.setNeedsLayout()
-            wSelf.view.layoutIfNeeded()
         }
     }
     
@@ -689,7 +689,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             maxCountAssets = usedesk!.maxCountAssets
         }
         if countDraftMessagesWithFile < maxCountAssets {
-            let importMenu = UIDocumentPickerViewController(documentTypes: ["public.text", "public.image", "public.data", "public.content", "public.movie", "public.audio", "public.archive"], in: .import)
+            let importMenu = UIDocumentPickerViewController(documentTypes: ["public.item"], in: .import)
             importMenu.delegate = self
             importMenu.modalPresentationStyle = .formSheet
             present(importMenu, animated: true, completion: nil)

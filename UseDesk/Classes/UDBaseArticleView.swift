@@ -380,6 +380,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
     }
     
     func setWebView() {
+        let baseArticleStyle = configurationStyle.baseArticleStyle
         let source: String = "var meta = document.createElement('meta');" +
         "meta.name = 'viewport';" +
         "meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=4.0, user-scalable=yes';" +
@@ -392,7 +393,7 @@ class UDBaseArticleView: UIViewController, WKUIDelegate, UISearchBarDelegate, UI
         if webView != nil {
             webView.removeFromSuperview()
         }
-        webView = WKWebView(frame: CGRect(origin: CGPoint(x: 8, y: titleView.frame.height), size: CGSize(width: self.view.frame.width - 16, height: 1)), configuration: conf)
+        webView = WKWebView(frame: CGRect(origin: CGPoint(x: baseArticleStyle.titleBigMargin.left, y: titleView.frame.height), size: CGSize(width: self.view.frame.width - (baseArticleStyle.titleBigMargin.left + baseArticleStyle.titleBigMargin.right), height: 1)), configuration: conf)
         contentView.addSubview(webView)
         webView.navigationDelegate = self
         webView.contentMode = .left
@@ -867,7 +868,8 @@ extension UDBaseArticleView: WKNavigationDelegate {
     }
     
     func webView(_  webView: WKWebView, didFinish navigation: WKNavigation!) {
-     webView.evaluateJavaScript("document.readyState", completionHandler: { result, error in
+        let baseArticleStyle = configurationStyle.baseArticleStyle
+        webView.evaluateJavaScript("document.readyState", completionHandler: { result, error in
          if result == nil || error != nil {
              return
          }
@@ -885,7 +887,7 @@ extension UDBaseArticleView: WKNavigationDelegate {
                     wSelf.contentViewHC.constant = wSelf.view.frame.height - wSelf.topView.frame.height
                 }
                 wSelf.titleView.frame.origin = CGPoint(x: 0, y: 0)
-                wSelf.webView.frame.origin = CGPoint(x: 8, y: wSelf.titleView.frame.height)
+                wSelf.webView.frame.origin = CGPoint(x: baseArticleStyle.titleBigMargin.left, y: wSelf.titleView.frame.height)
                 wSelf.reviewView.frame.origin = CGPoint(x: 0, y: wSelf.titleView.frame.height + wSelf.webView.frame.height)
                 wSelf.transitionsView.frame.origin = CGPoint(x: 0, y: wSelf.contentViewHC.constant - wSelf.transitionsView.frame.height)
                 if wSelf.reviewView.superview == nil {
@@ -897,6 +899,6 @@ extension UDBaseArticleView: WKNavigationDelegate {
                 wSelf.updatePositionChatButton()
             }
          })
-     })
+        })
     }
 }

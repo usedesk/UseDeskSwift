@@ -48,12 +48,8 @@ class UDBaseSearchCell: UITableViewCell {
         self.layoutIfNeeded()
         let height = titleLabel.text!.size(availableWidth: labelText.frame.width, attributes: [NSAttributedString.Key.font : baseSearchStyle.titleFont], usesFontLeading: true).height + 2
         titleLabelHC.constant = height
-        
-        var textWithoutHtmlTags = article?.text ?? usedesk!.model.stringFor("ErrorLoading")
-        textWithoutHtmlTags = textWithoutHtmlTags.replacingOccurrences(of: "<[^>]+>", with: "", options: String.CompareOptions.regularExpression, range: nil)
-        textWithoutHtmlTags = textWithoutHtmlTags.replacingOccurrences(of: "\r\n", with: "", options: String.CompareOptions.regularExpression, range: nil)
-        textWithoutHtmlTags = textWithoutHtmlTags.replacingOccurrences(of: "&nbsp;", with: "", options: String.CompareOptions.regularExpression, range: nil)
-        labelText.text = textWithoutHtmlTags
+
+        labelText.text = (article?.text ?? usedesk!.model.stringFor("ErrorLoading")).udRemoveSubstrings(with: ["<[^>]+>", "&nbsp;", "\r\n"])
         labelText.font = baseSearchStyle.textFont
         labelText.textColor = baseSearchStyle.textColor
         labelTextLC.constant = baseSearchStyle.textMargin.left

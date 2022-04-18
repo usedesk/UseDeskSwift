@@ -102,6 +102,10 @@ class UDUIManager: UDUIProtocole {
     
     func chatViewController() -> UIViewController? {
         guard useDesk != nil else {return nil}
+        if dialogflowVC == nil {
+            dialogflowVC = DialogflowView()
+            dialogflowVC?.usedesk = useDesk
+        }
         dialogflowVC?.view.layoutSubviews()
         return dialogflowVC
     }

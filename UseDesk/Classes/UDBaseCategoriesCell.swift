@@ -56,9 +56,7 @@ class UDBaseCategoriesCell: UITableViewCell {
         countArticlesLabelWC.constant = width
         countArticlesLabelTC.constant = baseCategoriesStyle.countArticlesMargin.right
 
-        var descriptionCategoryWithoutHtmlTags = category.descriptionCategory.replacingOccurrences(of: "<[^>]+>", with: "", options: String.CompareOptions.regularExpression, range: nil)
-        descriptionCategoryWithoutHtmlTags = descriptionCategoryWithoutHtmlTags.replacingOccurrences(of: "&nbsp;", with: "", options: String.CompareOptions.regularExpression, range: nil)
-        descriptionLabel.text = descriptionCategoryWithoutHtmlTags
+        descriptionLabel.text = category.descriptionCategory.udRemoveSubstrings(with: ["<[^>]+>", "&nbsp;"])
         descriptionLabel.font = baseCategoriesStyle.descriptionFont
         descriptionLabel.textColor = baseCategoriesStyle.descriptionColor
         descriptionLabelLC.constant = baseCategoriesStyle.descriptionMargin.left

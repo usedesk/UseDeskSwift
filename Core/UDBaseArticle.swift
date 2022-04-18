@@ -50,8 +50,8 @@ import Foundation
             else { return nil }
         
         self.id = id
-        self.title = title
-        self.text = text
+        self.title = title.udRemoveSubstrings(with: ["<b>", "</b>"])
+        self.text = text.udRemoveSubstrings(with: ["<b>", "</b>"])
         self.category_id = category_id
         self.collection_id = collection_id
         self.category_title = category_title
