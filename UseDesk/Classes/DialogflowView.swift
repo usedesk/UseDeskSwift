@@ -476,16 +476,18 @@ class DialogflowView: UDMessagesView {
     func sendMessage(_ message: UDMessage) {
         message.date = Date()
         message.typeSenderMessageString = "client_to_operator"
-        addMessage(message)
         if let id = usedesk?.networkManager?.newIdLoadingMessages() {
             message.loadingMessageId = id
             if message.type == UD_TYPE_TEXT {
+                message.text = message.text.trimmingCharacters(in: .newlines)
+                addMessage(message)
                 usedesk?.sendMessage(message.text, messageId: id)
                 if failMessages.filter({$0.loadingMessageId == message.loadingMessageId}).count == 0 {
                     failMessages.append(message)
                 }
                 chekSentMessage(message)
             } else {
+                addMessage(message)
                 if let data = message.file.data {
                     usedesk?.sendFile(fileName: message.file.name, data: data, messageId: id, connectBlock: { [weak self] _ in
                         guard let wSelf = self else {return}
@@ -501,7 +503,6 @@ class DialogflowView: UDMessagesView {
                 usedesk?.sendMessage(message.text)
             } 
         }
-        
     }
     
     // MARK: - User actions

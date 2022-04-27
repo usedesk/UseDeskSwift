@@ -36,12 +36,14 @@ class UDNoInternetVC: UIViewController {
         iconImageHC.constant = noInternetStyle.iconImageSize.height
         titleLabel.text = usedesk!.model.stringFor("NotInternet")
         titleLabel.font = noInternetStyle.titleFont
+        titleLabel.textColor = noInternetStyle.titleColor
         titleLabelTopC.constant = noInternetStyle.titleMargin.top
         titleLabelLC.constant = noInternetStyle.titleMargin.left
         titleLabelTC.constant = noInternetStyle.titleMargin.right
         titleLabelBC.constant = noInternetStyle.titleMargin.bottom
         textLabel.text = usedesk!.model.stringFor("NotInternetCheck")
         textLabel.font = noInternetStyle.textFont
+        textLabel.textColor = noInternetStyle.textColor
         textLabelLC.constant = noInternetStyle.textMargin.left
         textLabelTC.constant = noInternetStyle.textMargin.right
     }

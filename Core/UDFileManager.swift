@@ -7,7 +7,6 @@ import UIKit
 import Foundation
 import Alamofire
 import Photos
-import Swime
 import CommonCrypto
 
 class UDFileManager: NSObject {
@@ -80,13 +79,6 @@ extension FileManager {
         var fileName = data.sha1(uppercased: true) ?? "\(data.hashValue)"
         if fileExtension != nil {
             fileName += "." + fileExtension!
-        } else {
-            let subData = data.prefix(10240)
-            if let fileExtensionSwime = Swime.mimeType(data: subData)?.ext {
-                fileName += "." + fileExtensionSwime
-            } else {
-                fileName += ".mp4"
-            }
         }
 
         let dataPath = "file://" + udCacheDataPath + "/"

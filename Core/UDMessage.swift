@@ -85,11 +85,11 @@ public class UDMessage: NSObject, Codable {
                             wSelf.typeSenderMessageString = "client_to_operator"
                             wSelf.file.defaultPath = avassetURL.url.path
                             if isCacheFile {
-                                wSelf.file.path = FileManager.default.udWriteDataToCacheDirectory(data: videoData) ?? ""
+                                wSelf.file.path = FileManager.default.udWriteDataToCacheDirectory(data: videoData, fileExtension: "mp4") ?? ""
                             }
                             let previewImage = UDFileManager.videoPreview(filePath: avassetURL.url.path)
                             if let previewData = previewImage.udToData() {
-                                wSelf.file.previewPath = FileManager.default.udWriteDataToCacheDirectory(data: previewData) ?? ""
+                                wSelf.file.previewPath = FileManager.default.udWriteDataToCacheDirectory(data: previewData, fileExtension: "mp4") ?? ""
                             }
                             wSelf.file.duration = asset.duration
                             wSelf.file.name = fileName
@@ -105,7 +105,7 @@ public class UDMessage: NSObject, Codable {
                 let options = PHImageRequestOptions()
                 options.isSynchronous = true
                 options.isNetworkAccessAllowed = true
-                PHCachingImageManager.default().requestImageData(for: asset, options: options, resultHandler: { [weak self] data, _, _, info in
+                PHCachingImageManager.default().requestImageData(for: asset, options: options, resultHandler: { [weak self] data, dataUTI, _, info in
                     guard let wSelf = self else {return}
                     if data != nil {
                         let content = "data:image/png;base64,\(data!)"
@@ -117,11 +117,11 @@ public class UDMessage: NSObject, Codable {
                         if let image = UIImage(data: data!) {
                             autoreleasepool {
                                 if let imageData = image.udResizeImage()?.udToData() {
-                                    wSelf.file.path = FileManager.default.udWriteDataToCacheDirectory(data: imageData) ?? ""
+                                    wSelf.file.path = FileManager.default.udWriteDataToCacheDirectory(data: imageData, fileExtension: "png") ?? ""
                                 }
                             }
                         } else {
-                            wSelf.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!) ?? ""
+                            wSelf.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: "png") ?? ""
                         }
                         wSelf.file.name = fileName
                         wSelf.file.sourceTypeString = UDTypeSourceFile.PHAsset.rawValue
@@ -144,7 +144,7 @@ public class UDMessage: NSObject, Codable {
                 type = UD_TYPE_PICTURE
                 incoming = false
                 typeSenderMessageString = "client_to_operator"
-                file.path = FileManager.default.udWriteDataToCacheDirectory(data: imageData) ?? ""
+                file.path = FileManager.default.udWriteDataToCacheDirectory(data: imageData, fileExtension: "png") ?? ""
                 file.name = fileName
                 file.sort = sort
                 file.sourceTypeString = UDTypeSourceFile.UIImage.rawValue

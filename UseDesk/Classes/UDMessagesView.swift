@@ -5,7 +5,6 @@ import AVFoundation
 import Photos
 import PhotosUI
 import Alamofire
-import Swime
 import MobileCoreServices
 import AsyncDisplayKit
 import MapKit
@@ -232,6 +231,10 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         buttonAttachWC.constant = configurationStyle.attachButtonStyle.size.width
         buttonAttachHC.constant = configurationStyle.attachButtonStyle.size.height
         
+        attachChangeView.backgroundColor = configurationStyle.attachViewStyle.backgroundColor
+        attachCancelButton.backgroundColor = configurationStyle.attachViewStyle.backgroundColor
+        attachCancelButton.tintColor = configurationStyle.attachViewStyle.textButtonColor
+        
         buttonSend.setBackgroundImage(configurationStyle.sendButtonStyle.image, for: .normal)
         buttonSendTC.constant = configurationStyle.sendButtonStyle.margin.right
         buttonSendWC.constant = configurationStyle.sendButtonStyle.size.width
@@ -260,6 +263,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         
         attachFirstButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
         attachFileButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
+        
+        attachFirstButton.tintColor = configurationStyle.attachViewStyle.textButtonColor
+        attachFileButton.tintColor = configurationStyle.attachViewStyle.textButtonColor
         
         attachCollectionMessageViewTopC.constant = configurationStyle.inputViewStyle.topMarginAssetsCollection
         attachCollectionMessageViewHC.constant = configurationStyle.inputViewStyle.heightAssetsCollection
@@ -300,6 +306,12 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         let sortDescriptor = [NSSortDescriptor(key: "creationDate", ascending: false)]
         options.isAccessibilityElement = false
         options.sortDescriptors = sortDescriptor
+        if usedesk?.isSupportedAttachmentOnlyPhoto ?? false {
+            options.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+        }
+        if usedesk?.isSupportedAttachmentOnlyVideo ?? false {
+            options.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.video.rawValue)
+        }
         let assets = PHAsset.fetchAssets(with: options)
         assets.enumerateObjects({ (object, count, stop) in
             self.assetsGallery.append(object)
@@ -692,6 +704,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             let importMenu = UIDocumentPickerViewController(documentTypes: ["public.item"], in: .import)
             importMenu.delegate = self
             importMenu.modalPresentationStyle = .formSheet
+            if #available(iOS 13.0, *) {
+                importMenu.overrideUserInterfaceStyle = UIScreen.main.traitCollection.userInterfaceStyle
+            }
             present(importMenu, animated: true, completion: nil)
         } else {
             showAlertMaxCountAttach()
@@ -893,6 +908,13 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             let picker = UIImagePickerController()
             picker.delegate = self
             picker.sourceType = .camera
+            if usedesk?.isSupportedAttachmentOnlyPhoto ?? false {
+                picker.mediaTypes = ["public.image"]
+            } else if usedesk?.isSupportedAttachmentOnlyVideo ?? false {
+                picker.mediaTypes = ["public.movie"]
+            } else {
+                picker.mediaTypes = ["public.image", "public.movie"]
+            }
             present(picker, animated: true)
         }
     }
@@ -1219,22 +1241,19 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                             (session.dataTask(with: url, completionHandler: { [weak self] data, response, error in
                                 guard let wSelf = self else {return}
                                 if error == nil {
-                                    let udMineType = UDMimeType()
-                                    let mimeType = udMineType.typeString(for: data)
+                                    var fileExtension = ".png"
+                                    if let pathExtension = NSString(utf8String: response?.suggestedFilename ?? ".png")?.pathExtension {
+                                        fileExtension = pathExtension
+                                    }
                                     DispatchQueue.main.async { [weak self] in
                                         guard let wSelf = self else {return}
                                         if let indexPathPicture = wSelf.indexPathForMessage(at: message.id) {
                                             wSelf.messagesDidLoadFile.append(message)
                                             message.status = UD_STATUS_SUCCEED
-                                            if (mimeType == "image") {
-                                                message.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!) ?? ""
-                                                message.file.name = message.file.path != "" ? (URL(fileURLWithPath: message.file.path).localizedName ?? "Image") : "Image"
-                                                message.file.type = "image"
-                                                wSelf.messagesWithSection[indexPathPicture.section][indexPathPicture.row] = message
-                                            } else {
-                                                message.file.type = mimeType
-                                                wSelf.messagesWithSection[indexPathPicture.section][indexPathPicture.row] = message
-                                            }
+                                            message.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? ""
+                                            message.file.name = message.file.path != "" ? (URL(fileURLWithPath: message.file.path).localizedName ?? response?.suggestedFilename ?? "Image") : "Image"
+                                            message.file.type = "image"
+                                            wSelf.messagesWithSection[indexPathPicture.section][indexPathPicture.row] = message
                                             wSelf.tableNode.reloadRows(at: [indexPathPicture], with: .none)
                                         }
                                     }
@@ -1294,15 +1313,22 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                             var isFile = true
                                             message.status = UD_STATUS_SUCCEED
                                             guard let indexPathFile = wSelf.indexPathForMessage(at: message.id) else { return }
-                                            if let mimeType = Swime.mimeType(data: data!) {
-                                                if mimeType.mime.contains("video") {
+                                            if let mimeType = response?.mimeType {
+                                                var fileExtension = ""
+                                                if mimeType.contains("video") {
+                                                    if let pathExtension = NSString(utf8String: response?.suggestedFilename ?? ".mp4")?.pathExtension {
+                                                        fileExtension = pathExtension
+                                                    }
                                                     message.type = UD_TYPE_VIDEO
-                                                    message.file.path = NSURL(fileURLWithPath: FileManager.default.udWriteDataToCacheDirectory(data: data!) ?? "").path ?? ""
+                                                    message.file.path = NSURL(fileURLWithPath: FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? "").path ?? ""
                                                     message.file.name = URL(fileURLWithPath: message.file.path).localizedName ?? "Video"
                                                     message.file.type = "video"
                                                     isFile = false
-                                                } else if mimeType.mime.contains("image") {
-                                                    message.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!) ?? ""
+                                                } else if mimeType.contains("image") {
+                                                    if let pathExtension = NSString(utf8String: response?.suggestedFilename ?? ".png")?.pathExtension {
+                                                        fileExtension = pathExtension
+                                                    }
+                                                    message.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? ""
                                                     message.file.name = message.file.path != "" ? (URL(fileURLWithPath: message.file.path).localizedName ?? "Image") : "Image"
                                                     message.file.type = "image"
                                                     isFile = false
@@ -1313,7 +1339,11 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                                 }
                                             }
                                             if isFile {
-                                                message.file.path = NSURL(fileURLWithPath: FileManager.default.udWriteDataToCacheDirectory(data: data!) ?? "").path ?? ""
+                                                var fileExtension = ".txt"
+                                                if let pathExtension = NSString(utf8String: response?.suggestedFilename ?? ".txt")?.pathExtension {
+                                                    fileExtension = pathExtension
+                                                }
+                                                message.file.path = NSURL(fileURLWithPath: FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? "").path ?? ""
                                                 message.file.type = "file"
                                                 message.file.sizeInt = data!.count
                                                 wSelf.messagesWithSection[indexPathFile.section][indexPathFile.row] = message

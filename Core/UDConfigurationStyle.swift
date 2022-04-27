@@ -44,6 +44,7 @@ public struct ConfigurationStyle {
     public var inputViewStyle: InputViewStyle
     public var attachButtonStyle: AttachButtonStyle
     public var sendButtonStyle: SendButtonStyle
+    public var attachViewStyle: AttachViewStyle
     public var messageButtonStyle: MessageButtonStyle
     public var feedbackFormStyle: FeedbackFormStyle
     public var selectTopicFeedbackFormStyle: SelectTopicFeedbackFormStyle
@@ -69,6 +70,7 @@ public struct ConfigurationStyle {
                 inputViewStyle: InputViewStyle = InputViewStyle(),
                 attachButtonStyle: AttachButtonStyle = AttachButtonStyle(),
                 sendButtonStyle: SendButtonStyle = SendButtonStyle(),
+                attachViewStyle: AttachViewStyle = AttachViewStyle(),
                 messageButtonStyle: MessageButtonStyle = MessageButtonStyle(),
                 feedbackFormStyle: FeedbackFormStyle = FeedbackFormStyle(),
                 selectTopicFeedbackFormStyle: SelectTopicFeedbackFormStyle = SelectTopicFeedbackFormStyle(),
@@ -94,6 +96,7 @@ public struct ConfigurationStyle {
         self.inputViewStyle = inputViewStyle
         self.attachButtonStyle = attachButtonStyle
         self.sendButtonStyle = sendButtonStyle
+        self.attachViewStyle = attachViewStyle
         self.messageButtonStyle = messageButtonStyle
         self.navigationBarStyle = navigationBarStyle
         self.feedbackFormStyle = feedbackFormStyle
@@ -494,23 +497,29 @@ public struct NoInternetStyle {
     public var iconImageSize: CGSize
     public var titleMargin: UIEdgeInsets
     public var titleFont: UIFont
+    public var titleColor: UIColor
     public var textMargin: UIEdgeInsets
     public var textFont: UIFont
+    public var textColor: UIColor
     
     public init(backgroundColor: UIColor = .white,
                 iconImage: UIImage? = nil,
                 iconImageSize: CGSize = CGSize(width: 70, height: 70),
                 titleMargin: UIEdgeInsets = UIEdgeInsets(top: 15, left: 20, bottom: 8, right: 20),
                 titleFont: UIFont = UIFont.systemFont(ofSize: 21, weight: .semibold),
+                titleColor: UIColor = .black,
                 textMargin: UIEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 0, right: 12),
-                textFont: UIFont = UIFont.systemFont(ofSize: 17, weight: .medium)) {
+                textFont: UIFont = UIFont.systemFont(ofSize: 17, weight: .medium),
+                textColor: UIColor? = nil) {
         self.backgroundColor = backgroundColor
         self.iconImage = iconImage != nil ? iconImage! : UIImage.named("udNoInternet")
         self.iconImageSize = iconImageSize
         self.titleMargin = titleMargin
         self.titleFont = titleFont
+        self.titleColor = titleColor
         self.textMargin = textMargin
         self.textFont = textFont
+        self.textColor = textColor ?? UIColor(hexString: "7F8085")
     }
 }
 
@@ -588,6 +597,18 @@ public struct SendButtonStyle {
         self.image = (image != nil) ? image! : UIImage.named("udSendButton")
         self.margin = margin
         self.size = size
+    }
+}
+
+// MARK: - AttachView Style
+public struct AttachViewStyle {
+    public var backgroundColor: UIColor
+    public var textButtonColor: UIColor
+    
+    public init(backgroundColor: UIColor? = nil,
+                textButtonColor: UIColor? = nil) {
+        self.backgroundColor = backgroundColor ?? UIColor(hexString: "F9F9F9")
+        self.textButtonColor = textButtonColor ?? UIColor(hexString: "007AFF")
     }
 }
 

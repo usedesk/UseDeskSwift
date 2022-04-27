@@ -309,6 +309,7 @@ class UDSocketResponse {
             m.typeSenderMessageString = type
         }
         m.incoming = (m.typeSenderMessage == .operator_to_client || m.typeSenderMessage == .bot_to_client) ? true : false
+        m.name = mess?["name"] as? String ?? ""
         if m.typeSenderMessage == .operator_to_client {
             if let operatorId = mess?["type"] as? Int {
                 m.operatorId = operatorId

@@ -29,12 +29,11 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var additionalIdTextField: UITextField!
     @IBOutlet weak var localeIdTextField: UITextField!
     @IBOutlet weak var lastViewBC: NSLayoutConstraint!
-    @IBOutlet weak var isNeedBubbleSwitch: UISwitch!
-    @IBOutlet weak var isFirstDislikeSwitch: UISwitch!
-    @IBOutlet weak var isNeedChatSwitch: UISwitch!
     @IBOutlet weak var isNeedReviewSwitch: UISwitch!
     @IBOutlet weak var isTabBarSwitch: UISwitch!
     @IBOutlet weak var versionLabel: UILabel!
+    
+    @IBOutlet weak var isNeedChatSwitch: UISwitch!
     
     @IBOutlet weak var idField1: UITextField!
     @IBOutlet weak var value1: UITextField!
@@ -95,6 +94,9 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
         if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
             versionNumber = "v. " + appVersion
         }
+        if let appBuild = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
+            versionNumber += " (\(appBuild))"
+        }
         versionLabel.text = versionNumber
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -111,6 +113,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
                 }
             }
         }
+
     }
 
     @objc func keyboardWillHide(notification: Notification) {
@@ -207,9 +210,9 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
             }
         }
         if isTabBarSwitch.isOn {
-            usedesk.configurationStyle = ConfigurationStyle(chatStyle: ChatStyle(topMarginPortrait: 80, topMarginLandscape: 40), feedbackMessageStyle: FeedbackMessageStyle(isFirstDislike: isFirstDislikeSwitch.isOn), pictureStyle: PictureStyle(isNeedBubble: isNeedBubbleSwitch.isOn), videoStyle: VideoStyle(isNeedBubble: isNeedBubbleSwitch.isOn), baseStyle: BaseStyle(isNeedChat: isNeedChatSwitch.isOn), baseArticleStyle: BaseArticleStyle(isNeedReview: isNeedReviewSwitch.isOn))
+            usedesk.configurationStyle = ConfigurationStyle(chatStyle: ChatStyle(topMarginPortrait: 80, topMarginLandscape: 40), baseArticleStyle: BaseArticleStyle(isNeedReview: isNeedReviewSwitch.isOn))
         } else {
-            usedesk.configurationStyle = ConfigurationStyle(feedbackMessageStyle: FeedbackMessageStyle(isFirstDislike: isFirstDislikeSwitch.isOn), pictureStyle: PictureStyle(isNeedBubble: isNeedBubbleSwitch.isOn), videoStyle: VideoStyle(isNeedBubble: isNeedBubbleSwitch.isOn), baseStyle: BaseStyle(isNeedChat: isNeedChatSwitch.isOn), baseArticleStyle: BaseArticleStyle(isNeedReview: isNeedReviewSwitch.isOn))
+            usedesk.configurationStyle = ConfigurationStyle(baseArticleStyle: BaseArticleStyle(isNeedReview: isNeedReviewSwitch.isOn))
         }
         isOpenVCWithTabBar = false
         usedesk.connectBlock = { bool in
@@ -240,13 +243,8 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     }
 }
 class ViewController: UIViewController {
-
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .red
     }
-}
-
-struct EasyQuestion {
-    var someProperty = 0
 }
