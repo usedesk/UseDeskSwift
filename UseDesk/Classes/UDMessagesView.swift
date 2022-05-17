@@ -483,7 +483,12 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 buttonSend.isEnabled = true
             }
         } else if let urlFile = asset as? URL {
-            let message = UDMessage(urlFile: urlFile, isCacheFile: usedesk?.isCacheMessagesWithFile ?? false)
+            var message = UDMessage()
+            if urlFile.pathExtension.lowercased() == "mov" {
+                message = UDMessage(urlMovie: urlFile, isCacheFile: usedesk?.isCacheMessagesWithFile ?? false)
+            } else {
+                message = UDMessage(urlFile: urlFile, isCacheFile: usedesk?.isCacheMessagesWithFile ?? false)
+            }
             draftMessages.append(message)
             if (message.file.data?.size ?? 0) > kLimitSizeFile {
                 showAlertLimitSizeFile(with: message)
@@ -908,6 +913,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             let picker = UIImagePickerController()
             picker.delegate = self
             picker.sourceType = .camera
+            picker.videoQuality = .typeHigh
             if usedesk?.isSupportedAttachmentOnlyPhoto ?? false {
                 picker.mediaTypes = ["public.image"]
             } else if usedesk?.isSupportedAttachmentOnlyVideo ?? false {
@@ -964,13 +970,16 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        let chosenImage = info[.originalImage] as? UIImage
-        if chosenImage != nil {
-            addDraftMessage(with: chosenImage!.udFixedOrientation())
-            buttonSend.isHidden = false
-            closeAttachView()
-            showAttachCollection()
+        if let mediaType = info[UIImagePickerController.InfoKey.mediaType] as? String {
+            if mediaType == (kUTTypeImage as String), let chosenImage = info[.originalImage] as? UIImage {
+                addDraftMessage(with: chosenImage.udFixedOrientation())
+            } else if mediaType == (kUTTypeMovie as String), let url = info[UIImagePickerController.InfoKey.mediaURL] as? URL {
+                addDraftMessage(with: url)
+            }
         }
+        buttonSend.isHidden = false
+        closeAttachView()
+        showAttachCollection()
         picker.dismiss(animated: true)
     }
     

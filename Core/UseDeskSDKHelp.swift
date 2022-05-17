@@ -9,7 +9,7 @@ class UseDeskSDKHelp {
         let payload = [
             "sdk" : "iOS",
             "type" : "sdk",
-            "version" : "2.3.0"
+            "version" : "2.4.11"
         ]
         var dic = [
             "type" : "@@server/chat/INIT",

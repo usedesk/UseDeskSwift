@@ -35,9 +35,8 @@ class UDFileManager: NSObject {
         }
     }
     
-    class func videoPreview(filePath:String) -> UIImage {
-        let vidURL = NSURL(fileURLWithPath:filePath)
-        let asset = AVURLAsset(url: vidURL as URL)
+    class func videoPreview(fileURL: URL) -> UIImage {
+        let asset = AVURLAsset(url: fileURL)
         let generator = AVAssetImageGenerator(asset: asset)
         generator.appliesPreferredTrackTransform = true
 

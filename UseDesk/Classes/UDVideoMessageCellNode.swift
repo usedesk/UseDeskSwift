@@ -77,9 +77,9 @@ class UDVideoMessageCellNode: UDMessageCellNode {
         
         previewImageNode.removeFromSupernode()
         if message.file.path != "" {
-            previewImageNode.image = UDFileManager.videoPreview(filePath: message.file.path)
+            previewImageNode.image = UDFileManager.videoPreview(fileURL: URL(fileURLWithPath: message.file.path))
         } else if message.file.defaultPath != "" {
-            previewImageNode.image = UDFileManager.videoPreview(filePath: message.file.defaultPath)
+            previewImageNode.image = UDFileManager.videoPreview(fileURL: URL(fileURLWithPath: message.file.defaultPath))
         } else {
             previewImageNode.image = videoStyle.imageDefault
         }

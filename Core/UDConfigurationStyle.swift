@@ -116,6 +116,7 @@ public struct NavigationBarStyle {
     public var textColor: UIColor
     public var font: UIFont
     public var statusBarStyle: UIStatusBarStyle
+    public var backButtonColor: UIColor?
     public var backButtonImage: UIImage?
     public var backButtonInFileImage: UIImage?
     public var searchButtonImage: UIImage?
@@ -124,6 +125,7 @@ public struct NavigationBarStyle {
                 textColor: UIColor? = nil,
                 font: UIFont = UIFont.boldSystemFont(ofSize: 19),
                 statusBarStyle: UIStatusBarStyle = .default,
+                backButtonColor: UIColor? = nil,
                 backButtonImage: UIImage? = nil,
                 backButtonInFileImage: UIImage? = nil,
                 searchButtonImage: UIImage? = nil) {
@@ -131,6 +133,7 @@ public struct NavigationBarStyle {
         self.textColor = textColor != nil ? textColor! : UIColor(hexString: "333333")
         self.font = font
         self.statusBarStyle = statusBarStyle
+        self.backButtonColor = backButtonColor != nil ? backButtonColor! : UIColor(hexString: "#454D63")
         self.backButtonImage = backButtonImage != nil ? backButtonImage! : UIImage.named("udBackButton")
         self.backButtonInFileImage = backButtonInFileImage != nil ? backButtonInFileImage! : UIImage.named("udBackInFileButton")
         self.searchButtonImage = searchButtonImage != nil ? searchButtonImage! : UIImage.named("udSearch")

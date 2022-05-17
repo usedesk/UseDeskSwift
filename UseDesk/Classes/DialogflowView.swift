@@ -34,7 +34,7 @@ class DialogflowView: UDMessagesView {
         }
         
         navigationController?.navigationBar.barTintColor = configurationStyle.navigationBarStyle.backgroundColor
-        navigationController?.navigationBar.tintColor = configurationStyle.navigationBarStyle.textColor
+        navigationController?.navigationBar.tintColor = configurationStyle.navigationBarStyle.backButtonColor
         navigationController?.navigationBar.titleTextAttributes?[.foregroundColor] = configurationStyle.navigationBarStyle.textColor
         (navigationController as? UDNavigationController)?.setTitleTextAttributes()
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: configurationStyle.navigationBarStyle.backButtonImage, style: .plain, target: self, action: #selector(self.actionDone))
@@ -694,8 +694,8 @@ class DialogflowView: UDMessagesView {
             fileViewingVC.isShowBackButton = !(usedesk?.model.isPresentDefaultControllers ?? true)
             fileViewingVC.isPresentDefaultControllers = usedesk?.model.isPresentDefaultControllers ?? true
             if usedesk?.model.isPresentDefaultControllers ?? true {
-                self.addChild(self.fileViewingVC)
-                self.view.addSubview(self.fileViewingVC.view)
+                self.addChild(fileViewingVC)
+                self.view.addSubview(fileViewingVC.view)
             } else {
                 fileViewingVC.modalPresentationStyle = .fullScreen
                 self.present(fileViewingVC, animated: false, completion: nil)

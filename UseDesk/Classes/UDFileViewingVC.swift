@@ -38,6 +38,11 @@ class UDFileViewingVC: UIViewController, UIScrollViewDelegate {
     var fileSize: String = ""
     
     private let playerVC = AVPlayerViewController()
+    private let activityWindow: UIWindow = {
+      let window = UIWindow(frame: UIScreen.main.bounds)
+      window.rootViewController = UIViewController()
+      return window
+    }()
     
     convenience init() {
         let nibName: String = "UDFileViewingVC"
@@ -101,7 +106,11 @@ class UDFileViewingVC: UIViewController, UIScrollViewDelegate {
         let activityVC = UIActivityViewController(activityItems: [URL(fileURLWithPath: filePath!)], applicationActivities: nil)
         activityVC.popoverPresentationController?.sourceView = self.view
         activityVC.popoverPresentationController?.sourceRect = CGRect(x: 0, y: self.view.frame.height, width: self.view.frame.width, height: 0)
-        self.present(activityVC, animated: true, completion: nil)
+        activityVC.completionWithItemsHandler = { _,_,_,_ in
+             UIApplication.shared.delegate?.window??.makeKeyAndVisible()
+        }
+        activityWindow.makeKeyAndVisible()
+        activityWindow.rootViewController?.present(activityVC, animated: true)
     }
     
     @IBAction func playVideo(_ sender: Any) {

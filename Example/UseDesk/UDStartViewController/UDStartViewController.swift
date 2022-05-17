@@ -29,11 +29,9 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var additionalIdTextField: UITextField!
     @IBOutlet weak var localeIdTextField: UITextField!
     @IBOutlet weak var lastViewBC: NSLayoutConstraint!
-    @IBOutlet weak var isNeedReviewSwitch: UISwitch!
     @IBOutlet weak var isTabBarSwitch: UISwitch!
     @IBOutlet weak var versionLabel: UILabel!
     
-    @IBOutlet weak var isNeedChatSwitch: UISwitch!
     
     @IBOutlet weak var idField1: UITextField!
     @IBOutlet weak var value1: UITextField!
@@ -210,10 +208,9 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
             }
         }
         if isTabBarSwitch.isOn {
-            usedesk.configurationStyle = ConfigurationStyle(chatStyle: ChatStyle(topMarginPortrait: 80, topMarginLandscape: 40), baseArticleStyle: BaseArticleStyle(isNeedReview: isNeedReviewSwitch.isOn))
-        } else {
-            usedesk.configurationStyle = ConfigurationStyle(baseArticleStyle: BaseArticleStyle(isNeedReview: isNeedReviewSwitch.isOn))
+            usedesk.configurationStyle = ConfigurationStyle(chatStyle: ChatStyle(topMarginPortrait: 80, topMarginLandscape: 40))
         }
+        
         isOpenVCWithTabBar = false
         usedesk.connectBlock = { bool in
             print("Connect = ", bool)
@@ -243,6 +240,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     }
 }
 class ViewController: UIViewController {
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .red

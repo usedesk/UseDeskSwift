@@ -66,12 +66,38 @@ public class UDMessage: NSObject, Codable {
         self.text = text
     }
     
+    init(urlMovie: URL, sort: Int = 0, isCacheFile: Bool = true) {
+        super.init()
+        statusSend = UD_STATUS_SEND_DRAFT
+        autoreleasepool {
+            if let videoData = try? Data(contentsOf: urlMovie) {
+                let content = "data:video/mp4;base64,\(videoData)"
+                var fileName = String(format: "%ld", content.hash)
+                fileName += ".mp4"
+                type = UD_TYPE_VIDEO
+                incoming = false
+                typeSenderMessageString = "client_to_operator"
+                file.path = FileManager.default.udWriteDataToCacheDirectory(data: videoData, fileExtension: "mp4") ?? ""
+                let previewImage = UDFileManager.videoPreview(fileURL: urlMovie)
+                if let previewData = previewImage.udToData() {
+                    file.previewPath = FileManager.default.udWriteDataToCacheDirectory(data: previewData, fileExtension: "mp4") ?? ""
+                }
+                let asset = AVURLAsset(url: urlMovie)
+                file.duration = Double(CMTimeGetSeconds(asset.duration))
+                file.name = fileName
+                file.sort = sort
+                file.sourceTypeString = UDTypeSourceFile.PHAsset.rawValue
+                status = UD_STATUS_SUCCEED
+            }
+        }
+    }
+    
     func setAsset(asset: PHAsset, isCacheFile: Bool = true, successBlock: @escaping () -> Void) {
         statusSend = UD_STATUS_SEND_DRAFT
         if asset.mediaType == .video {
             DispatchQueue.global(qos: .background).async {
                 let options = PHVideoRequestOptions()
-                options.version = .original
+                options.version = .current
                 options.isNetworkAccessAllowed = true
                 PHCachingImageManager.default().requestAVAsset(forVideo: asset, options: options){ [weak self] avasset, _, _ in
                     guard let wSelf = self else {return}
@@ -87,7 +113,7 @@ public class UDMessage: NSObject, Codable {
                             if isCacheFile {
                                 wSelf.file.path = FileManager.default.udWriteDataToCacheDirectory(data: videoData, fileExtension: "mp4") ?? ""
                             }
-                            let previewImage = UDFileManager.videoPreview(filePath: avassetURL.url.path)
+                            let previewImage = UDFileManager.videoPreview(fileURL: avassetURL.url)
                             if let previewData = previewImage.udToData() {
                                 wSelf.file.previewPath = FileManager.default.udWriteDataToCacheDirectory(data: previewData, fileExtension: "mp4") ?? ""
                             }
