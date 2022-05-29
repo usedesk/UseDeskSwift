@@ -12,7 +12,7 @@ public class UDMessage: NSObject, Codable {
     @objc public var feedbackActionInt: Int = -1
     @objc public var text = ""
     @objc public var buttons = [UDMessageButton]()
-    @objc public var date: Date?
+    @objc public var date = Date()
     @objc public var status: Int = 0
     @objc public var statusSend: Int = 0
     @objc public var id: Int = 0
@@ -229,7 +229,7 @@ public class UDMessage: NSObject, Codable {
         feedbackActionInt = try container.decode(Int.self, forKey: .feedbackActionInt)
         text = try container.decode(String.self, forKey: .text)
         buttons = try container.decode([UDMessageButton].self, forKey: .buttons)
-        date = try container.decode(Date?.self, forKey: .date)
+        date = try container.decode(Date.self, forKey: .date)
         status = try container.decode(Int.self, forKey: .status)
         statusSend = try container.decode(Int.self, forKey: .statusSend)
         id = try container.decode(Int.self, forKey: .id)

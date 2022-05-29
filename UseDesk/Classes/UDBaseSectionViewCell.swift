@@ -9,7 +9,6 @@ class UDBaseSectionViewCell: UITableViewCell {
     @IBOutlet weak var iconImageView: UIImageView!
     @IBOutlet weak var iconImageWC: NSLayoutConstraint!
     @IBOutlet weak var iconImageHC: NSLayoutConstraint!
-    @IBOutlet weak var iconImageTopC: NSLayoutConstraint!
     @IBOutlet weak var iconImageLC: NSLayoutConstraint!
     // Icon Label
     @IBOutlet weak var iconLabel: UILabel!
@@ -24,11 +23,6 @@ class UDBaseSectionViewCell: UITableViewCell {
     @IBOutlet weak var arrowImageWC: NSLayoutConstraint!
     @IBOutlet weak var arrowImageHC: NSLayoutConstraint!
     @IBOutlet weak var arrowImageTC: NSLayoutConstraint!
-    @IBOutlet weak var arrowImageTopC: NSLayoutConstraint!
-    // Separator
-    @IBOutlet weak var separatorView: UIView!
-    @IBOutlet weak var separatorViewHC: NSLayoutConstraint!
-    @IBOutlet weak var separatorViewLC: NSLayoutConstraint!
     
     var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     var isDefaultImage = false
@@ -39,7 +33,6 @@ class UDBaseSectionViewCell: UITableViewCell {
         iconImageView.image = image != nil ? image! : baseSectionsStyle.iconDefaultImage
         iconImageWC.constant = baseSectionsStyle.iconSize.width
         iconImageHC.constant = baseSectionsStyle.iconSize.height
-        iconImageTopC.constant = baseSectionsStyle.iconMargin.top
         iconImageLC.constant = baseSectionsStyle.iconMargin.left
         iconLabel.alpha = image == nil ? 1 : 0
         iconLabel.text = image == nil ? "\(text.capitalized[text.capitalized.startIndex])" : ""
@@ -57,13 +50,9 @@ class UDBaseSectionViewCell: UITableViewCell {
         arrowImageView.image = baseSectionsStyle.arrowImage
         arrowImageWC.constant = baseSectionsStyle.arrowSize.width
         arrowImageHC.constant = baseSectionsStyle.arrowSize.height
-        arrowImageTC.constant = baseSectionsStyle.arrowMargin.right
-        arrowImageTopC.constant = baseSectionsStyle.arrowMargin.top
+        arrowImageTC.constant = baseSectionsStyle.arrowMarginRight
         
-        separatorView.backgroundColor = baseSectionsStyle.separatorColor
-        separatorViewHC.constant = baseSectionsStyle.separatorHeight
-        separatorViewLC.constant = baseSectionsStyle.separatorLeftMargin
-        
+        selectionStyle = .none
         self.layoutIfNeeded()
     }
 }

@@ -15,27 +15,17 @@ protocol DialogflowVCDelegate: AnyObject {
 
 class DialogflowView: UDMessagesView {
 
-    var messages: [UDMessage] = []
     var isFromBase = false
     var isFromOfflineForm = false
     
     weak var delegate: DialogflowVCDelegate?
     
-    private var fileViewingVC: UDFileViewingVC!
     private var noInternetVC: UDNoInternetVC!
-    private var isDark = false
     private var isShowNoInternet = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let navController = navigationController as? UDNavigationController {
-            isDark = navController.isDark
-        }
-        
-        navigationController?.navigationBar.barTintColor = configurationStyle.navigationBarStyle.backgroundColor
-        navigationController?.navigationBar.tintColor = configurationStyle.navigationBarStyle.backButtonColor
-        navigationController?.navigationBar.titleTextAttributes?[.foregroundColor] = configurationStyle.navigationBarStyle.textColor
         (navigationController as? UDNavigationController)?.setTitleTextAttributes()
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: configurationStyle.navigationBarStyle.backButtonImage, style: .plain, target: self, action: #selector(self.actionDone))
         navigationItem.title = usedesk?.model.nameChat
@@ -44,10 +34,10 @@ class DialogflowView: UDMessagesView {
         NotificationCenter.default.addObserver(self, selector: #selector(self.openUrlFromMessageButton(_:)), name: Notification.Name("messageButtonURLOpen"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.sendMessageButton(_:)), name: Notification.Name("messageButtonSend"), object: nil)
         
-        messages = [UDMessage]()
+        allMessages = [UDMessage]()
         
         usedesk?.newMessageBlock = { messageOptional in
-            DispatchQueue.main.async { [weak self] in
+            DispatchQueue.main.async(execute: { [weak self] in
                 guard let wSelf = self else {return}
                 guard let message = messageOptional else {return}
                 if message.loadingMessageId != "" && message.outgoing {
@@ -82,9 +72,9 @@ class DialogflowView: UDMessagesView {
                         }
                         indexSection += 1
                     }
-                    if let replaceMessage = wSelf.messages.filter({ $0.loadingMessageId == loadingMessageId}).first {
-                        if let index = wSelf.messages.firstIndex(of: replaceMessage) {
-                            wSelf.messages[index] = message
+                    if let replaceMessage = wSelf.allMessages.filter({ $0.loadingMessageId == loadingMessageId}).first {
+                        if let index = wSelf.allMessages.firstIndex(of: replaceMessage) {
+                            wSelf.allMessages[index] = message
                         }
                     }
                     if !isFind {
@@ -95,7 +85,7 @@ class DialogflowView: UDMessagesView {
                 } else {
                     wSelf.addMessage(message)
                 }
-            }
+            })
         }
         
         usedesk?.feedbackMessageBlock = { [weak self] newMessage in
@@ -109,37 +99,37 @@ class DialogflowView: UDMessagesView {
     
     func reloadHistory() {
         isShowNoInternet = false
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.main.async(execute: { [weak self] in
             guard let wSelf = self else {return}
             if wSelf.usedesk != nil {
                 var unknownMessages: [UDMessage] = []
-                for message in wSelf.messages {
+                for message in wSelf.allMessages {
                     if let historyMessage = wSelf.usedesk!.historyMess.filter({$0.id == message.id}).first {
-                        if let index = wSelf.messages.firstIndex(of: message) {
-                            wSelf.messages[index].date = historyMessage.date
+                        if let index = wSelf.allMessages.firstIndex(of: message) {
+                            wSelf.allMessages[index].date = historyMessage.date
                         }
                     } else {
                         unknownMessages.append(message)
                     }
                 }
                 for message in unknownMessages {
-                    if let index = wSelf.messages.firstIndex(of: message) {
-                        wSelf.messages.remove(at: index)
+                    if let index = wSelf.allMessages.firstIndex(of: message) {
+                        wSelf.allMessages.remove(at: index)
                     }
                 }
-                if wSelf.usedesk!.historyMess.count == 0 || wSelf.messages.count == 0 {
-                    if wSelf.messages.count == 0 {
-                        wSelf.messages = wSelf.usedesk!.historyMess
+                if wSelf.usedesk!.historyMess.count == 0 || wSelf.allMessages.count == 0 {
+                    if wSelf.allMessages.count == 0 {
+                        wSelf.allMessages = wSelf.usedesk!.historyMess
                     var newMessages: [UDMessage] = []
-                    for index in 0..<wSelf.messages.count {
-                            newMessages.append(wSelf.messages[wSelf.messages.count - 1 - index])
+                    for index in 0..<wSelf.allMessages.count {
+                            newMessages.append(wSelf.allMessages[wSelf.allMessages.count - 1 - index])
                     }
-                        wSelf.messages = newMessages
+                        wSelf.allMessages = newMessages
                     }
                     wSelf.updateChat()
-                } else if wSelf.usedesk!.historyMess.count > wSelf.messages.count {
-                    let countNewMessages = wSelf.usedesk!.historyMess.count - wSelf.messages.count
-                    let countMessages = wSelf.messages.count
+                } else if wSelf.usedesk!.historyMess.count > wSelf.allMessages.count {
+                    let countNewMessages = wSelf.usedesk!.historyMess.count - wSelf.allMessages.count
+                    let countMessages = wSelf.allMessages.count
                     for index in 0..<countNewMessages {
                         wSelf.addMessage(wSelf.usedesk!.historyMess[countMessages + index])
                     }
@@ -149,14 +139,14 @@ class DialogflowView: UDMessagesView {
                 wSelf.loader.alpha = 0
                 wSelf.buttonAttach.isEnabled = true
             }
-        }
+        })
     }
     
     func updateChat() {
         DispatchQueue.main.async { [weak self] in
             guard let wSelf = self else {return}
             wSelf.loadMessagesFromStorage()
-            wSelf.generateSectionFromModel()
+            wSelf.messagesWithSection = wSelf.generateSectionFromModel(messages: wSelf.allMessages)
             wSelf.buttonAttach.isEnabled = true
             wSelf.textInput.isUserInteractionEnabled = true
             if !wSelf.isFromOfflineForm && !wSelf.isFromBase {
@@ -168,7 +158,7 @@ class DialogflowView: UDMessagesView {
     }
     
     func loadHistory() {
-        for message in messages {
+        for message in allMessages {
             if message.file.path != "" {
                 let url = URL(fileURLWithPath: message.file.path)
                 do {
@@ -188,102 +178,27 @@ class DialogflowView: UDMessagesView {
                 } catch {}
             }
         }
-        messages = []
+        allMessages = []
         if usedesk != nil {
             for message in (usedesk!.historyMess) {
-                messages.append(message)
+                allMessages.append(message)
             }
         }
-        refreshTableView()
-    }
-    
-    func generateSectionFromModel() {
-        messagesWithSection = []
-        insertFailSendMessages()
-        guard messages.count > 0 else {return}
-        messagesWithSection.append([messages[0]])
-        var indexSection = 0
-        for index in 1..<messages.count {
-            var dateStringSection = ""
-            var dateStringObject = ""
-            // date section
-            if messagesWithSection[indexSection][0].date != nil {
-                dateStringSection = messagesWithSection[indexSection][0].date!.dateFormatString
-            }
-            if messages[index].date != nil {
-                dateStringObject = messages[index].date!.dateFormatString
-            }
-            if dateStringSection.count > 0 && dateStringObject.count > 0 {
-                if dateStringSection == dateStringObject {
-                    messagesWithSection[indexSection].append(messages[index])
-                } else {
-                    messagesWithSection.append([messages[index]])
-                    indexSection += 1
-                }
-            }
-        }
-    }
-    
-    func insertFailSendMessages() {
-        guard usedesk != nil else {return}
-        var failMessagesInsert = failMessages
-        var insertArray: [[Int]] = []
-        for index in 0..<messages.count {
-            let invertedIndex = messages.count - index - 1
-            if messages[invertedIndex].date != nil {
-                var insertMessages: [UDMessage] = []
-                for indexFail in 0..<failMessagesInsert.count {
-                    if failMessagesInsert[indexFail].date != nil {
-                        if failMessagesInsert[indexFail].date! < messages[invertedIndex].date! {
-                            insertMessages.append(failMessagesInsert[indexFail])
-                        }
-                    }
-                }
-                var insertMessagesIndexes: [Int] = [invertedIndex > 0 ? invertedIndex : invertedIndex + 1]
-                insertMessages.forEach { message in
-                    if let deleteIndex = failMessages.firstIndex(of: message) {
-                        insertMessagesIndexes.append(deleteIndex)
-                        if let deleteIndex = failMessagesInsert.firstIndex(of: message) {
-                            failMessagesInsert.remove(at: deleteIndex)
-                        }
-                    }
-                }
-                if insertMessagesIndexes.count > 1 {
-                    insertArray.append(insertMessagesIndexes)
-                }
-                if (invertedIndex == 0) && (failMessagesInsert.count > 0) {
-                    insertMessagesIndexes = [invertedIndex]
-                    insertMessages = failMessagesInsert
-                    insertMessages.forEach { message in
-                        if let deleteIndex = failMessages.firstIndex(of: message) {
-                            insertMessagesIndexes.append(deleteIndex)
-                            if let deleteIndex = failMessagesInsert.firstIndex(of: message) {
-                                failMessagesInsert.remove(at: deleteIndex)
-                            }
-                        }
-                    }
-                    if insertMessagesIndexes.count > 1 {
-                        insertArray.append(insertMessagesIndexes)
-                    }
-                }
-            }
-        }
-        for SectionInsertArray in 0..<insertArray.count {
-            for indexInsertFailMess in 1..<insertArray[SectionInsertArray].count {
-                messages.insert(failMessages[insertArray[SectionInsertArray][indexInsertFailMess]], at: insertArray[SectionInsertArray][0])
-            }
+        if allMessages.count > 0 {
+            refreshTableView()
         }
     }
     
     // MARK: - Message methods
     func addMessage(_ message: UDMessage) {
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.main.async(execute: { [weak self] in
             guard let wSelf = self else {return}
-            wSelf.messages.append(message)
+            wSelf.allMessages.append(message)
+            wSelf.newMessagesIds.append(message.id)
             var isNewSection = true
             if wSelf.messagesWithSection.count > 0 {
                 if wSelf.messagesWithSection[0].count > 0 {
-                    if wSelf.messagesWithSection[0].first?.date?.dateFormatString == message.date?.dateFormatString {
+                    if wSelf.messagesWithSection[0].first?.date.dateFormatString == message.date.dateFormatString {
                         wSelf.messagesWithSection[0].insert(message, at: 0)
                         isNewSection = false
                     } else {
@@ -340,7 +255,7 @@ class DialogflowView: UDMessagesView {
                     }
                 }
             }
-        }
+        })
     }
     
     func chekSentMessage(_ message: UDMessage) {
@@ -371,9 +286,9 @@ class DialogflowView: UDMessagesView {
                         }
                         messagesWithSection[indexSection][index] = message
                         tableNode.reloadRows(at: [IndexPath(row: index, section: indexSection)], with: .automatic)
-                        if let replaceMessage = messages.filter({ $0.loadingMessageId == loadingMessageId}).first {
-                            if let index = messages.firstIndex(of: replaceMessage) {
-                                messages[index] = message
+                        if let replaceMessage = allMessages.filter({ $0.loadingMessageId == loadingMessageId}).first {
+                            if let index = allMessages.firstIndex(of: replaceMessage) {
+                                allMessages[index] = message
                             }
                         }
                     }
@@ -418,7 +333,7 @@ class DialogflowView: UDMessagesView {
         }
     }
     
-    // MARK: - Avatar methods    
+    // MARK: - Avatar methods
     override func avatarImage(_ indexPath: IndexPath?) -> UIImage {
         guard indexPath != nil else {return UIImage.named("udAvatarOperator")}
         let message = messagesWithSection[indexPath!.section][indexPath!.row]
@@ -457,18 +372,16 @@ class DialogflowView: UDMessagesView {
         DispatchQueue.main.async { [weak self] in
             guard let wSelf = self else {return}
             var newMessages: [UDMessage] = []
-            for index in 0..<wSelf.messages.count {
-                newMessages.append(wSelf.messages[wSelf.messages.count - 1 - index])
+            for index in 0..<wSelf.allMessages.count {
+                newMessages.append(wSelf.allMessages[wSelf.allMessages.count - 1 - index])
             }
-            wSelf.messages = newMessages
-            wSelf.generateSectionFromModel()
+            wSelf.allMessages = newMessages
+            wSelf.messagesWithSection = wSelf.generateSectionFromModel(messages: wSelf.allMessages)
             wSelf.tableNode.reloadData()
-            if wSelf.isFromOfflineForm || wSelf.isFromBase {
-                wSelf.buttonAttach.isEnabled = true
-                wSelf.textInput.isUserInteractionEnabled = true
-                wSelf.loader.stopAnimating()
-                wSelf.loader.alpha = 0
-            }
+            wSelf.buttonAttach.isEnabled = true
+            wSelf.textInput.isUserInteractionEnabled = true
+            wSelf.loader.stopAnimating()
+            wSelf.loader.alpha = 0
         }
     }
     
@@ -501,7 +414,7 @@ class DialogflowView: UDMessagesView {
         } else {
             if message.type == UD_TYPE_TEXT {
                 usedesk?.sendMessage(message.text)
-            } 
+            }
         }
     }
     
@@ -514,7 +427,7 @@ class DialogflowView: UDMessagesView {
     }
     
     @objc func actionDone() {
-        for message in messages {
+        for message in allMessages {
             if message.statusSend == UD_STATUS_SEND_SUCCEED && (message.file.path != "" || message.file.defaultPath != "" || message.file.previewPath != "") {
                 let url = URL(fileURLWithPath: message.file.path)
                 do {
@@ -543,18 +456,6 @@ class DialogflowView: UDMessagesView {
             usedesk?.releaseChat()
             usedesk?.uiManager?.dismiss()
         }
-    }
-    
-    @objc func closeFileViewingVC() {
-        fileViewingVC.view.removeFromSuperview()
-        navigationItem.title = usedesk?.model.nameChat
-        navigationController?.navigationBar.barTintColor = configurationStyle.navigationBarStyle.backgroundColor
-        navigationController?.navigationBar.tintColor = configurationStyle.navigationBarStyle.textColor
-        navigationController?.navigationBar.titleTextAttributes?[.foregroundColor] = configurationStyle.navigationBarStyle.textColor
-        (navigationController as? UDNavigationController)?.setTitleTextAttributes()
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: configurationStyle.navigationBarStyle.backButtonImage, style: .plain, target: self, action: #selector(self.actionDone))
-        (navigationController as? UDNavigationController)?.isDark = isDark
-        navigationController?.navigationBar.layoutSubviews()
     }
     
     override func actionSendMessage() {
@@ -630,35 +531,34 @@ class DialogflowView: UDMessagesView {
     func tableNode(_ tableNode: ASTableNode, didSelectRowAt indexPath: IndexPath) {
         if messagesWithSection[indexPath.section][indexPath.row].statusSend == UD_STATUS_SEND_FAIL {
             let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
-
             let removeAction = UIAlertAction(title: usedesk!.model.stringFor("DeleteMessage"), style: .destructive, handler: { [weak self] (alert: UIAlertAction!)  in
                 guard let wSelf = self else {return}
-                if let removeMessage = wSelf.messages.filter({ $0.loadingMessageId == wSelf.messagesWithSection[indexPath.section][indexPath.row].loadingMessageId}).first {
-                    if let index = wSelf.messages.firstIndex(of: removeMessage) {
-                        wSelf.messages.remove(at: index)
+                if let removeMessage = wSelf.allMessages.filter({ $0.loadingMessageId == wSelf.messagesWithSection[indexPath.section][indexPath.row].loadingMessageId}).first {
+                    if let index = wSelf.allMessages.firstIndex(of: removeMessage) {
+                        wSelf.allMessages.remove(at: index)
                     }
                 }
                 wSelf.messagesWithSection[indexPath.section].remove(at: indexPath.row)
-                DispatchQueue.main.async { [weak self] in
+                DispatchQueue.main.async(execute: { [weak self] in
                     guard let wSelf = self else {return}
                     wSelf.tableNode.reloadData()
-                }
+                })
             })
 
             let repeatAction = UIAlertAction(title: usedesk!.model.stringFor("SendAgain"), style: .default, handler: { [weak self] (alert: UIAlertAction!) in
                 guard let wSelf = self else {return}
                 let message = wSelf.messagesWithSection[indexPath.section][indexPath.row]
-                if let removeMessage = wSelf.messages.filter({ $0.loadingMessageId == wSelf.messagesWithSection[indexPath.section][indexPath.row].loadingMessageId}).first {
-                    if let index = wSelf.messages.firstIndex(of: removeMessage) {
-                        wSelf.messages.remove(at: index)
+                if let removeMessage = wSelf.allMessages.filter({ $0.loadingMessageId == wSelf.messagesWithSection[indexPath.section][indexPath.row].loadingMessageId}).first {
+                    if let index = wSelf.allMessages.firstIndex(of: removeMessage) {
+                        wSelf.allMessages.remove(at: index)
                     }
                 }
                 wSelf.messagesWithSection[indexPath.section].remove(at: indexPath.row)
-                DispatchQueue.main.async { [weak self] in
+                DispatchQueue.main.async(execute: { [weak self] in
                     guard let wSelf = self else {return}
                     wSelf.tableNode.reloadData()
                     wSelf.tableNode.contentOffset.y = 0
-                }
+                })
                 wSelf.sendMessage(message)
             })
 
@@ -673,59 +573,9 @@ class DialogflowView: UDMessagesView {
             }
         }
     }
-    
-    override func actionTapBubble(_ indexPath: IndexPath?) {
-        guard usedesk != nil else {return}
-        let message = messagesWithSection[indexPath!.section][indexPath!.row]
-        let file: UDFile = message.file
-        if (file.type == "image" || message.type == UD_TYPE_PICTURE || file.type == "video" || message.type == UD_TYPE_VIDEO || file.type == "file" || message.type == UD_TYPE_File) && message.status == UD_STATUS_SUCCEED {
-            navigationItem.title = message.file.name
-            navigationController?.navigationBar.barTintColor = .black
-            navigationController?.navigationBar.tintColor = .white
-            var attributes: [NSAttributedString.Key: Any] = [:]
-            attributes[.foregroundColor] = UIColor.white
-            attributes[.font] = UIFont.systemFont(ofSize: 18)
-            navigationController?.navigationBar.titleTextAttributes = attributes
-            navigationItem.leftBarButtonItem = UIBarButtonItem(image: configurationStyle.navigationBarStyle.backButtonInFileImage, style: .plain, target: self, action: #selector(self.closeFileViewingVC))
-            (navigationController as? UDNavigationController)?.isDark = true
-            navigationController?.navigationBar.layoutSubviews()
-            fileViewingVC = UDFileViewingVC()
-            fileViewingVC.configurationStyle = configurationStyle
-            fileViewingVC.isShowBackButton = !(usedesk?.model.isPresentDefaultControllers ?? true)
-            fileViewingVC.isPresentDefaultControllers = usedesk?.model.isPresentDefaultControllers ?? true
-            if usedesk?.model.isPresentDefaultControllers ?? true {
-                self.addChild(fileViewingVC)
-                self.view.addSubview(fileViewingVC.view)
-            } else {
-                fileViewingVC.modalPresentationStyle = .fullScreen
-                self.present(fileViewingVC, animated: false, completion: nil)
-            }
-            fileViewingVC.setBottomViewHC(safeAreaInsetsBottom)
-            var width: CGFloat = self.view.frame.width
-            if UIScreen.main.bounds.height < UIScreen.main.bounds.width {
-                width += safeAreaInsetsLeftOrRight * 2
-            }
-            fileViewingVC.view.frame = CGRect(x:0, y:0, width: width, height: self.view.frame.height)
-            if file.type == "image" || message.type == UD_TYPE_PICTURE {
-                fileViewingVC.filePath = file.path
-                fileViewingVC.typeFile = .image
-                fileViewingVC.viewimage.image = file.image
-            } else if file.type == "video" || message.type == UD_TYPE_VIDEO {
-                fileViewingVC.filePath = file.path
-                fileViewingVC.typeFile = .video
-                fileViewingVC.videoImage = file.previewImage
-            } else {
-                fileViewingVC.filePath = file.path
-                fileViewingVC.typeFile = .file
-                fileViewingVC.fileName = file.name
-                fileViewingVC.fileSize = file.sizeString(model: usedesk!.model)
-            }
-            fileViewingVC.updateState()
-        }
-    }
 }
 
 // Helper function inserted by Swift 4.2 migrator.
 fileprivate func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
-	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
+    return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
 }

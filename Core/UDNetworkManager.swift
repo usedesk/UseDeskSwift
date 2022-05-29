@@ -34,7 +34,7 @@ public class UDNetworkManager {
     }
     
     // MARK: - API Methods
-    public func sendOfflineForm(companyID: String, chanelID: String, name: String, email: String, message: String, topic: String? = nil, fields: [UDCallbackCustomField]? = nil, connectBlock: @escaping UDSConnectBlock, errorBlock: @escaping UDSErrorBlock) {
+    public func sendOfflineForm(companyID: String, chanelID: String, name: String, email: String, message: String, topic: String? = nil, fields: [UDCallbackCustomField]? = nil, connectBlock: @escaping UDConnectBlock, errorBlock: @escaping UDErrorBlock) {
         let companyAndChanelIds = "\(companyID)_\(chanelID)"
         var parameters: [String : Any] = [
             "company_id" : companyAndChanelIds,
@@ -61,7 +61,45 @@ public class UDNetworkManager {
         }, errorBlock: errorBlock)
     }
     
-    public func sendFile(url: String, fileName: String, data: Data, messageId: String? = nil, progressBlock: UDSProgressUploadBlock? = nil, connectBlock: @escaping UDSConnectBlock, errorBlock: @escaping UDSErrorBlock) {
+    public func sendAvatarClient(email: String? = nil, phone: String? = nil, avatarData data: Data, connectBlock: UDConnectBlock? = nil, errorBlock: UDErrorBlock? = nil) {
+        if let currentToken = token {
+            DispatchQueue.global(qos: .utility).async {
+                let url = self.urlBase(isOnlyHost: true) + "/v1/chat/setClient"
+                AF.upload(multipartFormData: { multipartFormData in
+                    multipartFormData.append(currentToken.data(using: String.Encoding.utf8)!, withName: "token")
+                    multipartFormData.append(data, withName: "avatar", fileName: "avatar")
+                    if self.model.email != "" {
+                        multipartFormData.append(self.model.email.data(using: String.Encoding.utf8)!, withName: "email")
+                    }
+                    if self.model.phone != "" {
+                        multipartFormData.append(self.model.phone.data(using: String.Encoding.utf8)!, withName: "phone")
+                    }
+                    if self.model.name != "" {
+                        multipartFormData.append(self.model.name.data(using: String.Encoding.utf8)!, withName: "username")
+                    }
+                    if self.model.companyID != "" {
+                        multipartFormData.append(self.model.companyID.data(using: String.Encoding.utf8)!, withName: "company_id")
+                    }
+                }, to: url).responseJSON { (responseJSON) in
+                    switch responseJSON.result {
+                    case .success(let value):
+                        let valueJSON = value as! [String:Any]
+                        if valueJSON["error"] == nil {
+                            connectBlock?(true)
+                        } else {
+                            errorBlock?(.serverError, "Тhe file is not accepted by the server ")
+                        }
+                    case .failure(let error):
+                        errorBlock?(.null, error.localizedDescription)
+                    }
+                }
+            }
+        } else {
+            errorBlock?(.tokenError, "")
+        }
+    }
+    
+    public func sendFile(url: String, fileName: String, data: Data, messageId: String? = nil, progressBlock: UDProgressUploadBlock? = nil, connectBlock: @escaping UDConnectBlock, errorBlock: @escaping UDErrorBlock) {
         if let currentToken = token {
             DispatchQueue.global(qos: .utility).async { 
                 AF.upload(multipartFormData: { multipartFormData in
@@ -127,7 +165,7 @@ public class UDNetworkManager {
     }
     
     // MARK: - API Base Methods
-    public func getCollections(baseBlock: @escaping UDSBaseBlock, errorBlock: @escaping UDSErrorBlock) {
+    public func getCollections(baseBlock: @escaping UDBaseBlock, errorBlock: @escaping UDErrorBlock) {
         guard UDValidationManager.isValidApiParameters(model: model, errorBlock: errorBlock) else {return}
         var url = urlBase()
         url += "/support/\(model.knowledgeBaseID)/list"
@@ -141,7 +179,7 @@ public class UDNetworkManager {
         }, errorBlock: errorBlock)
     }
     
-    public func getArticle(articleID: Int, baseBlock: @escaping UDSArticleBlock, errorBlock: @escaping UDSErrorBlock) {
+    public func getArticle(articleID: Int, baseBlock: @escaping UDArticleBlock, errorBlock: @escaping UDErrorBlock) {
         guard UDValidationManager.isValidApiParameters(model: model, errorBlock: errorBlock) else {return}
         var url = urlBase()
         url += "/support/\(model.knowledgeBaseID)/articles/\(articleID)"
@@ -155,7 +193,7 @@ public class UDNetworkManager {
         }, errorBlock: errorBlock)
     }
     
-    public func addViewsArticle(articleID: Int, count: Int, connectBlock: @escaping UDSConnectBlock, errorBlock: @escaping UDSErrorBlock) {
+    public func addViewsArticle(articleID: Int, count: Int, connectBlock: @escaping UDConnectBlock, errorBlock: @escaping UDErrorBlock) {
         guard UDValidationManager.isValidApiParameters(model: model, errorBlock: errorBlock) else {return}
         var url = urlBase()
         url += "/support/\(model.knowledgeBaseID)/articles/\(articleID)/add-views"
@@ -168,23 +206,23 @@ public class UDNetworkManager {
         }, errorBlock: errorBlock)
     }
     
-    public func addReviewArticle(articleID: Int, countPositiv: Int = 0, countNegativ: Int = 0, connectBlock: @escaping UDSConnectBlock, errorBlock: @escaping UDSErrorBlock) {
+    public func addReviewArticle(articleID: Int, countPositive: Int = 0, countNegative: Int = 0, connectBlock: @escaping UDConnectBlock, errorBlock: @escaping UDErrorBlock) {
         guard UDValidationManager.isValidApiParameters(model: model, errorBlock: errorBlock) else {return}
         var url = urlBase()
         url += "/support/\(model.knowledgeBaseID)/articles/\(articleID)/change-rating"
         var parameters = ["api_token" : model.api_token]
-        if countPositiv > 0 {
-            parameters["count_positive"] = String(countPositiv)
+        if countPositive > 0 {
+            parameters["count_positive"] = String(countPositive)
         }
-        if countNegativ > 0 {
-            parameters["count_negative"] = String(countNegativ)
+        if countNegative > 0 {
+            parameters["count_negative"] = String(countNegative)
         }
         request(url: url, method: .get, parameters: parameters, successBlock: { value in
             connectBlock(true)
         }, errorBlock: errorBlock)
     }
     
-    public func sendReviewArticleMesssage(articleID: Int, subject: String, message: String, tag: String, email: String, name: String = "", connectionStatus connectBlock: @escaping UDSConnectBlock, errorStatus errorBlock: @escaping UDSErrorBlock) {
+    public func sendReviewArticleMesssage(articleID: Int, subject: String, message: String, tag: String, email: String = "", phone: String = "", name: String = "", connectionStatus connectBlock: @escaping UDConnectBlock, errorStatus errorBlock: @escaping UDErrorBlock) {
         guard UDValidationManager.isValidApiParameters(model: model, errorBlock: errorBlock) else {return}
         var url = urlBase()
         url += "/create/ticket"
@@ -192,9 +230,14 @@ public class UDNetworkManager {
             "api_token" : model.api_token,
             "subject" : subject,
             "message" : message + "\n" + "id \(articleID)",
-            "tag" : tag,
-            "client_email" : email
+            "tag" : tag
         ]
+        if email != "" {
+            parameters["client_email"] = email
+        }
+        if phone != "" {
+            parameters["client_phone"] = phone
+        }
         if name != "" {
             parameters["client_name"] = name
         }
@@ -203,7 +246,7 @@ public class UDNetworkManager {
         }, errorBlock: errorBlock)
     }
     
-    public func getSearchArticles(collection_ids:[Int], category_ids:[Int], article_ids:[Int], count: Int = 20, page: Int = 1, query: String, type: TypeArticle = .all, sort: SortArticle = .id, order: OrderArticle = .asc, searchBlock: @escaping UDSArticleSearchBlock, errorBlock: @escaping UDSErrorBlock) {
+    public func getSearchArticles(collection_ids:[Int], category_ids:[Int], article_ids:[Int], count: Int = 20, page: Int = 1, query: String, type: TypeArticle = .all, sort: SortArticle = .id, order: OrderArticle = .asc, searchBlock: @escaping UDArticleSearchBlock, errorBlock: @escaping UDErrorBlock) {
         guard UDValidationManager.isValidApiParameters(model: model, errorBlock: errorBlock) else {return}
         var url = urlBase()
         url += "/support/\(model.knowledgeBaseID)/articles/list"
@@ -289,7 +332,7 @@ public class UDNetworkManager {
     }
     
     // MARK: - Socket Methods
-    public func socketConnect(socket: SocketIOClient?, connectBlock: UDSConnectBlock? = nil) {
+    public func socketConnect(socket: SocketIOClient?, connectBlock: UDConnectBlock? = nil) {
         socket?.connect()
         socket?.on("connect", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
@@ -300,18 +343,19 @@ public class UDNetworkManager {
         })
     }
     
-    public func socketError(socket: SocketIOClient?, errorBlock: UDSErrorBlock?) {
+    public func socketError(socket: SocketIOClient?, errorBlock: UDErrorBlock?) {
         socket?.on("error", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
             if !wSelf.isAuthInited {
                 errorBlock?(.falseInitChatError, UDError.falseInitChatError.description)
             } else {
+                print(data)
                 errorBlock?(.socketError, data.description)
             }
         })
     }
     
-    public func socketDisconnect(socket: SocketIOClient?, connectBlock: UDSConnectBlock? = nil) {
+    public func socketDisconnect(socket: SocketIOClient?, connectBlock: UDConnectBlock? = nil) {
         socket?.on("disconnect", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
             connectBlock?(false)
@@ -321,7 +365,7 @@ public class UDNetworkManager {
         })
     }
     
-    public func socketDispatch(socket: SocketIOClient?, startBlock: @escaping UDSStartBlock, historyMessagesBlock: @escaping ([UDMessage]) -> Void, callbackSettingsBlock: @escaping (UDCallbackSettings) -> Void, newMessageBlock: UDSNewMessageBlock?, feedbackMessageBlock: UDSFeedbackMessageBlock?, feedbackAnswerMessageBlock: UDSFeedbackAnswerMessageBlock?) {
+    public func socketDispatch(socket: SocketIOClient?, startBlock: @escaping UDStartBlock, historyMessagesBlock: @escaping ([UDMessage]) -> Void, callbackSettingsBlock: @escaping (UDCallbackSettings) -> Void, newMessageBlock: UDNewMessageBlock?, feedbackMessageBlock: UDFeedbackMessageBlock?, feedbackAnswerMessageBlock: UDFeedbackAnswerMessageBlock?) {
         socket?.on("dispatch", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
             if data.count == 0 {
@@ -332,6 +376,9 @@ public class UDNetworkManager {
             }, setClientBlock: { [weak self] in
                 guard let wSelf = self else {return}
                 wSelf.socket?.emit("dispatch", with: UseDeskSDKHelp.dataClient(wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, note: wSelf.model.note, token: wSelf.token ?? "", additional_id: wSelf.model.additional_id)!, completion: nil)
+                if let avatar = wSelf.model.avatar {
+                    wSelf.sendAvatarClient(avatarData: avatar)
+                }
             })
 
             let isNoOperators = UDSocketResponse.isNoOperators(data)
@@ -371,7 +418,7 @@ public class UDNetworkManager {
     }
     
     // MARK: - Private Methods
-    private func request(url: String, method: HTTPMethod = .post, parameters: [String : Any], isJSONEncoding: Bool = false, successBlock: @escaping (Any) -> Void, errorBlock: @escaping UDSErrorBlock) {
+    private func request(url: String, method: HTTPMethod = .post, parameters: [String : Any], isJSONEncoding: Bool = false, successBlock: @escaping (Any) -> Void, errorBlock: @escaping UDErrorBlock) {
         AF.request(url, method: method, parameters: parameters, encoding: isJSONEncoding ? JSONEncoding.default : URLEncoding.default).responseJSON { responseJSON in
             switch responseJSON.result {
             case .success(let value):
@@ -392,12 +439,15 @@ public class UDNetworkManager {
         }
     }
     
-    private func urlBase() -> String {
+    private func urlBase(isOnlyHost: Bool = false) -> String {
         var url = ""
         if model.urlAPI != "" {
-            url += model.urlAPI + "/uapi"
+            url += model.urlAPI
         } else {
-            url += "https://secure.usedesk.ru/uapi"
+            url += "https://secure.usedesk.ru"
+        }
+        if !isOnlyHost {
+            url += "/uapi"
         }
         return url
     }

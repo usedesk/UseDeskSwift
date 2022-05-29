@@ -36,7 +36,6 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var sendedLabel: UILabel!
     @IBOutlet weak var closeButton: UIButton!
     
-    var url = ""
     var isFromBase = false
     weak var usedesk: UseDeskSDK?
     
@@ -83,7 +82,6 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         }
     }
     
-    
     // MARK: - Private
     func firstState() {
         guard usedesk != nil else {return}
@@ -93,10 +91,13 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         scrollView.backgroundColor = configurationStyle.chatStyle.backgroundColor
         contentView.backgroundColor = configurationStyle.chatStyle.backgroundColor
         sendLoader.alpha = 0
-        configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         title = usedesk?.callbackSettings.title ?? usedesk!.model.stringFor("Chat")
-
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: configurationStyle.navigationBarStyle.backButtonImage, style: .plain, target: self, action: #selector(self.backAction))
+        navigationController?.isNavigationBarHidden = false
+        navigationController?.navigationBar.barTintColor = configurationStyle.navigationBarStyle.backgroundColor
+        navigationController?.navigationBar.tintColor = configurationStyle.navigationBarStyle.textColor
+        if (usedesk?.model.isPresentDefaultControllers ?? true) || isFromBase {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(image: configurationStyle.navigationBarStyle.backButtonImage, style: .plain, target: self, action: #selector(self.backAction))
+        }
         let feedbackFormStyle = configurationStyle.feedbackFormStyle
         tableView.register(UINib(nibName: "UDTextAnimateTableViewCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDTextAnimateTableViewCell")
         tableView.rowHeight = UITableView.automaticDimension
@@ -275,7 +276,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
             showSendedView()
             return
         }
-        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.model.companyID, chanelId: usedesk!.model.chanelId, knowledgeBaseID: usedesk!.model.knowledgeBaseID, api_token: usedesk!.model.api_token, email: usedesk!.model.email, phone: usedesk!.model.phone, url: usedesk!.model.urlWithoutPort, port: usedesk!.model.port, name: usedesk!.model.name, operatorName: usedesk!.model.operatorName, nameChat: usedesk!.model.nameChat, token: usedesk!.model.token, connectionStatus: { [weak self] success, feedbackStatus, token in
+        usedesk!.startWithoutGUICompanyID(companyID: usedesk!.model.companyID, chanelId: usedesk!.model.chanelId, url: usedesk!.model.urlWithoutPort, port: usedesk!.model.port, api_token: usedesk!.model.api_token, knowledgeBaseID: usedesk!.model.knowledgeBaseID, name: usedesk!.model.name, email: usedesk!.model.email, phone: usedesk!.model.phone, token: usedesk!.model.token, connectionStatus: { [weak self] success, feedbackStatus, token in
             guard let wSelf = self else {return}
             guard wSelf.usedesk != nil else {return}
             if wSelf.usedesk!.closureStartBlock != nil {
@@ -402,13 +403,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func close(_ sender: Any) {
-        if isFromBase {
-            usedesk?.closeChat()
-            navigationController?.popViewController(animated: true)
-        } else {
-            usedesk?.releaseChat()
-            self.dismiss(animated: true)
-        }
+        backAction()
     }
     
     // MARK: - Methods Cells

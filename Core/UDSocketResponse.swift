@@ -145,7 +145,7 @@ class UDSocketResponse {
         return false
     }
     
-    public class func actionFeedbackAnswer(_ data: [Any]?, feedbackAnswerMessageBlock: UDSFeedbackAnswerMessageBlock?) {
+    public class func actionFeedbackAnswer(_ data: [Any]?, feedbackAnswerMessageBlock: UDFeedbackAnswerMessageBlock?) {
         let dicServer = data?[0] as? [AnyHashable : Any]
         
         let type = dicServer?["type"] as? String
@@ -162,7 +162,7 @@ class UDSocketResponse {
         }
     }
     
-    public class func actionAddMessage(_ data: [Any]?, newMessageBlock: UDSNewMessageBlock?, feedbackMessageBlock: UDSFeedbackMessageBlock?, sendAdditionalFieldsBlock: () -> Void, isSendedAdditionalField: Bool,  model: UseDeskModel) {
+    public class func actionAddMessage(_ data: [Any]?, newMessageBlock: UDNewMessageBlock?, feedbackMessageBlock: UDFeedbackMessageBlock?, sendAdditionalFieldsBlock: () -> Void, isSendedAdditionalField: Bool,  model: UseDeskModel) {
         let dicServer = data?[0] as? [AnyHashable : Any]
         
         let type = dicServer?["type"] as? String
@@ -173,7 +173,6 @@ class UDSocketResponse {
         let message = dicServer?["message"] as? [AnyHashable : Any]
         
         if message != nil {
-            
             if (message?["chat"] is NSNull) {
                 return
             }
@@ -196,7 +195,9 @@ class UDSocketResponse {
                     text = text.replacingOccurrences(of: "\n", with: "<№;%br>")
                     let down = Down(markdownString: text)
                     if let attributedString = try? down.toAttributedString() {
+                        let paragraphStyle = NSMutableParagraphStyle()
                         mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
+                        mutableAttributedString!.addAttributes([.paragraphStyle : paragraphStyle], range: NSRange(location: 0, length: mutableAttributedString!.length))
                         mutableAttributedString!.mutableString.replaceCharacters(in: NSRange(location: mutableAttributedString!.length - 1, length: 1), with: "")
                         mutableAttributedString!.mutableString.replaceOccurrences(of: "<№;%br>", with: "\n", options: .caseInsensitive, range: NSRange(location: 0, length: mutableAttributedString!.length))
                     }
@@ -235,54 +236,58 @@ class UDSocketResponse {
     }
     
     public class func getHistoryMessages(data: [AnyHashable : Any], model: UseDeskModel) -> [UDMessage] {
-        var historyMess: [UDMessage] = []
-        let messages = data["messages"] as? [Any]
-        historyMess = [UDMessage]()
-        if messages != nil {
-            for mess in messages!  {
-                var m: UDMessage? = nil
-                var messageFile: UDMessage? = nil
-                var messagesImageLink: [UDMessage] = []
-                if let message = mess as? [AnyHashable : Any] {
-                    var mutableAttributedString: NSMutableAttributedString? = nil
-                    var textWithoutLinkImage: String? = nil
-                    if var text = message["text"] as? String {
-                        let linksImage = text.udRemoveMarkdownUrlsAndReturnLinks()
-                        for link in linksImage {
-                            text = text.replacingOccurrences(of: link, with: "")
-                            if let messageImageLink = parseFileMessageDic(message, withImageUrl: link) {
-                                messagesImageLink.append(messageImageLink)
-                            }
-                        }
-                        textWithoutLinkImage = text
-                        if text.count > 0 {
-                            text = text.replacingOccurrences(of: "\n", with: "<№;%br>")
-                            let down = Down(markdownString: text)
-                            if let attributedString = try? down.toAttributedString() {
-                                mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
-                                mutableAttributedString!.mutableString.replaceCharacters(in: NSRange(location: mutableAttributedString!.length - 1, length: 1), with: "")
-                                mutableAttributedString!.mutableString.replaceOccurrences(of: "<№;%br>", with: "\n", options: .caseInsensitive, range: NSRange(location: 0, length: mutableAttributedString!.length))
-                            }
+        guard let messages = data["messages"] as? [Any] else {return []}
+        return parseMessages(messages, model: model)
+    }
+    
+    public class func parseMessages(_ messagesJson: [Any], model: UseDeskModel) -> [UDMessage] {
+        var messages: [UDMessage] = []
+        for mess in messagesJson {
+            var m: UDMessage? = nil
+            var messageFile: UDMessage? = nil
+            var messagesImageLink: [UDMessage] = []
+            if let message = mess as? [AnyHashable : Any] {
+                var mutableAttributedString: NSMutableAttributedString? = nil
+                var textWithoutLinkImage: String? = nil
+                if var text = message["text"] as? String {
+                    let linksImage = text.udRemoveMarkdownUrlsAndReturnLinks()
+                    for link in linksImage {
+                        text = text.replacingOccurrences(of: link, with: "")
+                        if let messageImageLink = UDSocketResponse.parseFileMessageDic(message, withImageUrl: link) {
+                            messagesImageLink.append(messageImageLink)
                         }
                     }
-                    if (message["file"] as? [AnyHashable : Any] ) != nil {
-                        messageFile = parseFileMessageDic(message)
+                    textWithoutLinkImage = text
+                    if text.count > 0 {
+                        text = text.replacingOccurrences(of: "\n", with: "<№;%br>")
+                        let down = Down(markdownString: text)
+                        if let attributedString = try? down.toAttributedString() {
+                            let paragraphStyle = NSMutableParagraphStyle()
+                            mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
+                            mutableAttributedString!.addAttributes([.paragraphStyle : paragraphStyle], range: NSRange(location: 0, length: mutableAttributedString!.length))
+                            mutableAttributedString!.mutableString.replaceCharacters(in: NSRange(location: mutableAttributedString!.length - 1, length: 1), with: "")
+                            mutableAttributedString!.mutableString.replaceOccurrences(of: "<№;%br>", with: "\n", options: .caseInsensitive, range: NSRange(location: 0, length: mutableAttributedString!.length))
+                        }
                     }
-                    m = parseMessageDic(message, textWithoutLinkImage: textWithoutLinkImage, attributedString: mutableAttributedString, model: model)
                 }
-                if m != nil && m!.text != "​" {
-                    historyMess.append(m!)
+                if (message["file"] as? [AnyHashable : Any] ) != nil {
+                    messageFile = UDSocketResponse.parseFileMessageDic(message)
                 }
-                for m in messagesImageLink {
-                    historyMess.append(m)
-                }
-                if messageFile != nil {
-                    historyMess.append(messageFile!)
-                }
+                m = UDSocketResponse.parseMessageDic(message, textWithoutLinkImage: textWithoutLinkImage, attributedString: mutableAttributedString, model: model)
+            }
+            if m != nil && m!.text != "​" {
+                messages.append(m!)
+            }
+            for m in messagesImageLink {
+                messages.append(m)
+            }
+            if messageFile != nil {
+                messages.append(messageFile!)
             }
         }
-        return historyMess
+        return messages
     }
+    
     // MARK: - Private Methods
     private class func parseFileMessageDic(_ mess: [AnyHashable : Any]?, withImageUrl imageUrl: String? = nil) -> UDMessage? {
         let m = UDMessage(text: "", incoming: false)
@@ -324,6 +329,7 @@ class UDSocketResponse {
                 m.loadingMessageId = payload["message_id"] as? String ?? ""
             }
         }
+        m.id = mess?["id"] as? Int ?? 0
         let fileDic = mess?["file"] as? [AnyHashable : Any]
         if imageUrl != nil {
             if imageUrl!.contains(".png") || imageUrl!.contains(".gif") || imageUrl!.contains(".jpg") || imageUrl!.contains(".jpeg") {
@@ -340,7 +346,7 @@ class UDSocketResponse {
             file.name = fileDic?["name"] as! String
             file.type = fileDic?["type"] as! String
             file.size = fileDic?["size"] as? String ?? ""
-            m.id = fileDic?["fileId"] as? Int ?? 0
+            file.id = fileDic?["fileId"] as? Int ?? 0
             m.file = file
             m.status = UD_STATUS_LOADING
             var type = ""
@@ -365,7 +371,7 @@ class UDSocketResponse {
         return m
     }
         
-    private class func parseMessageDic(_ mess: [AnyHashable : Any]?, textWithoutLinkImage: String? = nil, attributedString: NSMutableAttributedString? = nil, model: UseDeskModel) -> UDMessage? {
+    class func parseMessageDic(_ mess: [AnyHashable : Any]?, textWithoutLinkImage: String? = nil, attributedString: NSMutableAttributedString? = nil, model: UseDeskModel) -> UDMessage? {
         let m = UDMessage(text: "", incoming: false)
         
         let createdAt = mess?["createdAt"] as? String ?? ""
@@ -387,7 +393,7 @@ class UDSocketResponse {
             }
         }
         if mess?["id"] != nil {
-            m.id = Int(mess?["id"] as? Int ?? 0)
+            m.id = mess?["id"] as? Int ?? 0
         }
         if let type = mess?["type"] as? String {
             m.typeSenderMessageString = type

@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
 	s.name             = 'UseDesk_SDK_Swift'
-	s.version          = '2.4.11'
+	s.version          = '3.0.0'
 	s.summary          = 'A short description of UseDesk.'
 
 	s.homepage         = 'https://github.com/usedesk/UseDeskSwift'
@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
 	s.source           = { :git => 'https://github.com/usedesk/UseDeskSwift.git', :tag => s.version.to_s }
 
 	s.ios.deployment_target = '11.0'
-	s.swift_version = '5.0'
+	s.swift_version = '1.0'
 	s.static_framework = true
 
   s.ios.source_files = ['UseDesk/Classes/*.{m,h,swift,}', 'Core/*.{m,h,swift}']

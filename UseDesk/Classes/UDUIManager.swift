@@ -8,65 +8,122 @@ import Foundation
 import UIKit
 
 class UDUIManager: UDUIProtocole {
-    private var navController = UDNavigationController()
+    private var navController: UDNavigationController?
     private var dialogflowVC: DialogflowView? = nil
     private var offlineVC: UDOfflineForm = UDOfflineForm()
+    private var baseSectionsVC: UDBaseSectionsView? = nil
+    private var baseCategoriesVC: UDBaseCategoriesView? = nil
+    private var baseArticlesVC: UDBaseArticlesView? = nil
+    private var baseArticleVC: UDBaseArticleView? = nil
     private var networkVC = UDNoInternetVC()
     
     let RootView = UIApplication.shared.keyWindow?.rootViewController
     var configurationStyle: ConfigurationStyle {
-        useDesk?.configurationStyle ?? ConfigurationStyle()
+        usedesk?.configurationStyle ?? ConfigurationStyle()
     }
 
-    weak var useDesk: UseDeskSDK?
+    weak var usedesk: UseDeskSDK?
 
     func resetUI() {
         dialogflowVC = nil
+        baseSectionsVC = nil
+        baseCategoriesVC = nil
+        baseArticlesVC = nil
+        baseArticleVC = nil
         offlineVC = UDOfflineForm()
     }
     
     func showNoInternet() {
-        if let dialogVC = navController.visibleViewController as? DialogflowView {
+        if let dialogVC = navController?.visibleViewController as? DialogflowView {
             dialogVC.showNoInternet()
-        } else if let baseSectionsVC = navController.visibleViewController as? UDBaseSectionsView {
-            baseSectionsVC.showNoInternet()
+        } else if let baseKnowledgeVC = navController?.visibleViewController as? UDBaseKnowledgeVC {
+            baseKnowledgeVC.showNoInternet()
         }
     }
     
     func closeNoInternet() {
-        if let dialogVC = navController.visibleViewController as? DialogflowView {
+        if let dialogVC = navController?.visibleViewController as? DialogflowView {
             dialogVC.closeNoInternet()
-        } else if let baseSectionsVC = navController.visibleViewController as? UDBaseSectionsView {
-            if baseSectionsVC.isLoaded() {
-                baseSectionsVC.closeNoInternet()
+        } else if let baseKnowledgeVC = navController?.visibleViewController as? UDBaseKnowledgeVC {
+            if baseKnowledgeVC.isLoaded() {
+                baseKnowledgeVC.closeNoInternet()
             }
         }
     }
 
-    func showBaseView(in parentControllerOptional: UIViewController?, url: String?) {
+    func startBaseFlow(in parentControllerOptional: UIViewController?) {
+        guard usedesk != nil else {return}
+        let model = usedesk?.model ?? UseDeskModel()
         let parentController = parentControllerOptional ?? RootView
-        let baseView = UDBaseSectionsView()
-        baseView.usedesk = useDesk
-        baseView.url = url
-        navController = UDNavigationController(rootViewController: baseView)
-        navController.configurationStyle = configurationStyle
-        navController.setProperties()
-        navController.setTitleTextAttributes()
-        navController.modalPresentationStyle = .fullScreen
-        parentController?.present(navController, animated: true) 
+        baseSectionsVC = UDBaseSectionsView()
+        baseSectionsVC?.usedesk = usedesk
+        navController = UDNavigationController(rootViewController: baseSectionsVC ?? UIViewController())
+        var openVC: UIViewController? = nil
+        if model.knowledgeBaseSectionId > 0 || model.knowledgeBaseCategoryId > 0 || model.knowledgeBaseArticleId > 0 {
+            baseCategoriesVC = UDBaseCategoriesView()
+            baseCategoriesVC?.usedesk = usedesk
+            baseCategoriesVC?.view.layoutIfNeeded()
+            navController!.viewControllers.append(baseCategoriesVC ?? UIViewController())
+            openVC = baseCategoriesVC
+        }
+        if model.knowledgeBaseCategoryId > 0 || model.knowledgeBaseArticleId > 0 {
+            baseArticlesVC = UDBaseArticlesView()
+            baseArticlesVC?.usedesk = usedesk
+            navController!.viewControllers.append(baseArticlesVC ?? UIViewController())
+            openVC = baseArticlesVC
+        }
+        if model.knowledgeBaseArticleId > 0 {
+            baseArticleVC = UDBaseArticleView()
+            baseArticleVC?.usedesk = usedesk
+            let article = UDArticle(id: model.knowledgeBaseArticleId, title: "")
+            baseArticleVC?.article = article
+            navController!.viewControllers.append(baseArticleVC ?? UIViewController())
+            openVC = baseArticleVC
+        }
+        if openVC != nil {
+            navController!.popToViewController(openVC!, animated: false)
+        }
+        navController!.configurationStyle = configurationStyle
+        navController!.setProperties()
+        navController!.setTitleTextAttributes()
+        navController!.modalPresentationStyle = .fullScreen
+        navController!.isNavigationBarHidden = true
+        parentController?.present(navController!, animated: true)
     }
     
-    func startDialogFlow(in parentControllerOptional: UIViewController?) {
+    func reloadBaseFlow(success: Bool) {
+        guard usedesk != nil else {return}
+        baseSectionsVC?.usedesk = usedesk
+        baseCategoriesVC?.usedesk = usedesk
+        baseArticlesVC?.usedesk = usedesk
+        baseArticleVC?.usedesk = usedesk
+        if navController?.visibleViewController == baseSectionsVC {
+            baseSectionsVC?.updateViews()
+        }
+        if usedesk?.model.knowledgeBaseSectionId ?? 0 > 0 {
+            baseCategoriesVC?.updateViews()
+        }
+        if usedesk?.model.knowledgeBaseCategoryId ?? 0 > 0 {
+            baseArticlesVC?.updateViews()
+        }
+    }
+    
+    func startDialogFlow(in parentControllerOptional: UIViewController?, isFromBase: Bool) {
         let parentController = parentControllerOptional ?? RootView
+        guard !(navController?.visibleViewController is DialogflowView) else {return}
         dialogflowVC = DialogflowView()
-        dialogflowVC!.usedesk = useDesk
-        if navController.presentingViewController == nil {
+        dialogflowVC!.usedesk = usedesk
+        dialogflowVC!.isFromBase = isFromBase
+        if navController == nil {
             navController = UDNavigationController(rootViewController: dialogflowVC!)
-            navController.configurationStyle = configurationStyle
-            navController.setProperties()
-            navController.setTitleTextAttributes()
-            navController.modalPresentationStyle = .fullScreen
-            parentController?.present(navController, animated: true)
+            navController!.configurationStyle = configurationStyle
+            navController!.setProperties()
+            navController!.setTitleTextAttributes()
+            navController!.modalPresentationStyle = .fullScreen
+            parentController?.present(navController!, animated: true)
+        } else if navController?.visibleViewController != dialogflowVC {
+            navController?.isNavigationBarHidden = false
+            pushViewController(dialogflowVC!)
         } else {
             dialogflowVC!.updateChat()
         }
@@ -74,14 +131,13 @@ class UDUIManager: UDUIProtocole {
     
     func reloadDialogFlow(success: Bool, feedBackStatus: UDFeedbackStatus, url: String) { 
         if success {
-            dialogflowVC?.usedesk = useDesk
+            dialogflowVC?.usedesk = usedesk
             dialogflowVC?.reloadHistory()
         } else {
             if feedBackStatus == .feedbackForm || feedBackStatus == .feedbackFormAndChat {
                 if offlineVC.presentingViewController == nil {
                     offlineVC = UDOfflineForm()
-                    offlineVC.url = url
-                    offlineVC.usedesk = useDesk
+                    offlineVC.usedesk = usedesk
                     pushViewController(offlineVC)
                     dialogflowVC?.closeVC()
                     dialogflowVC = DialogflowView()
@@ -91,34 +147,39 @@ class UDUIManager: UDUIProtocole {
     }
 
     func pushViewController(_ viewController: UIViewController) {
-        if navController.visibleViewController != viewController {
-            navController.pushViewController(viewController, animated: true)
+        if navController?.visibleViewController != viewController {
+            navController?.pushViewController(viewController, animated: true)
         }
     }
 
     func dismiss() {
-        navController.dismiss(animated: true, completion: nil)
+        navController?.dismiss(animated: true, completion: nil)
+    }
+    
+    func baseNavigationController() -> UINavigationController? {
+        let baseView = UDBaseSectionsView()
+        baseView.usedesk = usedesk
+        baseView.titleVC = usedesk!.model.stringFor("KnowlengeBase")
+        navController = UDNavigationController(rootViewController: baseView)
+        navController!.configurationStyle = configurationStyle
+        navController!.setProperties()
+        navController!.setTitleTextAttributes()
+        navController!.modalPresentationStyle = .fullScreen
+        navController!.isNavigationBarHidden = true
+        return navController
     }
     
     func chatViewController() -> UIViewController? {
-        guard useDesk != nil else {return nil}
+        guard usedesk != nil else {return nil}
         if dialogflowVC == nil {
             dialogflowVC = DialogflowView()
-            dialogflowVC?.usedesk = useDesk
+            dialogflowVC?.usedesk = usedesk
         }
         dialogflowVC?.view.layoutSubviews()
         return dialogflowVC
     }
     
     func visibleViewController() -> UIViewController? {
-        return navController.visibleViewController
-    }
-}
-
-extension UseDeskSDK {
-    func setupUI() {
-        let uiManager = UDUIManager()
-        self.uiManager = uiManager
-        uiManager.useDesk = self
+        return navController?.visibleViewController
     }
 }

@@ -11,10 +11,11 @@ class UDBaseArticleViewCell: UITableViewCell {
     @IBOutlet weak var labelTextTC: NSLayoutConstraint!
     @IBOutlet weak var labelTextTopC: NSLayoutConstraint!
     @IBOutlet weak var labelTextBC: NSLayoutConstraint!
-    // Separator
-    @IBOutlet weak var separatorView: UIView!
-    @IBOutlet weak var separatorViewHC: NSLayoutConstraint!
-    @IBOutlet weak var separatorViewLC: NSLayoutConstraint!
+    // Arrow Image
+    @IBOutlet weak var arrowImageView: UIImageView!
+    @IBOutlet weak var arrowImageWC: NSLayoutConstraint!
+    @IBOutlet weak var arrowImageHC: NSLayoutConstraint!
+    @IBOutlet weak var arrowImageTC: NSLayoutConstraint!
     
     var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     
@@ -29,10 +30,12 @@ class UDBaseArticleViewCell: UITableViewCell {
         labelTextTopC.constant = baseArticlesListStyle.textMargin.top
         labelTextBC.constant = baseArticlesListStyle.textMargin.bottom
         
-        separatorView.backgroundColor = baseArticlesListStyle.separatorColor
-        separatorViewHC.constant = baseArticlesListStyle.separatorHeight
-        separatorViewLC.constant = baseArticlesListStyle.separatorLeftMargin
+        arrowImageView.image = baseArticlesListStyle.arrowImage
+        arrowImageWC.constant = baseArticlesListStyle.arrowSize.width
+        arrowImageHC.constant = baseArticlesListStyle.arrowSize.height
+        arrowImageTC.constant = baseArticlesListStyle.arrowMarginRight
         
+        selectionStyle = .none
         self.layoutIfNeeded()
     }
 }

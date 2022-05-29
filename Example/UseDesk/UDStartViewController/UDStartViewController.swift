@@ -7,7 +7,7 @@ import UIKit
 import UseDesk_SDK_Swift
 import IQKeyboardManagerSwift
 
-class UDStartViewController: UIViewController, UITextFieldDelegate {
+class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarControllerDelegate {
     
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet var companyIdTextField: UITextField!
@@ -21,6 +21,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var phoneTextField: UITextField!
     @IBOutlet weak var nameChatTextField: UITextField!
+    @IBOutlet weak var avatarUrlTextField: UITextField!
     @IBOutlet weak var firstMessageTextField: UITextField!
     @IBOutlet weak var operatorNameTextField: UITextField!
     @IBOutlet weak var urlToSendFileTextField: UITextField!
@@ -28,10 +29,12 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var tokenTextField: UITextField!
     @IBOutlet weak var additionalIdTextField: UITextField!
     @IBOutlet weak var localeIdTextField: UITextField!
-    @IBOutlet weak var lastViewBC: NSLayoutConstraint!
+    @IBOutlet weak var sectionIdTextField: UITextField!
+    @IBOutlet weak var categoryIdTextField: UITextField!
+    @IBOutlet weak var articleIdTextField: UITextField!
+    @IBOutlet weak var isOnlyKnowledgeBaseSwitch: UISwitch!
     @IBOutlet weak var isTabBarSwitch: UISwitch!
     @IBOutlet weak var versionLabel: UILabel!
-    
     
     @IBOutlet weak var idField1: UITextField!
     @IBOutlet weak var value1: UITextField!
@@ -50,19 +53,18 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     var collection: UDBaseCollection? = nil
     var usedesk = UseDeskSDK()
     var isOpenVCWithTabBar = false
-    let tabBarVC = UITabBarController()
+    var isCanStartSDK = true
+    let tabBarVC = TabBarController()
     
     override func viewDidLoad() {
-        
         super.viewDidLoad()
-        
         IQKeyboardManager.shared.enableAutoToolbar = false
         IQKeyboardManager.shared.enable = true
         
         navigationController?.navigationBar.titleTextAttributes = [
             NSAttributedString.Key.foregroundColor: UIColor.white
         ]
-        
+
         navigationController?.navigationBar.barStyle = .black
 
         if #available(iOS 13.0, *) {
@@ -96,29 +98,6 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
             versionNumber += " (\(appBuild))"
         }
         versionLabel.text = versionNumber
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-        
-    }
-    
-    @objc func keyboardWillShow(notification: Notification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            if lastViewBC.constant == 70 {
-                UIView.animate(withDuration: 0.4) {
-                    self.lastViewBC.constant = keyboardSize.height + 70
-                    self.loadViewIfNeeded()
-                }
-            }
-        }
-
-    }
-
-    @objc func keyboardWillHide(notification: Notification) {
-        UIView.animate(withDuration: 0.4) {
-            self.lastViewBC.constant = 70
-            self.loadViewIfNeeded()
-        }
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -195,22 +174,11 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func startChatButton(_ sender: Any) {
-        var knowledgeBaseID = ""
-        var nameChat = ""
-        if knowledgeBaseIDTextField.text != nil {
-            if knowledgeBaseIDTextField.text! != "" {
-                knowledgeBaseID = knowledgeBaseIDTextField.text!
-            }
-        }
-        if nameChatTextField.text != nil {
-            if nameChatTextField.text! != "" {
-                nameChat = nameChatTextField.text!
-            }
-        }
+        guard isCanStartSDK else {return}
+        isCanStartSDK = false
         if isTabBarSwitch.isOn {
-            usedesk.configurationStyle = ConfigurationStyle(chatStyle: ChatStyle(topMarginPortrait: 80, topMarginLandscape: 40))
-        }
-        
+            usedesk.configurationStyle = ConfigurationStyle(baseStyle: BaseStyle(windowBottomMargin: 48 + view.safeAreaInsets.bottom))
+        } 
         isOpenVCWithTabBar = false
         usedesk.connectBlock = { bool in
             print("Connect = ", bool)
@@ -219,30 +187,114 @@ class UDStartViewController: UIViewController, UITextFieldDelegate {
         usedesk.newMessageWithGUIBlock = { message in
             print("New message")
         }
-        
-        usedesk.start(withCompanyID: companyIdTextField.text ?? "", chanelId: chanelIdTextField.text ?? "", urlAPI: urlBaseTextField.text, knowledgeBaseID: knowledgeBaseID, api_token: apiTokenTextField.text ?? "", email: emailTextField.text ?? "", phone: phoneTextField.text, url: urlTextField.text ?? "", urlToSendFile: urlToSendFileTextField.text ?? "", port: portTextField.text!, name: nameTextField.text, operatorName: operatorNameTextField.text, nameChat: nameChat, firstMessage: firstMessageTextField.text, note: noteTextField.text, additionalFields: additionalFields(), additionalNestedFields: additionalNestedFields(), additional_id: additionalIdTextField.text, token: tokenTextField.text, localeIdentifier: localeIdTextField.text, presentIn: self, isPresentDefaultControllers: !isTabBarSwitch.isOn, connectionStatus: { success, feedbackStatus, token in
-            if self.isTabBarSwitch.isOn && success {
-                let chatVC = self.usedesk.chatViewController() ?? UIViewController()
-                let firstVC = ViewController()
-                firstVC.title = "Second"
-                chatVC.title = "Chat"
-                self.tabBarVC.setViewControllers([chatVC, firstVC], animated: true)
-                if !self.isOpenVCWithTabBar {
-                    self.isOpenVCWithTabBar = true
-                    self.navigationController?.pushViewController(self.tabBarVC, animated: true)
+
+        if isOnlyKnowledgeBaseSwitch.isOn {
+            startOnlyKnowledgeBase()
+        } else {
+            if let pathAvatar = avatarUrlTextField.text {
+                if let urlAvatar = URL(string: pathAvatar) {
+                    URLSession.shared.dataTask(with: urlAvatar, completionHandler: { [weak self] data, _, _ in
+                        DispatchQueue.main.async {
+                            self?.startSDK(dataAvatar: data)
+                        }
+                    }).resume()
+                } else {
+                    startSDK()
                 }
+            } else {
+                startSDK()
             }
-        }, errorStatus: {  _, _ in})
+        }
 
         usedesk.presentationCompletionBlock = {
             print("close SDK")
         }
     }
-}
-class ViewController: UIViewController {
 
+    func startSDK(dataAvatar: Data? = nil) {
+        usedesk.start(withCompanyID: companyIdTextField.text ?? "", chanelId: chanelIdTextField.text ?? "", url: urlTextField.text ?? "", port: portTextField.text!, urlAPI: urlBaseTextField.text, api_token: apiTokenTextField.text ?? "", urlToSendFile: urlToSendFileTextField.text ?? "", knowledgeBaseID: knowledgeBaseIDTextField.text ?? "", knowledgeBaseSectionId: NSNumber(value: Int(sectionIdTextField.text ?? "") ?? 0), knowledgeBaseCategoryId: NSNumber(value: Int(categoryIdTextField.text ?? "") ?? 0), knowledgeBaseArticleId: NSNumber(value: Int(articleIdTextField.text ?? "") ?? 0), name: nameTextField.text, email: emailTextField.text ?? "", phone: phoneTextField.text, avatar: dataAvatar, token: tokenTextField.text, additional_id: additionalIdTextField.text, note: noteTextField.text, additionalFields: additionalFields(), additionalNestedFields: additionalNestedFields(), nameOperator: operatorNameTextField.text, nameChat: nameChatTextField.text ?? "", firstMessage: firstMessageTextField.text, localeIdentifier: localeIdTextField.text, isPresentDefaultControllers: !isTabBarSwitch.isOn, presentIn: self, connectionStatus: { success, feedbackStatus, token in
+            if self.isTabBarSwitch.isOn && success {
+                let chatVC = self.usedesk.chatViewController() ?? UIViewController()
+                let baseNС = self.usedesk.baseNavigationController() ?? UINavigationController()
+                let secondVC = SecondViewController()
+                secondVC.title = "Second"
+                chatVC.title = "Chat"
+                baseNС.title = "Base"
+                self.tabBarVC.viewControllers = nil
+                self.tabBarVC.delegateClose = self
+                self.tabBarVC.setViewControllers([(self.knowledgeBaseIDTextField.text ?? "").count > 0 ? baseNС : chatVC, secondVC], animated: true)
+                if !self.isOpenVCWithTabBar {
+                    self.isOpenVCWithTabBar = true
+                    self.navigationController?.isNavigationBarHidden = true
+                    self.navigationController?.pushViewController(self.tabBarVC, animated: true)
+                }
+            }
+            self.isCanStartSDK = true
+        }, errorStatus: { [weak self] _, error in
+            self?.showError(error: error)
+        })
+    }
+    
+    func startOnlyKnowledgeBase() {
+        usedesk.startKnowledgeBase(urlAPI: urlBaseTextField.text, api_token: apiTokenTextField.text ?? "", knowledgeBaseID: knowledgeBaseIDTextField.text ?? "", name: nameTextField.text ?? "", email: emailTextField.text ?? "", phone: phoneTextField.text, localeIdentifier: localeIdTextField.text, isPresentDefaultControllers: !isTabBarSwitch.isOn, presentIn: self, connectionStatus: { success in
+            if self.isTabBarSwitch.isOn && success {
+                let chatVC = self.usedesk.baseNavigationController() ?? UINavigationController()
+                let secondVC = SecondViewController()
+                secondVC.title = "Second"
+                chatVC.title = "Chat"
+                self.tabBarVC.viewControllers = nil
+                self.tabBarVC.delegateClose = self
+                self.tabBarVC.setViewControllers([chatVC, secondVC], animated: true)
+                if !self.isOpenVCWithTabBar {
+                    self.isOpenVCWithTabBar = true
+                    self.navigationController?.isNavigationBarHidden = true
+                    self.navigationController?.pushViewController(self.tabBarVC, animated: true)
+                }
+            }
+            self.isCanStartSDK = true
+        }, errorStatus: { [weak self] _, error in
+            self?.showError(error: error)
+        })
+    }
+    
+    func showError(error: String?) {
+        let alert = UIAlertController(title: "Error", message: error ?? "", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default) { _ in}
+        alert.addAction(okAction)
+        present(alert, animated: true)
+    }
+    
+    func close() {
+        isCanStartSDK = true
+    }
+}
+
+class SecondViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .red
+        self.view.backgroundColor = .white
+    }
+}
+
+protocol TabBarControllerDelegate: AnyObject {
+    func close()
+}
+
+class TabBarController: UITabBarController, UITabBarControllerDelegate {
+    
+    weak var delegateClose: TabBarControllerDelegate?
+    
+    override func viewDidLoad() {
+        navigationController?.navigationBar.tintColor = .white
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Close TabBar", style: .plain, target: self, action: #selector(self.actionClose))
+    }
+    
+    override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+        navigationController?.isNavigationBarHidden = item.title == "Second" ? false : true
+    }
+    
+    @objc func actionClose() {
+        delegateClose?.close()
+        self.navigationController?.popViewController(animated: true)
     }
 }

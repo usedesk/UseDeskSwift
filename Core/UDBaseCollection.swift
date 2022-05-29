@@ -58,7 +58,7 @@ import UIKit
     public var id: Int = 0
     public var imageUrl: String = ""
     public var image: UIImage? = nil
-    public var сategories: [UDBaseCategory] = []
+    public var categories: [UDBaseCategory] = []
     public var open: Bool = true
     
     init?(json: [String: Any]) {
@@ -80,7 +80,7 @@ import UIKit
         }
         for categoryObject in categoriesArray {
             if let category = UDBaseCategory(json: categoryObject) {
-                self.сategories.append(category)
+                self.categories.append(category)
             }
         }
     }

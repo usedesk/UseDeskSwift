@@ -11,11 +11,13 @@ public protocol UDUIProtocole {
     func resetUI()
     func showNoInternet()
     func closeNoInternet()
-    func showBaseView(in parentController: UIViewController?, url: String?)
-    func startDialogFlow(in parentController: UIViewController?)
+    func startBaseFlow(in parentController: UIViewController?)
+    func reloadBaseFlow(success: Bool)
+    func startDialogFlow(in parentController: UIViewController?, isFromBase: Bool)
     func reloadDialogFlow(success: Bool, feedBackStatus: UDFeedbackStatus, url: String)
     func pushViewController(_ viewController: UIViewController)
     func dismiss()
     func chatViewController() -> UIViewController?
+    func baseNavigationController() -> UINavigationController?
     func visibleViewController() -> UIViewController?
 }

@@ -31,12 +31,10 @@ class UDSectionHeaderCell: UIView {
         var widthText: CGFloat = SCREEN_WIDTH - sectionHeaderStyle.margin.left - sectionHeaderStyle.margin.right
         let message: UDMessage? = messagesView?.getMessage(indexPath)
         if message != nil {
-            if message!.date != nil {
-                if usedesk != nil {
-                    labelSectionHeader.text = message!.date!.dateFromHeaderChat(usedesk!)
-                }
-                widthText = labelSectionHeader.text?.size(attributes: [NSAttributedString.Key.font : sectionHeaderStyle.font]).width  ?? widthText
+            if usedesk != nil {
+                labelSectionHeader.text = message!.date.dateFromHeaderChat(usedesk!)
             }
+            widthText = labelSectionHeader.text?.size(attributes: [NSAttributedString.Key.font : sectionHeaderStyle.font]).width  ?? widthText
         }
         let heightText: CGFloat = labelSectionHeader.text != nil ? sectionHeaderStyle.textHeight : 0
         labelSectionHeader.frame = CGRect(x: self.center.x - (widthText / 2), y: sectionHeaderStyle.backViewPadding.top + sectionHeaderStyle.margin.top, width: widthText, height: heightText)

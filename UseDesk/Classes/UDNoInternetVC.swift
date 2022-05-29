@@ -48,6 +48,5 @@ class UDNoInternetVC: UIViewController {
         textLabelTC.constant = noInternetStyle.textMargin.right
     }
     
-    
 }
 

@@ -8,6 +8,8 @@ import Alamofire
 import MobileCoreServices
 import AsyncDisplayKit
 import MapKit
+import UniformTypeIdentifiers
+import QuickLook
 
 enum Orientation {
     case portrait
@@ -32,6 +34,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     @IBOutlet weak var textInputBC: NSLayoutConstraint!
     @IBOutlet weak var textInputLC: NSLayoutConstraint!
     @IBOutlet weak var textInputTC: NSLayoutConstraint!
+    // Scroll Button
     @IBOutlet weak var scrollButton: UIButton!
     @IBOutlet weak var scrollButtonTC: NSLayoutConstraint!
     @IBOutlet weak var scrollButtonBC: NSLayoutConstraint!
@@ -75,6 +78,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     public var safeAreaInsetsBottom: CGFloat = 0.0
     public var tableNode = ASTableNode()
     public var startDownloadFileIds: [Int] = []
+    public var allMessages: [UDMessage] = []
+    public var newMessagesIds: [Int] = []
     
     private let kLimitSizeFile: Double = 128
     
@@ -101,6 +106,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     private var imagePicker: ImagePicker!
     private var isShowAlertLimitSizeFile = false
     private var alertsLimitSizeFile: [Int : UDMessage] = [:]
+    private var selectedFile: UDFile!
     
     private var countDraftMessagesWithFile: Int {
         return draftMessages.filter({$0.type != UD_TYPE_TEXT && $0.type != UD_TYPE_EMOJI && $0.type != UD_TYPE_Feedback}).count
@@ -198,6 +204,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             ]
             NSLayoutConstraint.activate(constraints)
         }
+        setNeedsStatusBarAppearanceUpdate()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -212,6 +219,10 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             isFirstOpen = false
             updateOrientation()
         }
+    }
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return (navigationController as? UDNavigationController)?.statusBarStyle ?? .default
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -389,6 +400,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         }
     }
     
+    // MARK: - Message methods
     @objc func saveMessagesDraftAndFail() {
         guard usedesk != nil else {return}
         var saveMessages = draftMessages + failMessages
@@ -411,7 +423,151 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         }
     }
     
-    // MARK: - Message methods
+    func downloadFile(node: UDMessageCellNode) {
+        let isFileNotDidLoad = messagesDidLoadFile.filter({$0.id == node.message.id}).count == 0
+        if let pictureCell = node as? UDPictureMessageCellNode {
+            if let indexPath = pictureCell.indexPath {
+                guard let message = getMessage(indexPath) else {return}
+                if message.status == UD_STATUS_SUCCEED && pictureCell.message != message && isFileNotDidLoad {
+                    pictureCell.bindData(messagesView: self, message: message, avatarImage: avatarImage(indexPath))
+                    pictureCell.setNeedsLayout()
+                } else {
+                    guard message.file.path == "" else { return }
+                    // download image
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        let session = URLSession.shared
+                        autoreleasepool {
+                            guard let url = URL(string: message.file.content) else { return }
+                            (session.dataTask(with: url, completionHandler: { [weak self] data, response, error in
+                                guard let wSelf = self else {return}
+                                if error == nil {
+                                    var fileExtension = ".png"
+                                    if let pathExtension = NSString(utf8String: response?.suggestedFilename ?? ".png")?.pathExtension {
+                                        fileExtension = pathExtension
+                                    }
+                                    DispatchQueue.main.async { [weak self] in
+                                        guard let wSelf = self else {return}
+                                        if let indexPathPicture = wSelf.indexPathForMessage(at: message.id) {
+                                            wSelf.messagesDidLoadFile.append(message)
+                                            message.status = UD_STATUS_SUCCEED
+                                            message.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? ""
+                                            message.file.name = message.file.path != "" ? (URL(fileURLWithPath: message.file.path).localizedName ?? response?.suggestedFilename ?? "Image") : "Image"
+                                            message.file.type = "image"
+                                            wSelf.messagesWithSection[indexPathPicture.section][indexPathPicture.row] = message
+                                            wSelf.tableNode.reloadRows(at: [indexPathPicture], with: .none)
+                                        }
+                                    }
+                                } else if let index = wSelf.startDownloadFileIds.firstIndex(of: message.id) {
+                                        wSelf.startDownloadFileIds.remove(at: index)
+                                }
+                            })).resume()
+                        }
+                    }
+                }
+            }
+        } else if let videoCell = node as? UDVideoMessageCellNode {
+            if let indexPath = videoCell.indexPath {
+                guard let message = getMessage(indexPath) else {return}
+                if message.status == UD_STATUS_SUCCEED && videoCell.message != message && isFileNotDidLoad {
+                    videoCell.bindData(messagesView: self, message: message, avatarImage: avatarImage(indexPath))
+                    videoCell.setNeedsLayout()
+                } else {
+                    if message.file.path == "" && message.file.content != "" {
+                        UDFileManager.downloadFile(indexPath: indexPath, urlPath: message.file.content, name: message.file.name, extansion: message.file.typeExtension) { [weak self] (indexPath, url) in
+                            guard let wSelf = self else {return}
+                            DispatchQueue.main.async {
+                                if let indexPathVideo = wSelf.indexPathForMessage(at: message.id) {
+                                    wSelf.messagesDidLoadFile.append(message)
+                                    message.file.path = url.path
+                                    message.file.name = URL(fileURLWithPath: message.file.path).localizedName ?? "Video"
+                                    message.status = UD_STATUS_SUCCEED
+                                    wSelf.messagesWithSection[indexPathVideo.section][indexPathVideo.row] = message
+                                    wSelf.tableNode.reloadRows(at: [indexPathVideo], with: .none)
+                                }
+                            }
+                        } errorBlock: { [weak self] _ in
+                            guard let wSelf = self else {return}
+                            if let index = wSelf.startDownloadFileIds.firstIndex(of: message.id) {
+                                wSelf.startDownloadFileIds.remove(at: index)
+                            }
+                        }
+                    }
+                }
+            }
+        } else if let fileCell = node as? UDFileMessageCellNode {
+            if let indexPath = fileCell.indexPath {
+                guard let message = getMessage(indexPath) else {return}
+                if message.status == UD_STATUS_SUCCEED && fileCell.message != message && isFileNotDidLoad {
+                    fileCell.bindData(messagesView: self, message: message, avatarImage: avatarImage(indexPath))
+                    fileCell.setNeedsLayout()
+                } else {
+                    if message.file.path == "" {
+                        let session = URLSession.shared
+                        if let url = URL(string: message.file.content) {
+                            DispatchQueue.global(qos: .userInitiated).async {
+                                (session.dataTask(with: url, completionHandler: { [weak self] data, response, error in
+                                    guard let wSelf = self else {return}
+                                    if error == nil && data != nil {
+                                        DispatchQueue.main.async {
+                                            wSelf.messagesDidLoadFile.append(message)
+                                            var isFile = true
+                                            message.status = UD_STATUS_SUCCEED
+                                            guard let indexPathFile = wSelf.indexPathForMessage(at: message.id) else { return }
+                                            if let mimeType = response?.mimeType {
+                                                var fileExtension = ""
+                                                if mimeType.contains("video") {
+                                                    if let pathExtension = NSString(utf8String: response?.suggestedFilename ?? ".mp4")?.pathExtension {
+                                                        fileExtension = pathExtension
+                                                    }
+                                                    message.type = UD_TYPE_VIDEO
+                                                    message.file.path = NSURL(fileURLWithPath: FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? "").path ?? ""
+                                                    message.file.name = URL(fileURLWithPath: message.file.path).localizedName ?? "Video"
+                                                    message.file.type = "video"
+                                                    isFile = false
+                                                } else if mimeType.contains("image") {
+                                                    if let pathExtension = NSString(utf8String: response?.suggestedFilename ?? ".png")?.pathExtension {
+                                                        fileExtension = pathExtension
+                                                    }
+                                                    message.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? ""
+                                                    message.file.name = message.file.path != "" ? (URL(fileURLWithPath: message.file.path).localizedName ?? "Image") : "Image"
+                                                    message.file.type = "image"
+                                                    isFile = false
+                                                }
+                                                if !isFile {
+                                                    wSelf.messagesWithSection[indexPathFile.section][indexPathFile.row] = message
+                                                    wSelf.tableNode.reloadRows(at: [indexPathFile], with: .none)
+                                                }
+                                            }
+                                            if isFile {
+                                                var fileExtension = ".txt"
+                                                if let pathExtension = NSString(utf8String: response?.suggestedFilename ?? ".txt")?.pathExtension {
+                                                    fileExtension = pathExtension
+                                                }
+                                                message.file.path = NSURL(fileURLWithPath: FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? "").path ?? ""
+                                                message.file.type = "file"
+                                                message.file.sizeInt = data!.count
+                                                wSelf.messagesWithSection[indexPathFile.section][indexPathFile.row] = message
+                                                if let cell = (wSelf.tableNode.nodeForRow(at: indexPathFile) as? UDFileMessageCellNode) {
+                                                    cell.removeLoader()
+                                                    cell.setNeedsLayout()
+                                                    cell.layoutIfNeeded()
+                                                } else {
+                                                    wSelf.tableNode.reloadRows(at: [indexPathFile], with: .none)
+                                                }
+                                            }
+                                        }
+                                    } else if let index = wSelf.startDownloadFileIds.firstIndex(of: message.id) {
+                                            wSelf.startDownloadFileIds.remove(at: index)
+                                    }
+                                })).resume()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     func getMessage(_ indexPath: IndexPath?) -> UDMessage? {
         guard indexPath != nil else {return nil}
         guard indexPath!.section >= 0 else {return nil}
@@ -526,6 +682,77 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     func deleteDraftMessage(with message: UDMessage) {
         if let index = draftMessages.firstIndex(of: message) {
             deleteMeessage(from: &draftMessages, index: index)
+        }
+    }
+    
+    func generateSectionFromModel(messages: [UDMessage]) -> [[UDMessage]] {
+        var generetedMessagesWithSection: [[UDMessage]] = []
+        insertFailSendMessages()
+        guard messages.count > 0 else {return []}
+        generetedMessagesWithSection.append([messages[0]])
+        var indexSection = 0
+        for index in 1..<messages.count {
+            var dateStringSection = ""
+            var dateStringObject = ""
+            // date section
+            dateStringSection = generetedMessagesWithSection[indexSection][0].date.dateFormatString
+            dateStringObject = messages[index].date.dateFormatString
+            if dateStringSection.count > 0 && dateStringObject.count > 0 {
+                if dateStringSection == dateStringObject {
+                    generetedMessagesWithSection[indexSection].append(messages[index])
+                } else {
+                    generetedMessagesWithSection.append([messages[index]])
+                    indexSection += 1
+                }
+            }
+        }
+        return generetedMessagesWithSection
+    }
+    
+    func insertFailSendMessages() {
+        guard usedesk != nil else {return}
+        var failMessagesInsert = failMessages
+        var insertArray: [[Int]] = []
+        for index in 0..<allMessages.count {
+            let invertedIndex = allMessages.count - index - 1
+            var insertMessages: [UDMessage] = []
+            for indexFail in 0..<failMessagesInsert.count {
+                if failMessagesInsert[indexFail].date < allMessages[invertedIndex].date {
+                    insertMessages.append(failMessagesInsert[indexFail])
+                }
+            }
+            var insertMessagesIndexes: [Int] = [invertedIndex > 0 ? invertedIndex : invertedIndex + 1]
+            insertMessages.forEach { message in
+                if let deleteIndex = failMessages.firstIndex(of: message) {
+                    insertMessagesIndexes.append(deleteIndex)
+                    if let deleteIndex = failMessagesInsert.firstIndex(of: message) {
+                        failMessagesInsert.remove(at: deleteIndex)
+                    }
+                }
+            }
+            if insertMessagesIndexes.count > 1 {
+                insertArray.append(insertMessagesIndexes)
+            }
+            if (invertedIndex == 0) && (failMessagesInsert.count > 0) {
+                insertMessagesIndexes = [invertedIndex]
+                insertMessages = failMessagesInsert
+                insertMessages.forEach { message in
+                    if let deleteIndex = failMessages.firstIndex(of: message) {
+                        insertMessagesIndexes.append(deleteIndex)
+                        if let deleteIndex = failMessagesInsert.firstIndex(of: message) {
+                            failMessagesInsert.remove(at: deleteIndex)
+                        }
+                    }
+                }
+                if insertMessagesIndexes.count > 1 {
+                    insertArray.append(insertMessagesIndexes)
+                }
+            }
+        }
+        for SectionInsertArray in 0..<insertArray.count {
+            for indexInsertFailMess in 1..<insertArray[SectionInsertArray].count {
+                allMessages.insert(failMessages[insertArray[SectionInsertArray][indexInsertFailMess]], at: insertArray[SectionInsertArray][0])
+            }
         }
     }
     
@@ -671,6 +898,21 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     // MARK: - User actions (bubble tap)
     func actionTapBubble(_ indexPath: IndexPath?) {
+        guard usedesk != nil else {return}
+        let message = messagesWithSection[indexPath!.section][indexPath!.row]
+        let file: UDFile = message.file
+        if (file.type == "image" || message.type == UD_TYPE_PICTURE || file.type == "video" || message.type == UD_TYPE_VIDEO || file.type == "file" || message.type == UD_TYPE_File) && message.status == UD_STATUS_SUCCEED {
+            selectedFile = file
+            self.view.endEditing(true)
+            DispatchQueue.main.async {
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
+                let filePreviewController = QLPreviewController()
+                filePreviewController.delegate = self
+                filePreviewController.dataSource = self
+                filePreviewController.currentPreviewItemIndex = 0
+                self.present(filePreviewController, animated: true)
+            }
+        }
     }
 
     // MARK: - User actions (input panel)
@@ -1145,9 +1387,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     func tableNode(_ tableNode: ASTableNode, nodeForRowAt indexPath: IndexPath) -> ASCellNode {
         if usedesk != nil {
-            if usedesk?.model.operatorName != "" {
+            if usedesk?.model.nameOperator != "" {
                 if let message = getMessage(indexPath) {
-                    message.operatorName = usedesk!.model.operatorName
+                    message.operatorName = usedesk!.model.nameOperator
                 }
             }
         }
@@ -1228,151 +1470,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                     startDownloadFileIds.append(cellDownload.message.id)
                     downloadFile(node: cellDownload)
                 } 
-            }
-        }
-    }
-    
-    func downloadFile(node: UDMessageCellNode) {
-        let isFileNotDidLoad = messagesDidLoadFile.filter({$0.id == node.message.id}).count == 0
-        if let pictureCell = node as? UDPictureMessageCellNode {
-            if let indexPath = pictureCell.indexPath {
-                guard let message = getMessage(indexPath) else {return}
-                if message.status == UD_STATUS_SUCCEED && pictureCell.message != message && isFileNotDidLoad {
-                    pictureCell.bindData(messagesView: self, message: message, avatarImage: avatarImage(indexPath))
-                    pictureCell.setNeedsLayout()
-                } else {
-                    guard message.file.path == "" else { return }
-                    // download image
-                    DispatchQueue.global(qos: .userInitiated).async {
-                        let session = URLSession.shared
-                        autoreleasepool {
-                            guard let url = URL(string: message.file.content) else { return }
-                            (session.dataTask(with: url, completionHandler: { [weak self] data, response, error in
-                                guard let wSelf = self else {return}
-                                if error == nil {
-                                    var fileExtension = ".png"
-                                    if let pathExtension = NSString(utf8String: response?.suggestedFilename ?? ".png")?.pathExtension {
-                                        fileExtension = pathExtension
-                                    }
-                                    DispatchQueue.main.async { [weak self] in
-                                        guard let wSelf = self else {return}
-                                        if let indexPathPicture = wSelf.indexPathForMessage(at: message.id) {
-                                            wSelf.messagesDidLoadFile.append(message)
-                                            message.status = UD_STATUS_SUCCEED
-                                            message.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? ""
-                                            message.file.name = message.file.path != "" ? (URL(fileURLWithPath: message.file.path).localizedName ?? response?.suggestedFilename ?? "Image") : "Image"
-                                            message.file.type = "image"
-                                            wSelf.messagesWithSection[indexPathPicture.section][indexPathPicture.row] = message
-                                            wSelf.tableNode.reloadRows(at: [indexPathPicture], with: .none)
-                                        }
-                                    }
-                                } else if let index = wSelf.startDownloadFileIds.firstIndex(of: message.id) {
-                                        wSelf.startDownloadFileIds.remove(at: index)
-                                }
-                            })).resume()
-                        }
-                    }
-                }
-            }
-        } else if let videoCell = node as? UDVideoMessageCellNode {
-            if let indexPath = videoCell.indexPath {
-                guard let message = getMessage(indexPath) else {return}
-                if message.status == UD_STATUS_SUCCEED && videoCell.message != message && isFileNotDidLoad {
-                    videoCell.bindData(messagesView: self, message: message, avatarImage: avatarImage(indexPath))
-                    videoCell.setNeedsLayout()
-                } else {
-                    if message.file.path == "" && message.file.content != "" {
-                        UDFileManager.downloadFile(indexPath: indexPath, urlPath: message.file.content, name: message.file.name, extansion: message.file.typeExtension) { [weak self] (indexPath, url) in
-                            guard let wSelf = self else {return}
-                            DispatchQueue.main.async {
-                                if let indexPathVideo = wSelf.indexPathForMessage(at: message.id) {
-                                    wSelf.messagesDidLoadFile.append(message)
-                                    message.file.path = url.path
-                                    message.file.name = URL(fileURLWithPath: message.file.path).localizedName ?? "Video"
-                                    message.status = UD_STATUS_SUCCEED
-                                    wSelf.messagesWithSection[indexPathVideo.section][indexPathVideo.row] = message
-                                    wSelf.tableNode.reloadRows(at: [indexPathVideo], with: .none)
-                                }
-                            }
-                        } errorBlock: { [weak self] _ in
-                            guard let wSelf = self else {return}
-                            if let index = wSelf.startDownloadFileIds.firstIndex(of: message.id) {
-                                wSelf.startDownloadFileIds.remove(at: index)
-                            }
-                        }
-                    }
-                }
-            }
-        } else if let fileCell = node as? UDFileMessageCellNode {
-            if let indexPath = fileCell.indexPath {
-                guard let message = getMessage(indexPath) else {return}
-                if message.status == UD_STATUS_SUCCEED && fileCell.message != message && isFileNotDidLoad {
-                    fileCell.bindData(messagesView: self, message: message, avatarImage: avatarImage(indexPath))
-                    fileCell.setNeedsLayout()
-                } else {
-                    if message.file.path == "" {
-                        let session = URLSession.shared
-                        if let url = URL(string: message.file.content) {
-                            DispatchQueue.global(qos: .userInitiated).async {
-                                (session.dataTask(with: url, completionHandler: { [weak self] data, response, error in
-                                    guard let wSelf = self else {return}
-                                    if error == nil && data != nil {
-                                        DispatchQueue.main.async {
-                                            wSelf.messagesDidLoadFile.append(message)
-                                            var isFile = true
-                                            message.status = UD_STATUS_SUCCEED
-                                            guard let indexPathFile = wSelf.indexPathForMessage(at: message.id) else { return }
-                                            if let mimeType = response?.mimeType {
-                                                var fileExtension = ""
-                                                if mimeType.contains("video") {
-                                                    if let pathExtension = NSString(utf8String: response?.suggestedFilename ?? ".mp4")?.pathExtension {
-                                                        fileExtension = pathExtension
-                                                    }
-                                                    message.type = UD_TYPE_VIDEO
-                                                    message.file.path = NSURL(fileURLWithPath: FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? "").path ?? ""
-                                                    message.file.name = URL(fileURLWithPath: message.file.path).localizedName ?? "Video"
-                                                    message.file.type = "video"
-                                                    isFile = false
-                                                } else if mimeType.contains("image") {
-                                                    if let pathExtension = NSString(utf8String: response?.suggestedFilename ?? ".png")?.pathExtension {
-                                                        fileExtension = pathExtension
-                                                    }
-                                                    message.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? ""
-                                                    message.file.name = message.file.path != "" ? (URL(fileURLWithPath: message.file.path).localizedName ?? "Image") : "Image"
-                                                    message.file.type = "image"
-                                                    isFile = false
-                                                }
-                                                if !isFile {
-                                                    wSelf.messagesWithSection[indexPathFile.section][indexPathFile.row] = message
-                                                    wSelf.tableNode.reloadRows(at: [indexPathFile], with: .none)
-                                                }
-                                            }
-                                            if isFile {
-                                                var fileExtension = ".txt"
-                                                if let pathExtension = NSString(utf8String: response?.suggestedFilename ?? ".txt")?.pathExtension {
-                                                    fileExtension = pathExtension
-                                                }
-                                                message.file.path = NSURL(fileURLWithPath: FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? "").path ?? ""
-                                                message.file.type = "file"
-                                                message.file.sizeInt = data!.count
-                                                wSelf.messagesWithSection[indexPathFile.section][indexPathFile.row] = message
-                                                if let cell = (wSelf.tableNode.nodeForRow(at: indexPathFile) as? UDFileMessageCellNode) {
-                                                    cell.removeLoader()
-                                                    cell.setNeedsLayout()
-                                                    cell.layoutIfNeeded()
-                                                } else {
-                                                    wSelf.tableNode.reloadRows(at: [indexPathFile], with: .none)
-                                                }
-                                            }
-                                        }
-                                    } else if let index = wSelf.startDownloadFileIds.firstIndex(of: message.id) {
-                                            wSelf.startDownloadFileIds.remove(at: index)
-                                    }
-                                })).resume()
-                            }
-                        }
-                    }
-                }
             }
         }
     }
@@ -1679,7 +1776,6 @@ extension UDMessagesView: PHPickerViewControllerDelegate {
 
 // MARK: - TextMessageCellNodeDelegate
 extension UDMessagesView: TextMessageCellNodeDelegate {
-    
     func longPressText(text: String) {
         guard usedesk != nil else {return}
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -1701,6 +1797,22 @@ extension UDMessagesView: TextMessageCellNodeDelegate {
         }
     }
 }
+
+// MARK: - QLPreviewController
+extension UDMessagesView: QLPreviewControllerDataSource, QLPreviewControllerDelegate {
+    func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
+        return 1
+    }
+    
+    func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+        return selectedFile
+    }
+    
+    func previewControllerDidDismiss(_ controller: QLPreviewController) {
+        setNeedsStatusBarAppearanceUpdate()
+    }
+}
+
 // MARK: - ImagePicker
 public protocol ImagePickerDelegate: AnyObject {
     func didSelect(image: UIImage?)

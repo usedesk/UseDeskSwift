@@ -10,10 +10,11 @@ class UDNavigationController: UINavigationController {
     var titleTextFont: UIFont?
     
     var configurationStyle: ConfigurationStyle = ConfigurationStyle()
-    var isDark = false
+    var statusBarStyle: UIStatusBarStyle = .default
+    var isFileVC = false
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return isDark ? .lightContent : .default
+        return isFileVC ? .lightContent : statusBarStyle
     }
     
     override func viewDidLoad() {
@@ -21,7 +22,7 @@ class UDNavigationController: UINavigationController {
     }
     
     func setProperties() {
-        isDark = configurationStyle.navigationBarStyle.statusBarStyle == .default ? false : true
+        statusBarStyle = configurationStyle.navigationBarStyle.statusBarStyle
         tintColor = configurationStyle.navigationBarStyle.textColor
         
         titleTextColor = configurationStyle.navigationBarStyle.textColor
@@ -34,14 +35,14 @@ class UDNavigationController: UINavigationController {
             appearance.titleTextAttributes = [.font: titleTextFont!,
                                               .foregroundColor: titleTextColor!]
             
-            navigationController?.navigationBar.isTranslucent = false
-            navigationController?.navigationBar.barTintColor = tintColor
-            navigationController?.navigationBar.tintColor = tintColor
-            navigationController?.navigationBar.standardAppearance = appearance
-            navigationController?.navigationBar.compactAppearance = appearance
-            navigationController?.navigationBar.scrollEdgeAppearance = appearance
+            navigationBar.isTranslucent = false
+            navigationBar.barTintColor = configurationStyle.navigationBarStyle.backgroundColor
+            navigationBar.tintColor =  configurationStyle.navigationBarStyle.backButtonColor
+            navigationBar.standardAppearance = appearance
+            navigationBar.compactAppearance = appearance
+            navigationBar.scrollEdgeAppearance = appearance
         } else {
-            navigationController?.navigationBar.isTranslucent = false
+            navigationBar.isTranslucent = false
             navigationBar.barTintColor = configurationStyle.navigationBarStyle.backgroundColor
             navigationBar.tintColor = configurationStyle.navigationBarStyle.textColor
         }

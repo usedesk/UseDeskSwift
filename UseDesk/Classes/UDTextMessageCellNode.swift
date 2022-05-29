@@ -45,7 +45,6 @@ class UDTextMessageCellNode: UDMessageCellNode {
                 attributedString.addAttribute(.foregroundColor, value: message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor, range: range)
             }
         }
-        
         textMessageNode.attributedText = attributedString
         textMessageNode.isUserInteractionEnabled = true
         textMessageNode.delegate = self
@@ -78,10 +77,10 @@ class UDTextMessageCellNode: UDMessageCellNode {
         vMessageStack.spacing = 0
         vMessageStack.alignItems = .start
         vMessageStack.setChild(textMessageInsets, at: 0)
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.main.async(execute: { [weak self] in
             guard let wSelf = self else {return}
             wSelf.tableButtonsNode.reloadData()
-        }
+        })
         if message.buttons.count > 0 {
             let insetSpec = ASInsetLayoutSpec(insets: messageButtonStyle.margin, child: tableButtonsNode)
             tableButtonsNode.style.minWidth = ASDimensionMakeWithPoints(60000.0)

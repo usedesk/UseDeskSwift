@@ -35,7 +35,6 @@ import Foundation
     public var created_at: String = ""
     
     init?(json: [String: Any]) {
-        
         guard
             let id = json["id"] as? Int,
             let title = json["title"] as? String,
@@ -63,6 +62,11 @@ import Foundation
         } else {
             self.open = false
         }
+    }
+    
+    init(id: Int, title: String) {
+        self.id = id
+        self.title = title
     }
     
     static func get(from jsonObject: Any) -> UDArticle? {

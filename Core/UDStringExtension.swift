@@ -37,7 +37,7 @@ extension String {
         let systemFont = UIFont.systemFont(ofSize: UIFont.systemFontSize)
         let font: UIFont = (attributes?[.font] as? UIFont) ?? systemFont
         
-        if (attributes == nil) {
+        if attributes == nil {
             attributes = [.font : font]
         }
         
@@ -50,12 +50,12 @@ extension String {
         let drawingRect = attributedString.boundingRect(with: availableSize, options: options, context: nil)
         sizeWithAttributedString = drawingRect.size
         
-        if (!usesFontLeading) {
+        if !usesFontLeading {
             return sizeWithAttributedString
         }
         
         // Leading causes incorrect calculation for text layer
-        if (usesFontLeading) {
+        if usesFontLeading {
             let linesCount = ceil(sizeWithAttributedString.height / singleSymbolHeight)
             let totalHeight = ceil(sizeWithAttributedString.height + abs(font.leading) * linesCount)
             sizeWithAttributedString.height = totalHeight

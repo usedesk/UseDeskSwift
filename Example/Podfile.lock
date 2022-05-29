@@ -41,7 +41,7 @@ PODS:
     - Texture/Core
   - Texture/Video (3.1.0):
     - Texture/Core
-  - UseDesk_SDK_Swift (2.4.11):
+  - UseDesk_SDK_Swift (3.0.0):
     - Alamofire (~> 5)
     - Down
     - ReachabilitySwift
@@ -80,7 +80,7 @@ SPEC CHECKSUMS:
   Socket.IO-Client-Swift: c116d6dc9fd6be9c259bacfe143f8725bce7d79e
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   Texture: 2e8ab2519452515f7f5a520f5a8f7e0a413abfa3
-  UseDesk_SDK_Swift: f05a918d166ed0becd980a5bb48270788ff33645
+  UseDesk_SDK_Swift: 9ead4597515f85131d9a053cd960753fa1be55f0
 
 PODFILE CHECKSUM: 38ca86b4f5802b67eb523063e3dd15ab9ab41411
 

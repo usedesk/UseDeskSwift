@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -119,11 +119,11 @@
                                 <constraint firstAttribute="height" constant="48" id="UKS-gL-5sH"/>
                             </constraints>
                             <fontDescription key="fontDescription" type="system" weight="light" pointSize="15"/>
-                            <state key="normal" title="Send">
+                            <state key="normal" title="Close">
                                 <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </state>
                             <connections>
-                                <action selector="close:" destination="-1" eventType="touchUpInside" id="psG-SU-zCO"/>
+                                <action selector="close:" destination="-1" eventType="touchUpInside" id="8i6-lY-c29"/>
                             </connections>
                         </button>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZUK-3m-9v5">
@@ -158,9 +158,9 @@
                 <constraint firstAttribute="bottom" secondItem="wBO-VK-gTR" secondAttribute="bottom" id="Cn4-kI-5oD"/>
                 <constraint firstItem="wBO-VK-gTR" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="FU9-R9-gFZ"/>
                 <constraint firstItem="Qq1-le-u9q" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="Gw1-RO-kVW"/>
-                <constraint firstItem="wBO-VK-gTR" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="MeV-MX-GZt"/>
+                <constraint firstItem="wBO-VK-gTR" firstAttribute="leading" secondItem="Q5M-cg-NOt" secondAttribute="leading" id="MeV-MX-GZt"/>
                 <constraint firstAttribute="trailing" secondItem="Qq1-le-u9q" secondAttribute="trailing" id="d1o-P5-thH"/>
-                <constraint firstAttribute="trailing" secondItem="wBO-VK-gTR" secondAttribute="trailing" id="gza-D7-2cn"/>
+                <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="wBO-VK-gTR" secondAttribute="trailing" id="gza-D7-2cn"/>
                 <constraint firstAttribute="bottom" secondItem="Qq1-le-u9q" secondAttribute="bottom" constant="-386" id="q00-Rr-kRb"/>
             </constraints>
             <point key="canvasLocation" x="140" y="64.31784107946028"/>

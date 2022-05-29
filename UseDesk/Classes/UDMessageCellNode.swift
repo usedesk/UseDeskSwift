@@ -84,6 +84,7 @@ class UDMessageCellNode: ASCellNode {
             
             nameNode.textContainerInset = messageStyle.senderTextMargin
             nameNode.attributedText = NSAttributedString(string: message.operatorName != "" ? message.operatorName : message.name, attributes: [.foregroundColor: messageStyle.senderTextColor, .font: messageStyle.senderTextFont])
+            nameNode.alpha = 0
             addSubnode(nameNode)
         }
         
@@ -94,7 +95,7 @@ class UDMessageCellNode: ASCellNode {
         } else {
             timeColor = message.outgoing ? messageStyle.timeOutgoingColor : messageStyle.timeIncomingColor
         }
-        timeNode.attributedText = NSAttributedString(string: message.date?.time ?? "" , attributes : [.foregroundColor: timeColor, .font: messageStyle.timeFont])
+        timeNode.attributedText = NSAttributedString(string: message.date.time, attributes : [.foregroundColor: timeColor, .font: messageStyle.timeFont])
         addSubnode(timeNode)
     }
     
@@ -118,6 +119,7 @@ class UDMessageCellNode: ASCellNode {
         
         var layoutElements: [ASLayoutElement] = [contentMessageBackgroundSpec]
         if message.incoming && isNeedShowSender {
+            nameNode.alpha = 1
             layoutElements.insert(nameNode, at: 0)
         }
         

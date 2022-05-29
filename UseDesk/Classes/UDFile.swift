@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import QuickLook
 
 enum UDTypeSourceFile: String {
     case UIImage = "UIImage"
@@ -12,6 +13,7 @@ enum UDTypeSourceFile: String {
 }
 
 public class UDFile: NSObject, Codable {
+    @objc public var id: Int = 0
     @objc public var type = ""
     @objc public var name = ""
     @objc public var content = ""
@@ -214,4 +216,10 @@ enum TypeSenderMessage: Int {
     case client_to_bot = 3
     case bot_to_client = 4
     case service = 0
+}
+
+extension UDFile: QLPreviewItem {
+    public var previewItemURL: URL? {
+    return URL(fileURLWithPath: path)
+  }
 }
