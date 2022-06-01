@@ -86,7 +86,7 @@ usedesk.start(
     chanelId: "1234", 
     url: "pubsubsec.usedesk.ru", 
     port: "443",
-    urlAPI: "pubsubsec.usedesk.ru", 
+    urlAPI: "secure.usedesk.ru", 
     api_token: "143ed59g90ef093s",
     urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", 
     knowledgeBaseID: "12", 
@@ -112,9 +112,8 @@ usedesk.start(
     isSaveTokensInUserDefaults: true, 
     isPresentDefaultControllers: true, 
     presentIn: self,
-    connectionStatus: { 
-        success, error in
-    }
+    connectionStatus: { success, feedbackStatus, token in },
+    errorStatus: { udError, description in }
 )
 ```
 
@@ -180,9 +179,8 @@ usedesk.start(
     customLocale: customLocaleDictionary,
     isPresentDefaultControllers: true, 
     presentIn: self,
-    connectionStatus: { 
-        success, error in
-    }
+    connectionStatus: { success in },
+    errorStatus: { udError, description in }
 )
 ```
 
@@ -241,7 +239,7 @@ usedesk.startWithoutGUICompanyID(
     chanelId: "1234", 
     url: "pubsubsec.usedesk.ru", 
     port: "443",
-    urlAPI: "pubsubsec.usedesk.ru", 
+    urlAPI: "secure.usedesk.ru", 
     api_token: "143ed59g90ef093s",
     urlToSendFile: "https://secure.usedesk.ru/uapi/v1/send_file", 
     knowledgeBaseID: "12",
@@ -258,9 +256,8 @@ usedesk.startWithoutGUICompanyID(
     localeIdentifier: "en", 
     customLocale: customLocaleDictionary,
     isSaveTokensInUserDefaults: true,
-    connectionStatus: { 
-        success, error in
-    }
+    connectionStatus: { success, feedbackStatus, token in },
+    errorStatus: { udError, description in }
 )
 ```
 
