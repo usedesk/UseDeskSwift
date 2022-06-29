@@ -23,6 +23,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
     @IBOutlet weak var nameChatTextField: UITextField!
     @IBOutlet weak var avatarUrlTextField: UITextField!
     @IBOutlet weak var firstMessageTextField: UITextField!
+    @IBOutlet weak var countMessagesOnInitTextField: UITextField!
     @IBOutlet weak var operatorNameTextField: UITextField!
     @IBOutlet weak var urlToSendFileTextField: UITextField!
     @IBOutlet weak var noteTextField: UITextField!
@@ -64,7 +65,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
         navigationController?.navigationBar.titleTextAttributes = [
             NSAttributedString.Key.foregroundColor: UIColor.white
         ]
-
+        
         navigationController?.navigationBar.barStyle = .black
 
         if #available(iOS 13.0, *) {
@@ -178,7 +179,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
         isCanStartSDK = false
         if isTabBarSwitch.isOn {
             usedesk.configurationStyle = ConfigurationStyle(baseStyle: BaseStyle(windowBottomMargin: 48 + view.safeAreaInsets.bottom))
-        } 
+        }
         isOpenVCWithTabBar = false
         usedesk.connectBlock = { bool in
             print("Connect = ", bool)
@@ -212,7 +213,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
     }
 
     func startSDK(dataAvatar: Data? = nil) {
-        usedesk.start(withCompanyID: companyIdTextField.text ?? "", chanelId: chanelIdTextField.text ?? "", url: urlTextField.text ?? "", port: portTextField.text!, urlAPI: urlBaseTextField.text, api_token: apiTokenTextField.text ?? "", urlToSendFile: urlToSendFileTextField.text ?? "", knowledgeBaseID: knowledgeBaseIDTextField.text ?? "", knowledgeBaseSectionId: NSNumber(value: Int(sectionIdTextField.text ?? "") ?? 0), knowledgeBaseCategoryId: NSNumber(value: Int(categoryIdTextField.text ?? "") ?? 0), knowledgeBaseArticleId: NSNumber(value: Int(articleIdTextField.text ?? "") ?? 0), name: nameTextField.text, email: emailTextField.text ?? "", phone: phoneTextField.text, avatar: dataAvatar, token: tokenTextField.text, additional_id: additionalIdTextField.text, note: noteTextField.text, additionalFields: additionalFields(), additionalNestedFields: additionalNestedFields(), nameOperator: operatorNameTextField.text, nameChat: nameChatTextField.text ?? "", firstMessage: firstMessageTextField.text, localeIdentifier: localeIdTextField.text, isPresentDefaultControllers: !isTabBarSwitch.isOn, presentIn: self, connectionStatus: { success, feedbackStatus, token in
+        usedesk.start(withCompanyID: companyIdTextField.text ?? "", chanelId: chanelIdTextField.text ?? "", url: urlTextField.text ?? "", port: portTextField.text!, urlAPI: urlBaseTextField.text, api_token: apiTokenTextField.text ?? "", urlToSendFile: urlToSendFileTextField.text ?? "", knowledgeBaseID: knowledgeBaseIDTextField.text ?? "", knowledgeBaseSectionId: NSNumber(value: Int(sectionIdTextField.text ?? "") ?? 0), knowledgeBaseCategoryId: NSNumber(value: Int(categoryIdTextField.text ?? "") ?? 0), knowledgeBaseArticleId: NSNumber(value: Int(articleIdTextField.text ?? "") ?? 0), name: nameTextField.text, email: emailTextField.text ?? "", phone: phoneTextField.text, avatar: dataAvatar, token: tokenTextField.text, additional_id: additionalIdTextField.text, note: noteTextField.text, additionalFields: additionalFields(), additionalNestedFields: additionalNestedFields(), nameOperator: operatorNameTextField.text, nameChat: nameChatTextField.text ?? "", firstMessage: firstMessageTextField.text, countMessagesOnInit: NSNumber(value: Int(countMessagesOnInitTextField.text ?? "") ?? 20), localeIdentifier: localeIdTextField.text, isPresentDefaultControllers: !isTabBarSwitch.isOn, presentIn: self, connectionStatus: { success, feedbackStatus, token in
             if self.isTabBarSwitch.isOn && success {
                 let chatVC = self.usedesk.chatViewController() ?? UIViewController()
                 let baseNС = self.usedesk.baseNavigationController() ?? UINavigationController()
@@ -232,6 +233,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
             self.isCanStartSDK = true
         }, errorStatus: { [weak self] _, error in
             self?.showError(error: error)
+            self?.isCanStartSDK = true
         })
     }
     
@@ -254,6 +256,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
             self.isCanStartSDK = true
         }, errorStatus: { [weak self] _, error in
             self?.showError(error: error)
+            self?.isCanStartSDK = true
         })
     }
     

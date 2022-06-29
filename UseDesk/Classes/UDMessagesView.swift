@@ -40,6 +40,12 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     @IBOutlet weak var scrollButtonBC: NSLayoutConstraint!
     @IBOutlet weak var scrollButtonHC: NSLayoutConstraint!
     @IBOutlet weak var scrollButtonWC: NSLayoutConstraint!
+    // New Messages Count View
+    @IBOutlet weak var newMessagesCountView: UIView!
+    @IBOutlet weak var newMessagesCountLabel: UILabel!
+    @IBOutlet weak var newMessagesCountViewHC: NSLayoutConstraint!
+    @IBOutlet weak var newMessagesCountViewWC: NSLayoutConstraint!
+    @IBOutlet weak var newMessagesCountViewBC: NSLayoutConstraint!
     // Attach Collection Message
     @IBOutlet weak var attachCollectionMessageView: UICollectionView!
     @IBOutlet weak var attachCollectionMessageViewTopC: NSLayoutConstraint!
@@ -72,6 +78,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     public var draftMessages: [UDMessage] = []
     public var failMessages: [UDMessage] = []
+    public var queueOfSendMessages: [UDMessage] = []
     public var messagesWithSection: [[UDMessage]] = []
     public var messagesDidLoadFile: [UDMessage] = []
     public var configurationStyle: ConfigurationStyle = ConfigurationStyle()
@@ -107,6 +114,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     private var isShowAlertLimitSizeFile = false
     private var alertsLimitSizeFile: [Int : UDMessage] = [:]
     private var selectedFile: UDFile!
+    private var isNeedLoadMoreHistoryMessages = true
+    private var idSelectingMessage: Int? = nil
+    private var isScrollChatToBottom = true
     
     private var countDraftMessagesWithFile: Int {
         return draftMessages.filter({$0.type != UD_TYPE_TEXT && $0.type != UD_TYPE_EMOJI && $0.type != UD_TYPE_Feedback}).count
@@ -123,7 +133,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         NSLayoutConstraint.activate([viewForTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)])
         
         configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
@@ -133,7 +143,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         
         tableNode.backgroundColor = configurationStyle.chatStyle.backgroundColor
         self.view.backgroundColor = tableNode.backgroundColor
-        tableNode.view.transform = CGAffineTransform(scaleX: 1, y: -1)
         
         loadMessagesFromStorage()
         
@@ -235,6 +244,12 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         tableNode.backgroundColor = configurationStyle.chatStyle.backgroundColor
         tableNode.view.separatorStyle = .none
         tableNode.view.scrollsToTop = true
+        tableNode.dataSource = self
+        tableNode.delegate = self
+        tableNode.leadingScreensForBatching = 10.0
+        tableNode.inverted = true
+        tableNode.contentInset = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 4, right: 0.0)
+        tableNode.view.scrollIndicatorInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 4, right: 0.0)
         
         buttonAttach.setBackgroundImage(configurationStyle.attachButtonStyle.image, for: .normal)
         buttonAttachLC.constant = configurationStyle.attachButtonStyle.margin.left
@@ -274,9 +289,11 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         
         attachFirstButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
         attachFileButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
+        attachCancelButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
         
         attachFirstButton.tintColor = configurationStyle.attachViewStyle.textButtonColor
         attachFileButton.tintColor = configurationStyle.attachViewStyle.textButtonColor
+        attachCancelButton.tintColor = configurationStyle.attachViewStyle.textButtonColor
         
         attachCollectionMessageViewTopC.constant = configurationStyle.inputViewStyle.topMarginAssetsCollection
         attachCollectionMessageViewHC.constant = configurationStyle.inputViewStyle.heightAssetsCollection
@@ -285,15 +302,20 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             showAttachCollection()
         }
         
-        tableNode.dataSource = self
-        tableNode.delegate = self
-        tableNode.contentInset.top = 4
         scrollButtonTC.constant = configurationStyle.chatStyle.scrollButtonMargin.right
         scrollButtonBC.constant = configurationStyle.chatStyle.scrollButtonMargin.bottom
         scrollButtonHC.constant = configurationStyle.chatStyle.scrollButtonSize.height
         scrollButtonWC.constant = configurationStyle.chatStyle.scrollButtonSize.width
         scrollButton.setBackgroundImage(configurationStyle.chatStyle.scrollButtonImage, for: .normal)
         scrollButton.alpha = 0
+        
+        newMessagesCountView.backgroundColor = configurationStyle.chatStyle.newMessagesViewColor
+        newMessagesCountView.layer.cornerRadius = configurationStyle.chatStyle.newMessagesViewHeight / 2
+        newMessagesCountViewHC.constant = configurationStyle.chatStyle.newMessagesViewHeight
+        newMessagesCountViewBC.constant = configurationStyle.chatStyle.newMessagesViewMarginBottom
+        updateCountNewMessagesView()
+        newMessagesCountLabel.font = configurationStyle.chatStyle.newMessagesLabelFont
+        newMessagesCountLabel.textColor = configurationStyle.chatStyle.newMessagesLabelColor
         
         buttonSend.isEnabled = false
         buttonAttach.isEnabled = false
@@ -367,6 +389,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 self.textInputViewBC.constant =  isShowKeyboard ? keyboardHeightPortait : 0
                 previousOrientation = .portrait
                 attachCollectionView.reloadData()
+                updateOrientationValueInCellWith(.portrait)
                 DispatchQueue.main.async { [weak self] in
                     guard let wSelf = self else {return}
                     wSelf.view.setNeedsLayout()
@@ -391,6 +414,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 self.textInputViewBC.constant = isShowKeyboard ? keyboardHeightLandscape : 0
                 previousOrientation = .landscape
                 attachCollectionView.reloadData()
+                updateOrientationValueInCellWith(.landscape)
                 DispatchQueue.main.async { [weak self] in
                     guard let wSelf = self else {return}
                     wSelf.view.setNeedsLayout()
@@ -398,6 +422,28 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 }
             }
         }
+    }
+    
+    func updateOrientationValueInCellWith(_ orientaion: Orientation) {
+        for section in 0..<messagesWithSection.count {
+            for index in 0..<messagesWithSection[section].count {
+                if let cell = tableNode.nodeForRow(at: IndexPath(row: index, section: section)) as? UDMessageCellNode {
+                    cell.orientaion = orientaion
+                }
+            }
+        }
+    }
+    
+    func updateCountNewMessagesView() {
+        newMessagesCountView.alpha = newMessagesIds.count > 0 ? scrollButton.alpha : 0
+        guard newMessagesIds.count > 0 else {return}
+        let chatStyle = configurationStyle.chatStyle
+        newMessagesCountLabel.text = newMessagesIds.count > 99 ? "99+" : String(newMessagesIds.count)
+        let widthSingleSymbol = (newMessagesIds.count < 10 ? String(newMessagesIds.count) : "0").size(attributes: [NSAttributedString.Key.font : chatStyle.newMessagesLabelFont]).width
+        let additionalWidth = chatStyle.newMessagesViewHeight - widthSingleSymbol
+        let widthNewMessagesCountLabel = newMessagesCountLabel.text?.size(attributes: [NSAttributedString.Key.font : chatStyle.newMessagesLabelFont]).width ?? widthSingleSymbol
+        newMessagesCountViewWC.constant = widthNewMessagesCountLabel + additionalWidth
+        self.view.layoutIfNeeded()
     }
     
     // MARK: - Message methods
@@ -429,61 +475,61 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             if let indexPath = pictureCell.indexPath {
                 guard let message = getMessage(indexPath) else {return}
                 if message.status == UD_STATUS_SUCCEED && pictureCell.message != message && isFileNotDidLoad {
-                    pictureCell.bindData(messagesView: self, message: message, avatarImage: avatarImage(indexPath))
-                    pictureCell.setNeedsLayout()
+                    if let image = message.file.image {
+                        pictureCell.setImage(image)
+                    }
                 } else {
                     guard message.file.path == "" else { return }
                     // download image
-                    DispatchQueue.global(qos: .userInitiated).async {
+                    DispatchQueue.global(qos: .background).async {
                         let session = URLSession.shared
-                        autoreleasepool {
-                            guard let url = URL(string: message.file.content) else { return }
-                            (session.dataTask(with: url, completionHandler: { [weak self] data, response, error in
-                                guard let wSelf = self else {return}
-                                if error == nil {
-                                    var fileExtension = ".png"
-                                    if let pathExtension = NSString(utf8String: response?.suggestedFilename ?? ".png")?.pathExtension {
-                                        fileExtension = pathExtension
-                                    }
-                                    DispatchQueue.main.async { [weak self] in
-                                        guard let wSelf = self else {return}
-                                        if let indexPathPicture = wSelf.indexPathForMessage(at: message.id) {
-                                            wSelf.messagesDidLoadFile.append(message)
-                                            message.status = UD_STATUS_SUCCEED
-                                            message.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? ""
-                                            message.file.name = message.file.path != "" ? (URL(fileURLWithPath: message.file.path).localizedName ?? response?.suggestedFilename ?? "Image") : "Image"
-                                            message.file.type = "image"
-                                            wSelf.messagesWithSection[indexPathPicture.section][indexPathPicture.row] = message
-                                            wSelf.tableNode.reloadRows(at: [indexPathPicture], with: .none)
-                                        }
-                                    }
-                                } else if let index = wSelf.startDownloadFileIds.firstIndex(of: message.id) {
-                                        wSelf.startDownloadFileIds.remove(at: index)
+                        guard let url = URL(string: message.file.content) else { return }
+                        (session.dataTask(with: url, completionHandler: { [weak self] data, response, error in
+                            guard let wSelf = self else {return}
+                            if error == nil {
+                                var fileExtension = ".png"
+                                if let pathExtension = NSString(utf8String: response?.suggestedFilename ?? ".png")?.pathExtension {
+                                    fileExtension = pathExtension
                                 }
-                            })).resume()
-                        }
+                                guard let wSelf = self else {return}
+                                if let indexPathPicture = wSelf.indexPathForMessage(at: message.id) {
+                                    wSelf.messagesDidLoadFile.append(message)
+                                    message.status = UD_STATUS_SUCCEED
+                                    message.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? ""
+                                    message.file.name = message.file.path != "" ? (URL(fileURLWithPath: message.file.path).localizedName ?? response?.suggestedFilename ?? "Image") : "Image"
+                                    message.file.type = "image"
+                                    wSelf.messagesWithSection[indexPathPicture.section][indexPathPicture.row] = message
+                                    pictureCell.imageNode.image = message.file.image
+                                    if let image = message.file.image {
+                                        pictureCell.setImage(image)
+                                    }
+                                }
+                            } else if let index = wSelf.startDownloadFileIds.firstIndex(of: message.id) {
+                                    wSelf.startDownloadFileIds.remove(at: index)
+                            }
+                        })).resume()
                     }
                 }
             }
-        } else if let videoCell = node as? UDVideoMessageCellNode {
+        }
+        else if let videoCell = node as? UDVideoMessageCellNode {
             if let indexPath = videoCell.indexPath {
                 guard let message = getMessage(indexPath) else {return}
                 if message.status == UD_STATUS_SUCCEED && videoCell.message != message && isFileNotDidLoad {
-                    videoCell.bindData(messagesView: self, message: message, avatarImage: avatarImage(indexPath))
-                    videoCell.setNeedsLayout()
+                    if message.file.path.count > 0 {
+                        videoCell.setPreviewImage(UDFileManager.videoPreview(fileURL: URL(fileURLWithPath: message.file.path)))
+                    }
                 } else {
                     if message.file.path == "" && message.file.content != "" {
                         UDFileManager.downloadFile(indexPath: indexPath, urlPath: message.file.content, name: message.file.name, extansion: message.file.typeExtension) { [weak self] (indexPath, url) in
                             guard let wSelf = self else {return}
-                            DispatchQueue.main.async {
-                                if let indexPathVideo = wSelf.indexPathForMessage(at: message.id) {
-                                    wSelf.messagesDidLoadFile.append(message)
-                                    message.file.path = url.path
-                                    message.file.name = URL(fileURLWithPath: message.file.path).localizedName ?? "Video"
-                                    message.status = UD_STATUS_SUCCEED
-                                    wSelf.messagesWithSection[indexPathVideo.section][indexPathVideo.row] = message
-                                    wSelf.tableNode.reloadRows(at: [indexPathVideo], with: .none)
-                                }
+                            if let indexPathVideo = wSelf.indexPathForMessage(at: message.id) {
+                                wSelf.messagesDidLoadFile.append(message)
+                                message.file.path = url.path
+                                message.file.name = URL(fileURLWithPath: message.file.path).localizedName ?? "Video"
+                                message.status = UD_STATUS_SUCCEED
+                                wSelf.messagesWithSection[indexPathVideo.section][indexPathVideo.row] = message
+                                videoCell.setPreviewImage(UDFileManager.videoPreview(fileURL: URL(fileURLWithPath: message.file.path)))
                             }
                         } errorBlock: { [weak self] _ in
                             guard let wSelf = self else {return}
@@ -498,8 +544,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             if let indexPath = fileCell.indexPath {
                 guard let message = getMessage(indexPath) else {return}
                 if message.status == UD_STATUS_SUCCEED && fileCell.message != message && isFileNotDidLoad {
-                    fileCell.bindData(messagesView: self, message: message, avatarImage: avatarImage(indexPath))
-                    fileCell.setNeedsLayout()
+                    fileCell.removeLoader()
                 } else {
                     if message.file.path == "" {
                         let session = URLSession.shared
@@ -549,8 +594,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                                 wSelf.messagesWithSection[indexPathFile.section][indexPathFile.row] = message
                                                 if let cell = (wSelf.tableNode.nodeForRow(at: indexPathFile) as? UDFileMessageCellNode) {
                                                     cell.removeLoader()
-                                                    cell.setNeedsLayout()
-                                                    cell.layoutIfNeeded()
                                                 } else {
                                                     wSelf.tableNode.reloadRows(at: [indexPathFile], with: .none)
                                                 }
@@ -575,6 +618,49 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         guard messagesWithSection.count > indexPath!.section else {return nil}
         guard messagesWithSection[indexPath!.section].count > indexPath!.row else {return nil}
         return (messagesWithSection[indexPath!.section][indexPath!.row])
+    }
+    
+    func fetchNewBatchOfMessagesWithContext(_ context: ASBatchContext) {
+        guard messagesWithSection.count > 0 else {
+            context.completeBatchFetching(true)
+            return
+        }
+        usedesk?.getMessages(idComment: self.messagesWithSection.last?.last?.id ?? 0, newMessagesBlock: { [weak self] newMessages in
+            guard let wSelf = self else {return}
+            if newMessages.count < (wSelf.usedesk?.model.countMessagesOnInit ?? UD_LIMIT_PAGINATION_DEFAULT) {
+                wSelf.isNeedLoadMoreHistoryMessages = false
+            }
+            var indexesNewMessages: [IndexPath] = []
+            let sortedNewMessages = Array(newMessages.sorted(by: { $0.date > $1.date }))
+            var newMessagesWithSection = wSelf.generateSectionFromModel(messages: sortedNewMessages)
+            DispatchQueue.main.async {
+                if newMessagesWithSection.count > 0, newMessagesWithSection.first?[0].date.dateFormatString == wSelf.messagesWithSection.last?[0].date.dateFormatString {
+                    let previousIndexPath = IndexPath(row: wSelf.messagesWithSection.last!.count - 1, section: wSelf.messagesWithSection.count - 1)
+                    for index in 0..<newMessagesWithSection.first!.count {
+                        let count = index
+                            let indexPath = IndexPath(row: wSelf.messagesWithSection.last!.count, section: wSelf.messagesWithSection.count - 1)
+                            indexesNewMessages.append(indexPath)
+                            wSelf.messagesWithSection[wSelf.messagesWithSection.count - 1].append(newMessagesWithSection.first![count])
+                    }
+                    wSelf.tableNode.insertRows(at: indexesNewMessages, with: .none)
+                    if let node = wSelf.tableNode.nodeForRow(at: previousIndexPath) as? UDMessageCellNode {
+                        if node.nameNode.alpha == 1 {
+                            node.isNeedShowSender = false
+                            node.nameNode.alpha = 0
+                            node.setNeedsLayout()
+                        }
+                    }
+                    newMessagesWithSection.remove(at: 0)
+                }
+                var indexesNewSections: [Int] = []
+                for sectionMessages in newMessagesWithSection {
+                    indexesNewSections.append(wSelf.messagesWithSection.count)
+                    wSelf.messagesWithSection.append(sectionMessages)
+                }
+                wSelf.tableNode.insertSections(IndexSet(indexesNewSections), with: .none)
+                context.completeBatchFetching(true)
+            }
+        }, errorBlock: { _, _ in})
     }
     
     func addDraftMessage(with asset: Any, isEnabledButtonSend: Bool = true) {
@@ -1026,8 +1112,19 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     }
     
     @IBAction func scrollButtonAction(_ sender: Any) {
-        UIView.animate(withDuration: 0.3) {
-            self.tableNode.scrollToRow(at: IndexPath(row: 0, section: 0), at: .none, animated: true)
+        if newMessagesIds.count > 0 && isScrollChatToBottom {
+            if let indexPath = indexPathForMessage(at: newMessagesIds[0]) {
+                idSelectingMessage = newMessagesIds[0]
+                var position: UITableView.ScrollPosition = .top
+                if let node = tableNode.nodeForRow(at: indexPath) as? UDMessageCellNode{
+                    position = node.frame.height > tableNode.frame.height - 20 ? .bottom : .top
+                }
+                isScrollChatToBottom = false
+                tableNode.scrollToRow(at: indexPath, at: position, animated: true)
+            }
+        } else {
+            isScrollChatToBottom = true
+            tableNode.scrollToRow(at: IndexPath(row: 0, section: 0), at: .none, animated: true)
         }
     }
     
@@ -1055,13 +1152,23 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
         let lastIndexSection = messagesWithSection.count - 1
         if lastIndexSection < messagesWithSection.count {
-            let indexPath = IndexPath(row: self.messagesWithSection[lastIndexSection].count - 1, section: lastIndexSection)
+            let lastindex = self.messagesWithSection[lastIndexSection].count - 1
+            let indexPath = IndexPath(row: lastindex, section: lastIndexSection)
             guard tableNode.nodeForRow(at: indexPath) != nil else {return false}
             UIView.animate(withDuration: 0.3) {
                 self.tableNode.scrollToRow(at: indexPath, at: .bottom, animated: true)
             }
         }
         return false
+    }
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        guard let id = idSelectingMessage else {return}
+        if let indexPath = indexPathForMessage(at: id) {
+            if let node = tableNode.nodeForRow(at: indexPath) as? UDMessageCellNode{
+                node.startSelectionAnimate()
+            }
+        }
     }
     
     // MARK: - Attach Methods
@@ -1130,6 +1237,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         buttonAttach.alpha = 1
         buttonAttachLoader.alpha = 0
         buttonAttachLoader.stopAnimating()
+        self.tabBarController?.tabBar.isHidden = true
     }
     
     @objc func closeAttachView() {
@@ -1147,6 +1255,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             self.attachFirstButton.setTitle(self.usedesk!.model.stringFor("Gallery"), for: .normal)
             self.attachCollectionView.contentOffset.x = 0
             self.attachCollectionView.reloadData()
+            self.tabBarController?.tabBar.isHidden = false
         }
     }
     
@@ -1385,74 +1494,73 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         return messagesWithSection[section].count
     }
     
-    func tableNode(_ tableNode: ASTableNode, nodeForRowAt indexPath: IndexPath) -> ASCellNode {
-        if usedesk != nil {
-            if usedesk?.model.nameOperator != "" {
-                if let message = getMessage(indexPath) {
-                    message.operatorName = usedesk!.model.nameOperator
+    func tableNode(_ tableNode: ASTableNode, nodeBlockForRowAt indexPath: IndexPath) -> ASCellNodeBlock {
+            let nodeBlock: ASCellNodeBlock = { [weak self] in
+                guard let wSelf = self else {return ASCellNode()}
+                guard wSelf.usedesk != nil else {return ASCellNode()}
+                let message: UDMessage? = wSelf.getMessage(indexPath)
+                if wSelf.usedesk?.model.nameOperator != "" {
+                    message?.operatorName = wSelf.usedesk!.model.nameOperator
+                }
+                var isNeedShowSender = true
+                if let previousMessage = wSelf.getMessage(IndexPath(row: indexPath.row + 1, section: indexPath.section)) {
+                    if (message?.typeSenderMessage == previousMessage.typeSenderMessage) && message?.incoming ?? true && previousMessage.incoming {
+                        isNeedShowSender = false
+                        if previousMessage.typeSenderMessage == .operator_to_client {
+                            isNeedShowSender = message?.operatorId == previousMessage.operatorId ? false : true
+                        }
+                    }
+                }
+                if message?.type == UD_TYPE_TEXT {
+                    let cell = UDTextMessageCellNode()
+                    cell.isNeedShowSender = isNeedShowSender
+                    cell.configurationStyle = wSelf.usedesk?.configurationStyle ?? ConfigurationStyle()
+                    cell.bindData(messagesView: wSelf, message: message ?? UDMessage(), avatarImage: wSelf.avatarImage(indexPath))
+                    cell.selectionStyle = .none
+                    cell.delegateText = wSelf
+                    return cell
+                } else if message?.type == UD_TYPE_Feedback {
+                    let cell = UDFeedbackMessageCellNode()
+                    cell.isNeedShowSender = isNeedShowSender
+                    cell.usedesk = wSelf.usedesk
+                    cell.configurationStyle = wSelf.usedesk?.configurationStyle ?? ConfigurationStyle()
+                    cell.bindData(messagesView: wSelf, message: message ?? UDMessage(), avatarImage: wSelf.avatarImage(indexPath))
+                    cell.selectionStyle = .none
+                    cell.delegate = wSelf
+                    return cell
+                } else if message?.type == UD_TYPE_PICTURE {
+                    let cell = UDPictureMessageCellNode()
+                    cell.isNeedShowSender = isNeedShowSender
+                    cell.configurationStyle = wSelf.usedesk?.configurationStyle ?? ConfigurationStyle()
+                    cell.selectionStyle = .none
+                    cell.bindData(messagesView: wSelf, message: message ?? UDMessage(), avatarImage: wSelf.avatarImage(indexPath))
+                    return cell
+                } else if message?.type == UD_TYPE_VIDEO {
+                    let cell = UDVideoMessageCellNode()
+                    cell.isNeedShowSender = isNeedShowSender
+                    cell.configurationStyle = wSelf.usedesk?.configurationStyle ?? ConfigurationStyle()
+                    cell.selectionStyle = .none
+                    cell.bindData(messagesView: wSelf, message: message ?? UDMessage(), avatarImage: wSelf.avatarImage(indexPath))
+                    return cell
+                } else { //message?.type == UD_TYPE_File
+                    let cell = UDFileMessageCellNode()
+                    cell.isNeedShowSender = isNeedShowSender
+                    cell.usedesk = wSelf.usedesk
+                    cell.configurationStyle = wSelf.usedesk?.configurationStyle ?? ConfigurationStyle()
+                    cell.selectionStyle = .none
+                    cell.bindData(messagesView: wSelf, message: message ?? UDMessage(), avatarImage: wSelf.avatarImage(indexPath))
+                    return cell
                 }
             }
+            return nodeBlock
         }
-        let message: UDMessage? = getMessage(indexPath)
-        var isNeedShowSender = true
-        if let previousMessage = getMessage(IndexPath(row: indexPath.row + 1, section: indexPath.section)) {
-            if (message?.typeSenderMessage == previousMessage.typeSenderMessage) && message?.incoming ?? true && previousMessage.incoming {
-                isNeedShowSender = false
-                if previousMessage.typeSenderMessage == .operator_to_client {
-                    isNeedShowSender = message?.operatorId == previousMessage.operatorId ? false : true
-                }
-            }
-        }
-        if message?.type == UD_TYPE_TEXT {
-            let cell = UDTextMessageCellNode()
-            cell.isNeedShowSender = isNeedShowSender
-            cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
-            cell.bindData(messagesView: self, message: message ?? UDMessage(), avatarImage: avatarImage(indexPath))
-            cell.view.transform = CGAffineTransform(scaleX: 1, y: -1)
-            cell.selectionStyle = .none
-            cell.delegateText = self
-            return cell
-        } else if message?.type == UD_TYPE_Feedback {
-            let cell = UDFeedbackMessageCellNode()
-            cell.isNeedShowSender = isNeedShowSender
-            cell.usedesk = usedesk
-            cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
-            cell.bindData(messagesView: self, message: message ?? UDMessage(), avatarImage: avatarImage(indexPath))
-            cell.view.transform = CGAffineTransform(scaleX: 1, y: -1)
-            cell.selectionStyle = .none
-            cell.delegate = self
-            return cell
-        } else  if message?.type == UD_TYPE_PICTURE {
-            let cell = UDPictureMessageCellNode()
-            cell.isNeedShowSender = isNeedShowSender
-            cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
-            cell.view.transform = CGAffineTransform(scaleX: 1, y: -1)
-            cell.selectionStyle = .none
-            cell.bindData(messagesView: self, message: message ?? UDMessage(), avatarImage: avatarImage(indexPath))
-            return cell
-        } else if message?.type == UD_TYPE_VIDEO {
-            let cell = UDVideoMessageCellNode()
-            cell.isNeedShowSender = isNeedShowSender
-            cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
-            cell.view.transform = CGAffineTransform(scaleX: 1, y: -1)
-            cell.selectionStyle = .none
-            cell.bindData(messagesView: self, message: message ?? UDMessage(), avatarImage: avatarImage(indexPath))
-            return cell
-        } else { //message?.type == UD_TYPE_File
-            let cell = UDFileMessageCellNode()
-            cell.isNeedShowSender = isNeedShowSender
-            cell.usedesk = usedesk
-            cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
-            cell.view.transform = CGAffineTransform(scaleX: 1, y: -1)
-            cell.selectionStyle = .none
-            cell.bindData(messagesView: self, message: message ?? UDMessage(), avatarImage: avatarImage(indexPath))
-            return cell
-        }
-    }
     
     func tableNode(_ tableNode: ASTableNode, willDisplayRowWith node: ASCellNode) {
         guard let cell = node as? UDMessageCellNode else { return }
         cell.updateAnimateLoader()
+        if let textMessageCell = cell as? UDTextMessageCellNode, textMessageCell.view.gestureRecognizers?.count ?? 0 == 0 {
+            textMessageCell.view.addGestureRecognizer(UILongPressGestureRecognizer(target: textMessageCell, action: #selector(textMessageCell.longPressTextAction)))
+        }
         guard let indexPath = cell.indexPath else { return }
         let countAnySizeFiles = 10
         let countSmallSizeFiles = 40
@@ -1469,11 +1577,25 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 if cellDownload.message.file.sizeValue < 524288 && !startDownloadFileIds.contains(cellDownload.message.id) {
                     startDownloadFileIds.append(cellDownload.message.id)
                     downloadFile(node: cellDownload)
-                } 
+                }
+            }
+        }
+        if newMessagesIds.count > 0 {
+            if let index = newMessagesIds.firstIndex(of: messagesWithSection[indexPath.section][indexPath.row].id) {
+                newMessagesIds.remove(at: index)
+                updateCountNewMessagesView()
             }
         }
     }
-
+    
+    func shouldBatchFetchForTableNode(tableNode: ASTableNode) -> Bool {
+        return isNeedLoadMoreHistoryMessages
+    }
+    
+    func tableNode(_ tableNode: ASTableNode, willBeginBatchFetchWith context: ASBatchContext) {
+        fetchNewBatchOfMessagesWithContext(context)
+    }
+    
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         let cell = UDSectionHeaderCell()
         cell.usedesk = usedesk
@@ -1487,7 +1609,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return configurationStyle.sectionHeaderStyle.heightHeader
     }
-    
+
     func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
         if view is UDSectionHeaderCell {
             (view as! UDSectionHeaderCell).backView.alpha = 1

@@ -34,6 +34,11 @@
                 <outlet property="buttonSendTC" destination="Wny-R1-Wnx" id="G4k-MO-knW"/>
                 <outlet property="buttonSendWC" destination="mFz-Hz-yj8" id="lhe-gX-5Sh"/>
                 <outlet property="loader" destination="Gaj-ut-CEu" id="qjz-w9-j0M"/>
+                <outlet property="newMessagesCountLabel" destination="YjN-bt-FBq" id="9ZU-z6-stn"/>
+                <outlet property="newMessagesCountView" destination="FMF-9i-8zf" id="YLQ-Df-ifz"/>
+                <outlet property="newMessagesCountViewBC" destination="dXK-Rh-7g3" id="4nu-QB-CVk"/>
+                <outlet property="newMessagesCountViewHC" destination="IF2-pb-6ln" id="0Kh-yO-8qv"/>
+                <outlet property="newMessagesCountViewWC" destination="Gff-Qx-OdK" id="RU8-cZ-7rm"/>
                 <outlet property="scrollButton" destination="v4h-AJ-Jn3" id="Lll-4b-bYh"/>
                 <outlet property="scrollButtonBC" destination="0dg-fw-lbq" id="HQu-op-hq0"/>
                 <outlet property="scrollButtonHC" destination="Pjx-Hh-sHI" id="M2A-ee-dER"/>
@@ -150,6 +155,24 @@
                         <action selector="scrollButtonAction:" destination="-1" eventType="touchUpInside" id="kAD-7w-cHF"/>
                     </connections>
                 </button>
+                <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FMF-9i-8zf">
+                    <rect key="frame" x="284" y="467" width="22" height="22"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YjN-bt-FBq">
+                            <rect key="frame" x="7" y="4" width="8" height="14.5"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                            <nil key="textColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="22" id="Gff-Qx-OdK"/>
+                        <constraint firstAttribute="height" constant="22" id="IF2-pb-6ln"/>
+                        <constraint firstItem="YjN-bt-FBq" firstAttribute="centerX" secondItem="FMF-9i-8zf" secondAttribute="centerX" id="KaZ-QI-llv"/>
+                        <constraint firstItem="YjN-bt-FBq" firstAttribute="centerY" secondItem="FMF-9i-8zf" secondAttribute="centerY" id="snq-JL-VXV"/>
+                    </constraints>
+                </view>
                 <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vWE-cl-xhX">
                     <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                     <subviews>
@@ -273,6 +296,8 @@
                 <constraint firstItem="Gaj-ut-CEu" firstAttribute="centerY" secondItem="SGa-4e-nkS" secondAttribute="centerY" id="RsW-Y0-9eK"/>
                 <constraint firstAttribute="bottom" secondItem="vWE-cl-xhX" secondAttribute="bottom" id="Rtg-cg-66a"/>
                 <constraint firstAttribute="trailing" secondItem="SGa-4e-nkS" secondAttribute="trailing" id="VJm-qC-2SS"/>
+                <constraint firstItem="FMF-9i-8zf" firstAttribute="bottom" secondItem="v4h-AJ-Jn3" secondAttribute="top" constant="10" id="dXK-Rh-7g3"/>
+                <constraint firstItem="FMF-9i-8zf" firstAttribute="centerX" secondItem="v4h-AJ-Jn3" secondAttribute="centerX" id="g71-9H-QPr"/>
                 <constraint firstItem="SGa-4e-nkS" firstAttribute="leading" secondItem="PpO-Gc-0B7" secondAttribute="leading" id="yzg-dd-8y5"/>
             </constraints>
             <point key="canvasLocation" x="266.25" y="762.67605633802816"/>

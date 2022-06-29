@@ -8,29 +8,33 @@ import AsyncDisplayKit
 class UDMessageCellNode: ASCellNode {
     var nameNode = ASTextNode()
     var bubbleImageNode = ASImageNode()
+    var bubbleSelectingImageNode = ASImageNode()
     var avatarImageNode = ASNetworkImageNode()
     var timeBackNode = ASDisplayNode()
     var timeNode = ASTextNode()
     var sendedImageNode = ASImageNode()
     var notSentImageNode = ASImageNode()
-    var activityIndicator = UIActivityIndicatorView()
+    var activityIndicator: UIActivityIndicatorView?
     
     weak var messagesView: UDMessagesView?
     
     var message = UDMessage()
-    var configurationStyle: ConfigurationStyle = ConfigurationStyle()
+    var configurationStyle: ConfigurationStyle!
     var isNeedShowSender: Bool = false
     var isPictureOrVideoType: Bool = false
     var contentMessageInsetSpec = ASInsetLayoutSpec()
+    var orientaion: Orientation = .portrait
     
     override init() {
         super.init()
         addSubnode(bubbleImageNode)
+        addSubnode(bubbleSelectingImageNode)
     }
     
     func updateAnimateLoader() {
-        guard activityIndicator.alpha == 1 && !activityIndicator.isAnimating else {return}
-        activityIndicator.startAnimating()
+        guard activityIndicator != nil else {return}
+        guard activityIndicator?.alpha == 1 && !(activityIndicator?.isAnimating ?? false) else {return}
+        activityIndicator?.startAnimating()
     }
     
     func bindData(messagesView messagesView_: UDMessagesView?, message : UDMessage, avatarImage: UIImage?) {
@@ -45,6 +49,10 @@ class UDMessageCellNode: ASCellNode {
         bubbleImage = bubbleImage.stretchableImage(withLeftCapWidth: 23, topCapHeight: 16).withRenderingMode(.alwaysTemplate)
         bubbleImageNode.image = bubbleImage
         bubbleImageNode.imageModificationBlock = ASImageNodeTintColorModificationBlock(message.incoming != false ? bubbleStyle.bubbleColorIncoming : bubbleStyle.bubbleColorOutgoing)
+        
+        bubbleSelectingImageNode.image = bubbleImage
+        bubbleSelectingImageNode.imageModificationBlock = ASImageNodeTintColorModificationBlock(bubbleStyle.bubbleSelectColor)
+        bubbleSelectingImageNode.alpha = 0
         
         //avatar and time
         if isPictureOrVideoType {
@@ -81,7 +89,7 @@ class UDMessageCellNode: ASCellNode {
             avatarImageNode.cornerRadius = configurationStyle.avatarStyle.avatarDiameter / 2
             avatarImageNode.clipsToBounds = true
             addSubnode(avatarImageNode)
-            
+
             nameNode.textContainerInset = messageStyle.senderTextMargin
             nameNode.attributedText = NSAttributedString(string: message.operatorName != "" ? message.operatorName : message.name, attributes: [.foregroundColor: messageStyle.senderTextColor, .font: messageStyle.senderTextFont])
             nameNode.alpha = 0
@@ -99,6 +107,16 @@ class UDMessageCellNode: ASCellNode {
         addSubnode(timeNode)
     }
     
+    public func startSelectionAnimate() {
+        UIView.animate(withDuration: 0.3, delay: 0.0) {
+            self.bubbleSelectingImageNode.alpha = 0.1
+        } completion: { _ in
+            UIView.animate(withDuration: 0.5, delay: 0.2) {
+                self.bubbleSelectingImageNode.alpha = 0
+            }
+        }
+    }
+    
     override public func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         let messageStyle = configurationStyle.messageStyle
         let avatarStyle = configurationStyle.avatarStyle
@@ -109,9 +127,16 @@ class UDMessageCellNode: ASCellNode {
 
         sendedImageNode.style.alignSelf = .end
         sendedImageNode.style.maxSize = messageStyle.sendedStatusSize
+        
+        let contentMessageBackgroundSelectingSpec = ASBackgroundLayoutSpec()
+        contentMessageBackgroundSelectingSpec.background = bubbleImageNode
+        contentMessageBackgroundSelectingSpec.child = bubbleSelectingImageNode
+        contentMessageBackgroundSelectingSpec.style.maxWidth = sizeMessagesManager.maxWidthBubbleMessageDimension
+        contentMessageBackgroundSelectingSpec.style.flexShrink = 1
+        contentMessageBackgroundSelectingSpec.style.flexGrow = 0
 
         let contentMessageBackgroundSpec = ASBackgroundLayoutSpec()
-        contentMessageBackgroundSpec.background = bubbleImageNode
+        contentMessageBackgroundSpec.background = contentMessageBackgroundSelectingSpec
         contentMessageBackgroundSpec.child = contentMessageInsetSpec
         contentMessageBackgroundSpec.style.maxWidth = sizeMessagesManager.maxWidthBubbleMessageDimension
         contentMessageBackgroundSpec.style.flexShrink = 1

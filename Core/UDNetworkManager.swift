@@ -13,6 +13,7 @@ public class UDNetworkManager {
     public weak var socket: SocketIOClient?
     private var isAuthInited = false
     private var isSendedAdditionalField = false
+    private var isAuthSuccess = false
     private var token: String? {
         return model.token != "" ? model.token : loadToken()
     }
@@ -97,6 +98,27 @@ public class UDNetworkManager {
         } else {
             errorBlock?(.tokenError, "")
         }
+    }
+    
+    public func getMessages(idComment: Int, newMessagesBlock: UDNewMessagesBlock? = nil, errorBlock: UDErrorBlock? = nil) {
+        guard let currentToken = token else {
+            errorBlock?(.tokenError, "")
+            return
+        }
+        let parameters: [String : Any] = [
+            "chat_token" : currentToken,
+            "comment_id" : idComment
+        ]
+        let url = urlBase() + "/chat/getChatMessage"
+        request(url: url, method: .get, parameters: parameters, isJSONEncoding: false, successBlock: { [weak self] value in
+            var messages: [UDMessage] = []
+            if let messagesJson = value as? [Any] {
+                messages = UDSocketResponse.parseMessages(messagesJson, model: self?.model ?? UseDeskModel())
+            }
+            newMessagesBlock?(messages)
+        }, errorBlock: { error, descriptionError in
+            errorBlock?(error, descriptionError)
+        })
     }
     
     public func sendFile(url: String, fileName: String, data: Data, messageId: String? = nil, progressBlock: UDProgressUploadBlock? = nil, connectBlock: @escaping UDConnectBlock, errorBlock: @escaping UDErrorBlock) {
@@ -338,7 +360,7 @@ public class UDNetworkManager {
             guard let wSelf = self else {return}
             connectBlock?(true)
             print("socket connected")
-            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.model.companyID, chanelId: wSelf.model.chanelId, email: wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, url: wSelf.model.url, token: wSelf.token)
+            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.model.companyID, chanelId: wSelf.model.chanelId, email: wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, url: wSelf.model.url, countMessagesOnInit: wSelf.model.countMessagesOnInit, token: wSelf.token)
             socket?.emit("dispatch", with: arrConfStart!, completion: nil)
         })
     }
@@ -360,7 +382,7 @@ public class UDNetworkManager {
             guard let wSelf = self else {return}
             connectBlock?(false)
             print("socket disconnect")
-            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.model.companyID, chanelId: wSelf.model.chanelId, email: wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, url: wSelf.model.url, token: wSelf.token)
+            let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.model.companyID, chanelId: wSelf.model.chanelId, email: wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, url: wSelf.model.url, countMessagesOnInit: wSelf.model.countMessagesOnInit, token: wSelf.token)
             socket?.emit("dispatch", with: arrConfStart!, completion: nil)
         })
     }
@@ -375,7 +397,18 @@ public class UDNetworkManager {
                 self?.save(token: token)
             }, setClientBlock: { [weak self] in
                 guard let wSelf = self else {return}
-                wSelf.socket?.emit("dispatch", with: UseDeskSDKHelp.dataClient(wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, note: wSelf.model.note, token: wSelf.token ?? "", additional_id: wSelf.model.additional_id)!, completion: nil)
+                wSelf.socket?.emit("dispatch", with: UseDeskSDKHelp.dataClient(wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, note: wSelf.model.note, token: wSelf.token ?? "", additional_id: wSelf.model.additional_id)!) { [weak self] in
+                    if self?.isAuthSuccess ?? false {
+                        if wSelf.model.firstMessage != "" {
+                            let id = wSelf.newIdLoadingMessages()
+                            wSelf.model.idLoadingMessages.append(id)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                wSelf.sendMessage(wSelf.model.firstMessage, messageId: id)
+                                wSelf.model.firstMessage = ""
+                            }
+                        }
+                    }
+                }
                 if let avatar = wSelf.model.avatar {
                     wSelf.sendAvatarClient(avatarData: avatar)
                 }
@@ -390,17 +423,11 @@ public class UDNetworkManager {
             } else if callbackSettings.type == .always_and_chat {
                 startBlock(false, .feedbackFormAndChat, wSelf.model.token)
             } else {
-                let isAuthSuccess = UDSocketResponse.isAddInit(data)
+                wSelf.isAuthSuccess = UDSocketResponse.isAddInit(data)
                 
-                if isAuthSuccess {
-                    if wSelf.model.firstMessage != "" {
-                        let id = wSelf.newIdLoadingMessages()
-                        wSelf.model.idLoadingMessages.append(id)
-                        wSelf.sendMessage(wSelf.model.firstMessage, messageId: id)
-                        wSelf.model.firstMessage = ""
-                    }
+                if wSelf.isAuthSuccess {
                     wSelf.isAuthInited = true
-                    startBlock(isAuthSuccess, .never, wSelf.token ?? "")
+                    startBlock(wSelf.isAuthSuccess, .never, wSelf.token ?? "")
                 }
                 
                 UDSocketResponse.actionFeedbackAnswer(data, feedbackAnswerMessageBlock: feedbackAnswerMessageBlock)

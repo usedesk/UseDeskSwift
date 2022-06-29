@@ -6,6 +6,7 @@
 import UIKit
 import Foundation
 import AsyncDisplayKit
+import Photos
 
 class UDVideoMessageCellNode: UDMessageCellNode {
     private var previewImageNode = ASImageNode()
@@ -56,23 +57,23 @@ class UDVideoMessageCellNode: UDMessageCellNode {
         loaderNode = ASDisplayNode(viewBlock: { [weak self] () -> UIView in
             guard let wSelf = self else {return UIView()}
             wSelf.activityIndicator = UIActivityIndicatorView(style: .white)
-            wSelf.activityIndicator.hidesWhenStopped = false
+            wSelf.activityIndicator?.hidesWhenStopped = false
             if message.status == UD_STATUS_OPENIMAGE {
-                wSelf.activityIndicator.startAnimating()
-                wSelf.activityIndicator.alpha = 1
+                wSelf.activityIndicator?.startAnimating()
+                wSelf.activityIndicator?.alpha = 1
                 wSelf.playNode.alpha = 0
             } else {
                 if message.status == UD_STATUS_SUCCEED {
-                    wSelf.activityIndicator.stopAnimating()
-                    wSelf.activityIndicator.alpha = 0
+                    wSelf.activityIndicator?.stopAnimating()
+                    wSelf.activityIndicator?.alpha = 0
                     wSelf.playNode.alpha = 1
                 } else {
-                    wSelf.activityIndicator.startAnimating()
-                    wSelf.activityIndicator.alpha = 1
+                    wSelf.activityIndicator?.startAnimating()
+                    wSelf.activityIndicator?.alpha = 1
                     wSelf.playNode.alpha = 0
                 }
             }
-            return wSelf.activityIndicator
+            return wSelf.activityIndicator ?? UIView()
         })
         
         previewImageNode.removeFromSupernode()
@@ -83,7 +84,7 @@ class UDVideoMessageCellNode: UDMessageCellNode {
         } else {
             previewImageNode.image = videoStyle.imageDefault
         }
-        previewImageNode.contentMode = .scaleAspectFit
+        previewImageNode.contentMode = .scaleAspectFill
         previewImageNode.cornerRadius = videoStyle.cornerRadius
         
         addSubnode(previewImageNode)
@@ -95,6 +96,16 @@ class UDVideoMessageCellNode: UDMessageCellNode {
         
         if !videoStyle.isNeedBubble {
             bubbleImageNode.image = nil
+        }
+    }
+    
+    public func setPreviewImage(_ image: UIImage) {
+        DispatchQueue.main.async {
+            guard self.playNode.alpha == 0 else {return}
+            self.previewImageNode.image = image
+            self.playNode.alpha = 1
+            self.loaderNode.alpha = 0
+            self.activityIndicator?.stopAnimating()
         }
     }
     
@@ -111,12 +122,10 @@ class UDVideoMessageCellNode: UDMessageCellNode {
         let centerLoaderSpec = ASCenterLayoutSpec(centeringOptions: .XY, sizingOptions: [], child: playAndLoaderOverlaySpec)
         loaderBackOverlaySpec.overlay = centerLoaderSpec
         loaderBackOverlaySpec.child = loaderBackNode
-        
-        let sizeMessagesManager = UDSizeMessagesManager(messagesView: messagesView, message: message, indexPath: indexPath, configurationStyle: configurationStyle)
-        
-        let sizeImageNode = sizeMessagesManager.sizeImageMessageFrom(size: CGSize(width: previewImageNode.image?.size.width ?? 0, height: previewImageNode.image?.size.height ?? 0))
-        previewImageNode.style.width = ASDimensionMakeWithPoints(sizeImageNode.width)
-        previewImageNode.style.height = ASDimensionMakeWithPoints(sizeImageNode.height)
+
+        let percentWidth: CGFloat = orientaion == .portrait ? 0.3 : 0.6
+        previewImageNode.style.width = ASDimensionMakeWithPoints(constrainedSize.max.width - (constrainedSize.max.width * percentWidth))
+        previewImageNode.style.height = ASDimensionMakeWithPoints(constrainedSize.max.width - (constrainedSize.max.width * percentWidth))
         
         let imageWithLoaderStack = ASOverlayLayoutSpec()
         let centerLoaderBackSpec = ASCenterLayoutSpec(centeringOptions: .XY, sizingOptions: [], child: loaderBackOverlaySpec)

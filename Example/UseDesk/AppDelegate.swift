@@ -2,7 +2,6 @@
 //  AppDelegate.swift
 //  UseDesk_Example
 
-
 import UIKit
 import UseDesk_SDK_Swift
 

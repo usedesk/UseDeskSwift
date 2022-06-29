@@ -182,24 +182,13 @@ class UDSocketResponse {
             
             var mutableAttributedString: NSMutableAttributedString? = nil
             var textWithoutLinkImage: String? = nil
+            var linksImage: [String] = []
             if var text = message!["text"] as? String {
-                let linksImage = text.udRemoveMarkdownUrlsAndReturnLinks()
+                (linksImage, textWithoutLinkImage, mutableAttributedString) = parseText(text)
                 for link in linksImage {
                     text = text.replacingOccurrences(of: link, with: "")
-                    if let messageImageLink = parseFileMessageDic(message, withImageUrl: link) {
+                    if let messageImageLink = UDSocketResponse.parseFileMessageDic(message, withImageUrl: link) {
                         messagesImageLink.append(messageImageLink)
-                    }
-                }
-                textWithoutLinkImage = text
-                if text.count > 0 {
-                    text = text.replacingOccurrences(of: "\n", with: "<№;%br>")
-                    let down = Down(markdownString: text)
-                    if let attributedString = try? down.toAttributedString() {
-                        let paragraphStyle = NSMutableParagraphStyle()
-                        mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
-                        mutableAttributedString!.addAttributes([.paragraphStyle : paragraphStyle], range: NSRange(location: 0, length: mutableAttributedString!.length))
-                        mutableAttributedString!.mutableString.replaceCharacters(in: NSRange(location: mutableAttributedString!.length - 1, length: 1), with: "")
-                        mutableAttributedString!.mutableString.replaceOccurrences(of: "<№;%br>", with: "\n", options: .caseInsensitive, range: NSRange(location: 0, length: mutableAttributedString!.length))
                     }
                 }
             }
@@ -249,24 +238,13 @@ class UDSocketResponse {
             if let message = mess as? [AnyHashable : Any] {
                 var mutableAttributedString: NSMutableAttributedString? = nil
                 var textWithoutLinkImage: String? = nil
+                var linksImage: [String] = []
                 if var text = message["text"] as? String {
-                    let linksImage = text.udRemoveMarkdownUrlsAndReturnLinks()
+                    (linksImage, textWithoutLinkImage, mutableAttributedString) = parseText(text)
                     for link in linksImage {
                         text = text.replacingOccurrences(of: link, with: "")
                         if let messageImageLink = UDSocketResponse.parseFileMessageDic(message, withImageUrl: link) {
                             messagesImageLink.append(messageImageLink)
-                        }
-                    }
-                    textWithoutLinkImage = text
-                    if text.count > 0 {
-                        text = text.replacingOccurrences(of: "\n", with: "<№;%br>")
-                        let down = Down(markdownString: text)
-                        if let attributedString = try? down.toAttributedString() {
-                            let paragraphStyle = NSMutableParagraphStyle()
-                            mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
-                            mutableAttributedString!.addAttributes([.paragraphStyle : paragraphStyle], range: NSRange(location: 0, length: mutableAttributedString!.length))
-                            mutableAttributedString!.mutableString.replaceCharacters(in: NSRange(location: mutableAttributedString!.length - 1, length: 1), with: "")
-                            mutableAttributedString!.mutableString.replaceOccurrences(of: "<№;%br>", with: "\n", options: .caseInsensitive, range: NSRange(location: 0, length: mutableAttributedString!.length))
                         }
                     }
                 }
@@ -356,9 +334,9 @@ class UDSocketResponse {
             if (fileDic?["fullLink"] as? String ?? "") != "" {
                 type = URL.init(string: fileDic?["fullLink"] as? String ?? "")?.pathExtension ?? ""
             }
-            if file.type.contains("image") || isImage(of: type) {
+            if file.type.contains("image") || isImage(of: type) || isImage(of: file.type) {
                 m.type = UD_TYPE_PICTURE
-            } else if file.type.contains("video") || isVideo(of: type) {
+            } else if file.type.contains("video") || isVideo(of: type) || isVideo(of: file.type) {
                 m.type = UD_TYPE_VIDEO
                 m.file.typeExtension = type
                 file.type = "video"
@@ -488,6 +466,30 @@ class UDSocketResponse {
             }
         }
         return stringsFromButton
+    }
+    
+    private class func parseText(_ textPars: String) -> ([String], String?, NSMutableAttributedString?) {
+        var text = textPars
+        text = text.udRemoveFirstSymbol(with: "\u{200b}")
+        text = text.udRemoveFirstSymbol(with: "\n")
+        text = text.udRemoveLastSymbol(with: "\u{200b}")
+        text = text.udRemoveLastSymbol(with: "\n")
+        var mutableAttributedString: NSMutableAttributedString? = nil
+        var textWithoutLinkImage: String? = nil
+        let linksImage = text.udRemoveMarkdownUrlsAndReturnLinks()
+        textWithoutLinkImage = text
+        if text.count > 0 {
+            text = text.replacingOccurrences(of: "\n", with: "<№;%br>")
+            let down = Down(markdownString: text)
+            if let attributedString = try? down.toAttributedString() {
+                let paragraphStyle = NSMutableParagraphStyle()
+                mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
+                mutableAttributedString!.addAttributes([.paragraphStyle : paragraphStyle], range: NSRange(location: 0, length: mutableAttributedString!.length))
+                mutableAttributedString!.mutableString.replaceCharacters(in: NSRange(location: mutableAttributedString!.length - 1, length: 1), with: "")
+                mutableAttributedString!.mutableString.replaceOccurrences(of: "<№;%br>", with: "\n", options: .caseInsensitive, range: NSRange(location: 0, length: mutableAttributedString!.length))
+            }
+        }
+        return (linksImage, textWithoutLinkImage, mutableAttributedString)
     }
     
     private class func buttonFromString(stringButton: String) -> UDMessageButton? {

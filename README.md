@@ -69,6 +69,7 @@ import UseDesk
 | **NameOperator** | String | **Имя оператора**<br/>Если указано, то вместо имени агента в переписке будет отображаться указанная строка |
 | **NameChat** | String | **Название чата**<br/>Отображается в шапке |
 | **FirstMessage** | String | **Автоматическое сообщение**<br/>Отправится сразу после инициализации от имени клиента |
+| **CountMessagesOnInit** | Int | **Количество загружаемых сообщений при открытии чата**<br/>При открытии чата загружается указанное количество сообщений. По мере прокрутки чата подгружается по 20 сообщений |
 | **LocaleIdentifier** | String | **Идентификатор языка**<br/>Доступные языки: русский (`ru`), английский (`en`), португальский (`pt`), испанский (`es`). <br/>Если переданный идентификатор не поддерживается, будет использоваться русский язык |
 | **CustomLocale** | [String : String] | **Свой словарь переводов**<br/>Если SDK нужно показывать на языке, который мы не поддерживаем, можно самостоятельно создать словарь переводов и использовать его |
 | **Storage** | UDStorage | **Хранилище, поддерживающее протокол UDStorage**<br/>Для каждого отдельного чата нужно передавать свое отдельное хранилище |
@@ -105,6 +106,7 @@ usedesk.start(
     nameOperator: "NameOperator", 
     nameChat: "NameChat", 
     firstMessage: "message",
+    сountMessagesOnInit: 30,
     localeIdentifier: "en", 
     customLocale: customLocaleDictionary, 
     storage: UDStorage(),
@@ -165,7 +167,7 @@ SDK предоставляет реализовать в вашем прилож
 
 ```swift
 let usedesk = UseDeskSDK()
-usedesk.start(
+usedesk.startKnowledgeBase(
     urlAPI: "pubsubsec.usedesk.ru", 
     api_token: "143ed59g90ef093s",
     knowledgeBaseID: "12", 
@@ -174,9 +176,9 @@ usedesk.start(
     knowledgeBaseArticleId: "0",
     name: "Name", 
     email: "lolo@yandex.ru", 
-    phone: "89000000000",
+    phone: "89000000000", 
     localeIdentifier: "en", 
-    customLocale: customLocaleDictionary,
+    customLocale: customLocaleDictionary, 
     isPresentDefaultControllers: true, 
     presentIn: self,
     connectionStatus: { success in },
@@ -190,7 +192,7 @@ usedesk.start(
 
 | Тип | Описание |
 | --- | --- |
-| Bool | Успешность подключения к чату |
+| Bool | Успешность открытия базы знаний |
 
 ****ErrorStatus****
 
@@ -225,6 +227,7 @@ usedesk.start(
 | **AdditionalFields** | [Int : String] | **Массив дополнительный полей запроса**<br/>Формат: `id : "значение"`<br/>Для текстовых полей значение - строка, для списка - строка с точно совпадающим значением списка, для флага - строка `false` или `true` |
 | **AdditionalNestedFields** | [[Int : String]] | **Массив дополнительных полей типа вложенный список**<br/>Каждый подмассив представляет один вложенный список. <br/>Формат вложенного списка: `[id1: "значение", id2 : "значение", id3 : "значение"]`, где `id1`, `id2`, `id3` — идентификаторы значений по уровням вложенности |
 | **FirstMessage** | String | **Автоматическое сообщение**<br/>Отправится сразу после инициализации от имени клиента |
+| **CountMessagesOnInit** | Int | **Количество загружаемых сообщений при открытии чата**<br/>При открытии чата загружается указанное количество сообщений. По мере прокрутки чата подгружается по 20 сообщений |
 | **LocaleIdentifier** | String | **Идентификатор языка**<br/>Доступные языки: русский (`ru`), английский (`en`), португальский (`pt`), испанский (`es`). <br/>Если переданный идентификатор не поддерживается, будет использоваться русский язык |
 | **CustomLocale** | [String : String] | **Свой словарь переводов**<br/>Если SDK нужно показывать на языке, который мы не поддерживаем, можно самостоятельно создать словарь переводов и использовать его |
 | **isSaveTokensInUserDefaults** | Bool | **Флаг сохранения токена пользователя в UserDefaults приложения**<br/>Стандартное значение: `true`<br/>Если указан `true`, то токен будет храниться в текущем устройстве. Недостатки такого подхода — при переустановке приложения, смене устройства или платформы доступ к переписке будет утрачен. <br/>Для сохранения доступа к переписке клиента с других устройств и платформ,  токен необходимо хранить в вашей системе и передавать его при инициализации. В этом случае нужно использовать значение параметра `false` |
@@ -253,6 +256,7 @@ usedesk.startWithoutGUICompanyID(
     additionalFields: [1 : "value"], 
     additionalNestedFields: [[1 : "value1", 2 : "value2", 3 : "value3"]], 
     firstMessage: "message",
+    сountMessagesOnInit: 30,
     localeIdentifier: "en", 
     customLocale: customLocaleDictionary,
     isSaveTokensInUserDefaults: true,
@@ -291,4 +295,3 @@ usedesk.startWithoutGUICompanyID(
 ## ****License****
 
 UseDesk_SDK_Swift is available under the MIT license. See the LICENSE file for more info
-

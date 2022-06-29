@@ -16,6 +16,7 @@ import Alamofire
     case urlAPIError
     case phoneError
     case tokenError
+    case countMessagesOnInitError
     case falseInitChatError
     case serverError
     case socketError
@@ -50,6 +51,8 @@ import Alamofire
             return "Invalid phone number"
         case .tokenError:
             return "Invalid token"
+        case .countMessagesOnInitError:
+            return "Error limit pagination. Minimum 10 messages."
         case .falseInitChatError:
             return "False init chat"
         case .serverError:

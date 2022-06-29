@@ -25,12 +25,6 @@ class UDFileMessageCellNode: UDMessageCellNode {
         bubbleImageNode.addTarget(self, action: #selector(self.actionTapBubble), forControlEvents: .touchUpInside)
     }
     
-    func removeLoader() {
-        activityIndicator.stopAnimating()
-        activityIndicator.alpha = 0
-        iconNode.alpha = 1
-    }
-    
     override func bindData(messagesView messagesView_: UDMessagesView?, message : UDMessage, avatarImage: UIImage?) {
         guard usedesk != nil else {return}
         messagesView = messagesView_
@@ -45,23 +39,23 @@ class UDFileMessageCellNode: UDMessageCellNode {
         loaderNode = ASDisplayNode(viewBlock: { [weak self] () -> UIView in
             guard let wSelf = self else {return UIView()}
             wSelf.activityIndicator = UIActivityIndicatorView(style: .white)
-            wSelf.activityIndicator.hidesWhenStopped = false
+            wSelf.activityIndicator?.hidesWhenStopped = false
             if message.status == UD_STATUS_OPENIMAGE || message.file.path == "" {
-                wSelf.activityIndicator.startAnimating()
-                wSelf.activityIndicator.alpha = 1
+                wSelf.activityIndicator?.startAnimating()
+                wSelf.activityIndicator?.alpha = 1
                 wSelf.iconNode.alpha = 0
             } else {
                 if message.status == UD_STATUS_SUCCEED {
-                    wSelf.activityIndicator.stopAnimating()
-                    wSelf.activityIndicator.alpha = 0
+                    wSelf.activityIndicator?.stopAnimating()
+                    wSelf.activityIndicator?.alpha = 0
                     wSelf.iconNode.alpha = 1
                 } else {
-                    wSelf.activityIndicator.startAnimating()
-                    wSelf.activityIndicator.alpha = 1
+                    wSelf.activityIndicator?.startAnimating()
+                    wSelf.activityIndicator?.alpha = 1
                     wSelf.iconNode.alpha = 0
                 }
             }
-            return wSelf.activityIndicator
+            return wSelf.activityIndicator ?? UIView()
         })
         
         let nameFileAttributedString = NSMutableAttributedString(string: message.file.name != "" ? message.file.name : "file")
@@ -90,6 +84,15 @@ class UDFileMessageCellNode: UDMessageCellNode {
             timeBlockWidth += messageStyle.timeMargin.right
         }
         sizeTextNode.style.minWidth = ASDimensionMakeWithPoints(sizeAttributedString.size().width + timeBlockWidth)
+    }
+    
+    public func removeLoader() {
+        DispatchQueue.main.async {
+            guard self.iconNode.alpha == 0 else {return}
+            self.activityIndicator?.stopAnimating()
+            self.activityIndicator?.alpha = 0
+            self.iconNode.alpha = 1
+        }
     }
     
     override public func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
@@ -148,8 +151,8 @@ class UDFileMessageCellNode: UDMessageCellNode {
     }
     
     func setLoadedFileStatus() {
-        activityIndicator.stopAnimating()
-        activityIndicator.alpha = 0
+        activityIndicator?.stopAnimating()
+        activityIndicator?.alpha = 0
         iconNode.alpha = 1
     }
     

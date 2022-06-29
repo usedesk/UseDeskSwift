@@ -13,14 +13,14 @@ class UDFileManager: NSObject {
     class func downloadFile(indexPath: IndexPath, urlPath: String, name: String, extansion: String, successBlock: @escaping (IndexPath, URL)->(), errorBlock: (_ error: String) -> Void) {
         if let url = URL(string: urlPath) {
             let destination: DownloadRequest.Destination = { _, _ in
-                let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask) [0]
-                var fileURL = documentsURL.appendingPathComponent("\(name).\(extansion)")
+                let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                var fileURL = documentsURL.appendingPathComponent("\(name)")
                 var flag = true
                 var index = 0
                 while flag {
                     if FileManager.default.fileExists(atPath: fileURL.path) {
                         index += 1
-                        fileURL = documentsURL.appendingPathComponent("\(index)\(name).\(extansion)")
+                        fileURL = documentsURL.appendingPathComponent("\(index)\(name)")
                     } else {
                         flag = false
                     }

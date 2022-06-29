@@ -146,19 +146,34 @@ public struct ChatStyle {
     public var scrollButtonImage: UIImage
     public var scrollButtonSize: CGSize
     public var scrollButtonMargin: UIEdgeInsets
+    public var newMessagesViewHeight: CGFloat
+    public var newMessagesViewMarginBottom: CGFloat
+    public var newMessagesViewColor: UIColor
+    public var newMessagesLabelFont: UIFont
+    public var newMessagesLabelColor: UIColor
     
     public init(backgroundColor: UIColor? = nil,
                 backgroundColorLoaderView: UIColor? = nil,
                 alphaLoaderView: CGFloat = 0.8,
                 scrollButtonImage: UIImage? = nil,
                 scrollButtonSize: CGSize = CGSize(width: 40, height: 40),
-                scrollButtonMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 12)) {
+                scrollButtonMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 12),
+                newMessagesViewDiameter: CGFloat = 20,
+                newMessagesViewMarginBottom: CGFloat = 10,
+                newMessagesViewColor: UIColor? = nil,
+                newMessagesLabelFont: UIFont = .systemFont(ofSize: 13),
+                newMessagesLabelColor: UIColor? = nil) {
         self.backgroundColor = backgroundColor ?? UIColor(hexString: "FFFFFF")
         self.backgroundColorLoaderView = backgroundColorLoaderView ?? .lightGray
         self.alphaLoaderView = alphaLoaderView
         self.scrollButtonImage = scrollButtonImage ?? UIImage.named("udScrollButton")
         self.scrollButtonSize = scrollButtonSize
         self.scrollButtonMargin = scrollButtonMargin
+        self.newMessagesViewHeight = newMessagesViewDiameter
+        self.newMessagesViewMarginBottom = newMessagesViewMarginBottom
+        self.newMessagesViewColor = newMessagesViewColor ?? UIColor(hexString: "EB5757")
+        self.newMessagesLabelFont = newMessagesLabelFont
+        self.newMessagesLabelColor = newMessagesLabelColor ?? .white
     }
 }
 // MARK: - Date messages section
@@ -207,6 +222,7 @@ public struct BubbleStyle {
     public var spacingDifferentSender: CGFloat
     public var bubbleColorOutgoing: UIColor
     public var bubbleColorIncoming: UIColor
+    public var bubbleSelectColor: UIColor
     
     public init(backgroundImageOutgoing: UIImage? = nil,
                 backgroundImageIncoming: UIImage? = nil,
@@ -217,7 +233,8 @@ public struct BubbleStyle {
                 spacingOneSender: CGFloat = 4,
                 spacingDifferentSender: CGFloat = 16,
                 bubbleColorOutgoing: UIColor? = nil,
-                bubbleColorIncoming: UIColor? = nil) {
+                bubbleColorIncoming: UIColor? = nil,
+                bubbleSelectColor: UIColor? = nil) {
         self.backgroundImageOutgoing = backgroundImageOutgoing ?? UIImage.named("udBubbleOutgoing")
         self.backgroundImageIncoming = backgroundImageIncoming ?? UIImage.named("udBubbleIncoming")
         self.marginBefore = marginBefore
@@ -228,6 +245,7 @@ public struct BubbleStyle {
         self.spacingDifferentSender = spacingDifferentSender
         self.bubbleColorOutgoing = bubbleColorOutgoing ?? UIColor(hexString: "e0ecfc")
         self.bubbleColorIncoming = bubbleColorIncoming ?? UIColor(hexString: "F0F0F0")
+        self.bubbleSelectColor = bubbleSelectColor ?? UIColor(hexString: "08A3E2")
     }
 }
 // MARK: - Avatar

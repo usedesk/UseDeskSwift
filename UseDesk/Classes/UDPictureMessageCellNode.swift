@@ -6,7 +6,7 @@ import Foundation
 import AsyncDisplayKit 
 
 class UDPictureMessageCellNode: UDMessageCellNode {
-    private var imageNode = ASImageNode()
+    var imageNode = ASImageNode()
     private var loaderNode = ASDisplayNode()
     private var loaderBackNode = ASDisplayNode()
     
@@ -46,27 +46,27 @@ class UDPictureMessageCellNode: UDMessageCellNode {
         loaderNode = ASDisplayNode(viewBlock: { [weak self] () -> UIView in
             guard let wSelf = self else {return UIView()}
             wSelf.activityIndicator = UIActivityIndicatorView(style: .white)
-            wSelf.activityIndicator.hidesWhenStopped = false
+            wSelf.activityIndicator?.hidesWhenStopped = false
             if message.status == UD_STATUS_OPENIMAGE {
-                wSelf.activityIndicator.startAnimating()
-                wSelf.activityIndicator.alpha = 1
+                wSelf.activityIndicator?.startAnimating()
+                wSelf.activityIndicator?.alpha = 1
                 wSelf.loaderBackNode.alpha = 1
             } else {
                 if message.status == UD_STATUS_SUCCEED {
-                    wSelf.activityIndicator.stopAnimating()
-                    wSelf.activityIndicator.alpha = 0
+                    wSelf.activityIndicator?.stopAnimating()
+                    wSelf.activityIndicator?.alpha = 0
                     wSelf.loaderBackNode.alpha = 0
                 } else {
-                    wSelf.activityIndicator.startAnimating()
-                    wSelf.activityIndicator.alpha = 1
+                    wSelf.activityIndicator?.startAnimating()
+                    wSelf.activityIndicator?.alpha = 1
                     wSelf.loaderBackNode.alpha = 1
                 }
             }
-            return wSelf.activityIndicator
+            return wSelf.activityIndicator ?? UIView()
         })
         if imageNode.image == pictureStyle.imageDefault || imageNode.image == nil {
             imageNode.image = message.file.image ?? pictureStyle.imageDefault
-            imageNode.contentMode = .scaleAspectFit
+            imageNode.contentMode = .scaleAspectFill
             imageNode.cornerRadius = pictureStyle.cornerRadius
         }
         if imageNode.supernode == nil {
@@ -82,6 +82,16 @@ class UDPictureMessageCellNode: UDMessageCellNode {
         }
     }
     
+    public func setImage(_ image: UIImage) {
+        DispatchQueue.main.async {
+            guard self.loaderNode.alpha == 1 else {return}
+            self.imageNode.image = image
+            self.loaderBackNode.alpha = 0
+            self.loaderNode.alpha = 0
+            self.activityIndicator?.stopAnimating()
+        }
+    }
+    
     override public func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         let messageStyle = configurationStyle.messageStyle
         let pictureStyle = configurationStyle.pictureStyle
@@ -90,11 +100,10 @@ class UDPictureMessageCellNode: UDMessageCellNode {
         let centerLoaderSpec = ASCenterLayoutSpec(centeringOptions: .XY, sizingOptions: [], child: loaderNode)
         loaderBackOverlaySpec.overlay = centerLoaderSpec
         loaderBackOverlaySpec.child = loaderBackNode
-        
-        let sizeMessagesManager = UDSizeMessagesManager(messagesView: messagesView, message: message, indexPath: indexPath, configurationStyle: configurationStyle)
-        let sizeImageNode = sizeMessagesManager.sizeImageMessageFrom(size: CGSize(width: imageNode.image?.size.width ?? 0, height: imageNode.image?.size.height ?? 0))
-        imageNode.style.width = ASDimensionMakeWithPoints(sizeImageNode.width)
-        imageNode.style.height = ASDimensionMakeWithPoints(sizeImageNode.height)
+
+        let percentWidth: CGFloat = orientaion == .portrait ? 0.3 : 0.6
+        imageNode.style.width = ASDimensionMakeWithPoints(constrainedSize.max.width - (constrainedSize.max.width * percentWidth))
+        imageNode.style.height = ASDimensionMakeWithPoints(constrainedSize.max.width - (constrainedSize.max.width * percentWidth))
         
         let imageWithLoaderStack = ASOverlayLayoutSpec()
         let centerLoaderBackSpec = ASCenterLayoutSpec(centeringOptions: .XY, sizingOptions: [], child: loaderBackOverlaySpec)

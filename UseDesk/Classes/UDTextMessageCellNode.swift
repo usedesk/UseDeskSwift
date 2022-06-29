@@ -48,17 +48,18 @@ class UDTextMessageCellNode: UDMessageCellNode {
         textMessageNode.attributedText = attributedString
         textMessageNode.isUserInteractionEnabled = true
         textMessageNode.delegate = self
-        view.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(self.longPressTextAction)))
         addSubnode(textMessageNode)
 
         if message.buttons.count > 0 {
-            tableButtonsNode.view.separatorStyle = .none
             tableButtonsNode.dataSource = self
             tableButtonsNode.delegate = self
             tableButtonsNode.backgroundColor = .clear
             addSubnode(tableButtonsNode)
         }
         super.bindData(messagesView: messagesView, message: message, avatarImage: avatarImage)
+        DispatchQueue.main.async {
+            self.tableButtonsNode.view.separatorStyle = .none
+        }
     }
     
     override public func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {

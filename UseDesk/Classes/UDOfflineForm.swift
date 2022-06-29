@@ -373,7 +373,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
                                 wSelf.showSendedView()
                             }
                         }
-                    } 
+                    }
                 } errorStatus: { [weak self] (_, _) in
                     guard let wSelf = self else {return}
                     wSelf.sendLoader.alpha = 0
@@ -559,8 +559,24 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate {
         cell.configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         if let message = fields[indexPath.row].value as? UDTextItem {
             if usedesk != nil {
-                let title = usedesk!.model.stringFor("Message")
-                cell.setCell(title: title, text: message.text, indexPath: indexPath, isLimitLengthText: false)
+                let isValid = message.text == "" && indexPath != selectedIndexPath ? false : true
+                var title = usedesk!.model.stringFor("Message")
+                var attributedTitleString: NSMutableAttributedString? = nil
+                var text = message.text
+                var attributedTextString: NSMutableAttributedString? = nil
+       
+                attributedTitleString = NSMutableAttributedString()
+                attributedTitleString!.append(NSAttributedString(string: title, attributes: [NSAttributedString.Key.font : usedesk!.configurationStyle.feedbackFormStyle.headerFont, NSAttributedString.Key.foregroundColor : usedesk!.configurationStyle.feedbackFormStyle.headerColor]))
+                attributedTitleString!.append(NSAttributedString(string: " *", attributes: [NSAttributedString.Key.font : usedesk!.configurationStyle.feedbackFormStyle.headerFont, NSAttributedString.Key.foregroundColor : usedesk!.configurationStyle.feedbackFormStyle.headerSelectedColor]))
+                
+                if !isValid {
+                    attributedTextString = attributedTitleString
+                    text = title
+                    title = usedesk!.model.stringFor("MandatoryField")
+                    attributedTitleString = nil
+                }
+                
+                cell.setCell(title: title, titleAttributed: attributedTitleString, text: text, textAttributed: attributedTextString, indexPath: indexPath, isValid: isValid, isLimitLengthText: false)
             }
         }
         cell.delegate = self

@@ -5,7 +5,6 @@ import Foundation
 
 class UDNavigationController: UINavigationController {
 
-    var tintColor: UIColor?
     var titleTextColor: UIColor?
     var titleTextFont: UIFont?
     
@@ -23,7 +22,6 @@ class UDNavigationController: UINavigationController {
     
     func setProperties() {
         statusBarStyle = configurationStyle.navigationBarStyle.statusBarStyle
-        tintColor = configurationStyle.navigationBarStyle.textColor
         
         titleTextColor = configurationStyle.navigationBarStyle.textColor
         titleTextFont = configurationStyle.navigationBarStyle.font

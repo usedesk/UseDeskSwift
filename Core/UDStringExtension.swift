@@ -3,22 +3,15 @@
 //  UseDesk_SDK_Swift
 //
 import UIKit
-let udEmailRegex = "(?:[\\p{L}0-9!#$%\\&'*+/=?\\^_`{|}~-]+(?:\\.[\\p{L}0-9!#$%\\&'*+/=?\\^_`{|}" +
-    "~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\" +
-    "x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[\\p{L}0-9](?:[a-" +
-    "z0-9-]*[\\p{L}0-9])?\\.)+[\\p{L}0-9](?:[\\p{L}0-9-]*[\\p{L}0-9])?|\\[(?:(?:25[0-5" +
-    "]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-" +
-    "9][0-9]?|[\\p{L}0-9-]*[\\p{L}0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21" +
-    "-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+
+let udEmailRegex = "[A-Z0-9a-z]([A-Z0-9a-z._%+-]{0,30}[A-Z0-9a-z])?" + "@" + "([A-Z0-9a-z]([A-Z0-9a-z-]{0,30}[A-Z0-9a-z])?\\.){1,5}" + "[A-Za-z]{2,8}"
+
 let udEmailPredicate = NSPredicate(format: "SELF MATCHES %@", udEmailRegex)
 
 extension String {
-    public var udIsContainEmoji: Bool
-    {
-        for ucode in unicodeScalars
-        {
-            switch ucode.value
-            {
+    public var udIsContainEmoji: Bool {
+        for ucode in unicodeScalars {
+            switch ucode.value {
             case 0x3030, 0x00AE, 0x00A9,
             0x1D000...0x1F77F,
             0x2100...0x27BF,
@@ -68,7 +61,9 @@ extension String {
     }
     
     func udIsValidEmail() -> Bool {
-        return udEmailPredicate.evaluate(with: self)
+        let range = NSRange(location: 0, length: self.count)
+        let regex = try! NSRegularExpression(pattern: udEmailRegex)
+        return regex.firstMatch(in: self, options: [], range: range) != nil
     }
     
     func udIsValidToken() -> Bool {
@@ -109,6 +104,16 @@ extension String {
         while isNeedRemove {
             resultString.removeFirst()
             isNeedRemove = resultString.first == symbol ? true : false
+        }
+        return resultString
+    }
+    
+    func udRemoveLastSymbol(with symbol: Character) -> String {
+        var resultString = self
+        var isNeedRemove = resultString.last == symbol ? true : false
+        while isNeedRemove {
+            resultString.removeLast()
+            isNeedRemove = resultString.last == symbol ? true : false
         }
         return resultString
     }

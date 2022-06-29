@@ -45,6 +45,7 @@ class UDFeedbackMessageCellNode: UDMessageCellNode {
         addSubnode(textMessageNode)
         
         //dislike button
+        dislikeButtonNode.removeFromSupernode()
         if feedbackAction != nil {
             dislikeButtonNode.setBackgroundImage(feedbackMessageStyle.dislikeOnImage, for: .normal)
         } else {
@@ -58,6 +59,7 @@ class UDFeedbackMessageCellNode: UDMessageCellNode {
         addSubnode(dislikeButtonNode)
         
         //like button
+        likeButtonNode.removeFromSupernode()
         if feedbackAction != nil {
             likeButtonNode.setBackgroundImage(feedbackMessageStyle.likeOnImage, for: .normal)
         } else {
@@ -115,7 +117,6 @@ class UDFeedbackMessageCellNode: UDMessageCellNode {
         vMessageStack.direction = .vertical
         vMessageStack.style.flexShrink = 1.0
         vMessageStack.style.flexGrow = 0
-        vMessageStack.style.maxWidth = ASDimensionMakeWithPoints(sizeMessagesManager.maxWidthBubbleMessage)
         vMessageStack.spacing = 0
         vMessageStack.alignItems = .end
         vMessageStack.setChild(vButtonsAndTextStack, at: 0)

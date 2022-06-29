@@ -25,6 +25,8 @@ let UD_STATUS_SEND_SUCCEED = 3
 let UD_AUDIOSTATUS_STOPPED = 1
 let UD_AUDIOSTATUS_PLAYING = 2
 
+let UD_LIMIT_PAGINATION_DEFAULT = 20
+
 public typealias UDStartBlock = (Bool, UDFeedbackStatus, String) -> Void
 public typealias UDBaseBlock = (Bool, [UDBaseCollection]?) -> Void
 public typealias UDArticleBlock = (Bool, UDArticle?) -> Void
@@ -65,6 +67,7 @@ public struct UseDeskModel {
     var nameOperator = ""
     var nameChat = ""
     var firstMessage = ""
+    var countMessagesOnInit = 0
     var note = ""
     var token = ""
     var additional_id = ""
