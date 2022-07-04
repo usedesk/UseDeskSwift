@@ -147,7 +147,9 @@ class DialogflowView: UDMessagesView {
         DispatchQueue.main.async { [weak self] in
             guard let wSelf = self else {return}
             wSelf.loadMessagesFromStorage()
-            wSelf.messagesWithSection = wSelf.generateSectionFromModel(messages: wSelf.allMessages)
+            wSelf.messagesWithSection = wSelf.generateSection()
+            wSelf.configureAttachCollection()
+            wSelf.setFirstTextInTextInput()
             wSelf.buttonAttach.isEnabled = true
             wSelf.textInput.isUserInteractionEnabled = true
             if !wSelf.isFromOfflineForm && !wSelf.isFromBase {
@@ -375,7 +377,7 @@ class DialogflowView: UDMessagesView {
                 newMessages.append(wSelf.allMessages[wSelf.allMessages.count - 1 - index])
             }
             wSelf.allMessages = newMessages
-            wSelf.messagesWithSection = wSelf.generateSectionFromModel(messages: wSelf.allMessages)
+            wSelf.messagesWithSection = wSelf.generateSection()
             wSelf.tableNode.reloadData()
             wSelf.buttonAttach.isEnabled = true
             wSelf.textInput.isUserInteractionEnabled = true
@@ -550,6 +552,7 @@ class DialogflowView: UDMessagesView {
             let repeatAction = UIAlertAction(title: usedesk!.model.stringFor("SendAgain"), style: .default, handler: { [weak self] (alert: UIAlertAction!) in
                 guard let wSelf = self else {return}
                 let message = wSelf.messagesWithSection[indexPath.section][indexPath.row]
+                wSelf.usedesk!.storage?.removeMessage(message)
                 message.statusSend = UD_STATUS_SEND_DRAFT
                 DispatchQueue.main.async {
                     if let index = wSelf.failMessages.firstIndex(where: {$0.loadingMessageId == message.loadingMessageId}) {

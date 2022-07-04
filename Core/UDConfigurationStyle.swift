@@ -45,6 +45,7 @@ public struct ConfigurationStyle {
     public var sendButtonStyle: SendButtonStyle
     public var attachViewStyle: AttachViewStyle
     public var messageButtonStyle: MessageButtonStyle
+    public var scrollButtonStyle: ScrollButtonStyle
     public var feedbackFormStyle: FeedbackFormStyle
     public var selectTopicFeedbackFormStyle: SelectTopicFeedbackFormStyle
     public var baseStyle: BaseStyle
@@ -71,6 +72,7 @@ public struct ConfigurationStyle {
                 sendButtonStyle: SendButtonStyle = SendButtonStyle(),
                 attachViewStyle: AttachViewStyle = AttachViewStyle(),
                 messageButtonStyle: MessageButtonStyle = MessageButtonStyle(),
+                scrollButtonStyle: ScrollButtonStyle = ScrollButtonStyle(),
                 feedbackFormStyle: FeedbackFormStyle = FeedbackFormStyle(),
                 selectTopicFeedbackFormStyle: SelectTopicFeedbackFormStyle = SelectTopicFeedbackFormStyle(),
                 baseStyle: BaseStyle = BaseStyle(),
@@ -96,7 +98,7 @@ public struct ConfigurationStyle {
         self.sendButtonStyle = sendButtonStyle
         self.attachViewStyle = attachViewStyle
         self.messageButtonStyle = messageButtonStyle
-        self.navigationBarStyle = navigationBarStyle
+        self.scrollButtonStyle = scrollButtonStyle
         self.feedbackFormStyle = feedbackFormStyle
         self.selectTopicFeedbackFormStyle = selectTopicFeedbackFormStyle
         self.baseStyle = baseStyle
@@ -143,37 +145,13 @@ public struct ChatStyle {
     public var backgroundColor: UIColor
     public var backgroundColorLoaderView: UIColor
     public var alphaLoaderView: CGFloat
-    public var scrollButtonImage: UIImage
-    public var scrollButtonSize: CGSize
-    public var scrollButtonMargin: UIEdgeInsets
-    public var newMessagesViewHeight: CGFloat
-    public var newMessagesViewMarginBottom: CGFloat
-    public var newMessagesViewColor: UIColor
-    public var newMessagesLabelFont: UIFont
-    public var newMessagesLabelColor: UIColor
     
     public init(backgroundColor: UIColor? = nil,
                 backgroundColorLoaderView: UIColor? = nil,
-                alphaLoaderView: CGFloat = 0.8,
-                scrollButtonImage: UIImage? = nil,
-                scrollButtonSize: CGSize = CGSize(width: 40, height: 40),
-                scrollButtonMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 12),
-                newMessagesViewDiameter: CGFloat = 20,
-                newMessagesViewMarginBottom: CGFloat = 10,
-                newMessagesViewColor: UIColor? = nil,
-                newMessagesLabelFont: UIFont = .systemFont(ofSize: 13),
-                newMessagesLabelColor: UIColor? = nil) {
+                alphaLoaderView: CGFloat = 0.8) {
         self.backgroundColor = backgroundColor ?? UIColor(hexString: "FFFFFF")
         self.backgroundColorLoaderView = backgroundColorLoaderView ?? .lightGray
         self.alphaLoaderView = alphaLoaderView
-        self.scrollButtonImage = scrollButtonImage ?? UIImage.named("udScrollButton")
-        self.scrollButtonSize = scrollButtonSize
-        self.scrollButtonMargin = scrollButtonMargin
-        self.newMessagesViewHeight = newMessagesViewDiameter
-        self.newMessagesViewMarginBottom = newMessagesViewMarginBottom
-        self.newMessagesViewColor = newMessagesViewColor ?? UIColor(hexString: "EB5757")
-        self.newMessagesLabelFont = newMessagesLabelFont
-        self.newMessagesLabelColor = newMessagesLabelColor ?? .white
     }
 }
 // MARK: - Date messages section
@@ -638,6 +616,36 @@ public struct MessageButtonStyle {
         self.minHeight = height
         self.margin = margin
         self.maximumLine = maximumLine
+    }
+}
+
+// MARK: - ScrollButtonStyle
+public struct ScrollButtonStyle {
+    public var scrollButtonImage: UIImage
+    public var scrollButtonSize: CGSize
+    public var scrollButtonMargin: UIEdgeInsets
+    public var newMessagesViewHeight: CGFloat
+    public var newMessagesViewMarginBottom: CGFloat
+    public var newMessagesViewColor: UIColor
+    public var newMessagesLabelFont: UIFont
+    public var newMessagesLabelColor: UIColor
+    
+    public init(scrollButtonImage: UIImage? = nil,
+                scrollButtonSize: CGSize = CGSize(width: 40, height: 40),
+                scrollButtonMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 12),
+                newMessagesViewDiameter: CGFloat = 20,
+                newMessagesViewMarginBottom: CGFloat = 10,
+                newMessagesViewColor: UIColor? = nil,
+                newMessagesLabelFont: UIFont = .systemFont(ofSize: 13),
+                newMessagesLabelColor: UIColor? = nil) {
+        self.scrollButtonImage = scrollButtonImage ?? UIImage.named("udScrollButton")
+        self.scrollButtonSize = scrollButtonSize
+        self.scrollButtonMargin = scrollButtonMargin
+        self.newMessagesViewHeight = newMessagesViewDiameter
+        self.newMessagesViewMarginBottom = newMessagesViewMarginBottom
+        self.newMessagesViewColor = newMessagesViewColor ?? UIColor(hexString: "EB5757")
+        self.newMessagesLabelFont = newMessagesLabelFont
+        self.newMessagesLabelColor = newMessagesLabelColor ?? .white
     }
 }
 

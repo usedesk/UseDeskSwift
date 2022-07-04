@@ -131,6 +131,7 @@ class UDBaseKnowledgeVC: UIViewController {
         usedesk?.startWithoutGUICompanyID(companyID: usedesk!.model.companyID, chanelId: usedesk!.model.chanelId, url: usedesk!.model.urlWithoutPort, port: usedesk!.model.port, api_token: usedesk!.model.api_token, knowledgeBaseID: usedesk!.model.knowledgeBaseID, name: usedesk!.model.name, email: usedesk!.model.email, phone: usedesk!.model.phone, token: usedesk!.model.token, connectionStatus: { [weak self] success, feedbackStatus, token in
             guard let wSelf = self else {return}
             guard wSelf.usedesk != nil else {return}
+            wSelf.usedesk?.storage = wSelf.usedesk?.storage != nil ? wSelf.usedesk?.storage : UDStorageMessages(token: token)
             if wSelf.usedesk!.closureStartBlock != nil {
                 wSelf.usedesk!.closureStartBlock!(success, feedbackStatus, token)
             }

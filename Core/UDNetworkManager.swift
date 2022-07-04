@@ -9,10 +9,12 @@ import Alamofire
 public class UDNetworkManager {
     
     public var model = UseDeskModel()
+    weak var usedesk: UseDeskSDK?
     
     public weak var socket: SocketIOClient?
     private var isAuthInited = false
     private var isSendedAdditionalField = false
+    private var isSendedFirstMessage = false
     private var isAuthSuccess = false
     private var token: String? {
         return model.token != "" ? model.token : loadToken()
@@ -398,7 +400,8 @@ public class UDNetworkManager {
             }, setClientBlock: { [weak self] in
                 guard let wSelf = self else {return}
                 wSelf.socket?.emit("dispatch", with: UseDeskSDKHelp.dataClient(wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, note: wSelf.model.note, token: wSelf.token ?? "", additional_id: wSelf.model.additional_id)!) { [weak self] in
-                    if self?.isAuthSuccess ?? false {
+                    if (self?.isAuthSuccess ?? false) && !wSelf.isSendedFirstMessage {
+                        wSelf.isSendedFirstMessage = true
                         if wSelf.model.firstMessage != "" {
                             let id = wSelf.newIdLoadingMessages()
                             wSelf.model.idLoadingMessages.append(id)
@@ -485,7 +488,7 @@ public class UDNetworkManager {
     }
     
     private func save(token: String) {
-        model.token = token
+        usedesk?.model.token = token
         if model.isSaveTokensInUserDefaults {
             let key = "usedeskClientToken\(model.email)\(model.phone)\(model.name)\(model.chanelId)"
             UserDefaults.standard.set(token, forKey: key)

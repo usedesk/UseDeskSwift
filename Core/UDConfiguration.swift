@@ -44,6 +44,7 @@ public typealias UDValidModelBlock = (UseDeskModel) -> Void
 @objc public protocol UDStorage {
     func getMessages() -> [UDMessage]
     func saveMessages(_ messages: [UDMessage])
+    func removeMessage(_ message: UDMessage)
 }
 
 public struct UseDeskModel {

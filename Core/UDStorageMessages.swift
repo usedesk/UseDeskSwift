@@ -49,6 +49,15 @@ public class UDStorageMessages: NSObject, UDStorage {
         }
     }
     
+    public func removeMessage(_ message: UDMessage) {
+        guard token.count > 0 else {return}
+        var messages = getMessages()
+        if let index = messages.firstIndex(of: message) {
+            messages.remove(at: index)
+        }
+        saveMessages(messages)
+    }
+    
     public func remove() {
         if urlStorage != nil {
             do {

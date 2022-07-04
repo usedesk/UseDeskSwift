@@ -268,18 +268,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         
         textInput.delegate = self
         textInput.textColor = configurationStyle.inputViewStyle.placeholderTextColor
-        if let messageText = draftMessages.filter({$0.type == UD_TYPE_TEXT}).first {
-            if messageText.text.count > 0 {
-                textInput.text = messageText.text
-                textInput.textColor = configurationStyle.inputViewStyle.textColor
-            } else {
-                textInput.text = usedesk!.model.stringFor("Write") + "..."
-                
-            }
-        } else {
-            textInput.text = usedesk!.model.stringFor("Write") + "..."
-        }
-        
+        setFirstTextInTextInput()
         textInput.isNeedCustomTextContainerInset = true
         textInput.customTextContainerInset = configurationStyle.inputViewStyle.textMargin
         
@@ -295,31 +284,49 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         attachFileButton.tintColor = configurationStyle.attachViewStyle.textButtonColor
         attachCancelButton.tintColor = configurationStyle.attachViewStyle.textButtonColor
         
+        configureAttachCollection()
+        
+        scrollButtonTC.constant = configurationStyle.scrollButtonStyle.scrollButtonMargin.right
+        scrollButtonBC.constant = configurationStyle.scrollButtonStyle.scrollButtonMargin.bottom
+        scrollButtonHC.constant = configurationStyle.scrollButtonStyle.scrollButtonSize.height
+        scrollButtonWC.constant = configurationStyle.scrollButtonStyle.scrollButtonSize.width
+        scrollButton.setBackgroundImage(configurationStyle.scrollButtonStyle.scrollButtonImage, for: .normal)
+        scrollButton.alpha = 0
+        
+        newMessagesCountView.backgroundColor = configurationStyle.scrollButtonStyle.newMessagesViewColor
+        newMessagesCountView.layer.cornerRadius = configurationStyle.scrollButtonStyle.newMessagesViewHeight / 2
+        newMessagesCountViewHC.constant = configurationStyle.scrollButtonStyle.newMessagesViewHeight
+        newMessagesCountViewBC.constant = configurationStyle.scrollButtonStyle.newMessagesViewMarginBottom
+        updateCountNewMessagesView()
+        newMessagesCountLabel.font = configurationStyle.scrollButtonStyle.newMessagesLabelFont
+        newMessagesCountLabel.textColor = configurationStyle.scrollButtonStyle.newMessagesLabelColor
+        
+        buttonSend.isEnabled = false
+        buttonAttach.isEnabled = false
+        textInput.isUserInteractionEnabled = false
+    }
+    
+    func configureAttachCollection() {
         attachCollectionMessageViewTopC.constant = configurationStyle.inputViewStyle.topMarginAssetsCollection
         attachCollectionMessageViewHC.constant = configurationStyle.inputViewStyle.heightAssetsCollection
         
         if countDraftMessagesWithFile > 0 {
             showAttachCollection()
         }
-        
-        scrollButtonTC.constant = configurationStyle.chatStyle.scrollButtonMargin.right
-        scrollButtonBC.constant = configurationStyle.chatStyle.scrollButtonMargin.bottom
-        scrollButtonHC.constant = configurationStyle.chatStyle.scrollButtonSize.height
-        scrollButtonWC.constant = configurationStyle.chatStyle.scrollButtonSize.width
-        scrollButton.setBackgroundImage(configurationStyle.chatStyle.scrollButtonImage, for: .normal)
-        scrollButton.alpha = 0
-        
-        newMessagesCountView.backgroundColor = configurationStyle.chatStyle.newMessagesViewColor
-        newMessagesCountView.layer.cornerRadius = configurationStyle.chatStyle.newMessagesViewHeight / 2
-        newMessagesCountViewHC.constant = configurationStyle.chatStyle.newMessagesViewHeight
-        newMessagesCountViewBC.constant = configurationStyle.chatStyle.newMessagesViewMarginBottom
-        updateCountNewMessagesView()
-        newMessagesCountLabel.font = configurationStyle.chatStyle.newMessagesLabelFont
-        newMessagesCountLabel.textColor = configurationStyle.chatStyle.newMessagesLabelColor
-        
-        buttonSend.isEnabled = false
-        buttonAttach.isEnabled = false
-        textInput.isUserInteractionEnabled = false
+    }
+    
+    func setFirstTextInTextInput() {
+        if let messageText = draftMessages.filter({$0.type == UD_TYPE_TEXT}).first {
+            if messageText.text.count > 0 {
+                textInput.text = messageText.text
+                textInput.textColor = configurationStyle.inputViewStyle.textColor
+            } else {
+                textInput.text = usedesk!.model.stringFor("Write") + "..."
+                
+            }
+        } else {
+            textInput.text = usedesk!.model.stringFor("Write") + "..."
+        }
     }
     
     func loadMessagesFromStorage() {
@@ -328,7 +335,15 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             (usedesk!.storage! as! UDStorageMessages).token = usedesk!.model.token
         }
         if let messeges = usedesk!.storage?.getMessages() {
-            draftMessages = messeges.filter({$0.statusSend == UD_STATUS_SEND_DRAFT})
+            draftMessages.removeAll()
+            let allDraftMessages = messeges.filter({$0.statusSend == UD_STATUS_SEND_DRAFT})
+            allDraftMessages.forEach { message in
+                if message.type != UD_TYPE_TEXT && message.file.data == nil {
+                    usedesk!.storage?.removeMessage(message)
+                } else {
+                    draftMessages.append(message)
+                }
+            }
             failMessages = messeges.filter({$0.statusSend == UD_STATUS_SEND_FAIL})
         }
     }
@@ -437,11 +452,11 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     func updateCountNewMessagesView() {
         newMessagesCountView.alpha = newMessagesIds.count > 0 ? scrollButton.alpha : 0
         guard newMessagesIds.count > 0 else {return}
-        let chatStyle = configurationStyle.chatStyle
+        let scrollButtonStyle = configurationStyle.scrollButtonStyle
         newMessagesCountLabel.text = newMessagesIds.count > 99 ? "99+" : String(newMessagesIds.count)
-        let widthSingleSymbol = (newMessagesIds.count < 10 ? String(newMessagesIds.count) : "0").size(attributes: [NSAttributedString.Key.font : chatStyle.newMessagesLabelFont]).width
-        let additionalWidth = chatStyle.newMessagesViewHeight - widthSingleSymbol
-        let widthNewMessagesCountLabel = newMessagesCountLabel.text?.size(attributes: [NSAttributedString.Key.font : chatStyle.newMessagesLabelFont]).width ?? widthSingleSymbol
+        let widthSingleSymbol = (newMessagesIds.count < 10 ? String(newMessagesIds.count) : "0").size(attributes: [NSAttributedString.Key.font : scrollButtonStyle.newMessagesLabelFont]).width
+        let additionalWidth = scrollButtonStyle.newMessagesViewHeight - widthSingleSymbol
+        let widthNewMessagesCountLabel = newMessagesCountLabel.text?.size(attributes: [NSAttributedString.Key.font : scrollButtonStyle.newMessagesLabelFont]).width ?? widthSingleSymbol
         newMessagesCountViewWC.constant = widthNewMessagesCountLabel + additionalWidth
         self.view.layoutIfNeeded()
     }
@@ -632,7 +647,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             }
             var indexesNewMessages: [IndexPath] = []
             let sortedNewMessages = Array(newMessages.sorted(by: { $0.date > $1.date }))
-            var newMessagesWithSection = wSelf.generateSectionFromModel(messages: sortedNewMessages)
+            var newMessagesWithSection = wSelf.generateSection(messagesForGenerate: sortedNewMessages)
             DispatchQueue.main.async {
                 if newMessagesWithSection.count > 0, newMessagesWithSection.first?[0].date.dateFormatString == wSelf.messagesWithSection.last?[0].date.dateFormatString {
                     let previousIndexPath = IndexPath(row: wSelf.messagesWithSection.last!.count - 1, section: wSelf.messagesWithSection.count - 1)
@@ -771,9 +786,12 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         }
     }
     
-    func generateSectionFromModel(messages: [UDMessage]) -> [[UDMessage]] {
+    func generateSection(messagesForGenerate: [UDMessage]? = nil) -> [[UDMessage]] {
         var generetedMessagesWithSection: [[UDMessage]] = []
-        insertFailSendMessages()
+        if messagesForGenerate == nil {
+            insertFailSendMessages()
+        }
+        let messages = messagesForGenerate ?? allMessages
         guard messages.count > 0 else {return []}
         generetedMessagesWithSection.append([messages[0]])
         var indexSection = 0
@@ -796,7 +814,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     }
     
     func insertFailSendMessages() {
-        guard usedesk != nil else {return}
+        guard usedesk != nil, failMessages.count > 0 else {return}
         var failMessagesInsert = failMessages
         var insertArray: [[Int]] = []
         for index in 0..<allMessages.count {

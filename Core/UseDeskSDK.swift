@@ -170,13 +170,13 @@ public class UseDeskSDK: NSObject {
     
     // MARK: - Ppivate Methods
     private func startWithGUI(storageOutside: UDStorage? = nil, isCacheMessagesWithFile: Bool = true, parentController: UIViewController? = nil, startBlock: @escaping UDStartBlock, errorBlock: @escaping UDErrorBlock) {
-        storage = storageOutside != nil ? storageOutside : UDStorageMessages(token: model.token)
         self.isCacheMessagesWithFile = isCacheMessagesWithFile
         
         networkManager = UDNetworkManager(model: model)
         setupUI()
         isOpenSDKUI = true
         setNetworkTracking()
+        storage = storageOutside
         
         if model.isOpenKnowledgeBase {
             startOnlyKnowledgeBase(parentController: parentController) { success in
@@ -188,6 +188,7 @@ public class UseDeskSDK: NSObject {
             }
             startWithoutGUICompanyID(companyID: model.companyID, chanelId: model.chanelId, url: model.urlWithoutPort, port: model.port, api_token: model.api_token, knowledgeBaseID: model.knowledgeBaseID, name: model.name, email: model.email, phone: model.phone, additionalFields: model.additionalFields, additionalNestedFields: model.additionalNestedFields) { [weak self] success, feedbackStatus, token in
                 guard let wSelf = self else { return }
+                wSelf.storage = storageOutside != nil ? storageOutside : UDStorageMessages(token: token)
                 wSelf.uiManager?.reloadDialogFlow(success: success, feedBackStatus: feedbackStatus, url: wSelf.model.url)
                 startBlock(success, feedbackStatus, token)
             } errorStatus: { [weak self] error, description in
@@ -215,14 +216,15 @@ public class UseDeskSDK: NSObject {
         if networkManager == nil {
             networkManager = UDNetworkManager(model: model)
         }
+        networkManager?.usedesk = self
         networkManager?.model = model
         networkManager?.socket = socket
         
         networkManager?.socketConnect(socket: socket, connectBlock: connectBlock)
         networkManager?.socketError(socket: socket, errorBlock: errorBlock)
         networkManager?.socketDisconnect(socket: socket, connectBlock: connectBlock)
-        networkManager?.socketDispatch(socket: socket, startBlock: { [weak self] success, feedbackstatus, error in
-            startBlock(success, feedbackstatus, error)
+        networkManager?.socketDispatch(socket: socket, startBlock: { [weak self] success, feedbackstatus, token in
+            startBlock(success, feedbackstatus, token)
             self?.connectBlock?(true)
         }, historyMessagesBlock: { [weak self] messages in
             self?.historyMess = messages
