@@ -138,7 +138,9 @@ extension String {
                                             // add link
                                             if let startLinkIndex = self.index(searchEndIndex, offsetBy: +1, limitedBy: self.endIndex) {
                                                 if let endLinkIndex = self.index(searchIndex, offsetBy: -1, limitedBy: self.startIndex) {
-                                                    links.append(String(self[startLinkIndex...endLinkIndex]))
+                                                    if endLinkIndex > startLinkIndex {
+                                                        links.append(String(self[startLinkIndex...endLinkIndex]))
+                                                    }
                                                 }
                                             }
                                             //remove link

@@ -474,6 +474,7 @@ class UDSocketResponse {
         text = text.udRemoveFirstSymbol(with: "\n")
         text = text.udRemoveLastSymbol(with: "\u{200b}")
         text = text.udRemoveLastSymbol(with: "\n")
+        let textBeforeRemoveMarkdownUrls = text
         var mutableAttributedString: NSMutableAttributedString? = nil
         var textWithoutLinkImage: String? = nil
         let linksImage = text.udRemoveMarkdownUrlsAndReturnLinks()
@@ -488,6 +489,8 @@ class UDSocketResponse {
                 mutableAttributedString!.mutableString.replaceCharacters(in: NSRange(location: mutableAttributedString!.length - 1, length: 1), with: "")
                 mutableAttributedString!.mutableString.replaceOccurrences(of: "<№;%br>", with: "\n", options: .caseInsensitive, range: NSRange(location: 0, length: mutableAttributedString!.length))
             }
+        } else if linksImage.count == 0 {
+            textWithoutLinkImage = textBeforeRemoveMarkdownUrls
         }
         return (linksImage, textWithoutLinkImage, mutableAttributedString)
     }
