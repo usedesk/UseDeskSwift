@@ -87,6 +87,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     public var startDownloadFileIds: [Int] = []
     public var allMessages: [UDMessage] = []
     public var newMessagesIds: [Int] = []
+    public var isScrollChatToBottom = true
     
     private let kLimitSizeFile: Double = 128
     
@@ -116,7 +117,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     private var selectedFile: UDFile!
     private var isNeedLoadMoreHistoryMessages = true
     private var idSelectingMessage: Int? = nil
-    private var isScrollChatToBottom = true
     
     private var countDraftMessagesWithFile: Int {
         return draftMessages.filter({$0.type != UD_TYPE_TEXT && $0.type != UD_TYPE_EMOJI && $0.type != UD_TYPE_Feedback}).count
@@ -459,6 +459,28 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         let widthNewMessagesCountLabel = newMessagesCountLabel.text?.size(attributes: [NSAttributedString.Key.font : scrollButtonStyle.newMessagesLabelFont]).width ?? widthSingleSymbol
         newMessagesCountViewWC.constant = widthNewMessagesCountLabel + additionalWidth
         self.view.layoutIfNeeded()
+    }
+    
+    func scrollChatToNewMessage() {
+        if newMessagesIds.count > 0 && isScrollChatToBottom {
+            if let indexPath = indexPathForMessage(at: newMessagesIds[0]) {
+                idSelectingMessage = newMessagesIds[0]
+                var position: UITableView.ScrollPosition = .top
+                if let node = tableNode.nodeForRow(at: indexPath) as? UDMessageCellNode{
+                    position = node.frame.height > tableNode.frame.height - 20 ? .bottom : .top
+                }
+                isScrollChatToBottom = newMessagesIds.count == 1
+                tableNode.scrollToRow(at: indexPath, at: position, animated: true)
+            }
+        } else {
+            isScrollChatToBottom = true
+            tableNode.scrollToRow(at: IndexPath(row: 0, section: 0), at: .none, animated: true)
+        }
+    }
+    
+    func scrollChatToStart() {
+        isScrollChatToBottom = true
+        tableNode.scrollToRow(at: IndexPath(row: 0, section: 0), at: .none, animated: true)
     }
     
     // MARK: - Message methods
@@ -1130,20 +1152,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     }
     
     @IBAction func scrollButtonAction(_ sender: Any) {
-        if newMessagesIds.count > 0 && isScrollChatToBottom {
-            if let indexPath = indexPathForMessage(at: newMessagesIds[0]) {
-                idSelectingMessage = newMessagesIds[0]
-                var position: UITableView.ScrollPosition = .top
-                if let node = tableNode.nodeForRow(at: indexPath) as? UDMessageCellNode{
-                    position = node.frame.height > tableNode.frame.height - 20 ? .bottom : .top
-                }
-                isScrollChatToBottom = false
-                tableNode.scrollToRow(at: indexPath, at: position, animated: true)
-            }
-        } else {
-            isScrollChatToBottom = true
-            tableNode.scrollToRow(at: IndexPath(row: 0, section: 0), at: .none, animated: true)
-        }
+        scrollChatToNewMessage()
     }
     
     // MARK: - UIScrollViewDelegate
@@ -1183,8 +1192,14 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         guard let id = idSelectingMessage else {return}
         if let indexPath = indexPathForMessage(at: id) {
-            if let node = tableNode.nodeForRow(at: indexPath) as? UDMessageCellNode{
+            if let node = tableNode.nodeForRow(at: indexPath) as? UDMessageCellNode {
                 node.startSelectionAnimate()
+            }
+        }
+        if newMessagesIds.count > 0 {
+            if let index = newMessagesIds.firstIndex(of: id) {
+                newMessagesIds.remove(at: index)
+                updateCountNewMessagesView()
             }
         }
     }
@@ -1837,7 +1852,6 @@ extension UDMessagesView: UDFeedbackMessageCellNodeDelegate {
         guard usedesk != nil else {return}
         if getMessage(indexPath) != nil {
             messagesWithSection[indexPath.section][indexPath.row].text = usedesk!.model.stringFor("ArticleReviewSendedTitle")
-            messagesWithSection[indexPath.section][indexPath.row].attributedString = NSMutableAttributedString(string: usedesk!.model.stringFor("ArticleReviewSendedTitle"))
             var feedbackActionInt = -1
             switch feedback {
             case false:

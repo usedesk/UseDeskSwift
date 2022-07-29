@@ -5,6 +5,8 @@
 
 import Foundation
 import AsyncDisplayKit
+import UIKit
+import MarkdownKit
 
 protocol TextMessageCellNodeDelegate: AnyObject {
     func longPressText(text: String)
@@ -29,22 +31,10 @@ class UDTextMessageCellNode: UDMessageCellNode {
         let messageStyle = configurationStyle.messageStyle
         
         var attributedString = NSMutableAttributedString()
-        if message.attributedString != nil {
-            attributedString = message.attributedString!
-        } else {
-            attributedString = NSMutableAttributedString(string: message.text)
-        }
-        attributedString.addAttributes([NSAttributedString.Key.font : messageStyle.font, .foregroundColor : message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor], range: NSRange(location: 0, length: attributedString.length))
-        let linksRange = attributedString.string.udGetLinksRange()
-        for linkRange in linksRange {
-            attributedString.addAttributes([.link : attributedString.string[linkRange]], range: linkRange.nsRange(in: attributedString.string))
-        }
-        attributedString.enumerateAttribute(.link, in: NSRange(location: 0, length: attributedString.string.count)) { value, range, _ in
-            if value != nil {
-                attributedString.addAttribute(.underlineColor, value: message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor, range: range)
-                attributedString.addAttribute(.foregroundColor, value: message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor, range: range)
-            }
-        }
+        let markdownParser = MarkdownParser(font: messageStyle.font, color: message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor)
+        markdownParser.link.color = message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor
+        attributedString = NSMutableAttributedString(attributedString: markdownParser.parse(message.text))
+
         textMessageNode.attributedText = attributedString
         textMessageNode.isUserInteractionEnabled = true
         textMessageNode.delegate = self
@@ -117,7 +107,7 @@ class UDTextMessageCellNode: UDMessageCellNode {
     }
     
     @objc func longPressTextAction() {
-        delegateText?.longPressText(text: textMessageNode.attributedText?.string ?? (message.attributedString?.string ?? message.text))
+        delegateText?.longPressText(text: message.text)
     }
 }
 
@@ -175,4 +165,3 @@ extension UDTextMessageCellNode: ASTextNodeDelegate {
         }
     }
 }
-

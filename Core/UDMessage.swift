@@ -24,8 +24,6 @@ public class UDMessage: NSObject, Codable {
     @objc public var avatar = ""
     @objc public var file = UDFile()
     
-    var attributedString: NSMutableAttributedString? = nil
-    
     var outgoing: Bool {
         return !incoming
     }

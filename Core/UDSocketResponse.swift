@@ -3,9 +3,8 @@
 //  UseDesk_SDK_Swift
 //
 //
-
 import Foundation
-import Down
+import MarkdownKit
 
 class UDSocketResponse {
     
@@ -164,7 +163,6 @@ class UDSocketResponse {
     
     public class func actionAddMessage(_ data: [Any]?, newMessageBlock: UDNewMessageBlock?, feedbackMessageBlock: UDFeedbackMessageBlock?, sendAdditionalFieldsBlock: () -> Void, isSendedAdditionalField: Bool,  model: UseDeskModel) {
         let dicServer = data?[0] as? [AnyHashable : Any]
-        
         let type = dicServer?["type"] as? String
         if type == nil {
             return
@@ -184,7 +182,7 @@ class UDSocketResponse {
             var textWithoutLinkImage: String? = nil
             var linksImage: [String] = []
             if var text = message!["text"] as? String {
-                (linksImage, textWithoutLinkImage, mutableAttributedString) = parseText(text)
+                (linksImage, textWithoutLinkImage) = parseText(text)
                 for link in linksImage {
                     text = text.replacingOccurrences(of: link, with: "")
                     if let messageImageLink = UDSocketResponse.parseFileMessageDic(message, withImageUrl: link) {
@@ -195,7 +193,7 @@ class UDSocketResponse {
             if (message!["file"] as? [AnyHashable : Any] ) != nil {
                 messageFile = parseFileMessageDic(message)
             }
-            m = parseMessageDic(message, textWithoutLinkImage: textWithoutLinkImage, attributedString: mutableAttributedString, model: model)
+            m = parseMessageDic(message, textWithoutLinkImage: textWithoutLinkImage, model: model)
             
             var isAddMessage = false
             if m != nil {
@@ -240,7 +238,7 @@ class UDSocketResponse {
                 var textWithoutLinkImage: String? = nil
                 var linksImage: [String] = []
                 if var text = message["text"] as? String {
-                    (linksImage, textWithoutLinkImage, mutableAttributedString) = parseText(text)
+                    (linksImage, textWithoutLinkImage) = parseText(text)
                     for link in linksImage {
                         text = text.replacingOccurrences(of: link, with: "")
                         if let messageImageLink = UDSocketResponse.parseFileMessageDic(message, withImageUrl: link) {
@@ -251,7 +249,7 @@ class UDSocketResponse {
                 if (message["file"] as? [AnyHashable : Any] ) != nil {
                     messageFile = UDSocketResponse.parseFileMessageDic(message)
                 }
-                m = UDSocketResponse.parseMessageDic(message, textWithoutLinkImage: textWithoutLinkImage, attributedString: mutableAttributedString, model: model)
+                m = UDSocketResponse.parseMessageDic(message, textWithoutLinkImage: textWithoutLinkImage, model: model)
             }
             if m != nil && m!.text != "​" {
                 messages.append(m!)
@@ -349,9 +347,8 @@ class UDSocketResponse {
         return m
     }
         
-    class func parseMessageDic(_ mess: [AnyHashable : Any]?, textWithoutLinkImage: String? = nil, attributedString: NSMutableAttributedString? = nil, model: UseDeskModel) -> UDMessage? {
+    class func parseMessageDic(_ mess: [AnyHashable : Any]?, textWithoutLinkImage: String? = nil, model: UseDeskModel) -> UDMessage? {
         let m = UDMessage(text: "", incoming: false)
-        
         let createdAt = mess?["createdAt"] as? String ?? ""
         let dateFormatter = DateFormatter()
         dateFormatter.locale = .current
@@ -383,9 +380,8 @@ class UDSocketResponse {
             }
         }
         m.text = textWithoutLinkImage != nil ? textWithoutLinkImage! : mess?["text"] as? String ?? ""
-        m.attributedString = attributedString
         if m.incoming {
-            let stringsFromButtons = parseMessageFromButtons(text: m.attributedString != nil ? m.attributedString!.string : m.text)
+            let stringsFromButtons = parseMessageFromButtons(text: m.text)
             for stringFromButton in stringsFromButtons {
                 let button = buttonFromString(stringButton: stringFromButton)
                 var textButton = ""
@@ -396,11 +392,7 @@ class UDSocketResponse {
                         textButton += button!.title
                     }
                 }
-                if m.attributedString != nil {
-                    m.attributedString!.mutableString.replaceOccurrences(of: stringFromButton, with: textButton, options: .caseInsensitive, range: NSRange(location: 0, length: m.attributedString!.length))
-                } else {
-                    m.text = m.text.replacingOccurrences(of: stringFromButton, with: textButton)
-                }
+                m.text = m.text.replacingOccurrences(of: stringFromButton, with: textButton)
             }
             for index in 0..<m.buttons.count {
                 let invertIndex = (m.buttons.count - 1) - index
@@ -468,31 +460,20 @@ class UDSocketResponse {
         return stringsFromButton
     }
     
-    private class func parseText(_ textPars: String) -> ([String], String?, NSMutableAttributedString?) {
+    private class func parseText(_ textPars: String) -> ([String], String?) {
         var text = textPars
         text = text.udRemoveFirstSymbol(with: "\u{200b}")
         text = text.udRemoveFirstSymbol(with: "\n")
         text = text.udRemoveLastSymbol(with: "\u{200b}")
         text = text.udRemoveLastSymbol(with: "\n")
         let textBeforeRemoveMarkdownUrls = text
-        var mutableAttributedString: NSMutableAttributedString? = nil
         var textWithoutLinkImage: String? = nil
         let linksImage = text.udRemoveMarkdownUrlsAndReturnLinks()
         textWithoutLinkImage = text
-        if text.count > 0 {
-            text = text.replacingOccurrences(of: "\n", with: "<№;%br>")
-            let down = Down(markdownString: text)
-            if let attributedString = try? down.toAttributedString() {
-                let paragraphStyle = NSMutableParagraphStyle()
-                mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
-                mutableAttributedString!.addAttributes([.paragraphStyle : paragraphStyle], range: NSRange(location: 0, length: mutableAttributedString!.length))
-                mutableAttributedString!.mutableString.replaceCharacters(in: NSRange(location: mutableAttributedString!.length - 1, length: 1), with: "")
-                mutableAttributedString!.mutableString.replaceOccurrences(of: "<№;%br>", with: "\n", options: .caseInsensitive, range: NSRange(location: 0, length: mutableAttributedString!.length))
-            }
-        } else if linksImage.count == 0 {
+        if linksImage.count == 0 {
             textWithoutLinkImage = textBeforeRemoveMarkdownUrls
         }
-        return (linksImage, textWithoutLinkImage, mutableAttributedString)
+        return (linksImage, textWithoutLinkImage)
     }
     
     private class func buttonFromString(stringButton: String) -> UDMessageButton? {

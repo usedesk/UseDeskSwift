@@ -3,6 +3,7 @@
 
 import UIKit
 import AsyncDisplayKit
+import MarkdownKit
 
 protocol UDFeedbackMessageCellNodeDelegate: AnyObject {
     func feedbackAction(indexPath: IndexPath, feedback: Bool)
@@ -31,11 +32,9 @@ class UDFeedbackMessageCellNode: UDMessageCellNode {
         
         var attributedString = NSMutableAttributedString()
         let messageStyle = configurationStyle.messageStyle
-        if message.attributedString != nil {
-            attributedString = message.attributedString!
-        } else {
-            attributedString = NSMutableAttributedString(string: message.text)
-        }
+        let markdownParser = MarkdownParser(font: messageStyle.font, color: message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor)
+        markdownParser.link.color = message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor
+        attributedString = NSMutableAttributedString(attributedString: markdownParser.parse(message.text))
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
         paragraphStyle.lineBreakMode = .byWordWrapping

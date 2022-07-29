@@ -86,6 +86,7 @@ class DialogflowView: UDMessagesView {
                     wSelf.addMessage(message)
                 }
                 wSelf.sendOtherMessages()
+                wSelf.isScrollChatToBottom = true
             })
         }
         
@@ -193,12 +194,14 @@ class DialogflowView: UDMessagesView {
     }
     
     // MARK: - Message methods
-    func addMessage(_ message: UDMessage) {
+    func addMessage(_ message: UDMessage, incoming: Bool = false) {
         DispatchQueue.main.async(execute: { [weak self] in
             guard let wSelf = self else {return}
             wSelf.allMessages.append(message)
-            wSelf.newMessagesIds.append(message.id)
-            wSelf.updateCountNewMessagesView()
+            if !incoming {
+                wSelf.newMessagesIds.append(message.id)
+                wSelf.updateCountNewMessagesView()
+            }
             var isNewSection = true
             if wSelf.messagesWithSection.count > 0 {
                 if wSelf.messagesWithSection[0].count > 0 {
@@ -256,6 +259,9 @@ class DialogflowView: UDMessagesView {
                         cellNode.layoutIfNeeded()
                     }
                 }
+            }
+            if incoming {
+                wSelf.scrollChatToStart()
             }
         })
     }
@@ -463,7 +469,7 @@ class DialogflowView: UDMessagesView {
             if let id = usedesk?.networkManager?.newIdLoadingMessages() {
                 firstMessage.loadingMessageId = id
             }
-            addMessage(firstMessage)
+            addMessage(firstMessage, incoming: true)
             sendMessage(firstMessage)
             draftMessages.removeFirst()
         }
@@ -472,7 +478,7 @@ class DialogflowView: UDMessagesView {
                 if let id = usedesk?.networkManager?.newIdLoadingMessages() {
                     message.loadingMessageId = id
                 }
-                addMessage(message)
+                addMessage(message, incoming: true)
                 queueOfSendMessages.append(message)
             }
         }
