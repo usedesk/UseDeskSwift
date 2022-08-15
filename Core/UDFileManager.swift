@@ -9,6 +9,12 @@ import Alamofire
 import Photos
 import CommonCrypto
 
+enum UDFileType {
+    case image
+    case video
+    case file
+}
+
 class UDFileManager: NSObject {
     class func downloadFile(indexPath: IndexPath, urlPath: String, name: String, extansion: String, successBlock: @escaping (IndexPath, URL)->(), errorBlock: (_ error: String) -> Void) {
         if let url = URL(string: urlPath) {

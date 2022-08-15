@@ -374,15 +374,24 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         }
     }
     
-    func indexPathForMessage(at id: Int) -> IndexPath? {
+    func indexPathForMessage(at id: Int, isFile: Bool? = nil) -> IndexPath? {
         var section = 0
         var row = 0
         var flag = true
         while section < messagesWithSection.count && flag {
             while row < messagesWithSection[section].count && flag {
+                let indexPath = IndexPath(row: row, section: section)
                 if messagesWithSection[section][row].id == id {
-                    flag = false
-                    return IndexPath(row: row, section: section)
+                    if isFile != nil {
+                        let isFileCurrentMessage = tableNode.nodeForRow(at: indexPath) is UDPictureMessageCellNode || tableNode.nodeForRow(at: indexPath) is UDVideoMessageCellNode || tableNode.nodeForRow(at: indexPath) is UDFileMessageCellNode
+                        if isFile! && isFileCurrentMessage {
+                            flag = false
+                            return indexPath
+                        }
+                    } else {
+                        flag = false
+                        return indexPath
+                    }
                 }
                 row += 1
             }
@@ -529,7 +538,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                     fileExtension = pathExtension
                                 }
                                 guard let wSelf = self else {return}
-                                if let indexPathPicture = wSelf.indexPathForMessage(at: message.id) {
+                                if let indexPathPicture = wSelf.indexPathForMessage(at: message.id, isFile: true) {
                                     wSelf.messagesDidLoadFile.append(message)
                                     message.status = UD_STATUS_SUCCEED
                                     message.file.path = FileManager.default.udWriteDataToCacheDirectory(data: data!, fileExtension: fileExtension) ?? ""
@@ -560,7 +569,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                     if message.file.path == "" && message.file.content != "" {
                         UDFileManager.downloadFile(indexPath: indexPath, urlPath: message.file.content, name: message.file.name, extansion: message.file.typeExtension) { [weak self] (indexPath, url) in
                             guard let wSelf = self else {return}
-                            if let indexPathVideo = wSelf.indexPathForMessage(at: message.id) {
+                            if let indexPathVideo = wSelf.indexPathForMessage(at: message.id, isFile: true) {
                                 wSelf.messagesDidLoadFile.append(message)
                                 message.file.path = url.path
                                 message.file.name = URL(fileURLWithPath: message.file.path).localizedName ?? "Video"
@@ -594,7 +603,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                                             wSelf.messagesDidLoadFile.append(message)
                                             var isFile = true
                                             message.status = UD_STATUS_SUCCEED
-                                            guard let indexPathFile = wSelf.indexPathForMessage(at: message.id) else { return }
+                                            guard let indexPathFile = wSelf.indexPathForMessage(at: message.id, isFile: true) else {return}
                                             if let mimeType = response?.mimeType {
                                                 var fileExtension = ""
                                                 if mimeType.contains("video") {
@@ -1598,7 +1607,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         let countAnySizeFiles = 10
         let countSmallSizeFiles = 40
         for index in indexPath.row..<indexPath.row + countAnySizeFiles {
-            if let cellDownload = tableNode.nodeForRow(at: IndexPath(row: index, section: indexPath.section)) as? UDMessageCellNode {
+            if tableNode.nodeForRow(at: IndexPath(row: index, section: indexPath.section)) is UDPictureMessageCellNode || tableNode.nodeForRow(at: IndexPath(row: index, section: indexPath.section)) is UDVideoMessageCellNode || tableNode.nodeForRow(at: IndexPath(row: index, section: indexPath.section)) is UDFileMessageCellNode {
+                guard let cellDownload = tableNode.nodeForRow(at: IndexPath(row: index, section: indexPath.section)) as? UDMessageCellNode else {break}
                 if !startDownloadFileIds.contains(cellDownload.message.id) {
                     startDownloadFileIds.append(cellDownload.message.id)
                     downloadFile(node: cellDownload)
@@ -1606,7 +1616,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             }
         }
         for index in indexPath.row + countAnySizeFiles..<indexPath.row + countAnySizeFiles + countSmallSizeFiles {
-            if let cellDownload = tableNode.nodeForRow(at: IndexPath(row: index, section: indexPath.section)) as? UDMessageCellNode {
+            if tableNode.nodeForRow(at: IndexPath(row: index, section: indexPath.section)) is UDPictureMessageCellNode || tableNode.nodeForRow(at: IndexPath(row: index, section: indexPath.section)) is UDVideoMessageCellNode || tableNode.nodeForRow(at: IndexPath(row: index, section: indexPath.section)) is UDFileMessageCellNode {
+                guard let cellDownload = tableNode.nodeForRow(at: IndexPath(row: index, section: indexPath.section)) as? UDMessageCellNode else {break}
                 if cellDownload.message.file.sizeValue < 524288 && !startDownloadFileIds.contains(cellDownload.message.id) {
                     startDownloadFileIds.append(cellDownload.message.id)
                     downloadFile(node: cellDownload)

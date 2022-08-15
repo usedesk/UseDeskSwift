@@ -6,12 +6,6 @@
 import UIKit
 import Photos
 
-enum UDFileType {
-    case image
-    case video
-    case file
-}
-
 protocol UDAttachCVCellDelegate: AnyObject {
     func deleteFile(index: Int)
 }
