@@ -381,9 +381,10 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         while section < messagesWithSection.count && flag {
             while row < messagesWithSection[section].count && flag {
                 let indexPath = IndexPath(row: row, section: section)
-                if messagesWithSection[section][row].id == id {
+                let message = messagesWithSection[section][row]
+                if message.id == id {
                     if isFile != nil {
-                        let isFileCurrentMessage = tableNode.nodeForRow(at: indexPath) is UDPictureMessageCellNode || tableNode.nodeForRow(at: indexPath) is UDVideoMessageCellNode || tableNode.nodeForRow(at: indexPath) is UDFileMessageCellNode
+                        let isFileCurrentMessage = message.type == UD_TYPE_PICTURE || message.type == UD_TYPE_VIDEO || message.type == UD_TYPE_File
                         if isFile! && isFileCurrentMessage {
                             flag = false
                             return indexPath

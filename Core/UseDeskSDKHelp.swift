@@ -9,7 +9,7 @@ class UseDeskSDKHelp {
         let payload: [String : Any] = [
             "sdk" : "iOS",
             "type" : "sdk",
-            "version" : "3.1.4",
+            "version" : "3.1.5",
             "message_limit" : countMessagesOnInit
         ] 
         var dic = [
