@@ -15,7 +15,7 @@ protocol TextMessageCellNodeDelegate: AnyObject {
 class UDTextMessageCellNode: UDMessageCellNode {
     
     private var isOutgoing = false
-    private var textMessageNode =  ASTextNode()
+    private var textMessageNode = ASTextNode()
     private var tableButtonsNode = ASTableNode()
     
     weak var delegateText: TextMessageCellNodeDelegate?
@@ -29,12 +29,19 @@ class UDTextMessageCellNode: UDMessageCellNode {
         self.isOutgoing = message.outgoing
         self.message = message
         let messageStyle = configurationStyle.messageStyle
+        let linkColor = message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor
         
         var attributedString = NSMutableAttributedString()
         let markdownParser = MarkdownParser(font: messageStyle.font, color: message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor)
-        markdownParser.link.color = message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor
         attributedString = NSMutableAttributedString(attributedString: markdownParser.parse(message.text))
-
+        attributedString.enumerateAttributes(in: NSRange(0..<attributedString.length), options: []) { (attributes, range, _) -> Void in
+            for (attribute, _) in attributes {
+                if attribute == .link {
+                    attributedString.addAttribute(.foregroundColor, value: linkColor, range: range)
+                    attributedString.addAttribute(.underlineColor, value: linkColor, range: range)
+                }
+            }
+        }
         textMessageNode.attributedText = attributedString
         textMessageNode.isUserInteractionEnabled = true
         textMessageNode.delegate = self

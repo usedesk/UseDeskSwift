@@ -5,6 +5,7 @@
 //
 import Foundation
 import MarkdownKit
+import SwiftSoup
 
 class UDSocketResponse {
     
@@ -466,6 +467,10 @@ class UDSocketResponse {
         text = text.udRemoveFirstSymbol(with: "\n")
         text = text.udRemoveLastSymbol(with: "\u{200b}")
         text = text.udRemoveLastSymbol(with: "\n")
+        do {
+           let doc: Document = try SwiftSoup.parse(text)
+           text = try doc.text()
+        } catch {}
         let textBeforeRemoveMarkdownUrls = text
         var textWithoutLinkImage: String? = nil
         let linksImage = text.udRemoveMarkdownUrlsAndReturnLinks()

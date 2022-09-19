@@ -21,7 +21,7 @@ PODS:
   - Socket.IO-Client-Swift (16.0.1):
     - Starscream (~> 4.0)
   - Starscream (4.0.4)
-  - SwiftyMarkdown (1.2.4)
+  - SwiftSoup (2.4.3)
   - Texture (3.1.0):
     - Texture/AssetsLibrary (= 3.1.0)
     - Texture/Core (= 3.1.0)
@@ -42,12 +42,12 @@ PODS:
     - Texture/Core
   - Texture/Video (3.1.0):
     - Texture/Core
-  - UseDesk_SDK_Swift (3.1.2):
+  - UseDesk_SDK_Swift (3.1.4):
     - Alamofire (~> 5)
     - MarkdownKit
     - ReachabilitySwift
     - Socket.IO-Client-Swift (~> 16.0)
-    - SwiftyMarkdown
+    - SwiftSoup
     - Texture
 
 DEPENDENCIES:
@@ -65,7 +65,7 @@ SPEC REPOS:
     - ReachabilitySwift
     - Socket.IO-Client-Swift
     - Starscream
-    - SwiftyMarkdown
+    - SwiftSoup
     - Texture
 
 EXTERNAL SOURCES:
@@ -82,9 +82,9 @@ SPEC CHECKSUMS:
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   Socket.IO-Client-Swift: c116d6dc9fd6be9c259bacfe143f8725bce7d79e
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
-  SwiftyMarkdown: 7cdec87c6ab5cd9ea0e22ced288e889960649ba5
+  SwiftSoup: 3384f2e618cfc1b3cbc7852c16692fe8de13fb8f
   Texture: 2e8ab2519452515f7f5a520f5a8f7e0a413abfa3
-  UseDesk_SDK_Swift: e2df8e91e75702b829028fd882b58fe5df65725f
+  UseDesk_SDK_Swift: e417f2515e25827c2a1878e008f1d76179b296c0
 
 PODFILE CHECKSUM: 38ca86b4f5802b67eb523063e3dd15ab9ab41411
 
