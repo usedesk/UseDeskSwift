@@ -605,15 +605,15 @@ public struct MessageButtonStyle {
                 textFont: UIFont = UIFont.systemFont(ofSize: 15),
                 cornerRadius: CGFloat = 8,
                 spacing: CGFloat = 8,
-                height: CGFloat = 36,
+                minHeight: CGFloat = 36,
                 margin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 8, right: 6),
-                maximumLine: Int = 1) {
+                maximumLine: Int = 3) {
         self.color = color ?? UIColor(hexString: "333333")
         self.textColor = textColor ?? UIColor(hexString: "FFFFFF")
         self.textFont = textFont
         self.cornerRadius = cornerRadius
         self.spacing = spacing
-        self.minHeight = height
+        self.minHeight = minHeight
         self.margin = margin
         self.maximumLine = maximumLine
     }

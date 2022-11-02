@@ -118,6 +118,17 @@ extension String {
         return resultString
     }
     
+    func udRemoveFirstAndLastLineBreaksAndSpaces() -> String {
+        var resultString = self
+        while resultString.first == " " || resultString.first == "\n" || resultString.last == " " || resultString.last == "\n" {
+            resultString = resultString.udRemoveFirstSymbol(with: "\n")
+            resultString = resultString.udRemoveFirstSymbol(with: " ")
+            resultString = resultString.udRemoveLastSymbol(with: "\n")
+            resultString = resultString.udRemoveLastSymbol(with: " ")
+        }
+        return resultString
+    }
+    
     mutating func udRemoveMarkdownUrlsAndReturnLinks() -> [String] {
         var links: [String] = []
         var count = 0
@@ -172,6 +183,33 @@ extension String {
             count += 1
         }
         return links
+    }
+    
+    mutating func udConvertUrls() {
+        var count = 0
+        var flag = true
+        while count < 9000 && flag {
+            if let range = self.range(of: "<http") {
+                let startIndex = range.lowerBound
+                var isFindEnd = false
+                var index = 0
+                while !isFindEnd {
+                    if let searchEndIndex = self.index(startIndex, offsetBy: index, limitedBy: self.endIndex) {
+                        if self[searchEndIndex] == ">" {
+                            isFindEnd = true
+                            self = self.replacingOccurrences(of: self[searchEndIndex...searchEndIndex], with: "")
+                            self = self.replacingOccurrences(of: self[startIndex...startIndex], with: "")
+                        }
+                    } else {
+                        isFindEnd = true
+                    }
+                    index += 1
+                }
+            } else {
+                flag = false
+            }
+            count += 1
+        }
     }
 
     private func singleLineHeight(attributes: [NSAttributedString.Key : Any]) -> CGFloat {

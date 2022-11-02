@@ -83,16 +83,8 @@ class UDTextMessageCellNode: UDMessageCellNode {
             let insetSpec = ASInsetLayoutSpec(insets: messageButtonStyle.margin, child: tableButtonsNode)
             tableButtonsNode.style.minWidth = ASDimensionMakeWithPoints(60000.0)
             var height: CGFloat = 0 // height tableButtonsNode
-            let heightLine = "1".size(availableWidth: sizeMessagesManager.maxWidthBubbleMessage - messageButtonStyle.margin.left - messageButtonStyle.margin.right, attributes: [.font : messageButtonStyle.textFont, .foregroundColor : messageButtonStyle.textColor]).height
             for index in 0..<message.buttons.count {
-                let heightTitle = message.buttons[index].title.size(availableWidth: sizeMessagesManager.maxWidthBubbleMessage - messageButtonStyle.margin.left - messageButtonStyle.margin.right - 16, attributes: [.font : messageButtonStyle.textFont, .foregroundColor : messageButtonStyle.textColor]).height
-                if (heightTitle / heightLine).rounded(.up) > CGFloat(messageButtonStyle.maximumLine) {
-                    height += heightLine * CGFloat(messageButtonStyle.maximumLine)
-                } else {
-                    height += heightTitle
-                }
-                height += 16
-                height += messageButtonStyle.spacing
+                height += heightNodeCellButton(for: IndexPath(row: index, section: 0))
             }
             height += messageButtonStyle.margin.top + messageButtonStyle.margin.bottom
             tableButtonsNode.style.minHeight = ASDimensionMakeWithPoints(height)
@@ -115,6 +107,31 @@ class UDTextMessageCellNode: UDMessageCellNode {
     
     @objc func longPressTextAction() {
         delegateText?.longPressText(text: message.text)
+    }
+    
+    func heightNodeCellButton(for indexPath: IndexPath) -> CGFloat {
+        let messageButtonStyle = configurationStyle.messageButtonStyle
+        let sizeMessagesManager = UDSizeMessagesManager(messagesView: messagesView, message: message, indexPath: indexPath, configurationStyle: configurationStyle)
+        
+        var heightButton: CGFloat = 0
+        
+        let widthTitle = sizeMessagesManager.maxWidthBubbleMessage - messageButtonStyle.margin.left - messageButtonStyle.margin.right - 16
+        let heightLine = "1".size(attributes: [.font : messageButtonStyle.textFont]).height
+        let heightTitle = message.buttons[indexPath.row].title.size(availableWidth: widthTitle, attributes: [.font : messageButtonStyle.textFont]).height
+
+        if (heightTitle / heightLine).rounded(.up) > CGFloat(messageButtonStyle.maximumLine) {
+            heightButton += heightLine * CGFloat(messageButtonStyle.maximumLine)
+        } else {
+            heightButton += heightTitle
+        }
+        
+        heightButton += 16
+        heightButton = heightButton < messageButtonStyle.minHeight ? messageButtonStyle.minHeight : heightButton
+        if indexPath.row != 0 {
+            heightButton += messageButtonStyle.spacing
+        }
+        
+        return heightButton
     }
 }
 
@@ -150,9 +167,9 @@ extension UDTextMessageCellNode: ASTableDelegate, ASTableDataSource {
     }
     
     func tableNode(_ tableNode: ASTableNode, constrainedSizeForRowAt indexPath: IndexPath) -> ASSizeRange {
-        let messageButtonStyle = configurationStyle.messageButtonStyle
-        let min = CGSize(width: UIScreen.main.bounds.size.width, height: indexPath.row == 0 ? messageButtonStyle.minHeight : messageButtonStyle.minHeight + messageButtonStyle.spacing)
-        let max = CGSize(width: UIScreen.main.bounds.size.width, height: indexPath.row == 0 ? (messageButtonStyle.minHeight * CGFloat(messageButtonStyle.maximumLine)) : (messageButtonStyle.minHeight * CGFloat(messageButtonStyle.maximumLine)) + messageButtonStyle.spacing)
+        let heightButton = heightNodeCellButton(for: indexPath)
+        let min = CGSize(width: UIScreen.main.bounds.size.width, height: heightButton)
+        let max = CGSize(width: UIScreen.main.bounds.size.width, height: heightButton)
         return ASSizeRange(min: min, max: max)
     }
 }

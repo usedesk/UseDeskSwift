@@ -178,8 +178,6 @@ class UDSocketResponse {
             var m: UDMessage? = nil
             var messageFile: UDMessage? = nil
             var messagesImageLink: [UDMessage] = []
-            
-            var mutableAttributedString: NSMutableAttributedString? = nil
             var textWithoutLinkImage: String? = nil
             var linksImage: [String] = []
             if var text = message!["text"] as? String {
@@ -235,7 +233,6 @@ class UDSocketResponse {
             var messageFile: UDMessage? = nil
             var messagesImageLink: [UDMessage] = []
             if let message = mess as? [AnyHashable : Any] {
-                var mutableAttributedString: NSMutableAttributedString? = nil
                 var textWithoutLinkImage: String? = nil
                 var linksImage: [String] = []
                 if var text = message["text"] as? String {
@@ -467,6 +464,7 @@ class UDSocketResponse {
         text = text.udRemoveFirstSymbol(with: "\n")
         text = text.udRemoveLastSymbol(with: "\u{200b}")
         text = text.udRemoveLastSymbol(with: "\n")
+        text.udConvertUrls()
         do {
            let doc: Document = try SwiftSoup.parse(text)
            text = try doc.text()

@@ -1026,7 +1026,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 if textInput.text.count == 0 {
                     buttonSend.isEnabled = false // если сообщение отсутствует кнопка не активна
                 } else {
-                    buttonSend.isEnabled = textInput.text.udRemoveFirstSpaces().count != 0 // если сообщение не пустое то кнопка активна
+                    buttonSend.isEnabled = textInput.text.udRemoveFirstAndLastLineBreaksAndSpaces().count != 0 // если сообщение не пустое то кнопка активна
                 }
             }
         }
@@ -1494,11 +1494,12 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     func textViewDidChange(_ textView: UITextView) {
         inputPanelUpdate()
-        if textView.text.udRemoveFirstSpaces().count > 0 {
+        if textView.text.udRemoveFirstAndLastLineBreaksAndSpaces().count > 0 {
+            let text = textView.text.udRemoveFirstAndLastLineBreaksAndSpaces()
             if draftMessages.filter({$0.type == UD_TYPE_TEXT}).count > 0 {
-                draftMessages.filter({$0.type == UD_TYPE_TEXT})[0].text = textView.text
+                draftMessages.filter({$0.type == UD_TYPE_TEXT})[0].text = text
             } else {
-                draftMessages.insert(UDMessage(text: textView.text), at: 0)
+                draftMessages.insert(UDMessage(text: text), at: 0)
             }
         } else {
             if let draftTextMessages = draftMessages.filter({$0.type == UD_TYPE_TEXT}).first {
