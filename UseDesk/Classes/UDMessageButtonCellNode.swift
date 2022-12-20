@@ -13,10 +13,10 @@ class UDMessageButtonCellNode: ASCellNode {
     
     var spacing: CGFloat = 0
     
-    func setCell(titleButton: String, spacing spacingButton: CGFloat = 0) {
+    func setCell(titleButton: String, spacing: CGFloat = 0) {
         self.backgroundColor = .clear
         self.selectionStyle = .none
-        spacing = spacingButton
+        self.spacing = spacing
         let messageButtonStyle = configurationStyle.messageButtonStyle
         let attributedString = NSMutableAttributedString(string: titleButton)
         attributedString.addAttributes([.font : messageButtonStyle.textFont, .foregroundColor : messageButtonStyle.textColor], range: NSRange(location: 0, length: attributedString.length))

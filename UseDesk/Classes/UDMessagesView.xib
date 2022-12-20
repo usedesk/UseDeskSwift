@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES">
     <device id="retina4_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -33,6 +33,11 @@
                 <outlet property="buttonSendLoader" destination="4CI-2b-YLv" id="jUd-S4-cm0"/>
                 <outlet property="buttonSendTC" destination="Wny-R1-Wnx" id="G4k-MO-knW"/>
                 <outlet property="buttonSendWC" destination="mFz-Hz-yj8" id="lhe-gX-5Sh"/>
+                <outlet property="formDoneButton" destination="3ep-yy-ftX" id="RhX-QK-icv"/>
+                <outlet property="formPickerContainerView" destination="7Ku-Ng-uYD" id="1EV-Pw-J2f"/>
+                <outlet property="formPickerContainerViewBC" destination="MxA-0r-Xi1" id="3nz-H5-piT"/>
+                <outlet property="formPickerView" destination="EB5-p7-Nh7" id="g6S-po-lnc"/>
+                <outlet property="formTopView" destination="HgY-Rs-b8e" id="RK9-dL-9LK"/>
                 <outlet property="loader" destination="Gaj-ut-CEu" id="qjz-w9-j0M"/>
                 <outlet property="newMessagesCountLabel" destination="YjN-bt-FBq" id="9ZU-z6-stn"/>
                 <outlet property="newMessagesCountView" destination="FMF-9i-8zf" id="YLQ-Df-ifz"/>
@@ -279,6 +284,43 @@
                         <constraint firstItem="1qA-UU-jB2" firstAttribute="leading" secondItem="vWE-cl-xhX" secondAttribute="leading" constant="10" id="uxk-nv-Ccq"/>
                     </constraints>
                 </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7Ku-Ng-uYD">
+                    <rect key="frame" x="0.0" y="588" width="320" height="260"/>
+                    <subviews>
+                        <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EB5-p7-Nh7">
+                            <rect key="frame" x="0.0" y="44" width="320" height="216"/>
+                        </pickerView>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HgY-Rs-b8e">
+                            <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3ep-yy-ftX">
+                                    <rect key="frame" x="247.5" y="4.5" width="64.5" height="35"/>
+                                    <state key="normal" title="Button"/>
+                                    <buttonConfiguration key="configuration" style="plain" title="Done"/>
+                                    <connections>
+                                        <action selector="formDoneAction:" destination="-1" eventType="touchUpInside" id="1ZA-pa-mNO"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="0.90476190476190477" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="trailing" secondItem="3ep-yy-ftX" secondAttribute="trailing" constant="8" id="hh7-1v-YuT"/>
+                                <constraint firstItem="3ep-yy-ftX" firstAttribute="centerY" secondItem="HgY-Rs-b8e" secondAttribute="centerY" id="tiB-dj-zxx"/>
+                                <constraint firstAttribute="height" constant="44" id="z3e-fO-0pc"/>
+                            </constraints>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <constraints>
+                        <constraint firstItem="EB5-p7-Nh7" firstAttribute="leading" secondItem="7Ku-Ng-uYD" secondAttribute="leading" id="9l0-Pd-Jjt"/>
+                        <constraint firstAttribute="trailing" secondItem="EB5-p7-Nh7" secondAttribute="trailing" id="B9v-dt-APm"/>
+                        <constraint firstAttribute="bottom" secondItem="EB5-p7-Nh7" secondAttribute="bottom" id="GEH-OW-szm"/>
+                        <constraint firstItem="EB5-p7-Nh7" firstAttribute="top" secondItem="HgY-Rs-b8e" secondAttribute="bottom" id="RAz-iG-0M1"/>
+                        <constraint firstItem="HgY-Rs-b8e" firstAttribute="top" secondItem="7Ku-Ng-uYD" secondAttribute="top" id="SsF-Sm-7Lw"/>
+                        <constraint firstItem="HgY-Rs-b8e" firstAttribute="leading" secondItem="7Ku-Ng-uYD" secondAttribute="leading" id="eOd-iV-cwO"/>
+                        <constraint firstAttribute="trailing" secondItem="HgY-Rs-b8e" secondAttribute="trailing" id="t6h-fG-4A1"/>
+                    </constraints>
+                </view>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
@@ -291,13 +333,16 @@
                 <constraint firstAttribute="trailing" secondItem="xuU-RB-86v" secondAttribute="trailing" id="H1D-Pa-OaA"/>
                 <constraint firstItem="Gaj-ut-CEu" firstAttribute="centerX" secondItem="SGa-4e-nkS" secondAttribute="centerX" id="HYf-Yd-5HW"/>
                 <constraint firstAttribute="bottom" secondItem="xuU-RB-86v" secondAttribute="bottom" id="M5j-Eh-ief"/>
+                <constraint firstAttribute="bottom" secondItem="7Ku-Ng-uYD" secondAttribute="bottom" constant="-280" id="MxA-0r-Xi1"/>
                 <constraint firstAttribute="trailing" secondItem="v4h-AJ-Jn3" secondAttribute="trailing" constant="8" id="N0Z-mu-Bcz"/>
                 <constraint firstItem="xuU-RB-86v" firstAttribute="leading" secondItem="PpO-Gc-0B7" secondAttribute="leading" id="P6d-Se-fzz"/>
                 <constraint firstItem="Gaj-ut-CEu" firstAttribute="centerY" secondItem="SGa-4e-nkS" secondAttribute="centerY" id="RsW-Y0-9eK"/>
                 <constraint firstAttribute="bottom" secondItem="vWE-cl-xhX" secondAttribute="bottom" id="Rtg-cg-66a"/>
                 <constraint firstAttribute="trailing" secondItem="SGa-4e-nkS" secondAttribute="trailing" id="VJm-qC-2SS"/>
+                <constraint firstItem="7Ku-Ng-uYD" firstAttribute="leading" secondItem="PpO-Gc-0B7" secondAttribute="leading" id="d2T-9q-3kU"/>
                 <constraint firstItem="FMF-9i-8zf" firstAttribute="bottom" secondItem="v4h-AJ-Jn3" secondAttribute="top" constant="10" id="dXK-Rh-7g3"/>
                 <constraint firstItem="FMF-9i-8zf" firstAttribute="centerX" secondItem="v4h-AJ-Jn3" secondAttribute="centerX" id="g71-9H-QPr"/>
+                <constraint firstAttribute="trailing" secondItem="7Ku-Ng-uYD" secondAttribute="trailing" id="hsC-1k-zep"/>
                 <constraint firstItem="SGa-4e-nkS" firstAttribute="leading" secondItem="PpO-Gc-0B7" secondAttribute="leading" id="yzg-dd-8y5"/>
             </constraints>
             <point key="canvasLocation" x="266.25" y="762.67605633802816"/>

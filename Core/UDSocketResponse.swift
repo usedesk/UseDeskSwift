@@ -162,7 +162,7 @@ class UDSocketResponse {
         }
     }
     
-    public class func actionAddMessage(_ data: [Any]?, newMessageBlock: UDNewMessageBlock?, feedbackMessageBlock: UDFeedbackMessageBlock?, sendAdditionalFieldsBlock: () -> Void, isSendedAdditionalField: Bool,  model: UseDeskModel) {
+    public class func actionAddMessage(_ data: [Any]?, newMessageBlock: UDMessageBlock?, feedbackMessageBlock: UDFeedbackMessageBlock?, sendAdditionalFieldsBlock: () -> Void, isSendedAdditionalField: Bool,  model: UseDeskModel) {
         let dicServer = data?[0] as? [AnyHashable : Any]
         let type = dicServer?["type"] as? String
         if type == nil {
@@ -295,9 +295,8 @@ class UDSocketResponse {
             }
         }
         if let payload = mess?["payload"] as? [AnyHashable : Any] {
-            let avatar = payload["avatar"]
-            if avatar != nil {
-                m.avatar = payload["avatar"] as! String
+            if let avatar = payload["avatar"] as? String {
+                m.avatar = avatar
             }
             if payload["message_id"] != nil {
                 m.loadingMessageId = payload["message_id"] as? String ?? ""
@@ -379,6 +378,7 @@ class UDSocketResponse {
         }
         m.text = textWithoutLinkImage != nil ? textWithoutLinkImage! : mess?["text"] as? String ?? ""
         if m.incoming {
+            //Buttons
             let stringsFromButtons = parseMessageFromButtons(text: m.text)
             for stringFromButton in stringsFromButtons {
                 let button = buttonFromString(stringButton: stringFromButton)
@@ -398,17 +398,23 @@ class UDSocketResponse {
                     m.text = m.buttons[invertIndex].title + " " + m.text
                 }
             }
+            //Forms
+            let (textWithForms, forms) = UDFormMessageManager.parseForms(from: m.text)
+            if forms.count > 0 {
+                m.text = textWithForms.udRemoveFirstAndLastLineBreaksAndSpaces()
+                m.forms = forms
+            }
+            //Name
             m.name = mess?["name"] as? String ?? ""
         }
         
-        if m.text == "" && m.buttons.count == 0 {
+        if m.text == "" && m.buttons.count == 0 && m.forms.count == 0 {
             return nil
         }
         
         if let payload = mess?["payload"] as? [AnyHashable : Any] {
-            let avatar = payload["avatar"]
-            if avatar != nil {
-                m.avatar = payload["avatar"] as! String
+            if let avatar = payload["avatar"] as? String {
+                m.avatar = avatar
             }
             if payload["csi"] != nil {
                 m.type = UD_TYPE_Feedback
@@ -444,7 +450,10 @@ class UDSocketResponse {
                     if (text[indexString] == "}") && (text[secondIndexString] == "}") {
                         characterArrayFromButton.append(text[secondIndexString])
                         isAddingButton = false
-                        stringsFromButton.append(String(characterArrayFromButton))
+                        let stringFromButton = String(characterArrayFromButton)
+                        if !UDFormMessageManager.isForm(string: stringFromButton) {
+                            stringsFromButton.append(stringFromButton)
+                        }
                         characterArrayFromButton = []
                     }
                 } else {

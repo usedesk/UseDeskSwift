@@ -68,6 +68,7 @@ class UDLocalizeManager {
             "Write"                    : "Написать",
             "AttachmentLimit"          : "Прикреплено максимальное количество файлов",
             "Ok"                       : "ОК",
+            "Done"                     : "Готово",
             "Gallery"                  : "Галерея",
             "ErrorLoading"             : "Ошибка загрузки",
             "Loading"                  : "Загрузка",
@@ -84,6 +85,7 @@ class UDLocalizeManager {
             "ExceededMaximumSize"      : "превышает максимальный размер файла в",
             "NotInternet"              : "Нет интернета",
             "NotInternetCheck"         : "Попробуйте отключить режим полета, включить Wi-FI или мобильный интернет и проверить уровень сигнала сети",
+            "Sended"                   : "Отправлено",
             //Статья
             "Send"                     : "Отправить",
             "ArticleReviewTitle"       : "Что не так?",
@@ -139,6 +141,7 @@ class UDLocalizeManager {
             "Write"                    : "Text",
             "AttachmentLimit"          : "Attachment limit reached",
             "Ok"                       : "OK",
+            "Done"                     : "Done",
             "Gallery"                  : "Gallery",
             "ErrorLoading"             : "Error loading",
             "Loading"                  : "Loading",
@@ -155,6 +158,7 @@ class UDLocalizeManager {
             "ExceededMaximumSize"      : "exceeded maximum file size",
             "NotInternet"              : "No Internet",
             "NotInternetCheck"         : "Try turning off airplane mode, turning on Wi-Fi or mobile internet and checking the network signal strength",
+            "Sended"                   : "Sent",
             //Статья
             "Send"                     : "Send",
             "ArticleReviewTitle"       : "What's goes wrong?",
@@ -210,6 +214,7 @@ class UDLocalizeManager {
             "Write"                    : "Escribir",
             "AttachmentLimit"          : "Se alcanzó el límite de archivos adjuntos",
             "Ok"                       : "OK",
+            "Done"                     : "Hecho",
             "Gallery"                  : "Galería",
             "ErrorLoading"             : "Error al cargar",
             "Loading"                  : "Cargando",
@@ -226,6 +231,7 @@ class UDLocalizeManager {
             "ExceededMaximumSize"      : "excedeu o tamanho máximo do arquivo",
             "NotInternet"              : "Sin conexión al internet",
             "NotInternetCheck"         : "Intente apagar el modo avión, encienda Wi-FI o Internet móvil y verifique la intensidad de la señal de la red",
+            "Sended"                   : "Enviado",
             //Статья
             "Send"                     : "Enviar",
             "ArticleReviewTitle"       : "¿Qué va mal?",
@@ -281,6 +287,7 @@ class UDLocalizeManager {
             "Write"                    : "Escrever",
             "AttachmentLimit"          : "Limite de anexos atingido",
             "Ok"                       : "OK",
+            "Done"                     : "Feito",
             "Gallery"                  : "Galeria",
             "ErrorLoading"             : "Erro ao carregar",
             "Loading"                  : "Carregando",
@@ -297,6 +304,7 @@ class UDLocalizeManager {
             "ExceededMaximumSize"      : "superó el tamaño máximo de archivo",
             "NotInternet"              : "Sem internet",
             "NotInternetCheck"         : "Tente desligar o modo avião, ligue o Wi-Fi ou a internet móvel e verifique a força do sinal da rede",
+            "Sended"                   : "Enviado",
             //Статья
             "Send"                     : "Enviar",
             "ArticleReviewTitle"       : "O que há de errado?",

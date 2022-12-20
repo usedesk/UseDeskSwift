@@ -188,6 +188,141 @@ public class UDNetworkManager {
         }, errorBlock: {_,_  in})
     }
     
+    public func getAdditionalFields(for message: UDMessage, successBlock: @escaping UDMessageBlock, errorBlock: @escaping UDErrorBlock) {
+        guard token != nil else {
+            errorBlock(.tokenError, nil)
+            return
+        }
+        var idsAdditionalFields = [Int]()
+        for form in message.forms {
+            if form.type == .additionalField, form.idAdditionalField > 0 {
+                idsAdditionalFields.append(form.idAdditionalField)
+            }
+        }
+        guard idsAdditionalFields.count > 0 else {
+            errorBlock(.null, nil)
+            return
+        }
+        var url = urlBase(isOnlyHost: true)
+        url += "/v1/widget/field_list"
+        var idsString = ""
+        for index in 0..<idsAdditionalFields.count {
+            idsString += "\(idsAdditionalFields[index])"
+            if index != idsAdditionalFields.count - 1 {
+                idsString += ","
+            }
+        }
+        let parameters: [String : Any] = [
+            "chat" : token!,
+            "ids" : idsString
+        ]
+        DispatchQueue.global(qos: .background).async {
+            self.request(url: url, method: .post, parameters: parameters, isJSONEncoding: true, successBlock: {[weak self] response in
+                guard self != nil else {return}
+                let newMessage = message
+                let fields = UDField.parse(from: response, ids: idsAdditionalFields)
+                // create form for childe fields
+                for field in fields {
+                    if let index = newMessage.forms.firstIndex(where: {$0.idAdditionalField == field.id}) {
+                        newMessage.forms[index].field = field
+                        newMessage.forms[index].name = field.name
+                    } else {
+                        let form = UDFormMessage(name: field.name, type: .additionalField, field: field)
+                        if let index = newMessage.forms.firstIndex(where: {$0.idAdditionalField == field.idParentField}) {
+                            newMessage.forms.insert(form, at: index + 1)
+                        } else {
+                            newMessage.forms.append(form)
+                        }
+                    }
+                }
+                var loadedForms: [UDFormMessage] = []
+                for form in newMessage.forms {
+                    if form.type == .additionalField {
+                        if form.field != nil {
+                            loadedForms.append(form)
+                        }
+                    } else {
+                        loadedForms.append(form)
+                    }
+                }
+                newMessage.forms = loadedForms
+                // set required status for additionalField
+                for indexForm in 0..<newMessage.forms.count {
+                    if newMessage.forms[indexForm].type == .additionalField {
+                        if let index = newMessage.forms.firstIndex(where: {$0.idAdditionalField == newMessage.forms[indexForm].field?.idParentField}) {
+                            newMessage.forms[indexForm].isRequired = newMessage.forms[index].isRequired
+                        }
+                    }
+                }
+                successBlock(newMessage)
+            }, errorBlock: { error, description in
+                errorBlock(error, description)
+            })
+        }
+    }
+    
+    public func sendAdditionalFields(for message: UDMessage, successBlock: @escaping UDVoidBlock, errorBlock: @escaping UDErrorBlock) {
+        guard token != nil else {
+            errorBlock(.tokenError, nil)
+            return
+        }
+        var url = urlBase(isOnlyHost: true)
+        url += "/v1/widget/custom_form/save"
+        var formsParameters: [[String : Any]] = []
+        var forms = message.forms
+        while forms.count > 0 {
+            let form = forms[0]
+            forms.remove(at: 0)
+            if form.type == .additionalField, let field = form.field {
+                var formParameters: [String : Any] = ["associate" : form.idAdditionalField]
+                if field.type == .text {
+                    formParameters["value"] = field.value
+                } else if field.type == .checkbox {
+                    formParameters["value"] = field.value == "1" ? "true" : "false"
+                } else if let selectedOptionFirstField = field.selectedOption?.id {
+                    var formsChildeParameters: [[String : Any]] = []
+                    formsChildeParameters.append(["id" : form.field!.id, "value" : String(selectedOptionFirstField)])
+                    var isExistChildeFields = true
+                    var idParentField = form.idAdditionalField
+                    while forms.count > 0 && isExistChildeFields {
+                        if forms[0].field?.idParentField == idParentField {
+                            if let selectedOption = forms[0].field!.selectedOption {
+                                formsChildeParameters.append(["id" : forms[0].field!.id, "value" : String(selectedOption.id)])
+                            }
+                            idParentField = forms[0].idAdditionalField
+                            forms.remove(at: 0)
+                        } else {
+                            isExistChildeFields = false
+                        }
+                    }
+                    if formsChildeParameters.count > 1 {
+                        formParameters["value"] = formsChildeParameters
+                    } else {
+                        formParameters["value"] = String(selectedOptionFirstField)
+                    }
+                }
+                formsParameters.append(formParameters)
+            } else {
+                let formParameters: [String : Any] = [
+                    "associate" : form.type.rawValue,
+                    "required" : form.isRequired,
+                    "value" : form.value
+                ]
+                formsParameters.append(formParameters)
+            }
+        }
+        let parameters: [String : Any] = [
+            "chat" : token!,
+            "form" : formsParameters
+        ]
+        request(url: url, method: .post, parameters: parameters, isJSONEncoding: true, successBlock: {[weak self] response in
+            guard self != nil else {return}
+            successBlock()
+        }, errorBlock: { error, description in
+            errorBlock(error, description)
+        })
+    }
+    
     // MARK: - API Base Methods
     public func getCollections(baseBlock: @escaping UDBaseBlock, errorBlock: @escaping UDErrorBlock) {
         guard UDValidationManager.isValidApiParameters(model: model, errorBlock: errorBlock) else {return}
@@ -389,7 +524,7 @@ public class UDNetworkManager {
         })
     }
     
-    public func socketDispatch(socket: SocketIOClient?, startBlock: @escaping UDStartBlock, historyMessagesBlock: @escaping ([UDMessage]) -> Void, callbackSettingsBlock: @escaping (UDCallbackSettings) -> Void, newMessageBlock: UDNewMessageBlock?, feedbackMessageBlock: UDFeedbackMessageBlock?, feedbackAnswerMessageBlock: UDFeedbackAnswerMessageBlock?) {
+    public func socketDispatch(socket: SocketIOClient?, startBlock: @escaping UDStartBlock, historyMessagesBlock: @escaping ([UDMessage]) -> Void, callbackSettingsBlock: @escaping (UDCallbackSettings) -> Void, newMessageBlock: UDMessageBlock?, feedbackMessageBlock: UDFeedbackMessageBlock?, feedbackAnswerMessageBlock: UDFeedbackAnswerMessageBlock?) {
         socket?.on("dispatch", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
             if data.count == 0 {

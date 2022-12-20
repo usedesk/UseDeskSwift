@@ -31,15 +31,10 @@ class UDMessageCellNode: ASCellNode {
         addSubnode(bubbleSelectingImageNode)
     }
     
-    func updateAnimateLoader() {
-        guard activityIndicator != nil else {return}
-        guard activityIndicator?.alpha == 1 && !(activityIndicator?.isAnimating ?? false) else {return}
-        activityIndicator?.startAnimating()
-    }
-    
-    func bindData(messagesView messagesView_: UDMessagesView?, message : UDMessage, avatarImage: UIImage?) {
+    func bindData(messagesView messagesView_: UDMessagesView?, message : UDMessage) {
         messagesView = messagesView_
         self.message = message
+        configurationStyle = messagesView?.usedesk?.configurationStyle ?? ConfigurationStyle()
         let messageStyle = configurationStyle.messageStyle
         let bubbleStyle = configurationStyle.bubbleStyle
         
@@ -67,7 +62,9 @@ class UDMessageCellNode: ASCellNode {
         notSentImageNode.removeFromSupernode()
         sendedImageNode.removeFromSupernode()
         nameNode.removeFromSupernode()
-        avatarImageNode.image = avatarImage
+        
+        avatarImageNode.image = message.avatarImage ?? configurationStyle.avatarStyle.avatarImageDefault
+        
         if message.outgoing {
             avatarImageNode.style.preferredSize = CGSize.zero
             var imageSended = message.loadingMessageId != "" ? messageStyle.sendStatusImage : messageStyle.sendedStatusImage
@@ -105,6 +102,16 @@ class UDMessageCellNode: ASCellNode {
         }
         timeNode.attributedText = NSAttributedString(string: message.date.time, attributes : [.foregroundColor: timeColor, .font: messageStyle.timeFont])
         addSubnode(timeNode)
+    }
+    
+    public func updateAnimateLoader() {
+        guard activityIndicator != nil else {return}
+        guard activityIndicator?.alpha == 1 && !(activityIndicator?.isAnimating ?? false) else {return}
+        activityIndicator?.startAnimating()
+    }
+    
+    public func setAvatarImage(_ avatarImage: UIImage) {
+        avatarImageNode.image = avatarImage
     }
     
     public func startSelectionAnimate() {

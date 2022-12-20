@@ -149,7 +149,7 @@ extension String {
                                             // add link
                                             if let startLinkIndex = self.index(searchEndIndex, offsetBy: +1, limitedBy: self.endIndex) {
                                                 if let endLinkIndex = self.index(searchIndex, offsetBy: -1, limitedBy: self.startIndex) {
-                                                    if endLinkIndex > startLinkIndex {
+                                                    if endLinkIndex > startLinkIndex, endLinkIndex < self.endIndex, startLinkIndex < self.endIndex {
                                                         links.append(String(self[startLinkIndex...endLinkIndex]))
                                                     }
                                                 }

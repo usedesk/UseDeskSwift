@@ -60,31 +60,5 @@ class UDSizeMessagesManager: NSObject {
         maxWidthBubbleMessageDimension = ASDimensionMakeWithPoints(maxWidthBubbleMessage)
     }
     
-    func sizeImageMessageFrom(size: CGSize) -> CGSize {
-        var heightPicture = size.height
-        var widthPicture = size.width
-        if heightPicture > 0 && widthPicture > 0 {
-            let maxWidth = MAX_WIDTH_MESSAGE - configurationStyle.avatarStyle.margin.left - configurationStyle.avatarStyle.margin.right - configurationStyle.avatarStyle.avatarDiameter - configurationStyle.bubbleStyle.marginAfter
-            if widthPicture > maxWidth {
-                while widthPicture > maxWidth {
-                    widthPicture = widthPicture * 0.95
-                    if heightPicture > configurationStyle.bubbleStyle.bubbleHeightMin {
-                        heightPicture = heightPicture * 0.95
-                    }
-                }
-            } else if widthPicture < configurationStyle.bubbleStyle.bubbleWidthMin {
-                while widthPicture < configurationStyle.bubbleStyle.bubbleWidthMin {
-                    widthPicture = widthPicture * 1.05
-                    if heightPicture < configurationStyle.bubbleStyle.bubbleWidthMin {
-                        heightPicture = heightPicture * 1.05
-                    }
-                }
-            }
-            return CGSize(width: widthPicture, height: heightPicture)
-        } else {
-            return CGSize(width: configurationStyle.pictureStyle.sizeDefault.width, height: configurationStyle.pictureStyle.sizeDefault.height)
-        }
-    }
-    
 }
 

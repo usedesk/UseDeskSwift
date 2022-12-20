@@ -25,10 +25,11 @@ class UDFileMessageCellNode: UDMessageCellNode {
         bubbleImageNode.addTarget(self, action: #selector(self.actionTapBubble), forControlEvents: .touchUpInside)
     }
     
-    override func bindData(messagesView messagesView_: UDMessagesView?, message : UDMessage, avatarImage: UIImage?) {
+    override func bindData(messagesView messagesView_: UDMessagesView?, message : UDMessage) {
         guard usedesk != nil else {return}
         messagesView = messagesView_
         self.message = message
+        configurationStyle = messagesView?.usedesk?.configurationStyle ?? ConfigurationStyle()
         let fileStyle = configurationStyle.fileStyle
         let messageStyle = configurationStyle.messageStyle
         
@@ -75,7 +76,7 @@ class UDFileMessageCellNode: UDMessageCellNode {
             addSubnode(loaderNode)
         }
         
-        super.bindData(messagesView: messagesView, message: message, avatarImage: avatarImage)
+        super.bindData(messagesView: messagesView, message: message)
         
         var timeBlockWidth = messageStyle.timeMargin.left + (timeNode.attributedText?.size().width ?? 0)
         if message.outgoing {

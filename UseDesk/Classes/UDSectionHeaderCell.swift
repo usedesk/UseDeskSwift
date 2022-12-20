@@ -22,6 +22,7 @@ class UDSectionHeaderCell: UIView {
         labelSectionHeader.textColor = configurationStyle.sectionHeaderStyle.textColor
         self.addSubview(labelSectionHeader)
         labelSectionHeader.textAlignment = .center
+        isUserInteractionEnabled = false
     }
     
     override func layoutSubviews() {

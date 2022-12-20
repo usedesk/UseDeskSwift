@@ -213,24 +213,24 @@ public class UDValidationManager {
         return true
     }
     
+    class func isValidPhone(phone:String) -> Bool {
+       do {
+           let detector = try NSDataDetector(types: NSTextCheckingResult.CheckingType.phoneNumber.rawValue)
+           let matches = detector.matches(in: phone, options: [], range: NSMakeRange(0, phone.count))
+           if let res = matches.first {
+               return res.resultType == .phoneNumber && res.range.location == 0 && res.range.length == phone.count
+           } else {
+               return false
+           }
+       } catch {
+           return false
+       }
+   }
+    
     // MARK: - Private Methods
     private class func isValidSite(path: String) -> Bool {
         let urlRegEx = "^(https?://)?(www\\.)?([-a-z0-9]{1,63}\\.)*?[a-z0-9][-a-z0-9]{0,61}[a-z0-9]\\.[a-z]{2,6}(/[-\\w@\\+\\.~#\\?&/=%]*)?$"
         return NSPredicate(format: "SELF MATCHES %@", urlRegEx).evaluate(with: path)
-    }
-    
-    private class func isValidPhone(phone:String) -> Bool {
-        do {
-            let detector = try NSDataDetector(types: NSTextCheckingResult.CheckingType.phoneNumber.rawValue)
-            let matches = detector.matches(in: phone, options: [], range: NSMakeRange(0, phone.count))
-            if let res = matches.first {
-                return res.resultType == .phoneNumber && res.range.location == 0 && res.range.length == phone.count
-            } else {
-                return false
-            }
-        } catch {
-            return false
-        }
     }
     
     private class func isExistProtocol(url: String) -> Bool {

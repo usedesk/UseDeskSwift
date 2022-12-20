@@ -24,9 +24,10 @@ class UDVideoMessageCellNode: UDMessageCellNode {
         playNode.addTarget(self, action: #selector(self.actionTapBubble), forControlEvents: .touchUpInside)
     }
     
-    override func bindData(messagesView messagesView_: UDMessagesView?, message : UDMessage, avatarImage: UIImage?) {
+    override func bindData(messagesView messagesView_: UDMessagesView?, message : UDMessage) {
         messagesView = messagesView_
         self.message = message
+        configurationStyle = messagesView?.usedesk?.configurationStyle ?? ConfigurationStyle()
         let videoStyle = configurationStyle.videoStyle
         isPictureOrVideoType = true
         
@@ -92,7 +93,7 @@ class UDVideoMessageCellNode: UDMessageCellNode {
         addSubnode(playNode)
         addSubnode(loaderNode)
         
-        super.bindData(messagesView: messagesView, message: message, avatarImage: avatarImage)
+        super.bindData(messagesView: messagesView, message: message)
         
         if !videoStyle.isNeedBubble {
             bubbleImageNode.image = nil

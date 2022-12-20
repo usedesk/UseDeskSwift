@@ -7,8 +7,8 @@ import UserNotifications
 import Reachability
 
 public class UseDeskSDK: NSObject {
-    @objc public var newMessageBlock: UDNewMessageBlock?
-    @objc public var newMessageWithGUIBlock: UDNewMessageBlock?
+    @objc public var newMessageBlock: UDMessageBlock?
+    @objc public var newMessageWithGUIBlock: UDMessageBlock?
     @objc public var connectBlock: UDConnectBlock?
     @objc public var feedbackMessageBlock: UDFeedbackMessageBlock?
     @objc public var feedbackAnswerMessageBlock: UDFeedbackAnswerMessageBlock?

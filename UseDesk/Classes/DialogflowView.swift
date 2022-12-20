@@ -341,23 +341,6 @@ class DialogflowView: UDMessagesView {
         }
     }
     
-    // MARK: - Avatar methods
-    override func avatarImage(_ indexPath: IndexPath?) -> UIImage {
-        guard indexPath != nil else {return UIImage.named("udAvatarOperator")}
-        let message = messagesWithSection[indexPath!.section][indexPath!.row]
-        var image: UIImage? = nil
-        do {
-            if  URL(string: message.avatar) != nil {
-                let anAvatar = URL(string: message.avatar)
-                let anAvatar1 = try Data(contentsOf: anAvatar!)
-                image = UIImage(data: anAvatar1)
-            } else {
-                return UIImage.named("udAvatarOperator")
-            }
-        } catch {}
-        return image ?? UIImage.named("udAvatarOperator")
-    }
-    
     // MARK: - Header, Footer methods
     override func menuItems(_ indexPath: IndexPath?) -> [Any]? {
         guard usedesk != nil else {return nil}
@@ -558,7 +541,7 @@ class DialogflowView: UDMessagesView {
             let repeatAction = UIAlertAction(title: usedesk!.model.stringFor("SendAgain"), style: .default, handler: { [weak self] (alert: UIAlertAction!) in
                 guard let wSelf = self else {return}
                 let message = wSelf.messagesWithSection[indexPath.section][indexPath.row]
-                wSelf.usedesk!.storage?.removeMessage(message)
+                wSelf.usedesk!.storage?.removeMessage([message])
                 message.statusSend = UD_STATUS_SEND_DRAFT
                 DispatchQueue.main.async {
                     if let index = wSelf.failMessages.firstIndex(where: {$0.loadingMessageId == message.loadingMessageId}) {
@@ -575,10 +558,15 @@ class DialogflowView: UDMessagesView {
             
             let removeAction = UIAlertAction(title: usedesk!.model.stringFor("DeleteMessage"), style: .destructive, handler: { [weak self] (alert: UIAlertAction!)  in
                 guard let wSelf = self else {return}
-                if let removeMessage = wSelf.allMessages.filter({ $0.loadingMessageId == wSelf.messagesWithSection[indexPath.section][indexPath.row].loadingMessageId}).first {
+                let deleteMessage = wSelf.messagesWithSection[indexPath.section][indexPath.row]
+                if let removeMessage = wSelf.allMessages.filter({ $0.loadingMessageId == deleteMessage.loadingMessageId}).first {
                     if let index = wSelf.allMessages.firstIndex(of: removeMessage) {
                         wSelf.allMessages.remove(at: index)
                     }
+                }
+                wSelf.usedesk!.storage?.removeMessage([deleteMessage])
+                if let index = wSelf.failMessages.firstIndex(where: {$0.loadingMessageId == deleteMessage.loadingMessageId}) {
+                    wSelf.failMessages.remove(at: index)
                 }
                 wSelf.messagesWithSection[indexPath.section].remove(at: indexPath.row)
                 DispatchQueue.main.async(execute: { [weak self] in

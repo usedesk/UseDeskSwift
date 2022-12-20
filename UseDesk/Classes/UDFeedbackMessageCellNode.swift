@@ -23,10 +23,11 @@ class UDFeedbackMessageCellNode: UDMessageCellNode {
         super.init()
     }
     
-    override func bindData(messagesView messagesView_: UDMessagesView?, message : UDMessage, avatarImage: UIImage?) {
+    override func bindData(messagesView messagesView_: UDMessagesView?, message : UDMessage) {
         messagesView = messagesView_
         self.message = message
         self.isOutgoing = message.outgoing
+        configurationStyle = messagesView?.usedesk?.configurationStyle ?? ConfigurationStyle()
         let feedbackMessageStyle = configurationStyle.feedbackMessageStyle
         feedbackAction = message.feedbackAction
         
@@ -79,7 +80,7 @@ class UDFeedbackMessageCellNode: UDMessageCellNode {
             likeButtonNode.alpha = 1
             dislikeButtonNode.alpha = 1
         }
-        super.bindData(messagesView: messagesView, message: message, avatarImage: avatarImage)
+        super.bindData(messagesView: messagesView, message: message)
     }
     
     override public func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
