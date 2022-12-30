@@ -86,6 +86,7 @@ class UDLocalizeManager {
             "NotInternet"              : "Нет интернета",
             "NotInternetCheck"         : "Попробуйте отключить режим полета, включить Wi-FI или мобильный интернет и проверить уровень сигнала сети",
             "Sended"                   : "Отправлено",
+            "NotSelected"              : "Не выбрано",
             //Статья
             "Send"                     : "Отправить",
             "ArticleReviewTitle"       : "Что не так?",
@@ -159,6 +160,7 @@ class UDLocalizeManager {
             "NotInternet"              : "No Internet",
             "NotInternetCheck"         : "Try turning off airplane mode, turning on Wi-Fi or mobile internet and checking the network signal strength",
             "Sended"                   : "Sent",
+            "NotSelected"              : "Not selected",
             //Статья
             "Send"                     : "Send",
             "ArticleReviewTitle"       : "What's goes wrong?",
@@ -232,6 +234,7 @@ class UDLocalizeManager {
             "NotInternet"              : "Sin conexión al internet",
             "NotInternetCheck"         : "Intente apagar el modo avión, encienda Wi-FI o Internet móvil y verifique la intensidad de la señal de la red",
             "Sended"                   : "Enviado",
+            "NotSelected"              : "No seleccionado",
             //Статья
             "Send"                     : "Enviar",
             "ArticleReviewTitle"       : "¿Qué va mal?",
@@ -305,6 +308,7 @@ class UDLocalizeManager {
             "NotInternet"              : "Sem internet",
             "NotInternetCheck"         : "Tente desligar o modo avião, ligue o Wi-Fi ou a internet móvel e verifique a força do sinal da rede",
             "Sended"                   : "Enviado",
+            "NotSelected"              : "Não selecionado",
             //Статья
             "Send"                     : "Enviar",
             "ArticleReviewTitle"       : "O que há de errado?",

@@ -20,7 +20,7 @@ class UDMessageFormListCellNode: UDMessageFormCellNode {
         backgroundNode.backgroundColor = isUserInteractionEnabled ? messageFormStyle.textFormBackgroundColor : messageFormStyle.textFormUnavailableBackgroundColor
         
         let attributedString = NSMutableAttributedString(string: form.field?.selectedOption != nil ? form.field!.selectedOption!.value : form.name)
-        attributedString.addAttributes([.font : messageFormStyle.textFormTextFont, .foregroundColor : status == .inputable ? messageFormStyle.textFormTextColor : messageFormStyle.textFormUnavailableColor], range: NSRange(location: 0, length: attributedString.length))
+        attributedString.addAttributes([.font : messageFormStyle.textFormTextFont, .foregroundColor : status == .inputable ? messageFormStyle.textFormTextColor : messageFormStyle.textFormTextUnavailableColor], range: NSRange(location: 0, length: attributedString.length))
         if form.isRequired && form.field?.selectedOption == nil {
             let requiredAttributedString = NSMutableAttributedString(string: "*")
             requiredAttributedString.addAttributes([.font : messageFormStyle.textFormTextFont, .foregroundColor : messageFormStyle.textFormTextRequiredColor], range: NSRange(location: 0, length: requiredAttributedString.length))

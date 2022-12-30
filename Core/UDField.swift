@@ -52,12 +52,15 @@ public class UDField: NSObject, Codable {
                     guard let list = fieldJson["list"] as? [String:Any] else {
                         break
                     }
+                    var fieldsList: [UDField] = []
                     for fieldList in list {
                         if let fieldJsonItem = fieldList.value as? [String:Any] {
                             let field = parseField(json: fieldJsonItem)
-                            fields.append(field)
+                            fieldsList.append(field)
                         }
                     }
+                    fieldsList = fieldsList.sorted{$0.id < $1.id}
+                    fields += fieldsList
                 } else {
                     fields.append(parseField(json: fieldJson))
                 }
@@ -137,6 +140,11 @@ public class UDField: NSObject, Codable {
     
     override init() {
         super.init()
+    }
+    
+    init(id: Int, value: String) {
+        self.id = id
+        self.value = value
     }
     
     // MARK: - Codable methods

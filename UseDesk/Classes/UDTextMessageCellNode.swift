@@ -129,7 +129,7 @@ class UDTextMessageCellNode: UDMessageCellNode {
         let titleSendFormButton = message.statusForms == .sended ? messagesView?.usedesk?.model.stringFor("Sended") ?? "Sended" : messagesView?.usedesk?.model.stringFor("Send") ?? "Send"
         sendFormButton.setTitle(titleSendFormButton, with: messageFormStyle.sendFormButtonFont, with: messageFormStyle.sendFormButtonTitleColor, for: .normal)
         sendFormButton.setTitle(titleSendFormButton, with: messageFormStyle.sendFormButtonFont, with: messageFormStyle.sendFormButtonTitleTouchedColor, for: .highlighted)
-        sendFormButton.backgroundColor = message.statusForms == .inputable ? messageFormStyle.sendFormButtonColor : messageFormStyle.sendFormButtonSendedColor
+        sendFormButton.backgroundColor = message.statusForms == .inputable ? messageFormStyle.sendFormButtonColor : messageFormStyle.sendFormButtonUnavailableColor
         sendFormButton.isUserInteractionEnabled = true
     }
     
@@ -180,7 +180,7 @@ class UDTextMessageCellNode: UDMessageCellNode {
                     }
                 case .list:
                     if let cell = tableFormsNode.nodeForRow(at: indexPath) as? UDMessageFormListCellNode {
-                        cell.setCell(form: form, spacing: indexPath.row == 0 ? 0 : messageFormStyle.spacing, index: indexPath.row, status: message.statusForms)
+                        cell.setCell(form: form, spacing: indexPath.row == 0 ? 0 : messageFormStyle.spacing, index: indexPath.row, status: isFormListEnableForSelect(form: form) ? message.statusForms : .loading)
                     }
                 case .none:
                     if let cell = tableFormsNode.nodeForRow(at: indexPath) as? UDMessageFormTextCellNode {
@@ -192,6 +192,19 @@ class UDTextMessageCellNode: UDMessageCellNode {
                     cell.setCell(form: form, spacing: indexPath.row == 0 ? 0 : messageFormStyle.spacing, index: indexPath.row, status: message.statusForms)
                 }
             }
+        }
+    }
+    
+    private func isFormListEnableForSelect(form: UDFormMessage) -> Bool {
+        guard let idParentField = form.field?.idParentField else {return false}
+        if idParentField > 0 {
+            if let parentForm = message.forms.filter({$0.field?.id ?? 0 == idParentField}).first, parentForm.field?.selectedOption != nil {
+                return true
+            } else {
+                return false
+            }
+        } else {
+            return true
         }
     }
     
@@ -253,6 +266,7 @@ class UDTextMessageCellNode: UDMessageCellNode {
                 let sendFormButtonInsetSpec = ASInsetLayoutSpec(insets: messageFormStyle.sendFormButtonMargin, child: loaderAndIconOverlaySpec)
                 vMessageStack.setChild(sendFormButtonInsetSpec, at: 3)
             } else {
+                loaderNode.alpha = 1
                 let loaderNodeСenterSpec = ASCenterLayoutSpec(centeringOptions: .X, sizingOptions: [], child: loaderNode)
                 loaderNodeСenterSpec.style.minHeight = ASDimensionMakeWithPoints(30)
                 let insetSpec = ASInsetLayoutSpec(insets: messageFormStyle.sendFormButtonMargin, child: loaderNodeСenterSpec)
@@ -315,7 +329,7 @@ class UDTextMessageCellNode: UDMessageCellNode {
         
         if form.field?.type == .checkbox {
             let widthTitle = sizeMessagesManager.maxWidthBubbleMessage - messageFormStyle.checkboxFormImageMargin.left - messageFormStyle.checkboxFormImageSize.width - messageFormStyle.checkboxFormImageMargin.right - messageFormStyle.checkboxFormTextMargin.right
-            height = form.name.size(availableWidth: widthTitle, attributes: [.font : messageFormStyle.checkboxFormTextFont]).height
+            height = form.name.size(availableWidth: widthTitle, attributes: [.font : messageFormStyle.textFormTextFont]).height
             height += messageFormStyle.checkboxFormTextMargin.top + messageFormStyle.checkboxFormTextMargin.bottom
             if indexPath.row != 0 {
                 height += messageFormStyle.spacing
@@ -370,7 +384,7 @@ extension UDTextMessageCellNode: ASTableDelegate, ASTableDataSource {
                 case .list:
                     let cell = UDMessageFormListCellNode()
                     cell.configurationStyle = configurationStyle
-                    cell.setCell(form: form, spacing: indexPath.row == 0 ? 0 : configurationStyle.messageButtonStyle.spacing, index: indexPath.row, status: message.statusForms)
+                    cell.setCell(form: form, spacing: indexPath.row == 0 ? 0 : configurationStyle.messageButtonStyle.spacing, index: indexPath.row, status: isFormListEnableForSelect(form: form) ? message.statusForms : .loading)
                     return cell
                 case .none:
                     let cell = UDMessageFormTextCellNode()
@@ -416,16 +430,9 @@ extension UDTextMessageCellNode: ASTableDelegate, ASTableDataSource {
                 }
                 delegateText?.newFormValue(value: message.forms[indexPath.row].value, message: message, indexForm: indexPath.row)
             case .list:
-                if let idParentField = message.forms[indexPath.row].field?.idParentField {
-                    if idParentField > 0 {
-                        if let parentForm = message.forms.filter({$0.field?.id ?? 0 == idParentField}).first, parentForm.field?.selectedOption != nil {
-                            tapForm(indexPath: indexPath, form: form)
-                            delegateText?.formListAction(message: message, indexForm: indexPath.row, selectedOption: message.forms[indexPath.row].field?.selectedOption)
-                        }
-                    } else {
-                        tapForm(indexPath: indexPath, form: form)
-                        delegateText?.formListAction(message: message, indexForm: indexPath.row, selectedOption: message.forms[indexPath.row].field?.selectedOption)
-                    }
+                if isFormListEnableForSelect(form: message.forms[indexPath.row]) {
+                    tapForm(indexPath: indexPath, form: form)
+                    delegateText?.formListAction(message: message, indexForm: indexPath.row, selectedOption: message.forms[indexPath.row].field?.selectedOption)
                 }
             default:
                 tapForm(indexPath: indexPath, form: form)

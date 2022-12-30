@@ -15,11 +15,17 @@ class UDMessageFormCheckboxCellNode: UDMessageFormCellNode {
     override func setCell(form: UDFormMessage, spacing: CGFloat = 0, index: Int, status: StatusForm) {
         super.setCell(form: form, spacing: spacing, index: index, status: status)
         
-        checkboxImageNode.image = form.value == "1" ? messageFormStyle.checkboxFormImageSelected : messageFormStyle.checkboxFormImageNotSelected
+        if form.isErrorState {
+            checkboxImageNode.image = messageFormStyle.checkboxFormImageError
+        } else if status == .sended {
+            checkboxImageNode.image = form.value == "1" ? messageFormStyle.checkboxFormImageSelectedUnavailable : messageFormStyle.checkboxFormImageNotSelected
+        } else {
+            checkboxImageNode.image = form.value == "1" ? messageFormStyle.checkboxFormImageSelected : messageFormStyle.checkboxFormImageNotSelected
+        }
         checkboxImageNode.style.maxSize = messageFormStyle.checkboxFormImageSize
         
         let attributedString = NSMutableAttributedString(string: form.name)
-        attributedString.addAttributes([.font : messageFormStyle.textFormTextFont, .foregroundColor : status == .inputable ? messageFormStyle.textFormTextColor : messageFormStyle.textFormUnavailableColor], range: NSRange(location: 0, length: attributedString.length))
+        attributedString.addAttributes([.font : messageFormStyle.textFormTextFont, .foregroundColor : status == .inputable ? messageFormStyle.textFormTextColor : messageFormStyle.textFormTextUnavailableColor], range: NSRange(location: 0, length: attributedString.length))
         titleNode.attributedText = attributedString
         
         if checkboxImageNode.supernode == nil {

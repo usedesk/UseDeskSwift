@@ -89,7 +89,7 @@ class UDMessageCellNode: ASCellNode {
 
             nameNode.textContainerInset = messageStyle.senderTextMargin
             nameNode.attributedText = NSAttributedString(string: message.operatorName != "" ? message.operatorName : message.name, attributes: [.foregroundColor: messageStyle.senderTextColor, .font: messageStyle.senderTextFont])
-            nameNode.alpha = 0
+            nameNode.alpha = isNeedShowSender ? 1 : 0
             addSubnode(nameNode)
         }
         

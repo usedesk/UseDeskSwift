@@ -1007,26 +1007,28 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             }
             
             if tableNode.nodeForRow(at: indexPathMessage) is UDPictureMessageCellNode || tableNode.nodeForRow(at: indexPathMessage) is UDVideoMessageCellNode || tableNode.nodeForRow(at: indexPathMessage) is UDFileMessageCellNode {
-                guard let cellDownload = tableNode.nodeForRow(at: indexPathMessage) as? UDMessageCellNode else {break}
-                if rangeDownloadsAnySizeFiles.contains(index) {
-                    if !startDownloadFileIds.contains(cellDownload.message.id) {
-                        startDownloadFileIds.append(cellDownload.message.id)
-                        downloadFile(node: cellDownload)
+                if let cellDownload = tableNode.nodeForRow(at: indexPathMessage) as? UDMessageCellNode {
+                    if rangeDownloadsAnySizeFiles.contains(index) {
+                        if !startDownloadFileIds.contains(cellDownload.message.id) {
+                            startDownloadFileIds.append(cellDownload.message.id)
+                            downloadFile(node: cellDownload)
+                        }
                     }
-                }
-                if rangeDownloadsSmallSizeFiles.contains(index) {
-                    if cellDownload.message.file.sizeValue < 524288 && !startDownloadFileIds.contains(cellDownload.message.id) {
-                        startDownloadFileIds.append(cellDownload.message.id)
-                        downloadFile(node: cellDownload)
+                    if rangeDownloadsSmallSizeFiles.contains(index) {
+                        if cellDownload.message.file.sizeValue < 524288 && !startDownloadFileIds.contains(cellDownload.message.id) {
+                            startDownloadFileIds.append(cellDownload.message.id)
+                            downloadFile(node: cellDownload)
+                        }
                     }
                 }
             }
             
             if rangeDownloadsAdditionalFields.contains(index) {
-                if tableNode.nodeForRow(at: indexPathMessage) is UDTextMessageCellNode {
-                    guard let message = getMessage(indexPathMessage) else {break}
+                if tableNode.nodeForRow(at: indexPathMessage) is UDTextMessageCellNode,
+                   let message = getMessage(indexPathMessage),
+                   message.forms.count > 0 {
                     let isExistFormsWithAdditionalField = message.forms.filter({$0.type == .additionalField}).count > 0
-                    if isExistFormsWithAdditionalField && !startDownloadFormsIds.contains(message.id) {
+                    if isExistFormsWithAdditionalField && message.statusForms != .sended && !startDownloadFormsIds.contains(message.id) {
                         startDownloadFormsIds.append(message.id)
                         downloadAdditionalFieldsForm(for: message)
                     }
@@ -1034,12 +1036,13 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             }
             
             if rangeDownloadsAvatars.contains(index) {
-                if tableNode.nodeForRow(at: indexPathMessage) is UDMessageCellNode {
-                    guard let message = getMessage(indexPathMessage) else {break}
-                    if message.incoming && message.avatarImage == nil && !startDownloadAvatarsIds.contains(message.id) {
-                        startDownloadAvatarsIds.append(message.id)
-                        downloadAvatar(for: message)
-                    }
+                if tableNode.nodeForRow(at: indexPathMessage) is UDMessageCellNode,
+                   let message = getMessage(indexPathMessage),
+                   message.incoming,
+                   message.avatarImage == nil,
+                   !startDownloadAvatarsIds.contains(message.id) {
+                    startDownloadAvatarsIds.append(message.id)
+                    downloadAvatar(for: message)
                 }
             }
             
@@ -1652,9 +1655,10 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 closeFormPickerContainerView()
                 return
             }
+            let newSelectedOption:FieldOption? = indexSelectedOption == 0 ? nil : optionsForFormPicker[indexSelectedOption]
             let indexForm = selectedFormObjects!.1
             // new selected option
-            messagesWithSection[indexPathMessage.section][indexPathMessage.row].forms[indexForm].field?.selectedOption = optionsForFormPicker[indexSelectedOption]
+            messagesWithSection[indexPathMessage.section][indexPathMessage.row].forms[indexForm].field?.selectedOption = newSelectedOption
             messagesWithSection[indexPathMessage.section][indexPathMessage.row].forms[indexForm].isErrorState = false
             // clear selected option in nested field
             let forms = message.forms
@@ -1725,27 +1729,44 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                         isValidForms = false
                     }
                 case .additionalField:
-                    if form.isRequired || form.field?.idParentField ?? 0 > 0 {
+                    switch form.field?.type {
+                    case .list:
                         if form.field?.selectedOption != nil {
+                            isEmptyForms = false
                             form.isErrorState = false
-                        } else {
-                            form.isErrorState = true
+                        } else if form.isRequired {
                             isValidForms = false
+                            form.isErrorState = true
+                        } else if form.field?.idParentField ?? 0 > 0 {
+                            let superParentForm = getSuperParentForm(for: form, message: message)
+                            if superParentForm?.field?.selectedOption != nil {
+                                isValidForms = false
+                                form.isErrorState = true
+                            } else {
+                                form.isErrorState = false
+                            }
+                        } else {
+                            form.isErrorState = false
                         }
-                    } else {
-                        switch form.field?.type {
-                        case .list:
-                            if form.field?.selectedOption != nil {
-                                isEmptyForms = false
-                            }
-                        case .checkbox:
-                            if form.value == "1" {
-                                isEmptyForms = false
-                            }
-                        case .text, .none:
-                            if !form.value.isEmpty {
-                                isEmptyForms = false
-                            }
+                    case .checkbox:
+                        if form.value == "1" {
+                            isEmptyForms = false
+                            form.isErrorState = false
+                        } else if form.isRequired {
+                            isValidForms = false
+                            form.isErrorState = true
+                        } else {
+                            form.isErrorState = false
+                        }
+                    case .text, .none:
+                        if !form.value.isEmpty {
+                            isEmptyForms = false
+                            form.isErrorState = false
+                        } else if form.isRequired {
+                            isValidForms = false
+                            form.isErrorState = true
+                        } else {
+                            form.isErrorState = false
                         }
                     }
                 default:
@@ -1822,6 +1843,33 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             }
         }
         return updateMessages
+    }
+    
+    func getSuperParentForm(for form: UDFormMessage, message: UDMessage) -> UDFormMessage? {
+        var superParentForm: UDFormMessage? = nil
+        guard let idParentCurrentField = form.field?.idParentField else {return nil}
+        var idParentField = idParentCurrentField
+        var countRepeat = 0
+        let maxCountRepeat = 100
+        var isFindSuperParent = false
+        while countRepeat < maxCountRepeat && !isFindSuperParent {
+            if let parentForm = message.forms.filter({$0.field?.id == idParentField}).first {
+                if let idParentFieldCheck = parentForm.field?.idParentField {
+                    if idParentFieldCheck == 0 {
+                        isFindSuperParent = true
+                        superParentForm = parentForm
+                    } else {
+                        idParentField = idParentFieldCheck
+                        countRepeat += 1
+                    }
+                } else {
+                    countRepeat = maxCountRepeat
+                }
+            } else {
+                countRepeat = maxCountRepeat
+            }
+        }
+        return superParentForm
     }
     
     // MARK: - UITextViewDelegate
@@ -2296,17 +2344,25 @@ extension UDMessagesView: TextMessageCellNodeDelegate {
     }
     
     func formListAction(message: UDMessage, indexForm: Int, selectedOption: FieldOption?) {
-        optionsForFormPicker = []
+        let defaultCleanOption = FieldOption(id: -1, value: usedesk?.model.stringFor("NotSelected") ?? "Not Selected")
+        optionsForFormPicker = [defaultCleanOption]
+        var indexSelectedOption = 0
         if let field = message.forms[indexForm].field {
             if field.idParentField > 0 {
                 if let parentForm = message.forms.filter({$0.field?.id == field.idParentField}).first {
-                    optionsForFormPicker = field.options.filter({$0.idsParentOption.contains(parentForm.field?.selectedOption?.id ?? 0)})
+                    optionsForFormPicker += field.options.filter({$0.idsParentOption.contains(parentForm.field?.selectedOption?.id ?? 0)})
                 }
             } else {
-                optionsForFormPicker = field.options
+                optionsForFormPicker += field.options
+            }
+            if let selectedOption = field.selectedOption {
+                if let index = optionsForFormPicker.firstIndex(where: {$0.id == selectedOption.id}) {
+                    indexSelectedOption = index
+                }
             }
         }
         formPickerView.reloadAllComponents()
+        formPickerView.selectRow(indexSelectedOption, inComponent: 0, animated: false)
         selectedFormObjects = (message, indexForm, selectedOption)
         openFormPickerContainerView()
     }

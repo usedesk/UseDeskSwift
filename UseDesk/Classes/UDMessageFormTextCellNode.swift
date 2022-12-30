@@ -21,7 +21,7 @@ class UDMessageFormTextCellNode: UDMessageFormCellNode, ASEditableTextNodeDelega
         backgroundNode.backgroundColor = isUserInteractionEnabled ? messageFormStyle.textFormBackgroundColor : messageFormStyle.textFormUnavailableBackgroundColor
         // Placeholder
         let attributedPlaceholderString = NSMutableAttributedString(string: form.name)
-        attributedPlaceholderString.addAttributes([.font : messageFormStyle.textFormTextFont, .foregroundColor : messageFormStyle.textFormUnavailableColor], range: NSRange(location: 0, length: attributedPlaceholderString.length))
+        attributedPlaceholderString.addAttributes([.font : messageFormStyle.textFormTextFont, .foregroundColor : messageFormStyle.textFormPlaceholderColor], range: NSRange(location: 0, length: attributedPlaceholderString.length))
         if form.isRequired {
             let requiredAttributedString = NSMutableAttributedString(string: "*")
             requiredAttributedString.addAttributes([.font : messageFormStyle.textFormTextFont, .foregroundColor : messageFormStyle.textFormTextRequiredColor], range: NSRange(location: 0, length: requiredAttributedString.length))
@@ -30,7 +30,7 @@ class UDMessageFormTextCellNode: UDMessageFormCellNode, ASEditableTextNodeDelega
         textNode.attributedPlaceholderText = attributedPlaceholderString
         // Value
         let attributedString = NSMutableAttributedString(string: form.value)
-        attributedString.addAttributes([.font : messageFormStyle.textFormTextFont, .foregroundColor : status == .inputable ? messageFormStyle.textFormTextColor : messageFormStyle.textFormUnavailableColor], range: NSRange(location: 0, length: attributedString.length))
+        attributedString.addAttributes([.font : messageFormStyle.textFormTextFont, .foregroundColor : status == .inputable ? messageFormStyle.textFormTextColor : messageFormStyle.textFormTextUnavailableColor], range: NSRange(location: 0, length: attributedString.length))
         textNode.attributedText = attributedString
         // Setting TextNode
         textNode.maximumLinesToDisplay = 1

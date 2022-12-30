@@ -225,7 +225,9 @@ public class UDNetworkManager {
                 for field in fields {
                     if let index = newMessage.forms.firstIndex(where: {$0.idAdditionalField == field.id}) {
                         newMessage.forms[index].field = field
-                        newMessage.forms[index].name = field.name
+                        if newMessage.forms[index].name.isEmpty {
+                            newMessage.forms[index].name = field.name
+                        }
                     } else {
                         let form = UDFormMessage(name: field.name, type: .additionalField, field: field)
                         if let index = newMessage.forms.firstIndex(where: {$0.idAdditionalField == field.idParentField}) {
@@ -274,12 +276,20 @@ public class UDNetworkManager {
             let form = forms[0]
             forms.remove(at: 0)
             if form.type == .additionalField, let field = form.field {
-                var formParameters: [String : Any] = ["associate" : form.idAdditionalField]
                 if field.type == .text {
-                    formParameters["value"] = field.value
+                    let formParameters: [String : Any] = [
+                        "associate" : form.idAdditionalField,
+                        "value"     : field.value
+                    ]
+                    formsParameters.append(formParameters)
                 } else if field.type == .checkbox {
-                    formParameters["value"] = field.value == "1" ? "true" : "false"
+                    let formParameters: [String : Any] = [
+                        "associate" : form.idAdditionalField,
+                        "value"     : field.value == "1" ? "true" : "false"
+                    ]
+                    formsParameters.append(formParameters)
                 } else if let selectedOptionFirstField = field.selectedOption?.id {
+                    var formParameters: [String : Any] = ["associate" : form.idAdditionalField]
                     var formsChildeParameters: [[String : Any]] = []
                     formsChildeParameters.append(["id" : form.field!.id, "value" : String(selectedOptionFirstField)])
                     var isExistChildeFields = true
@@ -300,8 +310,8 @@ public class UDNetworkManager {
                     } else {
                         formParameters["value"] = String(selectedOptionFirstField)
                     }
+                    formsParameters.append(formParameters)
                 }
-                formsParameters.append(formParameters)
             } else {
                 let formParameters: [String : Any] = [
                     "associate" : form.type.rawValue,
@@ -589,9 +599,7 @@ public class UDNetworkManager {
             case .success(let value):
                 if let valueDictionary = value as? [String : Any] {
                     if valueDictionary["error"] != nil {
-                        if let code = valueDictionary["code"] as? Int {
-                            errorBlock(UDError(errorCode: code), UDError(errorCode: code).description)
-                        }
+                        errorBlock(.serverError, UDError.serverError.description)
                     } else {
                         successBlock(value)
                     }

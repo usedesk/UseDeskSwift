@@ -628,13 +628,15 @@ public struct MessageButtonStyle {
 // MARK: - Message Form
 public struct MessageFormStyle {
     public var margin: UIEdgeInsets
+    public var spacing: CGFloat
     
     public var textFormMargin: UIEdgeInsets
     public var textFormHeight: CGFloat
     public var textFormBackgroundColor: UIColor
     public var textFormUnavailableBackgroundColor: UIColor
-    public var textFormUnavailableColor: UIColor
+    public var textFormPlaceholderColor: UIColor
     public var textFormTextColor: UIColor
+    public var textFormTextUnavailableColor: UIColor
     public var textFormTextRequiredColor: UIColor
     public var textFormTextFont: UIFont
     public var textFormCornerRadius: CGFloat
@@ -648,16 +650,14 @@ public struct MessageFormStyle {
     public var checkboxFormImageSize: CGSize
     public var checkboxFormImageMargin: UIEdgeInsets
     public var checkboxFormTextMargin: UIEdgeInsets
-    public var checkboxFormTextColor: UIColor
-    public var checkboxFormTextFont: UIFont
     public var checkboxFormImageNotSelected: UIImage
     public var checkboxFormImageSelected: UIImage
-    
-    public var spacing: CGFloat
+    public var checkboxFormImageSelectedUnavailable: UIImage
+    public var checkboxFormImageError: UIImage
     
     public var sendFormButtonColor: UIColor
     public var sendFormButtonErrorColor: UIColor
-    public var sendFormButtonSendedColor: UIColor
+    public var sendFormButtonUnavailableColor: UIColor
     public var sendFormButtonTitleColor: UIColor
     public var sendFormButtonTitleTouchedColor: UIColor
     public var sendFormButtonFont: UIFont
@@ -670,12 +670,14 @@ public struct MessageFormStyle {
     public var pickerTopViewColor: UIColor
     
     public init(margin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 6),
+                spacing: CGFloat = 10,
                 textFormMargin: UIEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8),
                 textFormHeight: CGFloat = 36,
                 textFormBackgroundColor: UIColor? = nil,
                 textFormUnavailableBackgroundColor: UIColor? = nil,
                 textFormPlaceholderColor: UIColor? = nil,
                 textFormTextColor: UIColor? = nil,
+                textFormTextUnavailableColor: UIColor? = nil,
                 textFormTextRequiredColor: UIColor? = nil,
                 textFormTextFont: UIFont = UIFont.systemFont(ofSize: 15),
                 textFormCornerRadius: CGFloat = 8,
@@ -688,14 +690,13 @@ public struct MessageFormStyle {
                 checkboxFormImageSize: CGSize = CGSize(width: 16, height: 16),
                 checkboxFormImageMargin: UIEdgeInsets = UIEdgeInsets(top: 11, left: 0, bottom: 0, right: 0),
                 checkboxFormTextMargin: UIEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 0, right: 12),
-                checkboxFormTextColor: UIColor? = nil,
-                checkboxFormTextFont: UIFont = UIFont.systemFont(ofSize: 17),
                 checkboxFormImageNotSelected: UIImage? = nil,
                 checkboxFormImageSelected: UIImage? = nil,
-                spacing: CGFloat = 10,
+                checkboxFormImageSelectedUnavailable: UIImage? = nil,
+                checkboxFormImageError: UIImage? = nil,
                 sendFormButtonColor: UIColor? = nil,
                 sendFormButtonErrorColor: UIColor? = nil,
-                sendFormButtonSendedColor: UIColor? = nil,
+                sendFormButtonUnavailableColor: UIColor? = nil,
                 sendFormButtonTitleColor: UIColor? = nil,
                 sendFormButtonTitleTouchedColor: UIColor? = nil,
                 sendFormButtonFont: UIFont = UIFont.systemFont(ofSize: 15),
@@ -706,12 +707,14 @@ public struct MessageFormStyle {
                 pickerDoneButtonColor: UIColor = .blue,
                 pickerTopViewColor: UIColor? = nil) {
         self.margin = margin
+        self.spacing = spacing
         self.textFormMargin = textFormMargin
         self.textFormHeight = textFormHeight
         self.textFormBackgroundColor = textFormBackgroundColor ?? UIColor(hexString: "FAFBFC")
         self.textFormUnavailableBackgroundColor = textFormUnavailableBackgroundColor ?? UIColor(hexString: "FAFBFC")
-        self.textFormUnavailableColor = textFormPlaceholderColor ?? UIColor(hexString: "989FB3")
+        self.textFormPlaceholderColor = textFormPlaceholderColor ?? UIColor(hexString: "989FB3")
         self.textFormTextColor = textFormTextColor ?? UIColor(hexString: "333333")
+        self.textFormTextUnavailableColor = textFormTextUnavailableColor ?? UIColor(hexString: "989FB3")
         self.textFormTextRequiredColor = textFormTextRequiredColor ?? UIColor(hexString: "E74450")
         self.textFormTextFont = textFormTextFont
         self.textFormCornerRadius = textFormCornerRadius
@@ -724,14 +727,13 @@ public struct MessageFormStyle {
         self.checkboxFormImageSize = checkboxFormImageSize
         self.checkboxFormImageMargin = checkboxFormImageMargin
         self.checkboxFormTextMargin = checkboxFormTextMargin
-        self.checkboxFormTextColor = checkboxFormTextColor ?? UIColor(hexString: "333333")
-        self.checkboxFormTextFont = checkboxFormTextFont
         self.checkboxFormImageNotSelected = checkboxFormImageNotSelected ?? UIImage.named("udFormCheckboxNotSelected")
         self.checkboxFormImageSelected = checkboxFormImageSelected ?? UIImage.named("udFormCheckboxSelected")
-        self.spacing = spacing
+        self.checkboxFormImageSelectedUnavailable = checkboxFormImageSelectedUnavailable ?? UIImage.named("udFormCheckboxSelectedUnavailable")
+        self.checkboxFormImageError = checkboxFormImageError ?? UIImage.named("udFormCheckboxError")
         self.sendFormButtonColor = sendFormButtonColor ?? UIColor(hexString: "333333")
         self.sendFormButtonErrorColor = sendFormButtonErrorColor ?? UIColor(hexString: "E74450")
-        self.sendFormButtonSendedColor = sendFormButtonSendedColor ?? UIColor(hexString: "BCBCBC")
+        self.sendFormButtonUnavailableColor = sendFormButtonUnavailableColor ?? UIColor(hexString: "BCBCBC")
         self.sendFormButtonTitleColor = sendFormButtonTitleColor ?? UIColor(hexString: "FFFFFF")
         self.sendFormButtonTitleTouchedColor = sendFormButtonTitleTouchedColor ?? UIColor(hexString: "4d4d4d")
         self.sendFormButtonFont = sendFormButtonFont
