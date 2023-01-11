@@ -473,11 +473,14 @@ class UDSocketResponse {
         text = text.udRemoveFirstSymbol(with: "\n")
         text = text.udRemoveLastSymbol(with: "\u{200b}")
         text = text.udRemoveLastSymbol(with: "\n")
+        text = text.usRemoveMultipleLineBreaks()
         text.udConvertUrls()
-        do {
-           let doc: Document = try SwiftSoup.parse(text)
-           text = try doc.text()
-        } catch {}
+        if isValidHtmlString(text) {
+            do {
+                let doc: Document = try SwiftSoup.parse(text)
+                text = try doc.text()
+            } catch {}
+        }
         let textBeforeRemoveMarkdownUrls = text
         var textWithoutLinkImage: String? = nil
         let linksImage = text.udRemoveMarkdownUrlsAndReturnLinks()
@@ -486,6 +489,13 @@ class UDSocketResponse {
             textWithoutLinkImage = textBeforeRemoveMarkdownUrls
         }
         return (linksImage, textWithoutLinkImage)
+    }
+    
+    private class func isValidHtmlString(_ value: String) -> Bool {
+        if value.isEmpty {
+            return false
+        }
+        return (value.range(of: "<(\"[^\"]*\"|'[^']*'|[^'\">])*>", options: .regularExpression) != nil)
     }
     
     private class func buttonFromString(stringButton: String) -> UDMessageButton? {

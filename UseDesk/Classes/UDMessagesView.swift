@@ -1039,8 +1039,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 if tableNode.nodeForRow(at: indexPathMessage) is UDMessageCellNode,
                    let message = getMessage(indexPathMessage),
                    message.incoming,
-                   message.avatarImage == nil,
-                   !startDownloadAvatarsIds.contains(message.id) {
+                   message.avatarImage == nil {
                     startDownloadAvatarsIds.append(message.id)
                     downloadAvatar(for: message)
                 }

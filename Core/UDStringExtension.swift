@@ -87,11 +87,29 @@ extension String {
     }
     
     func udRemoveSubstrings(with substrings: [String]) -> String {
-        var newString = self
+        var resultString = self
         substrings.forEach { string in
-            newString = newString.replacingOccurrences(of: string, with: "", options: String.CompareOptions.regularExpression, range: nil)
+            resultString = resultString.replacingOccurrences(of: string, with: "", options: String.CompareOptions.regularExpression, range: nil)
         }
-        return newString
+        return resultString
+    }
+    
+    func usRemoveMultipleLineBreaks() -> String {
+        var resultString = self
+        var removeSubstring = "\n\n"
+        var replacementString = "\n"
+        var isNeedRemove = true
+        var maxCountRepeat = 100000
+        var countRepeat = 0
+        while isNeedRemove && countRepeat < maxCountRepeat {
+            if resultString.contains(removeSubstring) {
+                resultString = resultString.replacingOccurrences(of: removeSubstring, with: replacementString, options: String.CompareOptions.regularExpression, range: nil)
+            } else {
+                isNeedRemove = false
+            }
+            countRepeat += 1
+        }
+        return resultString
     }
     
     func udRemoveFirstSpaces() -> String {
@@ -101,9 +119,12 @@ extension String {
     func udRemoveFirstSymbol(with symbol: Character) -> String {
         var resultString = self
         var isNeedRemove = resultString.first == symbol ? true : false
-        while isNeedRemove {
+        var maxCountRepeat = 100000
+        var countRepeat = 0
+        while isNeedRemove && countRepeat < maxCountRepeat {
             resultString.removeFirst()
             isNeedRemove = resultString.first == symbol ? true : false
+            countRepeat += 1
         }
         return resultString
     }
@@ -111,52 +132,64 @@ extension String {
     func udRemoveLastSymbol(with symbol: Character) -> String {
         var resultString = self
         var isNeedRemove = resultString.last == symbol ? true : false
-        while isNeedRemove {
+        var maxCountRepeat = 100000
+        var countRepeat = 0
+        while isNeedRemove && countRepeat < maxCountRepeat {
             resultString.removeLast()
             isNeedRemove = resultString.last == symbol ? true : false
+            countRepeat += 1
         }
         return resultString
     }
     
     func udRemoveFirstAndLastLineBreaksAndSpaces() -> String {
         var resultString = self
-        while resultString.first == " " || resultString.first == "\n" || resultString.last == " " || resultString.last == "\n" {
+        var maxCountRepeat = 10000
+        var countRepeat = 0
+        while (resultString.first == " " || resultString.first == "\n" || resultString.last == " " || resultString.last == "\n") && countRepeat < maxCountRepeat {
             resultString = resultString.udRemoveFirstSymbol(with: "\n")
             resultString = resultString.udRemoveFirstSymbol(with: " ")
             resultString = resultString.udRemoveLastSymbol(with: "\n")
             resultString = resultString.udRemoveLastSymbol(with: " ")
+            countRepeat += 1
         }
         return resultString
     }
     
     mutating func udRemoveMarkdownUrlsAndReturnLinks() -> [String] {
         var links: [String] = []
-        var count = 0
+        var maxCountRepeat = 1000
+        var countRepeat = 0
         var flag = true
-        while count < 900 && flag {
+        while countRepeat < maxCountRepeat && flag {
             if let range = self.range(of: "![") {
                 let startIndex = range.lowerBound
                 var isFindEnd = false
                 var index = 0
                 while !isFindEnd {
-                    if let searchStartIndex = self.index(startIndex, offsetBy: index, limitedBy: self.endIndex) {
-                        if let searchEndIndex = self.index(searchStartIndex, offsetBy: 1, limitedBy: self.endIndex) {
+                    if let searchStartIndex = self.index(startIndex, offsetBy: index, limitedBy: self.endIndex),
+                       let searchEndIndex = self.index(searchStartIndex, offsetBy: 1, limitedBy: self.endIndex),
+                       udIsIndexValid(searchStartIndex),
+                       udIsIndexValid(searchEndIndex) {
                             if self[searchStartIndex...searchEndIndex] == "](" {
                                 var indexSearchEndLink = 0
                                 while !isFindEnd {
-                                    if let searchIndex = self.index(searchEndIndex, offsetBy: indexSearchEndLink, limitedBy: self.endIndex) {
+                                    if let searchIndex = self.index(searchEndIndex, offsetBy: indexSearchEndLink, limitedBy: self.endIndex),
+                                       udIsIndexValid(searchIndex) {
                                         if self[searchIndex] == ")" {
                                             // add link
-                                            if let startLinkIndex = self.index(searchEndIndex, offsetBy: +1, limitedBy: self.endIndex) {
-                                                if let endLinkIndex = self.index(searchIndex, offsetBy: -1, limitedBy: self.startIndex) {
-                                                    if endLinkIndex > startLinkIndex, endLinkIndex < self.endIndex, startLinkIndex < self.endIndex {
-                                                        links.append(String(self[startLinkIndex...endLinkIndex]))
-                                                    }
-                                                }
+                                            if let startLinkIndex = self.index(searchEndIndex, offsetBy: +1, limitedBy: self.endIndex),
+                                               let endLinkIndex = self.index(searchIndex, offsetBy: -1, limitedBy: self.startIndex),
+                                               endLinkIndex > startLinkIndex,
+                                               udIsIndexValid(startLinkIndex),
+                                               udIsIndexValid(endLinkIndex) {
+                                                links.append(String(self[startLinkIndex...endLinkIndex]))
                                             }
                                             //remove link
                                             isFindEnd = true
-                                            self = self.replacingOccurrences(of: self[startIndex...searchIndex], with: "")
+                                            if udIsIndexValid(startIndex) && udIsIndexValid(searchIndex) {
+                                                self = self.replacingOccurrences(of: self[startIndex...searchIndex], with: "")
+                                            }
                                             if let enterIndex = self.index(startIndex, offsetBy: -1, limitedBy: self.startIndex) {
                                                 if self[enterIndex] == "\n" {
                                                     self.remove(at: enterIndex)
@@ -169,9 +202,6 @@ extension String {
                                     indexSearchEndLink += 1
                                 }
                             }
-                        } else {
-                            isFindEnd = true
-                        }
                     } else {
                         isFindEnd = true
                     }
@@ -180,9 +210,13 @@ extension String {
             } else {
                 flag = false
             }
-            count += 1
+            countRepeat += 1
         }
         return links
+    }
+    
+    func udIsIndexValid(_ index: Index) -> Bool {
+      return self.endIndex > index && self.startIndex <= index
     }
     
     mutating func udConvertUrls() {
