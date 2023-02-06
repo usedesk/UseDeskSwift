@@ -398,6 +398,7 @@ class UDSocketResponse {
                     m.text = m.buttons[invertIndex].title + " " + m.text
                 }
             }
+            m.text = m.text.udRemoveFirstAndLastLineBreaksAndSpaces()
             //Forms
             let (textWithForms, forms) = UDFormMessageManager.parseForms(from: m.text)
             if forms.count > 0 {
@@ -469,13 +470,15 @@ class UDSocketResponse {
     
     private class func parseText(_ textPars: String) -> ([String], String?) {
         var text = textPars
+        text.udConverDoubleLinks()
         text = text.udRemoveFirstSymbol(with: "\u{200b}")
-        text = text.udRemoveFirstSymbol(with: "\n")
         text = text.udRemoveLastSymbol(with: "\u{200b}")
+        text = text.removeSpacesBetweenLineBreaks()
+        text = text.udRemoveFirstSymbol(with: "\n")
+        text = text.udRemoveMultipleLineBreaks()
         text = text.udRemoveLastSymbol(with: "\n")
-        text = text.usRemoveMultipleLineBreaks()
         text.udConvertUrls()
-        if isValidHtmlString(text) {
+        if isHtml(text) {
             do {
                 let doc: Document = try SwiftSoup.parse(text)
                 text = try doc.text()
@@ -491,11 +494,18 @@ class UDSocketResponse {
         return (linksImage, textWithoutLinkImage)
     }
     
-    private class func isValidHtmlString(_ value: String) -> Bool {
-        if value.isEmpty {
-            return false
+    private class func isHtml(_ string: String) -> Bool {
+        let htmlTags: [String] = ["<!--","<!DOCTYPE","<a","<abbr","<acronym","<address","<applet","<area","<article","<aside","<audio","<b","<base","<basefont","<bdi","<bdo","<big","<blockquote","<body","<br","<button","<canvas","<caption","<center","<cite","<code","<col","<colgroup","<data","<datalist","<dd","<del","<details","<dfn","<dialog","<dir","<div","<dl","<dt","<em","<embed","<fieldset","<figcaption","<figure","<font","<footer","<form","<frame","<frameset","<h1","<h2","<h3","<h4","<h5","<h6","<head","<header","<hr","<html","<i","<iframe","<img","<input","<ins","<kbd","<label","<legend","<li","<link","<main","<map","<mark","<menu","<menuitem","<meta","<meter","<nav","<noframes","<noscript","<object","<ol","<optgroup","<option","<output","<param","<picture","<pre","<progress","<q","<rp","<rt","<ruby","<s","<samp","<script","<section","<select","<small","<source","<span","<strike","<strong","<style","<sub","<summary","<sup","<svg","<table","<tbody","<td","<template","<textarea","<tfoot","<th","<thead","<time","<title","<tr","<track","<tt","<u","<ul","<var","<video","<wbr","<p","</p"]
+        var isHtml = false
+        var index = 0
+        while index < htmlTags.count && !isHtml {
+            if string.contains(htmlTags[index]) {
+                isHtml = true
+            } else {
+                index += 1
+            }
         }
-        return (value.range(of: "<(\"[^\"]*\"|'[^']*'|[^'\">])*>", options: .regularExpression) != nil)
+        return isHtml
     }
     
     private class func buttonFromString(stringButton: String) -> UDMessageButton? {

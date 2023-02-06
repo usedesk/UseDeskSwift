@@ -55,9 +55,9 @@ class UDTextMessageCellNode: UDMessageCellNode {
         let messageFormStyle = configurationStyle.messageFormStyle
         let linkColor = message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor
         
-        var attributedString = NSMutableAttributedString()
-        let markdownParser = MarkdownParser(font: messageStyle.font, color: message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor)
-        attributedString = NSMutableAttributedString(attributedString: markdownParser.parse(message.text))
+        let attributedString = UDMarkdownParser.mutableAttributedString(for: message.text,
+                                                                               font: messageStyle.font,
+                                                                               color: message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor)
         attributedString.enumerateAttributes(in: NSRange(0..<attributedString.length), options: []) { (attributes, range, _) -> Void in
             for (attribute, _) in attributes {
                 if attribute == .link {

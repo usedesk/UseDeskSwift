@@ -452,6 +452,11 @@ class DialogflowView: UDMessagesView {
             if let id = usedesk?.networkManager?.newIdLoadingMessages() {
                 firstMessage.loadingMessageId = id
             }
+            var text = firstMessage.text
+            text = text.udRemoveFirstSymbol(with: "\n")
+            text = text.udRemoveMultipleLineBreaks()
+            text = text.udRemoveLastSymbol(with: "\n")
+            firstMessage.text = text
             addMessage(firstMessage, incoming: true)
             sendMessage(firstMessage)
             draftMessages.removeFirst()

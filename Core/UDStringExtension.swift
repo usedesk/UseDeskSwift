@@ -4,10 +4,6 @@
 //
 import UIKit
 
-let udEmailRegex = "[A-Z0-9a-z]([A-Z0-9a-z._%+-]{0,30}[A-Z0-9a-z])?" + "@" + "([A-Z0-9a-z]([A-Z0-9a-z-]{0,30}[A-Z0-9a-z])?\\.){1,5}" + "[A-Za-z]{2,8}"
-
-let udEmailPredicate = NSPredicate(format: "SELF MATCHES %@", udEmailRegex)
-
 extension String {
     public var udIsContainEmoji: Bool {
         for ucode in unicodeScalars {
@@ -61,6 +57,7 @@ extension String {
     }
     
     func udIsValidEmail() -> Bool {
+        let udEmailRegex = "[A-Z0-9a-z]([A-Z0-9a-z._%+-]{0,30}[A-Z0-9a-z])?" + "@" + "([A-Z0-9a-z]([A-Z0-9a-z-]{0,30}[A-Z0-9a-z])?\\.){1,5}" + "[A-Za-z]{2,8}"
         let range = NSRange(location: 0, length: self.count)
         let regex = try! NSRegularExpression(pattern: udEmailRegex)
         return regex.firstMatch(in: self, options: [], range: range) != nil
@@ -94,16 +91,52 @@ extension String {
         return resultString
     }
     
-    func usRemoveMultipleLineBreaks() -> String {
+    func udRemoveMultipleLineBreaks() -> String {
+        guard self.contains("\n") else {return self}
+        var resultString = ""
+        var index = 0
+        while index < self.count - 1 {
+            if let searchStartIndex = self.index(startIndex, offsetBy: index, limitedBy: self.endIndex) {
+                if self[searchStartIndex] == "\n" {
+                    var endIndexMultipleLineBreaks = index + 1
+                    var isFindEndMultipleLineBreaks = false
+                    var countMultipleLineBreaks = 0
+                    while endIndexMultipleLineBreaks < self.count - 1 && !isFindEndMultipleLineBreaks {
+                        if let searchEndIndexMultipleLineBreaks = self.index(startIndex, offsetBy: endIndexMultipleLineBreaks, limitedBy: self.endIndex),
+                           self[searchEndIndexMultipleLineBreaks] == "\n" {
+                            countMultipleLineBreaks += 1
+                            index += 1
+                        } else {
+                            isFindEndMultipleLineBreaks = true
+                        }
+                        endIndexMultipleLineBreaks += 1
+                    }
+                    if countMultipleLineBreaks > 0 {
+                        resultString.append("\n\n")
+                    } else {
+                        resultString.append("\n")
+                    }
+                } else {
+                    resultString.append(self[searchStartIndex] )
+                }
+                index += 1
+            }
+        }
+        resultString.append(self.last ?? Character(""))
+        return resultString
+    }
+    
+    func removeSpacesBetweenLineBreaks() -> String {
+        guard self.contains(" \n") || self.contains("\n ") else {return self}
         var resultString = self
-        var removeSubstring = "\n\n"
-        var replacementString = "\n"
-        var isNeedRemove = true
-        var maxCountRepeat = 100000
+        let maxCountRepeat = 100000
         var countRepeat = 0
+        var isNeedRemove = true
         while isNeedRemove && countRepeat < maxCountRepeat {
-            if resultString.contains(removeSubstring) {
-                resultString = resultString.replacingOccurrences(of: removeSubstring, with: replacementString, options: String.CompareOptions.regularExpression, range: nil)
+            if self.contains(" \n") {
+                resultString = resultString.replacingOccurrences(of: " \n", with: "\n")
+            } else if self.contains("\n ") {
+                resultString = resultString.replacingOccurrences(of: "\n ", with: "\n")
             } else {
                 isNeedRemove = false
             }
@@ -119,7 +152,7 @@ extension String {
     func udRemoveFirstSymbol(with symbol: Character) -> String {
         var resultString = self
         var isNeedRemove = resultString.first == symbol ? true : false
-        var maxCountRepeat = 100000
+        let maxCountRepeat = 100000
         var countRepeat = 0
         while isNeedRemove && countRepeat < maxCountRepeat {
             resultString.removeFirst()
@@ -132,7 +165,7 @@ extension String {
     func udRemoveLastSymbol(with symbol: Character) -> String {
         var resultString = self
         var isNeedRemove = resultString.last == symbol ? true : false
-        var maxCountRepeat = 100000
+        let maxCountRepeat = 100000
         var countRepeat = 0
         while isNeedRemove && countRepeat < maxCountRepeat {
             resultString.removeLast()
@@ -144,7 +177,7 @@ extension String {
     
     func udRemoveFirstAndLastLineBreaksAndSpaces() -> String {
         var resultString = self
-        var maxCountRepeat = 10000
+        let maxCountRepeat = 10000
         var countRepeat = 0
         while (resultString.first == " " || resultString.first == "\n" || resultString.last == " " || resultString.last == "\n") && countRepeat < maxCountRepeat {
             resultString = resultString.udRemoveFirstSymbol(with: "\n")
@@ -158,7 +191,7 @@ extension String {
     
     mutating func udRemoveMarkdownUrlsAndReturnLinks() -> [String] {
         var links: [String] = []
-        var maxCountRepeat = 1000
+        let maxCountRepeat = 1000
         var countRepeat = 0
         var flag = true
         while countRepeat < maxCountRepeat && flag {
@@ -245,11 +278,47 @@ extension String {
             count += 1
         }
     }
+    
+    mutating func udConverDoubleLinks() {
+        guard self.count > 19, self.contains("[](") else {return}
+        let patternAllConstructionUrl = "(\\[\\]\\([a-zA-Zа-яА-Я0-9:@.-_]{1,250}\\)[a-zA-Zа-яА-Я0-9<>-_\n@.]{1,250}\\[\\]\\([a-zA-Zа-яА-Я0-9:@.-_]{1,250}\\))"
+        let patternUrl = "(\\)[a-zA-Zа-яА-Я0-9<>\n@.]{1,250}\\[)"
+        var range = NSRange(location: 0, length: self.count + 1)
+        let regexAllConstructionUrl = try! NSRegularExpression(pattern: patternAllConstructionUrl)
+        let regexUrl = try! NSRegularExpression(pattern: patternUrl)
+        var isExistConstructionUrl = regexAllConstructionUrl.firstMatch(in: self, options: [], range: range) != nil
+        var countRepeat = 0
+        let maxCountRepeat = 1000
+        while countRepeat < maxCountRepeat && isExistConstructionUrl {
+            let rangeAllConstructionUrlInSelf = regexAllConstructionUrl.rangeOfFirstMatch(in: self, range: range)
+            let allConstructionUrl = self[rangeAllConstructionUrlInSelf.location - 1..<rangeAllConstructionUrlInSelf.lowerBound + rangeAllConstructionUrlInSelf.length]
+            let rangeAllConstructionUrl = NSRange(location: 0, length: allConstructionUrl.count)
+            if regexUrl.firstMatch(in: allConstructionUrl, options: [], range: rangeAllConstructionUrl) != nil {
+                let rangeUrl = regexUrl.rangeOfFirstMatch(in: allConstructionUrl, range: rangeAllConstructionUrl)
+                let url = allConstructionUrl[rangeUrl.lowerBound + 1..<(rangeUrl.lowerBound + rangeUrl.length - 1)]
+                self = self.replacingOccurrences(of: allConstructionUrl, with: url)
+            }
+            range = NSRange(location: 0, length: self.count + 1)
+            isExistConstructionUrl = regexAllConstructionUrl.firstMatch(in: self, options: [], range: range) != nil
+            countRepeat += 1
+        }
+    }
 
     private func singleLineHeight(attributes: [NSAttributedString.Key : Any]) -> CGFloat {
         let attributedString = NSAttributedString(string: "0", attributes: attributes)
         
         return attributedString.size().height
+    }
+    
+    subscript(_ range: CountableRange<Int>) -> String {
+        let start = index(startIndex, offsetBy: max(0, range.lowerBound))
+        let end = index(start, offsetBy: min(self.count - range.lowerBound, range.upperBound - range.lowerBound))
+        return String(self[start..<end])
+    }
+
+    subscript(_ range: CountablePartialRangeFrom<Int>) -> String {
+        let start = index(startIndex, offsetBy: max(0, range.lowerBound))
+         return String(self[start...])
     }
 }
 
