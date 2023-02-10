@@ -2,33 +2,37 @@
 
 ![https://img.shields.io/cocoapods/v/UseDesk_SDK_Swift.svg?style=flat-square](https://img.shields.io/cocoapods/v/UseDesk_SDK_Swift.svg?style=flat-square)
 
-## Демонстрационное приложение
+## This manual in other languages
 
-В директории Example этого репозитория находится демонстрационный проект, который служит примером встраивания SDK чатов Юздеска в клиентское приложение. С его помощью можно ознакомиться с базовой функциональностью приложения и проверить работу SDK. 
+Also available in [Russian](README_RU.md)
 
-### Запуск демонстрационного проекта
+## Demo app
 
-Для запуска тестового проекта нужно:
+The "Example" folder of this repository contains a demo project that serves as an example of embedding the Usedesk chat SDK into a client application. You can use it to get acquainted with the basic functionality of the application and test the SDK. 
 
-- Клонировать репозиторий
-- Запустить терминал
-- Перейти в директорию **Example** скачанного репозитория
-- Выполнить команду `pod install`
+### Launching a demo project
 
-## Добавление библиотеки в проект
+To launch a demo project you need to:
+
+- Clone repository
+- Start terminal
+- Go to the **Example** folder of the cloned repository
+- Execute a command `pod install`
+
+## Adding a library to the project
 
 ### CocoaPods
 
-При добавлении в проект SDK с помощью CocoaPods доступно использование функциональности как с GUI, так и без него. Для установки: 
+When you add an SDK to a project with CocoaPods, both GUI and non-GUI functionality is available. To install: 
 
-- Добавьте запись в Podfile вашего приложения
+- Add a Podfile entry to your application
 
 ```ruby
 pod 'UseDesk_SDK_Swift'
 ```
 
-- Выполните команду в терминале `pod update`
-- Подключите библиотеку
+- Run a command in the terminal `pod update`
+- Import library:
 
 ```swift
 import UseDesk
@@ -36,49 +40,49 @@ import UseDesk
 
 ### Swift Package Manager (SPM)
 
-Реализация SDK для установки с помощью SPM вынесена в отдельный [репозиторий](https://github.com/usedesk/UseDeskSPM). Обращаем внимание, что использование GUI при установке через SPM недоступно. 
+The SDK implementation for installation using SPM is placed in a separate [repository](https://github.com/usedesk/UseDeskSPM). Please note that GUI is not available when installing with SPM. 
 
-## Инициализация Чата или Чата с Базой знаний с использованием графического интерфейса (GUI)
+## Initializing a Chat or Knowledge Base with Chat using the GUI
 
-### Параметры, используемые в конфигурации SDK с GUI
+### Parameters used in the configuration SDK with GUI
 
-Где * — обязательный параметр
+Where * — required parameter
 
-| **Переменная** | **Тип** | **Описание** |
+| **Parameter** | **Type** | **Description** |
 | --- | --- | --- |
-| **CompanyID*** | String | **Идентификатор компании в Юздеске**<br/>[Как найти ID компании](https://docs.usedesk.ru/article/61) |
-| **ChannelID*** | String | **Идентификатор канала чата, через который в Юздеск будут поступать обращения из приложения**<br/>[Как создать и настроить канал](https://docs.usedesk.ru/article/858) |
-| **Url*** | String | **Адрес сервера для работы с чатами SDK**<br/>Стандартное значение: `pubsubsec.usedesk.ru`<br/>Если вы используете коробочную версию Юздеска на собственном сервере, то этот параметр у вас может отличаться. Уточните актуальный адрес у поддержки — support@usedesk.ru |
-| **Port** | String | **Порт сервера для работы с чатами SDK**<br/>Стандартное значение: `443` |
-| **UrlAPI*** | String | **URL для работы с API**<br/>Стандартное значение: `secure.usedesk.ru/uapi`<br/>Если вы используете коробочную версию Юздеска на собственном сервере, то этот параметр у вас будет отличаться. Уточните актуальный адрес у поддержки — support@usedesk.ru |
-| **API_token** | String | **Ключ для доступа к API Юздеска**<br/>[Как получить API ключ](https://docs.usedesk.ru/article/10167) |
-| **UrlToSendFile** | String | **Адрес для отправки файлов**<br/>Стандартное значение: `https://secure.usedesk.ru/uapi/v1/send_file` |
-| **KnowledgeBaseID** | String | **Идентификатор базы знаний**<br/>[Как создать Базу знаний](https://docs.usedesk.ru/article/1678)<br/>**Если ID не указан, база знаний не используется** |
-| **KnowledgeBaseSectionId** | String | **Идентификатор раздела базы знаний**<br/>Данный идентификатор можно найди в URL раздела вашей Базы знаний<br/>При указании этого параметра при открытии базы знаний будет открыт указанный раздел|
-| **knowledgeBaseCategoryId** | String | **Идентификатор категории базы знаний**<br/>Данный идентификатор можно найди в URL категории вашей Базы знаний<br/>При указании этого параметра при открытии базы знаний будет открыта указанная категория|
-| **knowledgeBaseArticleId** | String | **Идентификатор статьи базы знаний**<br/>Данный идентификатор можно найди в URL статьи вашей Базы знаний<br/>При указании этого параметра при открытии базы знаний будет открыта указанная статья|
-| **Name** | String | **Имя клиента** |
-| **Email** | String | **Почта клиента** |
-| **Phone** | String | **Телефон клиента** |
-| **Avatar** | Data? | **Изображение аватара клиента** |
-| **Token** | String | **Подпись, однозначно идентифицирующая пользователя и его чат**<br/>Токен выдается в коллбэке после инициализации чата и привязывается к связке почта-телефон-имя пользователя.<br/>Для идентификации различных пользователей на одном устройстве вы должны хранить и передавать полученный токен в метод инициализации |
-| **AdditionalId** | String | **Дополнительный идентификатор клиента** |
-| **Note** | String | **Текст заметки** |
-| **AdditionalFields** | [Int : String] | **Массив дополнительный полей запроса**<br/>Формат: `id : "значение"`<br/>Для текстовых полей значение - строка, для списка - строка с точно совпадающим значением списка, для флага - строка `false` или `true` |
-| **AdditionalNestedFields** | [[Int : String]] | **Массив дополнительных полей типа вложенный список**<br/>Каждый подмассив представляет один вложенный список. <br/>Формат вложенного списка: `[id1: "значение", id2 : "значение", id3 : "значение"]`, где `id1`, `id2`, `id3` — идентификаторы значений по уровням вложенности |
-| **NameOperator** | String | **Имя оператора**<br/>Если указано, то вместо имени агента в переписке будет отображаться указанная строка |
-| **NameChat** | String | **Название чата**<br/>Отображается в шапке |
-| **FirstMessage** | String | **Автоматическое сообщение**<br/>Отправится сразу после инициализации от имени клиента |
-| **CountMessagesOnInit** | Int | **Количество загружаемых сообщений при открытии чата**<br/>При открытии чата загружается указанное количество сообщений. По мере прокрутки чата подгружается по 20 сообщений |
-| **LocaleIdentifier** | String | **Идентификатор языка**<br/>Доступные языки: русский (`ru`), английский (`en`), португальский (`pt`), испанский (`es`). <br/>Если переданный идентификатор не поддерживается, будет использоваться русский язык |
-| **CustomLocale** | [String : String] | **Свой словарь переводов**<br/>Если SDK нужно показывать на языке, который мы не поддерживаем, можно самостоятельно создать словарь переводов и использовать его |
-| **Storage** | UDStorage | **Хранилище, поддерживающее протокол UDStorage**<br/>Для каждого отдельного чата нужно передавать свое отдельное хранилище |
-| **isCacheMessagesWithFile** | Bool | **Флаг сохранения сообщений с файлами в кэше**<br/>Стандартное значение: `true`<br/>Если указан `true`, то файлы сохраняются в кэше. Если `false`, то файлы не сохраняются в кэш |
-| **isSaveTokensInUserDefaults** | Bool | **Флаг сохранения токена пользователя в UserDefaults приложения**<br/>Стандартное значение: `true`<br/>Если указан `true`, то токен будет храниться в текущем устройстве. Недостатки такого подхода — при переустановке приложения, смене устройства или платформы доступ к переписке будет утрачен. <br/>Для сохранения доступа к переписке клиента с других устройств и платформ, токен необходимо хранить в вашей системе и передавать его при инициализации. В этом случае нужно использовать значение параметра `false` |
-| **isPresentDefaultControllers** | Bool | **Флаг автоматического отображения контроллера в указанном родительском контроллере**<br/>Стандартное значение: `true` |
-| **PresentIn** | UIViewController | **Контроллер, в котором нужно открывать SDK** |
+| **CompanyID*** | String | **Company ID in Usedesk**<br/>[How to find a company ID](https://en.usedocs.com/article/6396) |
+| **ChannelID*** | String | **ID of the chat channel through which messages from the application will be placed at Usedesk**<br/>[How to create and set up a channel](https://en.usedocs.com/article/16616) |
+| **Url*** | String | **Server URL for SDK chats**<br/>By default: `pubsubsec.usedesk.ru`<br/>If you use server version of Usedesk on your own server, value may be different for you. Check with support for valid URL — support@usedesk.com |
+| **Port** | String | **Server port for SDK chats**<br/>By default: `443` |
+| **UrlAPI*** | String | **URL to work with Usedesk API**<br/>By default: `secure.usedesk.ru/uapi`<br/>If you use server version of Usedesk on your own server, value may be different for you. Check with support for valid URL — support@usedesk.com |
+| **API_token** | String | **Usedesk API Token**<br/>[How to get API Token](https://en.usedocs.com/article/10169) |
+| **UrlToSendFile** | String | **URL for sending files**<br/>By default: `https://secure.usedesk.ru/uapi/v1/send_file` |
+| **KnowledgeBaseID** | String | **Knowledge Base ID**<br/>[How to create a Knowledge Base](https://en.usedocs.com/article/7182)<br/>**If ID is not provided, Knowledge Base will not be used** |
+| **KnowledgeBaseSectionId** | String | **Knowledge Base section ID**<br/>This ID can be found in the URL of your Knowledge Base section<br/>If this parameter is specified, the specified section will be opened when opening the knowledge base|
+| **knowledgeBaseCategoryId** | String | **Knowledge Base category ID**<br/>This ID can be found in the URL of your Knowledge Base category<br/>If this parameter is specified, the specified category will be opened when opening the knowledge base|
+| **knowledgeBaseArticleId** | String | **Knowledge Base article ID**<br/>This ID can be found in the URL of your Knowledge Base article<br/>If this parameter is specified, the specified article will be opened when opening the knowledge base|
+| **Name** | String | **Client name** |
+| **Email** | String | **Client email** |
+| **Phone** | String | **Client phone** |
+| **Avatar** | Data? | **Client avatar** |
+| **Token** | String | **A unique token that uniquely identifies the user and his conversation**<br/>The token is provided in the callback after the initialization of the chat and is linked to the mail-phone-user name.<br/>To identify different users on the same device, you must store and pass the received token to the initialization method |
+| **AdditionalId** | String | **Additional customer ID** |
+| **Note** | String | **Text of note** |
+| **AdditionalFields** | Int : String | **Array of ticket additional fields**<br/>Format: `id : "value"`<br/>For text fields the value is a string, for a list the value is a string with the exact list value, for a flag the value is a string `false` or `true` |
+| **AdditionalNestedFields** | Int : String | **Array of additional fields of nested list type**<br/>Each subarray represents one nested list. <br/>Format of nested list: `[id1: "value", id2 : "value", id3 : "value"]`, where `id1`, `id2`, `id3` — value identifiers by nesting levels |
+| **NameOperator** | String | **Name of agent**<br/>If specified, the string will be displayed instead of the agent's name in the conversation |
+| **NameChat** | String | **Chat name**<br/>Displays in the header |
+| **FirstMessage** | String | **Automatic message**<br/>Sent immediately after initialization on behalf of the client |
+| **CountMessagesOnInit** | Int | **Number of loaded messages when starting the chat**<br/>When client open a chat, a specified number of messages are loaded. As client scrolls chat, 20 more messages are loaded |
+| **LocaleIdentifier** | String | **Language Identifier**<br/>Available languages: Russian (`ru`), English (`en`), Portugiese (`pt`), Spanish (`es`). <br/>If passed identifier is not supported, the Russian language will be used |
+| **CustomLocale** | String : String | **Your own translation dictionary**<br/>If the SDK needs to be displayed in a language we do not support, you can create a translation dictionary yourself and use it |
+| **Storage** | UDStorage | **Storage that supports UDStorage protocol**<br/>Для Each individual chat must be given its own separate storage |
+| **isCacheMessagesWithFile** | Bool | **Flag to store messages with files in cache**<br/>By default: `true`<br/>If `true`, files will be stored in the cache. If `false`, files won't be stored in the cache |
+| **isSaveTokensInUserDefaults** | Bool | **Flag to store user token in UserDefaults of the application**<br/>By default: `true`<br/>If `true`, the token will be stored in the current device. The disadvantages of this approach are that if you reinstall the application, change device or platform, access to your correspondence will be lost. <br/>To preserve access to client conversations from other devices and platforms, the token must be stored on your system and transferred during initialization. In this case, you must use the value of the parameter `false` |
+| **isPresentDefaultControllers** | Bool | **The flag of automatic display of the controller in the specified parent controller**<br/>By default: `true` |
+| **PresentIn** | UIViewController | **Controller in which the SDK must be opened** |
 
-### Инициализация чата и чата вместе с Базой знаний (GUI)
+### Initializing chat and chat with the Knowledge Base (GUI)
 
 ```swift
 let usedesk = UseDeskSDK()
@@ -119,51 +123,50 @@ usedesk.start(
 )
 ```
 
-### Параметры, которые возвращает блок
+### Parameters returned by the block
 
 ****СonnectionStatus****
 
-| Тип | Описание |
+| Type | Description |
 | --- | --- |
-| Bool | Успешность подключения к чату |
-| UDFeedbackStatus | Статус показа формы обратной связи |
-| String | Токен пользователя |
+| Bool | Successful connection to the chat |
+| UDFeedbackStatus | Feedback form display status |
+| String | User token |
 
 ****ErrorStatus****
 
-| Тип | Описание |
+| Type | Description |
 | --- | --- |
-| UDError | Задокументированый тип ошибки |
-| String? | Описание ошибки |
+| UDError | Documented error type |
+| String? | Error description |
 
-## Инициализация Базы знаний без использования чата с использованием графического интерфейса (GUI)
+## Initializing the Knowledge Base without chat using the GUI
 
-SDK предоставляет реализовать в вашем приложении Базу знаний без встраивания чата. 
+The SDK allows you to implement the Knowledge Base in your application without embedding chat. 
 
-В выбранный метод, помимо остальный обязательных параметров, можно передать идентификатор раздела, категории или статьи. При этом после инициализации SDK откроется указанный раздел, категория или статья, из которой можно будет вернуться назад в соответстие с иерархией Базы знаний. Если одновременно указать идентификатор раздела, категории и(или) статьи, то мы покажем самую глубокую сущность.
+In the selected method, in addition to the other required parameters, you can pass the identifier of the section, category or article. In this case, after SDK initialization, the specified section, category or article will open, from which you can go back according to the hierarchy of the Knowledge Base. If you specify the identifier of the section, category and/or article at the same time, we will show the deepest entity.
 
-### Параметры, используемые в конфигурации SDK с GUI
+### Parameters used in SDK configuration with GUI
 
-Где * — обязательный параметр
-
-| **Переменная** | **Тип** | **Описание** |
+Where * — required parameter
+| **Parameter** | **Type** | **Description** |
 | --- | --- | --- |
-| **UrlAPI*** | String | **URL для работы с API**<br/>Стандартное значение: `secure.usedesk.ru/uapi`<br/>Если вы используете коробочную версию Юздеска на собственном сервере, то этот параметр у вас будет отличаться. Уточните актуальный адрес у поддержки — support@usedesk.ru |
-| **API_token*** | String | **Ключ для доступа к API Юздеска**<br/>[Как получить API ключ](https://docs.usedesk.ru/article/10167) |
-| **KnowledgeBaseID*** | String | **Идентификатор базы знаний**<br/>[Как создать Базу знаний](https://docs.usedesk.ru/article/1678)<br/>**Если ID не указан, база знаний не используется** |
-| **KnowledgeBaseSectionId** | String | **Идентификатор раздела базы знаний**<br/>Данный айди можно найди в ссылка на раздел<br/>При указании этого параметра при открытии базы знаний будет открыт раздел с указанным айди|
-| **knowledgeBaseCategoryId** | String | **Идентификатор категории базы знаний**<br/>Данный айди можно найди в ссылка на категорию<br/>При указании этого параметра при открытии базы знаний будет открыта категория с указанным айди|
-| **knowledgeBaseArticleId** | String | **Идентификатор статьи базы знаний**<br/>Данный айди можно найди в ссылка на статью<br/>При указании этого параметра при открытии базы знаний будет открыта статья с указанным айди|
-| **Name** | String | **Имя клиента** |
-| **Email** | String | **Почта клиента** |
-| **Phone** | String | **Телефон клиента** |
-| **Avatar** | Data? | **Изображение аватара клиента** |
-| **LocaleIdentifier** | String | **Идентификатор языка**<br/>Доступные языки: русский (`ru`), английский (`en`), португальский (`pt`), испанский (`es`). <br/>Если переданный идентификатор не поддерживается, будет использоваться русский язык |
-| **CustomLocale** | [String : String] | **Свой словарь переводов**<br/>Если SDK нужно показывать на языке, который мы не поддерживаем, можно самостоятельно создать словарь переводов и использовать его |
-| **isPresentDefaultControllers** | Bool | **Флаг автоматического отображения контроллера в указанном родительском контроллере**<br/>Стандартное значение: `true` |
-| **PresentIn** | UIViewController | **Контроллер, в котором нужно открывать SDK** |
+| **UrlAPI*** | String | **URL to work with Usedesk API**<br/>By default: `secure.usedesk.ru/uapi`<br/>If you use server version of Usedesk on your own server, value may be different for you. Check with support for valid URL — support@usedesk.com |
+| **API_token** | String | **Usedesk API Token**<br/>[How to get API Token](https://en.usedocs.com/article/10169) ||
+| **KnowledgeBaseID** | String | **Knowledge Base ID**<br/>[How to create a Knowledge Base](https://en.usedocs.com/article/7182)<br/>**If ID is not provided, Knowledge Base will not be used** |
+| **KnowledgeBaseSectionId** | String | **Knowledge Base section ID**<br/>This ID can be found in the URL of your Knowledge Base section<br/>If this parameter is specified, the specified section will be opened when opening the knowledge base|
+| **knowledgeBaseCategoryId** | String | **Knowledge Base category ID**<br/>This ID can be found in the URL of your Knowledge Base category<br/>If this parameter is specified, the specified category will be opened when opening the knowledge base|
+| **knowledgeBaseArticleId** | String | **Knowledge Base article ID**<br/>This ID can be found in the URL of your Knowledge Base article<br/>If this parameter is specified, the specified article will be opened when opening the knowledge base|
+| **Name** | String | **Client name** |
+| **Email** | String | **Client email** |
+| **Phone** | String | **Client phone** |
+| **Avatar** | Data? | **Client avatar** |
+| **LocaleIdentifier** | String | **Language Identifier**<br/>Available languages: Russian (`ru`), English (`en`), Portugiese (`pt`), Spanish (`es`). <br/>If passed identifier is not supported, the Russian language will be used |
+| **CustomLocale** | String : String | **Your own translation dictionary**<br/>If the SDK needs to be displayed in a language we do not support, you can create a translation dictionary yourself and use it |
+| **isPresentDefaultControllers** | Bool | **The flag of automatic display of the controller in the specified parent controller**<br/>By default: `true` |
+| **PresentIn** | UIViewController | **Controller in which the SDK must be opened** |
 
-### Инициализация SDK только с базой знаний с GUI
+### Initializing the SDK with the GUI, Knowledge Base only
 
 ```swift
 let usedesk = UseDeskSDK()
@@ -186,54 +189,52 @@ usedesk.startKnowledgeBase(
 )
 ```
 
-### Параметры, которые возвращает блок
+### Parameters returned by the block
 
 ****СonnectionStatus****
 
-| Тип | Описание |
+| Type | Description |
 | --- | --- |
-| Bool | Успешность открытия базы знаний |
+| Bool | The success of opening a Knowledge Base |
 
 ****ErrorStatus****
 
-| Тип | Описание |
+| Type | Description |
 | --- | --- |
-| UDError | Задокументированый тип ошибки |
-| String? | Описание ошибки |
+| Bool | Successful connection to the chat |
+| UDFeedbackStatus | Feedback form display status |
 
-## Инициализация SDK без графического интерфейса (GUI)
+## Initializing SDK without GUI
 
-### Параметры, используемые в конфигурации SDK без GUI
+### Parameters used in the SDK configuration without GUI
 
-Где * — обязательный параметр
-
-| **Переменная** | **Тип** | **Описание** |
+Where * — required parameter
+| **Parameter** | **Type** | **Description** |
 | --- | --- | --- |
-| **CompanyID*** | String | **Идентификатор компании в Юздеске**<br/>[Как найти ID компании](https://docs.usedesk.ru/article/61) |
-| **ChannelID*** | String | **Идентификатор канала чата, через который в Юздеск будут поступать обращения из приложения**<br/>[Как создать и настроить канал](https://docs.usedesk.ru/article/858) |
-| **Url*** | String | **Адрес сервера для работы с чатами SDK**<br/>Стандартное значение: `pubsubsec.usedesk.ru`<br/>Если вы используете коробочную версию Юздеска на собственном сервере, то этот параметр у вас может отличаться. Уточните актуальный адрес у поддержки — support@usedesk.ru |
-| **Port** | String | **Порт сервера для работы с чатами SDK**<br/>Стандартное значение: `443` |
-| **UrlAPI*** | String | **URL для работы с API**<br/>Стандартное значение: `secure.usedesk.ru/uapi`<br/>Если вы используете коробочную версию Юздеска на собственном сервере, то этот параметр у вас будет отличаться. Уточните актуальный адрес у поддержки — support@usedesk.ru |
-| **API_token** | String | **Ключ для доступа к API Юздеска**<br/>[Как получить API ключ](https://docs.usedesk.ru/article/10167) |
-| **KnowledgeBaseID** | String | **Идентификатор базы знаний**<br/>[Как создать Базу знаний](https://docs.usedesk.ru/article/1678)<br/>**Если ID не указан, база знаний не используется** |
-| **UrlToSendFile** | String | **Адрес для отправки файлов**<br/>Стандартное значение: `https://secure.usedesk.ru/uapi/v1/send_file` |
-| **Name** | String | **Имя клиента** |
-| **Email** | String | **Почта клиента** |
-| **Phone** | String | **Телефон клиента** |
-| **Avatar** | Data? | **Изображение аватара клиента** |
-| **Token** | String | **Подпись, однозначно идентифицирующая пользователя и его чат**<br/>Токен выдается в коллбэке после инициализации чата и привязывается к связке почта-телефон-имя пользователя.<br/>Для идентификации различных пользователей на одном устройстве вы должны хранить и передавать полученный токен в метод инициализации |
-| **AdditionalId** | String | **Дополнительный идентификатор клиента** |
-| **Note** | String | **Текст заметки** |
-| **AdditionalFields** | [Int : String] | **Массив дополнительный полей запроса**<br/>Формат: `id : "значение"`<br/>Для текстовых полей значение - строка, для списка - строка с точно совпадающим значением списка, для флага - строка `false` или `true` |
-| **AdditionalNestedFields** | [[Int : String]] | **Массив дополнительных полей типа вложенный список**<br/>Каждый подмассив представляет один вложенный список. <br/>Формат вложенного списка: `[id1: "значение", id2 : "значение", id3 : "значение"]`, где `id1`, `id2`, `id3` — идентификаторы значений по уровням вложенности |
-| **FirstMessage** | String | **Автоматическое сообщение**<br/>Отправится сразу после инициализации от имени клиента |
-| **CountMessagesOnInit** | Int | **Количество загружаемых сообщений при открытии чата**<br/>При открытии чата загружается указанное количество сообщений. По мере прокрутки чата подгружается по 20 сообщений |
-| **LocaleIdentifier** | String | **Идентификатор языка**<br/>Доступные языки: русский (`ru`), английский (`en`), португальский (`pt`), испанский (`es`). <br/>Если переданный идентификатор не поддерживается, будет использоваться русский язык |
-| **CustomLocale** | [String : String] | **Свой словарь переводов**<br/>Если SDK нужно показывать на языке, который мы не поддерживаем, можно самостоятельно создать словарь переводов и использовать его |
-| **isSaveTokensInUserDefaults** | Bool | **Флаг сохранения токена пользователя в UserDefaults приложения**<br/>Стандартное значение: `true`<br/>Если указан `true`, то токен будет храниться в текущем устройстве. Недостатки такого подхода — при переустановке приложения, смене устройства или платформы доступ к переписке будет утрачен. <br/>Для сохранения доступа к переписке клиента с других устройств и платформ,  токен необходимо хранить в вашей системе и передавать его при инициализации. В этом случае нужно использовать значение параметра `false` |
+| **CompanyID*** | String | **Company ID in Usedesk**<br/>[How to find a company ID](https://en.usedocs.com/article/6396) |
+| **ChannelID*** | String | **ID of the chat channel through which messages from the application will be placed at Usedesk**<br/>[How to create and set up a channel](https://en.usedocs.com/article/16616) |
+| **Url*** | String | **Server URL for SDK chats**<br/>By default: `pubsubsec.usedesk.ru`<br/>If you use server version of Usedesk on your own server, value may be different for you. Check with support for valid URL — support@usedesk.com |
+| **Port** | String | **Server port for SDK chats**<br/>By default: `443` |
+| **UrlAPI*** | String | **URL to work with Usedesk API**<br/>By default: `secure.usedesk.ru/uapi`<br/>If you use server version of Usedesk on your own server, value may be different for you. Check with support for valid URL — support@usedesk.com |
+| **API_token** | String | **Usedesk API Token**<br/>[How to get API Token](https://en.usedocs.com/article/10169) |
+| **UrlToSendFile** | String | **URL for sending files**<br/>By default: `https://secure.usedesk.ru/uapi/v1/send_file` |
+| **KnowledgeBaseID** | String | **Knowledge Base ID**<br/>[How to create a Knowledge Base](https://en.usedocs.com/article/7182)<br/>**If ID is not provided, Knowledge Base will not be used** |
+| **Name** | String | **Client name** |
+| **Email** | String | **Client email** |
+| **Phone** | String | **Client phone** |
+| **Avatar** | Data? | **Client avatar** |
+| **Token** | String | **A unique token that uniquely identifies the user and his conversation**<br/>The token is provided in the callback after the initialization of the chat and is linked to the mail-phone-user name.<br/>To identify different users on the same device, you must store and pass the received token to the initialization method |
+| **AdditionalId** | String | **Additional customer ID** |
+| **Note** | String | **Text of note** |
+| **AdditionalFields** | Int : String | **Array of ticket additional fields**<br/>Format: `id : "value"`<br/>For text fields the value is a string, for a list the value is a string with the exact list value, for a flag the value is a string `false` or `true` |
+| **AdditionalNestedFields** | Int : String | **Array of additional fields of nested list type**<br/>Each subarray represents one nested list. <br/>Format of nested list: `[id1: "value", id2 : "value", id3 : "value"]`, where `id1`, `id2`, `id3` — value identifiers by nesting levels |
+| **FirstMessage** | String | **Automatic message**<br/>Sent immediately after initialization on behalf of the client |
+| **CountMessagesOnInit** | Int | **Number of loaded messages when starting the chat**<br/>When client open a chat, a specified number of messages are loaded. As client scrolls chat, 20 more messages are loaded |
+| **LocaleIdentifier** | String | **Language Identifier**<br/>Available languages: Russian (`ru`), English (`en`), Portugiese (`pt`), Spanish (`es`). <br/>If passed identifier is not supported, the Russian language will be used |
+| **CustomLocale** | String : String | **Your own translation dictionary**<br/>If the SDK needs to be displayed in a language we do not support, you can create a translation dictionary yourself and use it |
+| **isSaveTokensInUserDefaults** | Bool | **Flag to store user token in UserDefaults of the application**<br/>By default: `true`<br/>If `true`, the token will be stored in the current device. The disadvantages of this approach are that if you reinstall the application, change device or platform, access to your correspondence will be lost. <br/>To preserve access to client conversations from other devices and platforms, the token must be stored on your system and transferred during initialization. In this case, you must use the value of the parameter `false` |
 
-
-### Инициализация SDK без GUI
+### Initializing  SDK without a GUI
 
 ```swift
 let usedesk = UseDeskSDK()
@@ -265,32 +266,32 @@ usedesk.startWithoutGUICompanyID(
 )
 ```
 
-### Параметры, которые возвращает блок
+### Parameters returned by the block
 
 ****СonnectionStatus****
 
-| Тип | Описание |
+| Type | Description |
 | --- | --- |
-| Bool | Успешность подключения к чату |
-| UDFeedbackStatus | Статус показа формы обратной связи |
-| String | Токен пользователя |
+| Bool | Successful connection to the chat |
+| UDFeedbackStatus | Feedback form display status |
+| String | User token |
 
 ****ErrorStatus****
 
-| Тип | Описание |
+| Type | Description |
 | --- | --- |
-| UDError | Задокументированый тип ошибки |
-| String? | Описание ошибки |
+| UDError | Documented error type |
+| String? | Error description |
 
-## Документация
+## Documentation
 
-Методы для работы с SDK, кастомизация элементов, а также ошибки описаны в нашей документации: [http://sdk.usedocs.ru](http://sdk.usedocs.ru/)
+Methods for working with the SDK, customization of elements, and errors are described in our documentation: [http://sdk.usedocs.com](http://sdk.usedocs.com/)
 
-## Авторы
+## Authors
 
-Сергей, [kon.sergius@gmail.com](mailto:kon.sergius@gmail.com)
+Sergey, [kon.sergius@gmail.com](mailto:kon.sergius@gmail.com)
 
-Максим, [ixotdog@gmail.com](mailto:ixotdog@gmail.com)
+Maksim, [ixotdog@gmail.com](mailto:ixotdog@gmail.com)
 
 ## ****License****
 
