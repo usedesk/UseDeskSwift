@@ -11,7 +11,7 @@ class UDMarkdownParser {
         if linkColor != nil {
             markdownParser.link.color = linkColor!
         }
-        var convertedText = text.replacingOccurrences(of: "-", with: "\\-")
+        var convertedText = text.replacingOccurrences(of: "-", with: "\\-") 
         var parsedAttributedString = markdownParser.parse(convertedText)
         return NSMutableAttributedString(attributedString: parsedAttributedString)
     }

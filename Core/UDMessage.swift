@@ -142,7 +142,34 @@ public class UDMessage: NSObject, Codable {
         }
     }
     
+    
+    
     // MARK: - Methods
+    public func copyMessage() -> UDMessage {
+        let message = UDMessage()
+        message.type = type
+        message.typeSenderMessageString = typeSenderMessageString
+        message.incoming = incoming
+        message.feedbackActionInt = feedbackActionInt
+        message.text = text
+        message.buttons = buttons
+        message.date = date
+        message.status = status
+        message.statusSend = statusSend
+        message.idStatusForm = idStatusForm
+        message.id = id
+        message.loadingMessageId = loadingMessageId
+        message.ticket_id = ticket_id
+        message.name = name
+        message.operatorId = operatorId
+        message.operatorName = operatorName
+        message.avatar = avatar
+        message.avatarImage = avatarImage
+        message.file = file
+        message.forms = forms
+        return message
+    }
+    
     func setAsset(asset: PHAsset, isCacheFile: Bool = true, successBlock: @escaping () -> Void) {
         statusSend = UD_STATUS_SEND_DRAFT
         if asset.mediaType == .video {

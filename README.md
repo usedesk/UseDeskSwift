@@ -61,10 +61,12 @@ Where * — required parameter
 | **KnowledgeBaseSectionId** | String | **Knowledge Base section ID**<br/>This ID can be found in the URL of your Knowledge Base section<br/>If this parameter is specified, the specified section will be opened when opening the knowledge base|
 | **knowledgeBaseCategoryId** | String | **Knowledge Base category ID**<br/>This ID can be found in the URL of your Knowledge Base category<br/>If this parameter is specified, the specified category will be opened when opening the knowledge base|
 | **knowledgeBaseArticleId** | String | **Knowledge Base article ID**<br/>This ID can be found in the URL of your Knowledge Base article<br/>If this parameter is specified, the specified article will be opened when opening the knowledge base|
+| **isReturnToParentFromKnowledgeBase** | Bool | **Flag which specifies the behaviour of the “Back” button of Knowledge Base if an individual category, section or article is specified**<br/>Default value: `false`<br/>If `true`, pressing the “Back” button will close the entire Knowledge Base|
 | **Name** | String | **Client name** |
 | **Email** | String | **Client email** |
 | **Phone** | String | **Client phone** |
 | **Avatar** | Data? | **Client avatar** |
+| **AvatarUrl** | URL? | **URL of client avatar image**<br/>Avatar parameter has higher priority|
 | **Token** | String | **A unique token that uniquely identifies the user and his conversation**<br/>The token is provided in the callback after the initialization of the chat and is linked to the mail-phone-user name.<br/>To identify different users on the same device, you must store and pass the received token to the initialization method |
 | **AdditionalId** | String | **Additional customer ID** |
 | **Note** | String | **Text of note** |
@@ -98,6 +100,7 @@ usedesk.start(
     knowledgeBaseSectionId: "0",
     knowledgeBaseCategoryId: "0",
     knowledgeBaseArticleId: "0",
+    isReturnToParentFromKnowledgeBase: true,
     name: "Name", 
     email: "lolo@yandex.ru", 
     phone: "89000000000", 
@@ -157,10 +160,10 @@ Where * — required parameter
 | **KnowledgeBaseSectionId** | String | **Knowledge Base section ID**<br/>This ID can be found in the URL of your Knowledge Base section<br/>If this parameter is specified, the specified section will be opened when opening the knowledge base|
 | **knowledgeBaseCategoryId** | String | **Knowledge Base category ID**<br/>This ID can be found in the URL of your Knowledge Base category<br/>If this parameter is specified, the specified category will be opened when opening the knowledge base|
 | **knowledgeBaseArticleId** | String | **Knowledge Base article ID**<br/>This ID can be found in the URL of your Knowledge Base article<br/>If this parameter is specified, the specified article will be opened when opening the knowledge base|
+| **isReturnToParentFromKnowledgeBase** | Bool | **Flag which specifies the behaviour of the “Back” button of Knowledge Base if an individual category, section or article is specified**<br/>Default value: `false`<br/>If `true`, pressing the “Back” button will close the entire Knowledge Base|
 | **Name** | String | **Client name** |
 | **Email** | String | **Client email** |
 | **Phone** | String | **Client phone** |
-| **Avatar** | Data? | **Client avatar** |
 | **LocaleIdentifier** | String | **Language Identifier**<br/>Available languages: Russian (`ru`), English (`en`), Portugiese (`pt`), Spanish (`es`). <br/>If passed identifier is not supported, the Russian language will be used |
 | **CustomLocale** | String : String | **Your own translation dictionary**<br/>If the SDK needs to be displayed in a language we do not support, you can create a translation dictionary yourself and use it |
 | **isPresentDefaultControllers** | Bool | **The flag of automatic display of the controller in the specified parent controller**<br/>By default: `true` |
@@ -177,6 +180,7 @@ usedesk.startKnowledgeBase(
     knowledgeBaseSectionId: "0",
     knowledgeBaseCategoryId: "0",
     knowledgeBaseArticleId: "0",
+    isReturnToParentFromKnowledgeBase: true,
     name: "Name", 
     email: "lolo@yandex.ru", 
     phone: "89000000000", 
@@ -223,6 +227,7 @@ Where * — required parameter
 | **Email** | String | **Client email** |
 | **Phone** | String | **Client phone** |
 | **Avatar** | Data? | **Client avatar** |
+| **AvatarUrl** | URL? | **URL of client avatar image**<br/>Avatar parameter has higher priority|
 | **Token** | String | **A unique token that uniquely identifies the user and his conversation**<br/>The token is provided in the callback after the initialization of the chat and is linked to the mail-phone-user name.<br/>To identify different users on the same device, you must store and pass the received token to the initialization method |
 | **AdditionalId** | String | **Additional customer ID** |
 | **Note** | String | **Text of note** |

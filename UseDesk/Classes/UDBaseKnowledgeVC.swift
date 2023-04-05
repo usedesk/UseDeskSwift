@@ -6,7 +6,15 @@ import UIKit
 
 class UDBaseKnowledgeVC: UIViewController {
     @IBOutlet weak var topNavigateView: UIView!
-
+    
+    @IBOutlet weak var errorLoadView: UIView!
+    @IBOutlet weak var errorLoadImageView: UIImageView!
+    @IBOutlet weak var errorLoadImageViewAspectRatio: NSLayoutConstraint!
+    @IBOutlet weak var errorLoadImageViewCenterYC: NSLayoutConstraint!
+    @IBOutlet weak var errorLoadImageViewTC: NSLayoutConstraint!
+    @IBOutlet weak var errorLoadImageViewLC: NSLayoutConstraint!
+    @IBOutlet weak var errorLoadLabel: UILabel!
+    
     weak var usedesk: UseDeskSDK?
     
     var isFirstLoaded = true
@@ -71,8 +79,17 @@ class UDBaseKnowledgeVC: UIViewController {
     }
     
     // MARK: - Methods
-    
     func firstState() {
+        guard errorLoadImageView != nil else {return}
+        let baseStyle = configurationStyle.baseStyle
+        errorLoadImageView.image = baseStyle.errorLoadImage
+        errorLoadLabel.text = usedesk?.model.stringFor("ErrorLoading")
+        errorLoadView.backgroundColor = configurationStyle.baseStyle.backgroundColor
+        errorLoadImageViewCenterYC = errorLoadImageViewCenterYC.constraintWithMultiplier(baseStyle.errorLoadImageCenterYMultiplier)
+        errorLoadImageViewAspectRatio = errorLoadImageViewAspectRatio.constraintWithMultiplier(baseStyle.errorLoadImageAspectRatioMultiplier)
+        errorLoadImageViewTC.constant = baseStyle.errorLoadImageMargin.right
+        errorLoadImageViewLC.constant = baseStyle.errorLoadImageMargin.left
+        self.view.layoutIfNeeded()
     }
     
     func updateViewsBeforeChangeOrientationWindow() {
@@ -215,4 +232,26 @@ class UDBaseKnowledgeVC: UIViewController {
         present(alert, animated: true)
     }
     
+    // MARK: - No Internet
+    func showErrorLoadView(withAnimate: Bool = false) {
+        if withAnimate {
+            UIView.animate(withDuration: 0.3) {
+                self.errorLoadView.alpha = 1
+                self.view.layoutIfNeeded()
+            }
+        } else {
+            errorLoadView.alpha = 1
+        }
+    }
+    
+    func hideErrorLoadView(withAnimate: Bool = false) {
+        if withAnimate {
+            UIView.animate(withDuration: 0.3) {
+                self.errorLoadView.alpha = 0
+                self.view.layoutIfNeeded()
+            }
+        } else {
+            errorLoadView.alpha = 0
+        }
+    }
 }

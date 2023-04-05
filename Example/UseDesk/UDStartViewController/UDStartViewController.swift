@@ -21,6 +21,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var phoneTextField: UITextField!
     @IBOutlet weak var nameChatTextField: UITextField!
+    @IBOutlet weak var avatarUrlDataTextField: UITextField!
     @IBOutlet weak var avatarUrlTextField: UITextField!
     @IBOutlet weak var firstMessageTextField: UITextField!
     @IBOutlet weak var countMessagesOnInitTextField: UITextField!
@@ -34,6 +35,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
     @IBOutlet weak var categoryIdTextField: UITextField!
     @IBOutlet weak var articleIdTextField: UITextField!
     @IBOutlet weak var isOnlyKnowledgeBaseSwitch: UISwitch!
+    @IBOutlet weak var isReturnParentSwitch: UISwitch!
     @IBOutlet weak var isTabBarSwitch: UISwitch!
     @IBOutlet weak var versionLabel: UILabel!
     
@@ -175,8 +177,14 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
     }
     
     @IBAction func startChatButton(_ sender: Any) {
-        guard isCanStartSDK else {return}
+        guard isCanStartSDK else {
+            return
+            
+        }
         isCanStartSDK = false
+        usedesk.presentationCompletionBlock = { [weak self] in
+            self?.isCanStartSDK = true
+        }
         if isTabBarSwitch.isOn {
             usedesk.configurationStyle = ConfigurationStyle(baseStyle: BaseStyle(windowBottomMargin: 48 + view.safeAreaInsets.bottom))
         }
@@ -192,7 +200,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
         if isOnlyKnowledgeBaseSwitch.isOn {
             startOnlyKnowledgeBase()
         } else {
-            if let pathAvatar = avatarUrlTextField.text {
+            if let pathAvatar = avatarUrlDataTextField.text {
                 if let urlAvatar = URL(string: pathAvatar) {
                     URLSession.shared.dataTask(with: urlAvatar, completionHandler: { [weak self] data, _, _ in
                         DispatchQueue.main.async {
@@ -211,9 +219,9 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
             print("close SDK")
         }
     }
-
+    
     func startSDK(dataAvatar: Data? = nil) {
-        usedesk.start(withCompanyID: companyIdTextField.text ?? "", chanelId: chanelIdTextField.text ?? "", url: urlTextField.text ?? "", port: portTextField.text!, urlAPI: urlBaseTextField.text, api_token: apiTokenTextField.text ?? "", urlToSendFile: urlToSendFileTextField.text ?? "", knowledgeBaseID: knowledgeBaseIDTextField.text ?? "", knowledgeBaseSectionId: NSNumber(value: Int(sectionIdTextField.text ?? "") ?? 0), knowledgeBaseCategoryId: NSNumber(value: Int(categoryIdTextField.text ?? "") ?? 0), knowledgeBaseArticleId: NSNumber(value: Int(articleIdTextField.text ?? "") ?? 0), name: nameTextField.text, email: emailTextField.text ?? "", phone: phoneTextField.text, avatar: dataAvatar, token: tokenTextField.text, additional_id: additionalIdTextField.text, note: noteTextField.text, additionalFields: additionalFields(), additionalNestedFields: additionalNestedFields(), nameOperator: operatorNameTextField.text, nameChat: nameChatTextField.text ?? "", firstMessage: firstMessageTextField.text, countMessagesOnInit: NSNumber(value: Int(countMessagesOnInitTextField.text ?? "") ?? 20), localeIdentifier: localeIdTextField.text, isPresentDefaultControllers: !isTabBarSwitch.isOn, presentIn: self, connectionStatus: { success, feedbackStatus, token in
+        usedesk.start(withCompanyID: companyIdTextField.text ?? "", chanelId: chanelIdTextField.text ?? "", url: urlTextField.text ?? "", port: portTextField.text!, urlAPI: urlBaseTextField.text, api_token: apiTokenTextField.text ?? "", urlToSendFile: urlToSendFileTextField.text ?? "", knowledgeBaseID: knowledgeBaseIDTextField.text ?? "", knowledgeBaseSectionId: NSNumber(value: Int(sectionIdTextField.text ?? "") ?? 0), knowledgeBaseCategoryId: NSNumber(value: Int(categoryIdTextField.text ?? "") ?? 0), knowledgeBaseArticleId: NSNumber(value: Int(articleIdTextField.text ?? "") ?? 0), isReturnToParentFromKnowledgeBase: isReturnParentSwitch.isOn, name: nameTextField.text, email: emailTextField.text ?? "", phone: phoneTextField.text, avatar: dataAvatar, avatarUrl: URL(string: avatarUrlTextField.text ?? ""), token: tokenTextField.text, additional_id: additionalIdTextField.text, note: noteTextField.text, additionalFields: additionalFields(), additionalNestedFields: additionalNestedFields(), nameOperator: operatorNameTextField.text, nameChat: nameChatTextField.text ?? "", firstMessage: firstMessageTextField.text, countMessagesOnInit: NSNumber(value: Int(countMessagesOnInitTextField.text ?? "") ?? 20), localeIdentifier: localeIdTextField.text, isPresentDefaultControllers: !isTabBarSwitch.isOn, presentIn: self, connectionStatus: { success, feedbackStatus, token in
             if self.isTabBarSwitch.isOn && success {
                 let chatVC = self.usedesk.chatViewController() ?? UIViewController()
                 let baseNС = self.usedesk.baseNavigationController() ?? UINavigationController()
@@ -238,7 +246,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
     }
     
     func startOnlyKnowledgeBase() {
-        usedesk.startKnowledgeBase(urlAPI: urlBaseTextField.text, api_token: apiTokenTextField.text ?? "", knowledgeBaseID: knowledgeBaseIDTextField.text ?? "", name: nameTextField.text ?? "", email: emailTextField.text ?? "", phone: phoneTextField.text, localeIdentifier: localeIdTextField.text, isPresentDefaultControllers: !isTabBarSwitch.isOn, presentIn: self, connectionStatus: { success in
+        usedesk.startKnowledgeBase(urlAPI: urlBaseTextField.text, api_token: apiTokenTextField.text ?? "", knowledgeBaseID: knowledgeBaseIDTextField.text ?? "", knowledgeBaseSectionId: NSNumber(value: Int(sectionIdTextField.text ?? "") ?? 0), knowledgeBaseCategoryId: NSNumber(value: Int(categoryIdTextField.text ?? "") ?? 0), knowledgeBaseArticleId: NSNumber(value: Int(articleIdTextField.text ?? "") ?? 0), isReturnToParentFromKnowledgeBase: isReturnParentSwitch.isOn, name: nameTextField.text ?? "", email: emailTextField.text ?? "", phone: phoneTextField.text, localeIdentifier: localeIdTextField.text, isPresentDefaultControllers: !isTabBarSwitch.isOn, presentIn: self, connectionStatus: { success in
             if self.isTabBarSwitch.isOn && success {
                 let chatVC = self.usedesk.baseNavigationController() ?? UINavigationController()
                 let secondVC = SecondViewController()

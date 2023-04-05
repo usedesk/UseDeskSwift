@@ -38,7 +38,7 @@ class UDMessageCellNode: ASCellNode {
         let messageStyle = configurationStyle.messageStyle
         let bubbleStyle = configurationStyle.bubbleStyle
         
-        backgroundColor = .clear
+        backgroundColor = configurationStyle.chatStyle.backgroundColor
         
         var bubbleImage = message.outgoing ? bubbleStyle.backgroundImageOutgoing : bubbleStyle.backgroundImageIncoming
         bubbleImage = bubbleImage.stretchableImage(withLeftCapWidth: 23, topCapHeight: 16).withRenderingMode(.alwaysTemplate)
@@ -67,9 +67,9 @@ class UDMessageCellNode: ASCellNode {
         
         if message.outgoing {
             avatarImageNode.style.preferredSize = CGSize.zero
-            var imageSended = message.loadingMessageId != "" ? messageStyle.sendStatusImage : messageStyle.sendedStatusImage
+            var imageSended = message.statusSend == UD_STATUS_SEND_SUCCEED ? messageStyle.sendedStatusImage : messageStyle.sendStatusImage
             if isPictureOrVideoType {
-                imageSended = message.loadingMessageId != "" ? messageStyle.sendStatusImageForImageMessage : messageStyle.sendedStatusImageForImageMessage
+                imageSended = message.statusSend == UD_STATUS_SEND_SUCCEED ? messageStyle.sendedStatusImageForImageMessage : messageStyle.sendStatusImageForImageMessage
             }
             sendedImageNode.image = imageSended
             addSubnode(sendedImageNode)

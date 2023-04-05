@@ -45,36 +45,21 @@ class UDTextMessageCellNode: UDMessageCellNode {
         isOutgoing = message.outgoing
         self.message = message
         configurationStyle = messagesView?.usedesk?.configurationStyle ?? ConfigurationStyle()
-        DispatchQueue.main.async {
-            self.setSell()
-        }
+        setSell()
     }
     
     private func setSell() {
-        let messageStyle = configurationStyle.messageStyle
         let messageFormStyle = configurationStyle.messageFormStyle
-        let linkColor = message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor
         
-        let attributedString = UDMarkdownParser.mutableAttributedString(for: message.text,
-                                                                               font: messageStyle.font,
-                                                                               color: message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor)
-        attributedString.enumerateAttributes(in: NSRange(0..<attributedString.length), options: []) { (attributes, range, _) -> Void in
-            for (attribute, _) in attributes {
-                if attribute == .link {
-                    attributedString.addAttribute(.foregroundColor, value: linkColor, range: range)
-                    attributedString.addAttribute(.underlineColor, value: linkColor, range: range)
-                }
-            }
-        }
-        textMessageNode.attributedText = attributedString
-        textMessageNode.isUserInteractionEnabled = true
-        textMessageNode.delegate = self
+        setTextMessageNode()
         
         if message.buttons.count > 0 {
             tableButtonsNode.dataSource = self
             tableButtonsNode.delegate = self
             tableButtonsNode.backgroundColor = .clear
-            tableButtonsNode.view.separatorStyle = .none
+            DispatchQueue.main.async {
+                self.tableButtonsNode.view.separatorStyle = .none
+            }
             addSubnode(tableButtonsNode)
         }
         
@@ -90,7 +75,9 @@ class UDTextMessageCellNode: UDMessageCellNode {
                     tableFormsNode.dataSource = self
                     tableFormsNode.delegate = self
                     tableFormsNode.backgroundColor = .clear
-                    tableFormsNode.view.separatorStyle = .none
+                    DispatchQueue.main.async {
+                        self.tableFormsNode.view.separatorStyle = .none
+                    }
                     addSubnode(tableFormsNode)
                     
                     sendFormButton.cornerRadius = messageFormStyle.sendFormButtonCornerRadius
@@ -99,10 +86,12 @@ class UDTextMessageCellNode: UDMessageCellNode {
                 } else {
                     updateFormsNodes()
                 }
-                if message.statusForms == .loading {
-                    (loaderNode.view as? UIActivityIndicatorView)?.startAnimating()
-                } else {
-                    (loaderNode.view as? UIActivityIndicatorView)?.stopAnimating()
+                DispatchQueue.main.async {
+                    if self.message.statusForms == .loading {
+                        (self.loaderNode.view as? UIActivityIndicatorView)?.startAnimating()
+                    } else {
+                        (self.loaderNode.view as? UIActivityIndicatorView)?.stopAnimating()
+                    }
                 }
                 loaderNode.alpha = message.statusForms == .loading ? 1 : 0
 
@@ -121,8 +110,30 @@ class UDTextMessageCellNode: UDMessageCellNode {
             }
         }
         super.bindData(messagesView: messagesView, message: message)
-
-        tableButtonsNode.view.separatorStyle = .none
+        DispatchQueue.main.async {
+            self.tableButtonsNode.view.separatorStyle = .none
+        }
+    }
+    
+    private func setTextMessageNode() {
+        let messageStyle = configurationStyle.messageStyle
+        
+        let linkColor = message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor
+        
+        let attributedString = UDMarkdownParser.mutableAttributedString(for: message.text,
+                                                                               font: messageStyle.font,
+                                                                               color: message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor)
+        attributedString.enumerateAttributes(in: NSRange(0..<attributedString.length), options: []) { (attributes, range, _) -> Void in
+            for (attribute, _) in attributes {
+                if attribute == .link {
+                    attributedString.addAttribute(.foregroundColor, value: linkColor, range: range)
+                    attributedString.addAttribute(.underlineColor, value: linkColor, range: range)
+                }
+            }
+        }
+        textMessageNode.attributedText = attributedString
+        textMessageNode.isUserInteractionEnabled = true
+        textMessageNode.delegate = self
     }
     
     func setDefaultConfigSendFormButton() {
@@ -281,6 +292,8 @@ class UDTextMessageCellNode: UDMessageCellNode {
         }
         
         let timeInsetSpec = ASInsetLayoutSpec(insets: UIEdgeInsets(top: 0, left: 0, bottom: messageStyle.timeMargin.bottom, right: message.outgoing ? 0 : messageStyle.timeMargin.right), child: timeNode)
+        timeInsetSpec.style.flexShrink = 0
+        timeInsetSpec.style.flexGrow = 0
         let messageAndTimeAndSendedStack = ASStackLayoutSpec(direction: .horizontal, spacing: 0, justifyContent: .end, alignItems: .end, children: [vMessageStack , timeInsetSpec])
         if message.outgoing {
             let sendedImageInsetSpec = ASInsetLayoutSpec(insets: UIEdgeInsets(top: 0, left: messageStyle.sendedStatusMargin.left, bottom: messageStyle.sendedStatusMargin.bottom, right: messageStyle.sendedStatusMargin.right), child: sendedImageNode)

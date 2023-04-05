@@ -8,6 +8,15 @@ import UIKit
 class UDBaseArticlesView: UDListBaseKnowledgeVC {
     var articles: [UDArticleTitle]? = nil
     
+    override func viewWillAppear(_ animated: Bool) {
+        articles == nil ? showErrorLoadView() : hideErrorLoadView()
+        super.viewWillAppear(animated)
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    }
+    
     override func firstState() {
         super.firstState()
         
@@ -17,18 +26,19 @@ class UDBaseArticlesView: UDListBaseKnowledgeVC {
         
         tableView.register(UINib(nibName: "UDBaseArticleViewCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDBaseArticleViewCell")
         tableView.reloadData()
+        
+        articles == nil ? showErrorLoadView() : hideErrorLoadView()
     }
     
-    override func updateViews() {
+    override func updateValues() {
         if usedesk?.model.isLoadedKnowledgeBase ?? false && articles == nil {
-            articles = usedesk?.model.selectedKnowledgeBaseCategory?.articlesTitles ?? []
+            articles = usedesk?.model.selectedKnowledgeBaseCategory?.articlesTitles
             titleVC = usedesk?.model.selectedKnowledgeBaseCategory?.title ?? ""
         }
-        super.updateViews()
     }
     
     override func backAction() {
-        if isShownNoInternet {
+        if isShownNoInternet || (self.navigationController?.viewControllers.count ?? 0 < 2) {
             super.backAction()
         } else {
             self.navigationController?.popViewController(animated: true)

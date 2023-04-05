@@ -4,7 +4,7 @@
 
 public class UDValidationManager {
     
-    class func validateInitionalsFields(companyID: String? = nil, chanelId: String? = nil, url: String? = nil, port: String? = nil, urlAPI: String? = nil, api_token: String? = nil, urlToSendFile: String? = nil, knowledgeBaseID: String? = nil, knowledgeBaseSectionId: NSNumber? = nil, knowledgeBaseCategoryId: NSNumber? = nil, knowledgeBaseArticleId: NSNumber? = nil, name: String? = nil, email: String? = nil, phone: String? = nil, avatar: Data? = nil, token: String? = nil, additional_id: String? = nil, note: String? = nil, additionalFields: [Int : String] = [:], additionalNestedFields: [[Int : String]] = [], nameOperator: String? = nil, nameChat: String? = nil, firstMessage: String? = nil, countMessagesOnInit: NSNumber? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, isSaveTokensInUserDefaults: Bool = true, isPresentDefaultControllers: Bool = true, isOnlyKnowledgeBase : Bool = false, validModelBlock: @escaping UDValidModelBlock, errorStatus errorBlock: @escaping UDErrorBlock) {
+    class func validateInitionalsFields(companyID: String? = nil, chanelId: String? = nil, url: String? = nil, port: String? = nil, urlAPI: String? = nil, api_token: String? = nil, urlToSendFile: String? = nil, knowledgeBaseID: String? = nil, knowledgeBaseSectionId: NSNumber? = nil, knowledgeBaseCategoryId: NSNumber? = nil, knowledgeBaseArticleId: NSNumber? = nil, isReturnToParentFromKnowledgeBase: Bool = false, name: String? = nil, email: String? = nil, phone: String? = nil, avatar: Data? = nil, avatarUrl: URL? = nil, token: String? = nil, additional_id: String? = nil, note: String? = nil, additionalFields: [Int : String] = [:], additionalNestedFields: [[Int : String]] = [], nameOperator: String? = nil, nameChat: String? = nil, firstMessage: String? = nil, countMessagesOnInit: NSNumber? = nil, localeIdentifier: String? = nil, customLocale: [String : String]? = nil, isSaveTokensInUserDefaults: Bool = true, isPresentDefaultControllers: Bool = true, isOnlyKnowledgeBase : Bool = false, validModelBlock: @escaping UDValidModelBlock, errorStatus errorBlock: @escaping UDErrorBlock) {
         
         var model = UseDeskModel()
         
@@ -36,11 +36,15 @@ public class UDValidationManager {
         
         if Int(truncating: knowledgeBaseArticleId ?? 0) > 0 {
             model.knowledgeBaseArticleId = Int(truncating: knowledgeBaseArticleId!)
-        } else if Int(truncating: knowledgeBaseCategoryId ?? 0) > 0 {
+        }
+        if Int(truncating: knowledgeBaseCategoryId ?? 0) > 0 {
             model.knowledgeBaseCategoryId = Int(truncating: knowledgeBaseCategoryId!)
-        } else if Int(truncating: knowledgeBaseSectionId ?? 0) > 0 {
+        }
+        if Int(truncating: knowledgeBaseSectionId ?? 0) > 0 {
             model.knowledgeBaseSectionId = Int(truncating: knowledgeBaseSectionId!)
         }
+        
+        model.isReturnToParentFromKnowledgeBase = isReturnToParentFromKnowledgeBase
         
         if api_token != nil {
             model.api_token = api_token!
@@ -68,7 +72,7 @@ public class UDValidationManager {
         }
         
         if url != nil {
-            guard isValidSite(path: url!) else {
+            guard url!.udIsValidUrl() else {
                 errorBlock(.urlError, UDError.urlError.description)
                 return
             }
@@ -94,7 +98,7 @@ public class UDValidationManager {
         
         if urlToSendFile != nil {
             if urlToSendFile != "" {
-                guard isValidSite(path: urlToSendFile!) else {
+                guard urlToSendFile!.udIsValidUrl() else {
                     errorBlock(.urlToSendFileError, UDError.urlToSendFileError.description)
                     return
                 }
@@ -112,7 +116,7 @@ public class UDValidationManager {
                 if !isExistProtocol(url: urlAPIValue) {
                     urlAPIValue = "https://" + urlAPIValue
                 }
-                guard isValidSite(path: urlAPIValue) else {
+                guard urlAPIValue.udIsValidUrl() else {
                     errorBlock(.urlAPIError, UDError.urlAPIError.description)
                     return
                 }
@@ -128,6 +132,8 @@ public class UDValidationManager {
         
         if avatar != nil {
             model.avatar = avatar!
+        } else if avatarUrl != nil {
+            model.avatarUrl = avatarUrl!
         }
         
         if nameOperator != nil {
@@ -228,11 +234,6 @@ public class UDValidationManager {
    }
     
     // MARK: - Private Methods
-    private class func isValidSite(path: String) -> Bool {
-        let urlRegEx = "^(https?://)?(www\\.)?([-a-z0-9]{1,63}\\.)*?[a-z0-9][-a-z0-9]{0,61}[a-z0-9]\\.[a-z]{2,6}(/[-\\w@\\+\\.~#\\?&/=%]*)?$"
-        return NSPredicate(format: "SELF MATCHES %@", urlRegEx).evaluate(with: path)
-    }
-    
     private class func isExistProtocol(url: String) -> Bool {
         if url.count > 8 {
             let indexEndHttps = url.index(url.startIndex, offsetBy: 7)

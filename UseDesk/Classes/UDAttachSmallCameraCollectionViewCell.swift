@@ -22,9 +22,8 @@ class UDAttachSmallCameraCollectionViewCell: UICollectionViewCell {
         if !(session?.isRunning ?? false) {
             session = AVCaptureSession()
             device = AVCaptureDevice.default(for: .video)
-            
             if let _ = device,
-                let _ = session {
+               let _ = session {
                 do {
                     input = try AVCaptureDeviceInput(device: device!)
                     session?.addInput(input!)
@@ -33,7 +32,9 @@ class UDAttachSmallCameraCollectionViewCell: UICollectionViewCell {
                     prevLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
                     prevLayer?.connection?.videoOrientation = orientation
                     cameraPreviewView.layer.addSublayer(prevLayer!)
-                    session?.startRunning()
+                    DispatchQueue.global(qos: .background).async {
+                        self.session?.startRunning()
+                    }
                 } catch {}
             }
         } else {

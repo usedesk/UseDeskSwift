@@ -41,9 +41,9 @@ class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFie
     var isLimitLengthText = true
     var title = ""
     var titleAttributed: NSAttributedString? = nil
-    var teextAttributed: NSAttributedString? = nil
+    var textAttributed: NSAttributedString? = nil
     
-    func setCell(title _title: String, titleAttributed _titleAttributed: NSAttributedString? = nil, text: String, textAttributed: NSAttributedString? = nil, indexPath indexPathCell: IndexPath, isValid isValidText: Bool = true, isTitleErrorState isTitleError: Bool = false, isLast isLastText: Bool = false, isNeedLastLine: Bool = false, isNeedSelectImage: Bool = false, isUserInteractionEnabled: Bool = true, isLimitLengthText isLimitLength: Bool = true, isOneLine: Bool = false) {
+    func setCell(title _title: String, titleAttributed _titleAttributed: NSAttributedString? = nil, text: String, textAttributed _textAttributed: NSAttributedString? = nil, indexPath indexPathCell: IndexPath, isValid isValidText: Bool = true, isTitleErrorState isTitleError: Bool = false, isLast isLastText: Bool = false, isNeedLastLine: Bool = false, isNeedSelectImage: Bool = false, isUserInteractionEnabled: Bool = true, isLimitLengthText isLimitLength: Bool = true, isOneLine: Bool = false) {
         indexPath = indexPathCell
         isValid = isValidText
         isLast = isLastText
@@ -51,7 +51,7 @@ class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFie
         isLimitLengthText = isLimitLength
         title = _title
         titleAttributed = _titleAttributed
-        teextAttributed = textAttributed
+        textAttributed = _textAttributed
         let feedbackFormStyle = configurationStyle.feedbackFormStyle
         titleLabel.textColor = feedbackFormStyle.headerColor
         titleLabel.font = feedbackFormStyle.headerFont
@@ -90,8 +90,8 @@ class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFie
         }
         
         if myTextView.text.count == 0 {
-            if teextAttributed != nil {
-                titleLabelTopC.constant = teextAttributed!.string.count > 0 ? 10 : 34
+            if textAttributed != nil {
+                titleLabelTopC.constant = textAttributed!.string.count > 0 ? 10 : 34
             } else {
                 titleLabelTopC.constant = 34
             }
@@ -128,7 +128,7 @@ class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFie
                     self.myTextView.text = ""
                     self.myTextView.textColor = feedbackFormStyle.valueColor
                 }
-            } else if self.myTextView.text == self.title || self.myTextView.attributedText == self.teextAttributed {
+            } else if self.myTextView.text == self.title || self.myTextView.attributedText == self.textAttributed {
                     self.titleLabel.text = self.title
                     self.myTextView.text = ""
                     self.myTextView.textColor = feedbackFormStyle.valueColor
@@ -150,8 +150,8 @@ class UDTextAnimateTableViewCell: UITableViewCell, UITextViewDelegate, UITextFie
             }
             
             if self.myTextView.text.count == 0 {
-                if self.teextAttributed != nil {
-                    self.titleLabelTopC.constant = self.teextAttributed!.string.count > 0 ? 10 : 34
+                if self.textAttributed != nil {
+                    self.titleLabelTopC.constant = self.textAttributed!.string.count > 0 && !self.isValid ? 10 : 34
                 } else {
                     self.titleLabelTopC.constant = 34
                 }

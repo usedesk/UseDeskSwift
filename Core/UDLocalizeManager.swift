@@ -65,6 +65,7 @@ class UDLocalizeManager {
             "File2"                    : "файла",
             "File3"                    : "файлов",
             "Attach"                   : "Прикрепить",
+            "AttachFile"               : "Прикрепить файл",
             "Write"                    : "Написать",
             "AttachmentLimit"          : "Прикреплено максимальное количество файлов",
             "Ok"                       : "ОК",
@@ -87,7 +88,7 @@ class UDLocalizeManager {
             "NotInternetCheck"         : "Попробуйте отключить режим полета, включить Wi-FI или мобильный интернет и проверить уровень сигнала сети",
             "Sended"                   : "Отправлено",
             "NotSelected"              : "Не выбрано",
-            //Статья
+            //Knowledge
             "Send"                     : "Отправить",
             "ArticleReviewTitle"       : "Что не так?",
             "PositiveReviewButton"     : "Да, была",
@@ -97,7 +98,7 @@ class UDLocalizeManager {
             "ArticleReviewPlaceholder" : "Ваш комментарий",
             "Comment"                  : "Комментарий:",
             "ReviewTagsTitle"          : "Что не так:",
-            //ФОС
+            //Feedback form
             "Message"                  : "Сообщение",
             "Email"                    : "Почта",
             "ErrorEmail"               : "Неправильно введена почта",
@@ -139,6 +140,7 @@ class UDLocalizeManager {
             "File2"                    : "File",
             "File3"                    : "File",
             "Attach"                   : "Attach",
+            "AttachFile"               : "Прикрепить файл",
             "Write"                    : "Text",
             "AttachmentLimit"          : "Attachment limit reached",
             "Ok"                       : "OK",
@@ -161,7 +163,7 @@ class UDLocalizeManager {
             "NotInternetCheck"         : "Try turning off airplane mode, turning on Wi-Fi or mobile internet and checking the network signal strength",
             "Sended"                   : "Sent",
             "NotSelected"              : "Not selected",
-            //Статья
+            //Knowledge
             "Send"                     : "Send",
             "ArticleReviewTitle"       : "What's goes wrong?",
             "PositiveReviewButton"     : "Yes, it was",
@@ -171,7 +173,7 @@ class UDLocalizeManager {
             "ArticleReviewPlaceholder" : "Your comment",
             "Comment"                  : "Comment:",
             "ReviewTagsTitle"          : "What's wrong:",
-            //ФОС
+            //Feedback form
             "Message"                  : "Message",
             "Email"                    : "Mail",
             "ErrorEmail"               : "Invalid login",
@@ -213,6 +215,7 @@ class UDLocalizeManager {
             "File2"                    : "Archivo",
             "File3"                    : "Archivo",
             "Attach"                   : "Adjuntar",
+            "AttachFile"               : "Прикрепить файл",
             "Write"                    : "Escribir",
             "AttachmentLimit"          : "Se alcanzó el límite de archivos adjuntos",
             "Ok"                       : "OK",
@@ -235,7 +238,7 @@ class UDLocalizeManager {
             "NotInternetCheck"         : "Intente apagar el modo avión, encienda Wi-FI o Internet móvil y verifique la intensidad de la señal de la red",
             "Sended"                   : "Enviado",
             "NotSelected"              : "No seleccionado",
-            //Статья
+            //Knowledge
             "Send"                     : "Enviar",
             "ArticleReviewTitle"       : "¿Qué va mal?",
             "PositiveReviewButton"     : "Sí, lo era",
@@ -245,7 +248,7 @@ class UDLocalizeManager {
             "ArticleReviewPlaceholder" : "Tu comentario",
             "Comment"                  : "Сomentario:",
             "ReviewTagsTitle"          : "Que sucede:",
-            //ФОС
+            //Feedback form
             "Message"                  : "Mensaje",
             "Email"                    : "Correo",
             "ErrorEmail"               : "Ingreso invalido",
@@ -287,6 +290,7 @@ class UDLocalizeManager {
             "File2"                    : "Arquivo",
             "File3"                    : "Arquivo",
             "Attach"                   : "Anexar",
+            "AttachFile"               : "Прикрепить файл",
             "Write"                    : "Escrever",
             "AttachmentLimit"          : "Limite de anexos atingido",
             "Ok"                       : "OK",
@@ -309,7 +313,7 @@ class UDLocalizeManager {
             "NotInternetCheck"         : "Tente desligar o modo avião, ligue o Wi-Fi ou a internet móvel e verifique a força do sinal da rede",
             "Sended"                   : "Enviado",
             "NotSelected"              : "Não selecionado",
-            //Статья
+            //Knowledge
             "Send"                     : "Enviar",
             "ArticleReviewTitle"       : "O que há de errado?",
             "PositiveReviewButton"     : "Sim, foi",
@@ -319,7 +323,7 @@ class UDLocalizeManager {
             "ArticleReviewPlaceholder" : "Seu comentário",
             "Comment"                  : "Сomentário:",
             "ReviewTagsTitle"          : "O que há de errado:",
-            //ФОС
+            //Feedback form
             "Message"                  : "Mensagem",
             "Email"                    : "Enviar",
             "ErrorEmail"               : "Login inválido",

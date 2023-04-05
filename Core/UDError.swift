@@ -11,6 +11,7 @@ import Alamofire
     case null
     case chanelIdError
     case urlError
+    case urlAvatarError
     case emailError
     case urlToSendFileError
     case urlAPIError
@@ -41,6 +42,8 @@ import Alamofire
             return "Invalid chanel id"
         case .urlError:
             return "Invalid url"
+        case .urlAvatarError:
+            return "Invalid avatar url"
         case .emailError:
             return "Invalid email"
         case .urlToSendFileError:

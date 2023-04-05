@@ -57,28 +57,49 @@ class UDUIManager: UDUIProtocole {
         let parentController = parentControllerOptional ?? RootView
         baseSectionsVC = UDBaseSectionsView()
         baseSectionsVC?.usedesk = usedesk
-        navController = UDNavigationController(rootViewController: baseSectionsVC ?? UIViewController())
         var openVC: UIViewController? = nil
-        if model.knowledgeBaseSectionId > 0 || model.knowledgeBaseCategoryId > 0 || model.knowledgeBaseArticleId > 0 {
-            baseCategoriesVC = UDBaseCategoriesView()
-            baseCategoriesVC?.usedesk = usedesk
-            baseCategoriesVC?.view.layoutIfNeeded()
-            navController!.viewControllers.append(baseCategoriesVC ?? UIViewController())
-            openVC = baseCategoriesVC
-        }
-        if model.knowledgeBaseCategoryId > 0 || model.knowledgeBaseArticleId > 0 {
-            baseArticlesVC = UDBaseArticlesView()
-            baseArticlesVC?.usedesk = usedesk
-            navController!.viewControllers.append(baseArticlesVC ?? UIViewController())
-            openVC = baseArticlesVC
-        }
-        if model.knowledgeBaseArticleId > 0 {
-            baseArticleVC = UDBaseArticleView()
-            baseArticleVC?.usedesk = usedesk
-            let article = UDArticle(id: model.knowledgeBaseArticleId, title: "")
-            baseArticleVC?.article = article
-            navController!.viewControllers.append(baseArticleVC ?? UIViewController())
-            openVC = baseArticleVC
+        if model.isReturnToParentFromKnowledgeBase {
+            if model.knowledgeBaseArticleId > 0 {
+                baseArticleVC = UDBaseArticleView()
+                baseArticleVC?.usedesk = usedesk
+                let article = UDArticle(id: model.knowledgeBaseArticleId, title: "")
+                baseArticleVC?.article = article
+                navController = UDNavigationController(rootViewController: baseArticleVC ?? UIViewController())
+            } else if model.knowledgeBaseCategoryId > 0 {
+                baseArticlesVC = UDBaseArticlesView()
+                baseArticlesVC?.usedesk = usedesk
+                navController = UDNavigationController(rootViewController: baseArticlesVC ?? UIViewController())
+            } else if model.knowledgeBaseSectionId > 0 {
+                baseCategoriesVC = UDBaseCategoriesView()
+                baseCategoriesVC?.usedesk = usedesk
+                baseCategoriesVC?.view.layoutIfNeeded()
+                navController = UDNavigationController(rootViewController: baseCategoriesVC ?? UIViewController())
+            } else {
+                navController = UDNavigationController(rootViewController: baseSectionsVC ?? UIViewController())
+            }
+        } else {
+            navController = UDNavigationController(rootViewController: baseSectionsVC ?? UIViewController())
+            if model.knowledgeBaseSectionId > 0 || model.knowledgeBaseCategoryId > 0 || model.knowledgeBaseArticleId > 0 {
+                baseCategoriesVC = UDBaseCategoriesView()
+                baseCategoriesVC?.usedesk = usedesk
+                baseCategoriesVC?.view.layoutIfNeeded()
+                navController!.viewControllers.append(baseCategoriesVC ?? UIViewController())
+                openVC = baseCategoriesVC
+            }
+            if model.knowledgeBaseCategoryId > 0 || model.knowledgeBaseArticleId > 0 {
+                baseArticlesVC = UDBaseArticlesView()
+                baseArticlesVC?.usedesk = usedesk
+                navController!.viewControllers.append(baseArticlesVC ?? UIViewController())
+                openVC = baseArticlesVC
+            }
+            if model.knowledgeBaseArticleId > 0 {
+                baseArticleVC = UDBaseArticleView()
+                baseArticleVC?.usedesk = usedesk
+                let article = UDArticle(id: model.knowledgeBaseArticleId, title: "")
+                baseArticleVC?.article = article
+                navController!.viewControllers.append(baseArticleVC ?? UIViewController())
+                openVC = baseArticleVC
+            }
         }
         if openVC != nil {
             navController!.popToViewController(openVC!, animated: false)
@@ -92,19 +113,43 @@ class UDUIManager: UDUIProtocole {
     }
     
     func reloadBaseFlow(success: Bool) {
-        guard usedesk != nil else {return}
-        baseSectionsVC?.usedesk = usedesk
-        baseCategoriesVC?.usedesk = usedesk
-        baseArticlesVC?.usedesk = usedesk
-        baseArticleVC?.usedesk = usedesk
-        if navController?.visibleViewController == baseSectionsVC {
-            baseSectionsVC?.updateViews()
-        }
-        if usedesk?.model.knowledgeBaseSectionId ?? 0 > 0 {
-            baseCategoriesVC?.updateViews()
-        }
-        if usedesk?.model.knowledgeBaseCategoryId ?? 0 > 0 {
-            baseArticlesVC?.updateViews()
+        if success {
+            guard usedesk != nil else {return}
+            baseSectionsVC?.usedesk = usedesk
+            baseCategoriesVC?.usedesk = usedesk
+            baseArticlesVC?.usedesk = usedesk
+            baseArticleVC?.usedesk = usedesk
+            baseSectionsVC?.updateValues()
+            baseCategoriesVC?.updateValues()
+            baseArticlesVC?.updateValues()
+            if baseArticleVC?.isLoaded() ?? false {
+                baseArticleVC?.hideErrorLoadView()
+            }
+            if baseArticlesVC?.isLoaded() ?? false {
+                baseArticlesVC?.updateViews()
+                baseArticlesVC?.hideErrorLoadView()
+            }
+            if baseCategoriesVC?.isLoaded() ?? false {
+                baseCategoriesVC?.updateViews()
+                baseCategoriesVC?.hideErrorLoadView()
+            }
+            if baseSectionsVC?.isLoaded() ?? false {
+                baseSectionsVC?.updateViews()
+                baseSectionsVC?.hideErrorLoadView()
+            }
+        } else {
+            if baseArticleVC?.isLoaded() ?? false {
+                baseArticlesVC?.showErrorLoadView(withAnimate: true)
+            }
+            if baseArticlesVC?.isLoaded() ?? false {
+                baseArticlesVC?.showErrorLoadView(withAnimate: true)
+            }
+            if baseCategoriesVC?.isLoaded() ?? false {
+                baseCategoriesVC?.showErrorLoadView(withAnimate: true)
+            }
+            if baseSectionsVC?.isLoaded() ?? false {
+                baseSectionsVC?.showErrorLoadView(withAnimate: true)
+            }
         }
     }
     
@@ -129,7 +174,7 @@ class UDUIManager: UDUIProtocole {
         }
     }
     
-    func reloadDialogFlow(success: Bool, feedBackStatus: UDFeedbackStatus, url: String) { 
+    func reloadDialogFlow(success: Bool, feedBackStatus: UDFeedbackStatus?) {
         if success {
             dialogflowVC?.usedesk = usedesk
             dialogflowVC?.reloadHistory()

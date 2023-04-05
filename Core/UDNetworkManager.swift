@@ -37,14 +37,32 @@ public class UDNetworkManager {
     }
     
     // MARK: - API Methods
-    public func sendOfflineForm(companyID: String, chanelID: String, name: String, email: String, message: String, topic: String? = nil, fields: [UDCallbackCustomField]? = nil, connectBlock: @escaping UDConnectBlock, errorBlock: @escaping UDErrorBlock) {
+    public func sendOfflineForm(companyID: String, chanelID: String, name: String, email: String, message: String, file: UDFile? = nil, topic: String? = nil, fields: [UDCallbackCustomField]? = nil, connectBlock: @escaping UDConnectBlock, errorBlock: @escaping UDErrorBlock) {
         let companyAndChanelIds = "\(companyID)_\(chanelID)"
+        var parameterUser: [String : Any] = [
+            "os" : "iOS"
+        ]
+        if let targetName = Bundle.main.infoDictionary?["CFBundleName"] {
+            parameterUser["browserName"] = targetName
+        }
+        
         var parameters: [String : Any] = [
             "company_id" : companyAndChanelIds,
             "message" : message,
             "name" : name,
-            "email" : email
+            "email" : email,
+            "userData" : parameterUser
         ]
+        
+        if let sendFile = file, !sendFile.content.isEmpty {
+            let parameterFile: [String : Any] = [
+                "name" : sendFile.name,
+                "content" : sendFile.content,
+                "type" : sendFile.mimeType,
+                "size" : "NaN undefined"
+            ]
+            parameters["file"] = parameterFile
+        }
         
         if topic != nil {
             if topic != "" {
@@ -58,47 +76,66 @@ public class UDNetworkManager {
             }
         }
         
-        let url = "https://secure.usedesk.ru/widget.js/post"
+        let url = "https://secure.usedesk.ru/widget.js/post" 
         request(url: url, parameters: parameters, isJSONEncoding: true, successBlock: { value in
             connectBlock(true)
         }, errorBlock: errorBlock)
     }
     
-    public func sendAvatarClient(email: String? = nil, phone: String? = nil, avatarData data: Data, connectBlock: UDConnectBlock? = nil, errorBlock: UDErrorBlock? = nil) {
-        if let currentToken = token {
-            DispatchQueue.global(qos: .utility).async {
-                let url = self.urlBase(isOnlyHost: true) + "/v1/chat/setClient"
-                AF.upload(multipartFormData: { multipartFormData in
-                    multipartFormData.append(currentToken.data(using: String.Encoding.utf8)!, withName: "token")
-                    multipartFormData.append(data, withName: "avatar", fileName: "avatar")
-                    if self.model.email != "" {
-                        multipartFormData.append(self.model.email.data(using: String.Encoding.utf8)!, withName: "email")
-                    }
-                    if self.model.phone != "" {
-                        multipartFormData.append(self.model.phone.data(using: String.Encoding.utf8)!, withName: "phone")
-                    }
-                    if self.model.name != "" {
-                        multipartFormData.append(self.model.name.data(using: String.Encoding.utf8)!, withName: "username")
-                    }
-                    if self.model.companyID != "" {
-                        multipartFormData.append(self.model.companyID.data(using: String.Encoding.utf8)!, withName: "company_id")
-                    }
-                }, to: url).responseJSON { (responseJSON) in
-                    switch responseJSON.result {
-                    case .success(let value):
-                        let valueJSON = value as! [String:Any]
-                        if valueJSON["error"] == nil {
-                            connectBlock?(true)
-                        } else {
-                            errorBlock?(.serverError, "Тhe file is not accepted by the server ")
+    public func sendAvatarClient(connectBlock: UDConnectBlock? = nil, errorBlock: UDErrorBlock? = nil) {
+        DispatchQueue.global(qos: .utility).async {
+            if let data = self.model.avatar {
+                self.uploadAvatarData(data, connectBlock: connectBlock, errorBlock: errorBlock)
+            } else if let urlAvatar = self.model.avatarUrl {
+                URLSession.shared.dataTask(with: urlAvatar, completionHandler: { [weak self] data, _, error in
+                    DispatchQueue.main.async {
+                        if let error = error {
+                            errorBlock?(.urlAvatarError, error.localizedDescription)
+                            return
                         }
-                    case .failure(let error):
-                        errorBlock?(.null, error.localizedDescription)
+                        guard let dataAvatar = data else {return}
+                        self?.uploadAvatarData(dataAvatar, connectBlock: connectBlock, errorBlock: errorBlock)
                     }
+                }).resume()
+            }
+        }
+    }
+    
+    private func uploadAvatarData(_ data: Data, connectBlock: UDConnectBlock? = nil, errorBlock: UDErrorBlock? = nil) {
+        guard let currentToken = token else {
+            errorBlock?(.tokenError, "")
+            return
+        }
+        DispatchQueue.global(qos: .utility).async {
+            let url = self.urlBase(isOnlyHost: true) + "/v1/chat/setClient"
+            AF.upload(multipartFormData: { multipartFormData in
+                multipartFormData.append(currentToken.data(using: String.Encoding.utf8)!, withName: "token")
+                multipartFormData.append(data, withName: "avatar", fileName: "avatar")
+                if self.model.email != "" {
+                    multipartFormData.append(self.model.email.data(using: String.Encoding.utf8)!, withName: "email")
+                }
+                if self.model.phone != "" {
+                    multipartFormData.append(self.model.phone.data(using: String.Encoding.utf8)!, withName: "phone")
+                }
+                if self.model.name != "" {
+                    multipartFormData.append(self.model.name.data(using: String.Encoding.utf8)!, withName: "username")
+                }
+                if self.model.companyID != "" {
+                    multipartFormData.append(self.model.companyID.data(using: String.Encoding.utf8)!, withName: "company_id")
+                }
+            }, to: url).responseJSON { (responseJSON) in
+                switch responseJSON.result {
+                case .success(let value):
+                    let valueJSON = value as! [String:Any]
+                    if valueJSON["error"] == nil {
+                        connectBlock?(true)
+                    } else {
+                        errorBlock?(.serverError, "Тhe file is not accepted by the server ")
+                    }
+                case .failure(let error):
+                    errorBlock?(.null, error.localizedDescription)
                 }
             }
-        } else {
-            errorBlock?(.tokenError, "")
         }
     }
     
@@ -123,7 +160,7 @@ public class UDNetworkManager {
         })
     }
     
-    public func sendFile(url: String, fileName: String, data: Data, messageId: String? = nil, progressBlock: UDProgressUploadBlock? = nil, connectBlock: @escaping UDConnectBlock, errorBlock: @escaping UDErrorBlock) {
+    public func sendFile(url: String, fileName: String, data: Data, messageId: String? = nil, progressBlock: UDProgressUploadBlock? = nil, connectBlock: UDConnectBlock? = nil, errorBlock: UDErrorBlock? = nil) {
         if let currentToken = token {
             DispatchQueue.global(qos: .utility).async { 
                 AF.upload(multipartFormData: { multipartFormData in
@@ -141,17 +178,18 @@ public class UDNetworkManager {
                     case .success(let value):
                         let valueJSON = value as! [String:Any]
                         if valueJSON["error"] == nil {
-                            connectBlock(true)
+                            connectBlock?(true)
                         } else {
-                            errorBlock(.serverError, "Тhe file is not accepted by the server ")
+                            errorBlock?(.serverError, "Тhe file is not accepted by the server ")
                         }
                     case .failure(let error):
-                        errorBlock(.null, error.localizedDescription)
+                        print(error.localizedDescription)
+                        errorBlock?(.null, error.localizedDescription)
                     }
                 }
             }
         } else {
-            errorBlock(.tokenError, "")
+            errorBlock?(.tokenError, "")
         }
     }
     
@@ -386,7 +424,7 @@ public class UDNetworkManager {
         if countNegative > 0 {
             parameters["count_negative"] = String(countNegative)
         }
-        request(url: url, method: .get, parameters: parameters, successBlock: { value in
+        request(url: url, parameters: parameters, successBlock: { value in
             connectBlock(true)
         }, errorBlock: errorBlock)
     }
@@ -505,6 +543,7 @@ public class UDNetworkManager {
         socket?.connect()
         socket?.on("connect", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
+            wSelf.usedesk?.icConnecting = true
             connectBlock?(true)
             print("socket connected")
             let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.model.companyID, chanelId: wSelf.model.chanelId, email: wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, url: wSelf.model.url, countMessagesOnInit: wSelf.model.countMessagesOnInit, token: wSelf.token)
@@ -515,10 +554,10 @@ public class UDNetworkManager {
     public func socketError(socket: SocketIOClient?, errorBlock: UDErrorBlock?) {
         socket?.on("error", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
-            if !wSelf.isAuthInited {
-                errorBlock?(.falseInitChatError, UDError.falseInitChatError.description)
+            print(data.description)
+            if wSelf.isAuthInited {
+                errorBlock?(.falseInitChatError, data.description)
             } else {
-                print(data)
                 errorBlock?(.socketError, data.description)
             }
         })
@@ -527,6 +566,7 @@ public class UDNetworkManager {
     public func socketDisconnect(socket: SocketIOClient?, connectBlock: UDConnectBlock? = nil) {
         socket?.on("disconnect", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
+            wSelf.usedesk?.icConnecting = false
             connectBlock?(false)
             print("socket disconnect")
             let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.model.companyID, chanelId: wSelf.model.chanelId, email: wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, url: wSelf.model.url, countMessagesOnInit: wSelf.model.countMessagesOnInit, token: wSelf.token)
@@ -549,7 +589,6 @@ public class UDNetworkManager {
                         wSelf.isSendedFirstMessage = true
                         if wSelf.model.firstMessage != "" {
                             let id = wSelf.newIdLoadingMessages()
-                            wSelf.model.idLoadingMessages.append(id)
                             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                                 wSelf.sendMessage(wSelf.model.firstMessage, messageId: id)
                                 wSelf.model.firstMessage = ""
@@ -557,9 +596,7 @@ public class UDNetworkManager {
                         }
                     }
                 }
-                if let avatar = wSelf.model.avatar {
-                    wSelf.sendAvatarClient(avatarData: avatar)
-                }
+                wSelf.sendAvatarClient()
             })
 
             let isNoOperators = UDSocketResponse.isNoOperators(data)
@@ -595,6 +632,7 @@ public class UDNetworkManager {
     // MARK: - Private Methods
     private func request(url: String, method: HTTPMethod = .post, parameters: [String : Any], isJSONEncoding: Bool = false, successBlock: @escaping (Any) -> Void, errorBlock: @escaping UDErrorBlock) {
         AF.request(url, method: method, parameters: parameters, encoding: isJSONEncoding ? JSONEncoding.default : URLEncoding.default).responseJSON { responseJSON in
+            print(responseJSON)
             switch responseJSON.result {
             case .success(let value):
                 if let valueDictionary = value as? [String : Any] {

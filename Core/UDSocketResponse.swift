@@ -182,9 +182,9 @@ class UDSocketResponse {
             var linksImage: [String] = []
             if var text = message!["text"] as? String {
                 (linksImage, textWithoutLinkImage) = parseText(text)
-                for link in linksImage {
-                    text = text.replacingOccurrences(of: link, with: "")
-                    if let messageImageLink = UDSocketResponse.parseFileMessageDic(message, withImageUrl: link) {
+                for index in 0..<linksImage.count {
+                    text = text.replacingOccurrences(of: linksImage[index], with: "")
+                    if let messageImageLink = UDSocketResponse.parseFileMessageDic(message, withImageUrl: linksImage[index], numberImageUrl: index) {
                         messagesImageLink.append(messageImageLink)
                     }
                 }
@@ -237,9 +237,9 @@ class UDSocketResponse {
                 var linksImage: [String] = []
                 if var text = message["text"] as? String {
                     (linksImage, textWithoutLinkImage) = parseText(text)
-                    for link in linksImage {
-                        text = text.replacingOccurrences(of: link, with: "")
-                        if let messageImageLink = UDSocketResponse.parseFileMessageDic(message, withImageUrl: link) {
+                    for index in 0..<linksImage.count {
+                        text = text.replacingOccurrences(of: linksImage[index], with: "")
+                        if let messageImageLink = UDSocketResponse.parseFileMessageDic(message, withImageUrl: linksImage[index], numberImageUrl: index) {
                             messagesImageLink.append(messageImageLink)
                         }
                     }
@@ -263,9 +263,9 @@ class UDSocketResponse {
     }
     
     // MARK: - Private Methods
-    private class func parseFileMessageDic(_ mess: [AnyHashable : Any]?, withImageUrl imageUrl: String? = nil) -> UDMessage? {
+    private class func parseFileMessageDic(_ mess: [AnyHashable : Any]?, withImageUrl imageUrl: String? = nil, numberImageUrl: Int? = nil) -> UDMessage? {
         let m = UDMessage(text: "", incoming: false)
-        
+        m.statusSend = UD_STATUS_SEND_SUCCEED
         let createdAt = mess?["createdAt"] as? String ?? ""
         let dateFormatter = DateFormatter()
         dateFormatter.locale = .current
@@ -304,20 +304,31 @@ class UDSocketResponse {
         }
         m.id = mess?["id"] as? Int ?? 0
         let fileDic = mess?["file"] as? [AnyHashable : Any]
-        if imageUrl != nil {
-            if imageUrl!.contains(".png") || imageUrl!.contains(".gif") || imageUrl!.contains(".jpg") || imageUrl!.contains(".jpeg") {
+        if let url = imageUrl, let numberImage = numberImageUrl {
+            let imageUrlLowercased = imageUrl!.lowercased()
+            if imageUrlLowercased.contains(".png") || imageUrlLowercased.contains(".gif") || imageUrlLowercased.contains(".jpg") || imageUrlLowercased.contains(".jpeg") || imageUrlLowercased.contains(".heic") || imageUrlLowercased.contains(".webp") {
                 m.type = UD_TYPE_PICTURE
                 let file = UDFile()
-                file.content = imageUrl!
+                file.urlFile = url
+                file.id = m.id + numberImage
                 m.file = file
             } else {
                 return nil
             }
         } else if fileDic != nil {
             let file = UDFile()
-            file.content = fileDic?["content"] as! String
+            file.urlFile = fileDic?["content"] as! String
             file.name = fileDic?["name"] as! String
-            file.type = fileDic?["type"] as! String
+            let typeFileString = fileDic?["type"] as! String
+            file.typeString = typeFileString
+            switch typeFileString {
+            case "image":
+                file.type = .image
+            case "video":
+                file.type = .video
+            default:
+                file.type = .file
+            }
             file.size = fileDic?["size"] as? String ?? ""
             file.id = fileDic?["fileId"] as? Int ?? 0
             m.file = file
@@ -329,12 +340,12 @@ class UDSocketResponse {
             if (fileDic?["fullLink"] as? String ?? "") != "" {
                 type = URL.init(string: fileDic?["fullLink"] as? String ?? "")?.pathExtension ?? ""
             }
-            if file.type.contains("image") || isImage(of: type) || isImage(of: file.type) {
+            if typeFileString.contains("image") || isImage(of: type) || isImage(of: typeFileString) {
                 m.type = UD_TYPE_PICTURE
-            } else if file.type.contains("video") || isVideo(of: type) || isVideo(of: file.type) {
+            } else if typeFileString.contains("video") || isVideo(of: type) || isVideo(of: typeFileString) {
                 m.type = UD_TYPE_VIDEO
                 m.file.typeExtension = type
-                file.type = "video"
+                file.type = .video
             } else {
                 m.type = UD_TYPE_File
             }
@@ -346,6 +357,7 @@ class UDSocketResponse {
         
     class func parseMessageDic(_ mess: [AnyHashable : Any]?, textWithoutLinkImage: String? = nil, model: UseDeskModel) -> UDMessage? {
         let m = UDMessage(text: "", incoming: false)
+        m.statusSend = UD_STATUS_SEND_SUCCEED
         let createdAt = mess?["createdAt"] as? String ?? ""
         let dateFormatter = DateFormatter()
         dateFormatter.locale = .current
@@ -398,7 +410,6 @@ class UDSocketResponse {
                     m.text = m.buttons[invertIndex].title + " " + m.text
                 }
             }
-            m.text = m.text.udRemoveFirstAndLastLineBreaksAndSpaces()
             //Forms
             let (textWithForms, forms) = UDFormMessageManager.parseForms(from: m.text)
             if forms.count > 0 {
@@ -408,9 +419,15 @@ class UDSocketResponse {
             //Name
             m.name = mess?["name"] as? String ?? ""
         }
-        
+        m.text = m.text.udRemoveMultipleLineBreaks()
+        m.text = m.text.udRemoveFirstSymbol(with: "\n")
+        m.text = m.text.udRemoveLastSymbol(with: "\n")
         if m.text == "" && m.buttons.count == 0 && m.forms.count == 0 {
             return nil
+        }
+        
+        if m.buttons.count != 0 || m.forms.count != 0 {
+            m.text += "\n"
         }
         
         if let payload = mess?["payload"] as? [AnyHashable : Any] {
@@ -473,7 +490,6 @@ class UDSocketResponse {
         text.udConverDoubleLinks()
         text = text.udRemoveFirstSymbol(with: "\u{200b}")
         text = text.udRemoveLastSymbol(with: "\u{200b}")
-        text = text.removeSpacesBetweenLineBreaks()
         text = text.udRemoveFirstSymbol(with: "\n")
         text = text.udRemoveMultipleLineBreaks()
         text = text.udRemoveLastSymbol(with: "\n")
@@ -548,7 +564,7 @@ class UDSocketResponse {
     
     private class func isImage(of type: String) -> Bool {
         let typeLowercased = type.lowercased()
-        let typesImage = ["gif", "xbm", "jpeg", "jpg", "pct", "bmpf", "ico", "tif", "tiff", "cur", "bmp", "png"]
+        let typesImage = ["gif", "xbm", "jpeg", "jpg", "pct", "bmpf", "ico", "tif", "tiff", "cur", "bmp", "png", "heic", "heif"]
         return typesImage.contains(typeLowercased)
     }
     

@@ -70,6 +70,16 @@ extension String {
         return true
     }
     
+    func udIsValidUrl() -> Bool {
+        let detector = try! NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+        if URL(string: self) != nil,
+           let match = detector.firstMatch(in: self, options: [], range: NSRange(location: 0, length: self.utf16.count)) {
+            return match.range.length == self.utf16.count
+        } else {
+            return false
+        }
+    }
+    
     func udGetLinksRange() -> [Range<String.Index>] {
         var links: [Range<String.Index>] = []
         let detector = try! NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
@@ -77,7 +87,7 @@ extension String {
 
         for match in matches {
             if let range = Range(match.range, in: self) {
-                links.append(range/*.nsRange(in: self)*/)
+                links.append(range)
             }
         }
         return links
@@ -101,10 +111,16 @@ extension String {
                     var endIndexMultipleLineBreaks = index + 1
                     var isFindEndMultipleLineBreaks = false
                     var countMultipleLineBreaks = 0
+                    var isEndSpace = false
                     while endIndexMultipleLineBreaks < self.count - 1 && !isFindEndMultipleLineBreaks {
                         if let searchEndIndexMultipleLineBreaks = self.index(startIndex, offsetBy: endIndexMultipleLineBreaks, limitedBy: self.endIndex),
                            self[searchEndIndexMultipleLineBreaks] == "\n" {
                             countMultipleLineBreaks += 1
+                            index += 1
+                            isEndSpace = false
+                        } else if let searchEndIndexMultipleLineBreaks = self.index(startIndex, offsetBy: endIndexMultipleLineBreaks, limitedBy: self.endIndex),
+                                  self[searchEndIndexMultipleLineBreaks] == " " {
+                            isEndSpace = true
                             index += 1
                         } else {
                             isFindEndMultipleLineBreaks = true
@@ -116,31 +132,17 @@ extension String {
                     } else {
                         resultString.append("\n")
                     }
+                    if isEndSpace {
+                        index -= 1
+                    }
                 } else {
                     resultString.append(self[searchStartIndex] )
                 }
                 index += 1
             }
         }
-        resultString.append(self.last ?? Character(""))
-        return resultString
-    }
-    
-    func removeSpacesBetweenLineBreaks() -> String {
-        guard self.contains(" \n") || self.contains("\n ") else {return self}
-        var resultString = self
-        let maxCountRepeat = 100000
-        var countRepeat = 0
-        var isNeedRemove = true
-        while isNeedRemove && countRepeat < maxCountRepeat {
-            if self.contains(" \n") {
-                resultString = resultString.replacingOccurrences(of: " \n", with: "\n")
-            } else if self.contains("\n ") {
-                resultString = resultString.replacingOccurrences(of: "\n ", with: "\n")
-            } else {
-                isNeedRemove = false
-            }
-            countRepeat += 1
+        if self.last != "\n" {
+            resultString.append(self.last ?? Character(""))
         }
         return resultString
     }
@@ -190,13 +192,20 @@ extension String {
     }
     
     mutating func udRemoveMarkdownUrlsAndReturnLinks() -> [String] {
+        guard self.count > 5 else {return []}
         var links: [String] = []
         let maxCountRepeat = 1000
         var countRepeat = 0
         var flag = true
+        var startRangeIndex = self.startIndex
         while countRepeat < maxCountRepeat && flag {
-            if let range = self.range(of: "![") {
+            guard udIsIndexValid(startRangeIndex) else {break}
+            guard let endRangeIndex = self.index(self.endIndex, offsetBy: -1, limitedBy: self.startIndex) else {break}
+            if let range = self[startRangeIndex...endRangeIndex].range(of: "![") {
                 let startIndex = range.lowerBound
+                if let index = self.index(startIndex, offsetBy: 1, limitedBy: self.endIndex), udIsIndexValid(index) {
+                    startRangeIndex = index
+                }
                 var isFindEnd = false
                 var index = 0
                 while !isFindEnd {
@@ -204,22 +213,27 @@ extension String {
                        let searchEndIndex = self.index(searchStartIndex, offsetBy: 1, limitedBy: self.endIndex),
                        udIsIndexValid(searchStartIndex),
                        udIsIndexValid(searchEndIndex) {
-                            if self[searchStartIndex...searchEndIndex] == "](" {
-                                var indexSearchEndLink = 0
-                                while !isFindEnd {
-                                    if let searchIndex = self.index(searchEndIndex, offsetBy: indexSearchEndLink, limitedBy: self.endIndex),
-                                       udIsIndexValid(searchIndex) {
-                                        if self[searchIndex] == ")" {
+                        if self[searchStartIndex...searchEndIndex] == "](" {
+                            var indexSearchEndLink = 0
+                            while !isFindEnd {
+                                if let searchIndex = self.index(searchEndIndex, offsetBy: indexSearchEndLink, limitedBy: self.endIndex),
+                                   udIsIndexValid(searchIndex) {
+                                    if self[searchIndex] == ")" {
+                                        // get link
+                                        var linkPath = ""
+                                        if let startLinkIndex = self.index(searchEndIndex, offsetBy: +1, limitedBy: self.endIndex),
+                                           let endLinkIndex = self.index(searchIndex, offsetBy: -1, limitedBy: self.startIndex),
+                                           endLinkIndex > startLinkIndex,
+                                           udIsIndexValid(startLinkIndex),
+                                           udIsIndexValid(endLinkIndex) {
+                                            linkPath = String(self[startLinkIndex...endLinkIndex])
+                                            
+                                        }
+                                        isFindEnd = true
+                                        if linkPath.udIsValidUrl() {
                                             // add link
-                                            if let startLinkIndex = self.index(searchEndIndex, offsetBy: +1, limitedBy: self.endIndex),
-                                               let endLinkIndex = self.index(searchIndex, offsetBy: -1, limitedBy: self.startIndex),
-                                               endLinkIndex > startLinkIndex,
-                                               udIsIndexValid(startLinkIndex),
-                                               udIsIndexValid(endLinkIndex) {
-                                                links.append(String(self[startLinkIndex...endLinkIndex]))
-                                            }
+                                            links.append(linkPath)
                                             //remove link
-                                            isFindEnd = true
                                             if udIsIndexValid(startIndex) && udIsIndexValid(searchIndex) {
                                                 self = self.replacingOccurrences(of: self[startIndex...searchIndex], with: "")
                                             }
@@ -229,12 +243,13 @@ extension String {
                                                 }
                                             }
                                         }
-                                    } else {
-                                        isFindEnd = true
                                     }
-                                    indexSearchEndLink += 1
+                                } else {
+                                    isFindEnd = true
                                 }
+                                indexSearchEndLink += 1
                             }
+                        }
                     } else {
                         isFindEnd = true
                     }
@@ -249,7 +264,7 @@ extension String {
     }
     
     func udIsIndexValid(_ index: Index) -> Bool {
-      return self.endIndex > index && self.startIndex <= index
+        return self.endIndex > index && self.startIndex <= index
     }
     
     mutating func udConvertUrls() {

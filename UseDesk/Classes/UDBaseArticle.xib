@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -21,6 +21,13 @@
                 <outlet property="backButtonWC" destination="3bc-1w-foS" id="QhR-zW-LyZ"/>
                 <outlet property="blurView" destination="OHZ-f4-UdQ" id="e2q-Fv-7eU"/>
                 <outlet property="contentView" destination="S9Z-3H-bd1" id="rLR-ET-pa4"/>
+                <outlet property="errorLoadImageView" destination="7yW-tu-v7S" id="vzl-GP-Oyx"/>
+                <outlet property="errorLoadImageViewAspectRatio" destination="RVY-Rz-y2H" id="B9B-cD-JyO"/>
+                <outlet property="errorLoadImageViewCenterYC" destination="TpU-kn-Xyk" id="U3C-vz-wKa"/>
+                <outlet property="errorLoadImageViewLC" destination="w9x-4C-6Kt" id="zCJ-wP-pMl"/>
+                <outlet property="errorLoadImageViewTC" destination="7F9-dU-CrX" id="Nox-ZM-rnw"/>
+                <outlet property="errorLoadLabel" destination="NAv-2V-tcE" id="mRR-Fy-OQz"/>
+                <outlet property="errorLoadView" destination="imQ-SG-3sT" id="r84-cC-eWw"/>
                 <outlet property="loader" destination="zcY-aq-odJ" id="qwM-11-mRa"/>
                 <outlet property="loaderArticle" destination="Dnc-j4-ztN" id="URH-TX-4AP"/>
                 <outlet property="reviewNegativeButton" destination="Uwa-3Z-ZtC" id="Ocy-8T-n7w"/>
@@ -220,20 +227,52 @@
                         <constraint firstItem="JYa-LY-RJm" firstAttribute="leading" secondItem="YVr-NV-IAv" secondAttribute="leading" constant="8" id="zM3-I9-MwD"/>
                     </constraints>
                 </view>
+                <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="imQ-SG-3sT">
+                    <rect key="frame" x="0.0" y="60" width="414" height="676"/>
+                    <subviews>
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="7yW-tu-v7S">
+                            <rect key="frame" x="10" y="110.00000000000001" width="394" height="253.33333333333337"/>
+                            <constraints>
+                                <constraint firstAttribute="width" secondItem="7yW-tu-v7S" secondAttribute="height" multiplier="28:18" id="RVY-Rz-y2H"/>
+                            </constraints>
+                        </imageView>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NAv-2V-tcE">
+                            <rect key="frame" x="10" y="403.33333333333331" width="394" height="25.333333333333314"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="21"/>
+                            <nil key="textColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="7yW-tu-v7S" secondAttribute="trailing" constant="10" id="7F9-dU-CrX"/>
+                        <constraint firstItem="NAv-2V-tcE" firstAttribute="top" secondItem="7yW-tu-v7S" secondAttribute="bottom" constant="40" id="A8e-0p-zns"/>
+                        <constraint firstAttribute="trailing" secondItem="NAv-2V-tcE" secondAttribute="trailing" constant="10" id="Hv0-cF-RGh"/>
+                        <constraint firstItem="7yW-tu-v7S" firstAttribute="centerX" secondItem="imQ-SG-3sT" secondAttribute="centerX" id="KFg-gT-95R"/>
+                        <constraint firstItem="NAv-2V-tcE" firstAttribute="leading" secondItem="imQ-SG-3sT" secondAttribute="leading" constant="10" id="LJh-VF-mIJ"/>
+                        <constraint firstItem="7yW-tu-v7S" firstAttribute="centerY" secondItem="imQ-SG-3sT" secondAttribute="centerY" multiplier="0.7" id="TpU-kn-Xyk"/>
+                        <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="NAv-2V-tcE" secondAttribute="bottom" constant="10" id="i5f-3h-46c"/>
+                        <constraint firstItem="7yW-tu-v7S" firstAttribute="leading" secondItem="imQ-SG-3sT" secondAttribute="leading" constant="10" id="w9x-4C-6Kt"/>
+                    </constraints>
+                </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
                 <constraint firstItem="zcY-aq-odJ" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="748-EI-WYi"/>
+                <constraint firstItem="imQ-SG-3sT" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="8Pn-Zb-6cP"/>
                 <constraint firstItem="YVr-NV-IAv" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="FhE-hc-AZD"/>
                 <constraint firstItem="0KF-2W-ajp" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="GVU-16-IOh"/>
                 <constraint firstItem="YVr-NV-IAv" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="OMJ-Ni-jat"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="imQ-SG-3sT" secondAttribute="bottom" id="Sj9-LY-85M"/>
                 <constraint firstAttribute="trailing" secondItem="OHZ-f4-UdQ" secondAttribute="trailing" id="Ubh-QS-qQb"/>
                 <constraint firstItem="OHZ-f4-UdQ" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="XFp-qa-G1L"/>
                 <constraint firstAttribute="bottom" secondItem="0KF-2W-ajp" secondAttribute="bottom" id="Zhr-E0-DWr"/>
                 <constraint firstItem="0KF-2W-ajp" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="bxl-JH-jIM"/>
                 <constraint firstItem="OHZ-f4-UdQ" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="hkv-V4-oV2"/>
                 <constraint firstItem="OHZ-f4-UdQ" firstAttribute="bottom" secondItem="YVr-NV-IAv" secondAttribute="bottom" id="hwE-cF-E3t"/>
+                <constraint firstItem="imQ-SG-3sT" firstAttribute="top" secondItem="YVr-NV-IAv" secondAttribute="bottom" id="jeQ-hg-sQO"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="imQ-SG-3sT" secondAttribute="trailing" id="lfx-b4-qRJ"/>
                 <constraint firstItem="0KF-2W-ajp" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="nvU-ly-dvi"/>
                 <constraint firstItem="zcY-aq-odJ" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="rwv-E7-1nd"/>
                 <constraint firstItem="YVr-NV-IAv" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="sOB-aW-OPq"/>

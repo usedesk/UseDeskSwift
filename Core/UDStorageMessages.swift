@@ -40,7 +40,8 @@ public class UDStorageMessages: NSObject, UDStorage {
         var messagesDelete = [UDMessage]()
         var messagesSave = [UDMessage]()
         for message in messages {
-            if allMessages.firstIndex(where: {$0.id == message.id || (!message.loadingMessageId.isEmpty && $0.loadingMessageId == message.loadingMessageId)}) != nil {
+            if let index = allMessages.firstIndex(where: {($0.id == message.id && message.id > 0) || (!message.loadingMessageId.isEmpty && $0.loadingMessageId == message.loadingMessageId)}) {
+                allMessages[index].statusSend = message.statusSend
                 messagesDelete.append(message)
             } else {
                 messagesSave.append(message)
@@ -56,7 +57,7 @@ public class UDStorageMessages: NSObject, UDStorage {
         guard token.count > 0, messages.count > 0 else {return}
         var allMessages = getMessages()
         for message in messages {
-            if let index = allMessages.firstIndex(where: {$0.id == message.id || $0.loadingMessageId == message.loadingMessageId}) {
+            if let index = allMessages.firstIndex(where: {($0.id == message.id && message.id > 0) || $0.loadingMessageId == message.loadingMessageId}) {
                 allMessages.remove(at: index)
             }
         }

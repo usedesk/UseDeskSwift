@@ -18,12 +18,11 @@ class UDBaseSectionsView: UDListBaseKnowledgeVC {
         tableView.reloadData()
     }
     
-    override func updateViews() {
+    override func updateValues() {
         if usedesk?.model.isLoadedKnowledgeBase ?? false {
             arrayCollections = usedesk?.model.baseSections ?? []
             downloadImagesSection()
         }
-        super.updateViews()
     }
     
     // MARK: - Private

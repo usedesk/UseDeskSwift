@@ -794,6 +794,8 @@ public struct FeedbackFormStyle {
     public var arrowImageSize: CGSize
     public var lineSeparatorColor: UIColor
     public var lineSeparatorActiveColor: UIColor
+    public var attachButtonTitleColor: UIColor
+    public var attachButtonTitleFont: UIFont
     public var errorColor: UIColor
     public var sendedImage: UIImage
     
@@ -813,6 +815,8 @@ public struct FeedbackFormStyle {
                 arrowImageSize: CGSize = CGSize(width: 20, height: 22),
                 lineSeparatorColor: UIColor? = nil,
                 lineSeparatorActiveColor: UIColor? = nil,
+                attachButtonTitleColor: UIColor? = nil,
+                attachButtonTitleFont: UIFont = UIFont.systemFont(ofSize: 13),
                 errorColor: UIColor? = nil,
                 sendedImage: UIImage? = nil) {
         self.buttonColor = buttonColor ?? UIColor(hexString: "333333")
@@ -831,6 +835,8 @@ public struct FeedbackFormStyle {
         self.arrowImageSize = arrowImageSize
         self.lineSeparatorColor = lineSeparatorColor ?? UIColor(hexString: "E0E0E0")
         self.lineSeparatorActiveColor = lineSeparatorActiveColor ?? UIColor(hexString: "EB5757")
+        self.attachButtonTitleColor = attachButtonTitleColor ?? UIColor(hexString: "333333")
+        self.attachButtonTitleFont = attachButtonTitleFont
         self.errorColor = errorColor ?? UIColor(hexString: "EB5757")
         self.sendedImage = sendedImage ?? UIImage.named("udSended")
     }
@@ -921,6 +927,13 @@ public struct BaseStyle {
     public var searchNotFoundLabelColor: UIColor
     public var searchNotFoundLabelMarginTop: CGFloat
     
+    public var errorLoadImage: UIImage
+    public var errorLoadImageMargin: UIEdgeInsets // Left and right
+    public var errorLoadImageAspectRatioMultiplier: CGFloat
+    public var errorLoadImageCenterYMultiplier: CGFloat
+    public var serrorLoadTextFont: UIFont
+    public var serrorLoadTextColor: UIColor
+    
     public init(windowBottomMargin: CGFloat = 0,
                 loaderStyle: UIActivityIndicatorView.Style = .gray,
                 backgroundColor: UIColor? = nil,
@@ -962,7 +975,13 @@ public struct BaseStyle {
                 searchSeparatorColor: UIColor? = nil,
                 searchNotFoundLabelFont: UIFont = UIFont.systemFont(ofSize: 18),
                 searchNotFoundLabelColor: UIColor? = nil,
-                searchNotFoundLabelMarginTop: CGFloat = 20) {
+                searchNotFoundLabelMarginTop: CGFloat = 20,
+                errorLoadImage: UIImage? = nil,
+                errorLoadImageMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10),
+                errorLoadImageAspectRatioMultiplier: CGFloat = 1.555,
+                errorLoadImageCenterYMultiplier: CGFloat = 0.7,
+                serrorLoadTextFont: UIFont = UIFont.systemFont(ofSize: 21),
+                serrorLoadTextColor: UIColor = .black) {
         self.windowBottomMargin = windowBottomMargin
         self.loaderStyle = loaderStyle
         self.backgroundColor = backgroundColor ?? UIColor(hexString: "#F7F7F7")
@@ -997,7 +1016,7 @@ public struct BaseStyle {
         self.chatButtonShadowColor = chatButtonShadowColor ?? UIColor(hexString: "000000").cgColor
         self.searchBarHeight = searchBarHeight
         self.searchBarTextBackgroundColor = searchBarTextBackgroundColor ?? UIColor(hexString: "#EFEFF0")
-        self.searchBarTextColor = searchBarTextColor ?? UIColor(hexString: "#8A8A8E")
+        self.searchBarTextColor = searchBarTextColor ?? .black
         self.searchBarTintColor = searchBarTintColor
         self.searchCancelButtonColor = searchCancelButtonColor ?? UIColor(hexString: "EB5757")
         self.searchCancelButtonFont = searchCancelButtonFont
@@ -1005,6 +1024,12 @@ public struct BaseStyle {
         self.searchNotFoundLabelFont = searchNotFoundLabelFont
         self.searchNotFoundLabelColor = searchNotFoundLabelColor ?? UIColor(hexString: "989FB3")
         self.searchNotFoundLabelMarginTop = searchNotFoundLabelMarginTop
+        self.errorLoadImage = errorLoadImage ?? UIImage.named("udErrorLoad")
+        self.errorLoadImageMargin = errorLoadImageMargin
+        self.errorLoadImageAspectRatioMultiplier = errorLoadImageAspectRatioMultiplier
+        self.errorLoadImageCenterYMultiplier = errorLoadImageCenterYMultiplier
+        self.serrorLoadTextFont = serrorLoadTextFont
+        self.serrorLoadTextColor = serrorLoadTextColor
     }
 }
 // MARK: - Base Section

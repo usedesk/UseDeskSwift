@@ -60,11 +60,27 @@ public struct UseDeskModel {
     var knowledgeBaseSectionId: Int = 0
     var knowledgeBaseCategoryId: Int = 0
     var knowledgeBaseArticleId: Int = 0
-    var baseSections: [UDBaseCollection] = []
+    var isReturnToParentFromKnowledgeBase = false
+    var baseSections: [UDBaseCollection] = [] {
+        didSet {
+            if knowledgeBaseArticleId > 0 {
+                if let baseSection = baseSections.filter({$0.categories.filter({$0.articlesTitles.filter({$0.id == knowledgeBaseArticleId}).count > 0}).count > 0}).first,
+                   let category = baseSection.categories.filter({$0.articlesTitles.filter({$0.id == knowledgeBaseArticleId}).count > 0}).first {
+                    knowledgeBaseCategoryId = category.id
+                }
+            }
+            if knowledgeBaseCategoryId > 0 {
+                if let baseSection = baseSections.filter({$0.categories.filter({$0.id == knowledgeBaseCategoryId}).count > 0}).first {
+                    knowledgeBaseSectionId = baseSection.id
+                }
+            } 
+        }
+    }
     var api_token = ""
     var port = ""
     var name = ""
     var avatar: Data? = nil
+    var avatarUrl: URL? = nil
     var nameOperator = ""
     var nameChat = ""
     var firstMessage = ""

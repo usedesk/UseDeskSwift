@@ -9,7 +9,6 @@ class UDBaseArticleView: UDBaseKnowledgeVC, WKUIDelegate, UISearchBarDelegate, U
 
     @IBOutlet weak var blurView: UIVisualEffectView!
     
-//    @IBOutlet weak var topNavigateView: UIView!
     @IBOutlet weak var topNavigateBackgroundView: UIView!
     
     @IBOutlet weak var scrollView: UIScrollView!
@@ -55,14 +54,14 @@ class UDBaseArticleView: UDBaseKnowledgeVC, WKUIDelegate, UISearchBarDelegate, U
     @IBOutlet weak var reviewPositiveTitleLabelLC: NSLayoutConstraint!
     @IBOutlet weak var reviewPositiveTitleLabelTC: NSLayoutConstraint!
     @IBOutlet weak var reviewPositiveTitleLabelTopC: NSLayoutConstraint!
-
+    
     var article: UDArticle? = nil
     
     private var webView: WKWebView!
     
     private var heightArticleView: CGFloat = 0
     private var offsetScrollView: CGFloat = 0
-    private var isSendedPositivReview = false
+    private var isSendedReview = false
     private var baseArticleStyle: BaseArticleStyle = BaseArticleStyle()
     
     convenience init() {
@@ -123,6 +122,8 @@ class UDBaseArticleView: UDBaseKnowledgeVC, WKUIDelegate, UISearchBarDelegate, U
         loaderArticle.startAnimating()
         
         setViews()
+        
+        super.firstState()
     }
     
     func getArticle() {
@@ -130,6 +131,7 @@ class UDBaseArticleView: UDBaseKnowledgeVC, WKUIDelegate, UISearchBarDelegate, U
         usedesk?.getArticle(articleID: article!.id, connectionStatus: { [weak self] success, article in
             guard let wSelf = self else {return}
             if success {
+                wSelf.hideErrorLoadView()
                 wSelf.usedesk?.addViewsArticle(articleID: wSelf.article!.id, count: 1, connectionStatus: { _ in
                 }, errorStatus: { _, _ in})
                 wSelf.article = article
@@ -140,7 +142,10 @@ class UDBaseArticleView: UDBaseKnowledgeVC, WKUIDelegate, UISearchBarDelegate, U
                 wSelf.setReviewView()
                 wSelf.setArticleView()
             }
-        }, errorStatus: { _, _ in})
+        }, errorStatus: { [weak self] _, _ in
+            guard let wSelf = self else {return}
+            wSelf.showErrorLoadView(withAnimate: true)
+        })
     }
     
     func setViews() {
@@ -301,7 +306,7 @@ class UDBaseArticleView: UDBaseKnowledgeVC, WKUIDelegate, UISearchBarDelegate, U
         view.setNeedsLayout()
         view.layoutIfNeeded()
         var heightReviewView = baseArticleStyle.reviewTitleMargin.top + reviewTitleLabel.frame.height
-        if isSendedPositivReview {
+        if isSendedReview {
             heightReviewView += baseArticleStyle.reviewPositiveTextMargin.top + reviewPositiveTitleLabel.frame.height + baseArticleStyle.reviewPositiveTextMargin.bottom
             UIView.animate(withDuration: 0.15) {
                 self.reviewPositiveButton.alpha = 0
@@ -422,7 +427,7 @@ class UDBaseArticleView: UDBaseKnowledgeVC, WKUIDelegate, UISearchBarDelegate, U
             showAlertNoInternet()
             return
         }
-        isSendedPositivReview = true
+        isSendedReview = true
         setReviewView()
         guard article != nil && usedesk != nil else {return}
         usedesk!.addReviewArticle(articleID: article!.id, countPositive: 1, countNegative: 0) { _ in} errorStatus: { _, _ in}
@@ -436,11 +441,13 @@ class UDBaseArticleView: UDBaseKnowledgeVC, WKUIDelegate, UISearchBarDelegate, U
         articleReviewVC.delegate = self
         articleReviewVC.article = article
         usedesk?.uiManager?.pushViewController(articleReviewVC)
+        isSendedReview = true
+        setReviewView()
     }
     
     @IBAction func backAction(_ sender: Any) {
-        if isShownNoInternet {
-            backAction()
+        if isShownNoInternet || (self.navigationController?.viewControllers.count ?? 0 < 2) {
+            super.backAction()
         } else {
             self.navigationController?.popViewController(animated: true)
             self.removeFromParent()
@@ -500,7 +507,7 @@ extension UDBaseArticleView: WKNavigationDelegate {
 
 extension UDBaseArticleView: UDBaseArticleReviewVCDelegate {
     func sendedReview() {
-        isSendedPositivReview = true
+        isSendedReview = true
         setReviewView()
     }
 }

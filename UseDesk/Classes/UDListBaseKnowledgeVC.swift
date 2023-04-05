@@ -76,6 +76,7 @@ class UDListBaseKnowledgeVC: UDBaseKnowledgeVC, UITableViewDelegate, UITableView
         super.viewDidLoad()
         firstState()
         setChatButton()
+        updateViews()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -103,6 +104,7 @@ class UDListBaseKnowledgeVC: UDBaseKnowledgeVC, UITableViewDelegate, UITableView
     override func viewDidAppear(_ animated: Bool) {
         navigationController?.interactivePopGestureRecognizer?.delegate = self
         super.viewDidAppear(animated)
+        updateViews()
     }
     
     // MARK: - Configure
@@ -186,6 +188,11 @@ class UDListBaseKnowledgeVC: UDBaseKnowledgeVC, UITableViewDelegate, UITableView
         if loader.alpha == 1 {
             updateViews()
         }
+        
+        super.firstState()
+    }
+    
+    func updateValues() {
     }
     
     func updateViews() {

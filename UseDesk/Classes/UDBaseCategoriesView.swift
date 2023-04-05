@@ -10,6 +10,11 @@ class UDBaseCategoriesView: UDListBaseKnowledgeVC {
     
     var сategories: [UDBaseCategory]? = nil
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        сategories == nil ? showErrorLoadView() : hideErrorLoadView()
+    }
+    
     override func firstState() {
         super.firstState()
         if сategories != nil {
@@ -22,18 +27,19 @@ class UDBaseCategoriesView: UDListBaseKnowledgeVC {
         
         tableView.register(UINib(nibName: "UDBaseCategoriesCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDBaseCategoriesCell")
         tableView.reloadData()
+        
+        сategories == nil ? showErrorLoadView() : hideErrorLoadView()
     }
     
-    override func updateViews() {
+    override func updateValues() {
         if usedesk?.model.isLoadedKnowledgeBase ?? false && сategories == nil {
-            сategories = usedesk?.model.selectedKnowledgeBaseSection?.categories ?? []
+            сategories = usedesk?.model.selectedKnowledgeBaseSection?.categories
             titleVC = usedesk?.model.selectedKnowledgeBaseSection?.title ?? ""
         }
-        super.updateViews()
     }
     
     override func backAction() {
-        if isShownNoInternet {
+        if isShownNoInternet || (self.navigationController?.viewControllers.count ?? 0 < 2) {
             super.backAction()
         } else {
             self.navigationController?.popViewController(animated: true)

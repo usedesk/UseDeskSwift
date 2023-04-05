@@ -14,7 +14,7 @@ public protocol UDUIProtocole {
     func startBaseFlow(in parentController: UIViewController?)
     func reloadBaseFlow(success: Bool)
     func startDialogFlow(in parentController: UIViewController?, isFromBase: Bool)
-    func reloadDialogFlow(success: Bool, feedBackStatus: UDFeedbackStatus, url: String)
+    func reloadDialogFlow(success: Bool, feedBackStatus: UDFeedbackStatus?)
     func pushViewController(_ viewController: UIViewController)
     func dismiss()
     func chatViewController() -> UIViewController?

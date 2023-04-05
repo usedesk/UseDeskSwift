@@ -91,6 +91,9 @@ class UDBaseArticleReviewVC: UDBaseKnowledgeVC, UIScrollViewDelegate, UITextView
     }
 
     override func viewDidAppear(_ animated: Bool) {
+        if isFirstLoaded {
+            setSendButton()
+        }
         super.viewDidAppear(animated)
         isFirstLoaded = false
     }
@@ -195,6 +198,8 @@ class UDBaseArticleReviewVC: UDBaseKnowledgeVC, UIScrollViewDelegate, UITextView
         setSendButton()
         
         setViews()
+        
+        super.firstState()
     }
 
     func setViews() {
@@ -540,6 +545,7 @@ class UDNextBottomButton: UIButton {
         setTitleColor(titleColorHighlighted, for: .highlighted)
         titleLabel?.font = titleFont
         setTitle(title, for: .normal)
+        loader.style = .white
         loader.frame = CGRect(x: ((self.frame.width / 2) - 10), y: ((self.frame.height / 2) - 10), width: 20, height: 20)
         self.addSubview(loader)
     }
