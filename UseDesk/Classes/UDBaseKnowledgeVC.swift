@@ -89,6 +89,8 @@ class UDBaseKnowledgeVC: UIViewController {
         errorLoadImageViewAspectRatio = errorLoadImageViewAspectRatio.constraintWithMultiplier(baseStyle.errorLoadImageAspectRatioMultiplier)
         errorLoadImageViewTC.constant = baseStyle.errorLoadImageMargin.right
         errorLoadImageViewLC.constant = baseStyle.errorLoadImageMargin.left
+        errorLoadLabel.font = baseStyle.errorLoadTextFont
+        errorLoadLabel.textColor = baseStyle.errorLoadTextColor
         self.view.layoutIfNeeded()
     }
     

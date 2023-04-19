@@ -137,8 +137,3 @@ extension UIImage {
     }
 
 }
-
-public enum StorageError: Error {
-  case decodingFailed
-  case encodingFailed
-}

@@ -1,7 +1,5 @@
 //
 //  UDNumbersExtension.swift
-//  Alamofire
-//
 
 import UIKit
 

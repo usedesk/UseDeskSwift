@@ -543,7 +543,7 @@ public class UDNetworkManager {
         socket?.connect()
         socket?.on("connect", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
-            wSelf.usedesk?.icConnecting = true
+            wSelf.usedesk?.isConnecting = true
             connectBlock?(true)
             print("socket connected")
             let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.model.companyID, chanelId: wSelf.model.chanelId, email: wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, url: wSelf.model.url, countMessagesOnInit: wSelf.model.countMessagesOnInit, token: wSelf.token)
@@ -556,9 +556,9 @@ public class UDNetworkManager {
             guard let wSelf = self else {return}
             print(data.description)
             if wSelf.isAuthInited {
-                errorBlock?(.falseInitChatError, data.description)
-            } else {
                 errorBlock?(.socketError, data.description)
+            } else {
+                errorBlock?(.falseInitChatError, data.description)
             }
         })
     }
@@ -566,7 +566,7 @@ public class UDNetworkManager {
     public func socketDisconnect(socket: SocketIOClient?, connectBlock: UDConnectBlock? = nil) {
         socket?.on("disconnect", callback: { [weak self] data, ack in
             guard let wSelf = self else {return}
-            wSelf.usedesk?.icConnecting = false
+            wSelf.usedesk?.isConnecting = false
             connectBlock?(false)
             print("socket disconnect")
             let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.model.companyID, chanelId: wSelf.model.chanelId, email: wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, url: wSelf.model.url, countMessagesOnInit: wSelf.model.countMessagesOnInit, token: wSelf.token)
@@ -632,7 +632,6 @@ public class UDNetworkManager {
     // MARK: - Private Methods
     private func request(url: String, method: HTTPMethod = .post, parameters: [String : Any], isJSONEncoding: Bool = false, successBlock: @escaping (Any) -> Void, errorBlock: @escaping UDErrorBlock) {
         AF.request(url, method: method, parameters: parameters, encoding: isJSONEncoding ? JSONEncoding.default : URLEncoding.default).responseJSON { responseJSON in
-            print(responseJSON)
             switch responseJSON.result {
             case .success(let value):
                 if let valueDictionary = value as? [String : Any] {

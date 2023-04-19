@@ -452,9 +452,9 @@ class UDBaseArticleReviewVC: UDBaseKnowledgeVC, UIScrollViewDelegate, UITextView
             guard article != nil && usedesk != nil else {return}
             var message = ""
             if selectedIndexTags.count > 0 {
-                message = usedesk?.model.stringFor("ReviewTagsTitle") ?? "" + " "
+                message = (usedesk?.model.stringFor("ReviewTagsTitle") ?? "") + " "
                 selectedIndexTags = selectedIndexTags.sorted()
-                message += "\(tags[0])"
+                message += "\(tags[selectedIndexTags[0]])"
                 for index in 1..<selectedIndexTags.count {
                     if selectedIndexTags[index] < tags.count {
                         message += ", \(tags[selectedIndexTags[index]])"

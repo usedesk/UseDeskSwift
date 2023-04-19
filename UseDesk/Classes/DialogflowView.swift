@@ -563,7 +563,7 @@ class DialogflowView: UDMessagesView {
             let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
             
             let repeatAction = UIAlertAction(title: usedesk!.model.stringFor("SendAgain"), style: .default, handler: { [weak self] (alert: UIAlertAction!) in
-                guard let wSelf = self, wSelf.usedesk?.icConnecting ?? false else {return}
+                guard let wSelf = self, wSelf.usedesk?.isConnecting ?? false else {return}
                 DispatchQueue.main.async {
                     let message = wSelf.messagesWithSection[indexPath.section][indexPath.row]
                     wSelf.messagesWithSection[indexPath.section].remove(at: indexPath.row)

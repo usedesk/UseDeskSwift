@@ -17,12 +17,6 @@ protocol FormValueCellNodeDelegate: AnyObject {
     func newValue(value: String, indexForm: Int)
 }
 
-enum StatusForm: Int {
-    case inputable = 1
-    case loading = 2
-    case sended = 3
-}
-
 class UDMessageFormCellNode: ASCellNode {
     var configurationStyle: ConfigurationStyle = ConfigurationStyle()
     var spacing: CGFloat = 0

@@ -43,7 +43,7 @@ public class UseDeskSDK: NSObject {
             networkManager?.model = model
         }
     }
-    var icConnecting: Bool = false
+    var isConnecting: Bool = false
     // Network
     var networkManager: UDNetworkManager? = nil
     

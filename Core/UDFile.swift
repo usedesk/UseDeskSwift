@@ -309,18 +309,18 @@ public class UDFile: NSObject, Codable {
     }
 }
 
+extension UDFile: QLPreviewItem {
+    public var previewItemURL: URL? {
+    return URL(fileURLWithPath: path)
+  }
+}
+
 enum TypeSenderMessage: Int {
     case operator_to_client = 1
     case client_to_operator = 2
     case client_to_bot = 3
     case bot_to_client = 4
     case service = 0
-}
-
-extension UDFile: QLPreviewItem {
-    public var previewItemURL: URL? {
-    return URL(fileURLWithPath: path)
-  }
 }
 
 extension PHAsset {

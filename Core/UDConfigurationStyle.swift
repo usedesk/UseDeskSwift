@@ -931,8 +931,8 @@ public struct BaseStyle {
     public var errorLoadImageMargin: UIEdgeInsets // Left and right
     public var errorLoadImageAspectRatioMultiplier: CGFloat
     public var errorLoadImageCenterYMultiplier: CGFloat
-    public var serrorLoadTextFont: UIFont
-    public var serrorLoadTextColor: UIColor
+    public var errorLoadTextFont: UIFont
+    public var errorLoadTextColor: UIColor
     
     public init(windowBottomMargin: CGFloat = 0,
                 loaderStyle: UIActivityIndicatorView.Style = .gray,
@@ -980,8 +980,8 @@ public struct BaseStyle {
                 errorLoadImageMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10),
                 errorLoadImageAspectRatioMultiplier: CGFloat = 1.555,
                 errorLoadImageCenterYMultiplier: CGFloat = 0.7,
-                serrorLoadTextFont: UIFont = UIFont.systemFont(ofSize: 21),
-                serrorLoadTextColor: UIColor = .black) {
+                errorLoadTextFont: UIFont = UIFont.systemFont(ofSize: 21),
+                errorLoadTextColor: UIColor = .black) {
         self.windowBottomMargin = windowBottomMargin
         self.loaderStyle = loaderStyle
         self.backgroundColor = backgroundColor ?? UIColor(hexString: "#F7F7F7")
@@ -1028,8 +1028,8 @@ public struct BaseStyle {
         self.errorLoadImageMargin = errorLoadImageMargin
         self.errorLoadImageAspectRatioMultiplier = errorLoadImageAspectRatioMultiplier
         self.errorLoadImageCenterYMultiplier = errorLoadImageCenterYMultiplier
-        self.serrorLoadTextFont = serrorLoadTextFont
-        self.serrorLoadTextColor = serrorLoadTextColor
+        self.errorLoadTextFont = errorLoadTextFont
+        self.errorLoadTextColor = errorLoadTextColor
     }
 }
 // MARK: - Base Section

@@ -4,6 +4,12 @@
 
 import Foundation
 
+enum StatusForm: Int {
+    case inputable = 1
+    case loading = 2
+    case sended = 3
+}
+
 public enum UDFormMessageAssociateType: String, Codable {
     case email = "email"
     case phone = "phone"

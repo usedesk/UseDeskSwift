@@ -57,10 +57,10 @@ extension String {
     }
     
     func udIsValidEmail() -> Bool {
-        let udEmailRegex = "[A-Z0-9a-z]([A-Z0-9a-z._%+-]{0,30}[A-Z0-9a-z])?" + "@" + "([A-Z0-9a-z]([A-Z0-9a-z-]{0,30}[A-Z0-9a-z])?\\.){1,5}" + "[A-Za-z]{2,8}"
+        let udEmailRegex = "[A-Z0-9a-z]([A-Z0-9a-z._%+-]{0,30}[A-Z0-9a-z_])?" + "@" + "([A-Z0-9a-z]([A-Z0-9a-z-]{0,30}[A-Z0-9a-z])?\\.){1,5}" + "[A-Za-z]{2,8}"
         let range = NSRange(location: 0, length: self.count)
         let regex = try! NSRegularExpression(pattern: udEmailRegex)
-        return regex.firstMatch(in: self, options: [], range: range) != nil
+        return regex.firstMatch(in: self, options: [], range: range) != nil && !self.udIsHtml()
     }
     
     func udIsValidToken() -> Bool {
@@ -78,6 +78,20 @@ extension String {
         } else {
             return false
         }
+    }
+    
+    func udIsHtml() -> Bool {
+        let htmlTags: [String] = ["<!--","<!DOCTYPE","<a","<abbr","<acronym","<address","<applet","<area","<article","<aside","<audio","<b","<base","<basefont","<bdi","<bdo","<big","<blockquote","<body","<br","<button","<canvas","<caption","<center","<cite","<code","<col","<colgroup","<data","<datalist","<dd","<del","<details","<dfn","<dialog","<dir","<div","<dl","<dt","<em","<embed","<fieldset","<figcaption","<figure","<font","<footer","<form","<frame","<frameset","<h1","<h2","<h3","<h4","<h5","<h6","<head","<header","<hr","<html","<i","<iframe","<img","<input","<ins","<kbd","<label","<legend","<li","<link","<main","<map","<mark","<menu","<menuitem","<meta","<meter","<nav","<noframes","<noscript","<object","<ol","<optgroup","<option","<output","<param","<picture","<pre","<progress","<q","<rp","<rt","<ruby","<s","<samp","<script","<section","<select","<small","<source","<span","<strike","<strong","<style","<sub","<summary","<sup","<svg","<table","<tbody","<td","<template","<textarea","<tfoot","<th","<thead","<time","<title","<tr","<track","<tt","<u","<ul","<var","<video","<wbr","<p","</p"]
+        var isHtml = false
+        var index = 0
+        while index < htmlTags.count && !isHtml {
+            if self.contains(htmlTags[index]) {
+                isHtml = true
+            } else {
+                index += 1
+            }
+        }
+        return isHtml
     }
     
     func udGetLinksRange() -> [Range<String.Index>] {
@@ -276,7 +290,7 @@ extension String {
                 var isFindEnd = false
                 var index = 0
                 while !isFindEnd {
-                    if let searchEndIndex = self.index(startIndex, offsetBy: index, limitedBy: self.endIndex) {
+                    if let searchEndIndex = self.index(startIndex, offsetBy: index, limitedBy: self.endIndex), udIsIndexValid(searchEndIndex) {
                         if self[searchEndIndex] == ">" {
                             isFindEnd = true
                             self = self.replacingOccurrences(of: self[searchEndIndex...searchEndIndex], with: "")
@@ -298,7 +312,7 @@ extension String {
         guard self.count > 19, self.contains("[](") else {return}
         let patternAllConstructionUrl = "(\\[\\]\\([a-zA-Zа-яА-Я0-9:@.-_]{1,250}\\)[a-zA-Zа-яА-Я0-9<>-_\n@.]{1,250}\\[\\]\\([a-zA-Zа-яА-Я0-9:@.-_]{1,250}\\))"
         let patternUrl = "(\\)[a-zA-Zа-яА-Я0-9<>\n@.]{1,250}\\[)"
-        var range = NSRange(location: 0, length: self.count + 1)
+        var range = NSRange(location: 0, length: self.count)
         let regexAllConstructionUrl = try! NSRegularExpression(pattern: patternAllConstructionUrl)
         let regexUrl = try! NSRegularExpression(pattern: patternUrl)
         var isExistConstructionUrl = regexAllConstructionUrl.firstMatch(in: self, options: [], range: range) != nil

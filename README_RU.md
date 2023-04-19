@@ -82,6 +82,8 @@ import UseDesk
 
 ### Инициализация чата и чата вместе с Базой знаний (GUI)
 
+Не производите инициализацию библиотеки в методе `viewDidLoad()`
+
 ```swift
 let usedesk = UseDeskSDK()
 usedesk.start(

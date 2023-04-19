@@ -78,13 +78,15 @@ Where * — required parameter
 | **CountMessagesOnInit** | Int | **Number of loaded messages when starting the chat**<br/>When client open a chat, a specified number of messages are loaded. As client scrolls chat, 20 more messages are loaded |
 | **LocaleIdentifier** | String | **Language Identifier**<br/>Available languages: Russian (`ru`), English (`en`), Portugiese (`pt`), Spanish (`es`). <br/>If passed identifier is not supported, the Russian language will be used |
 | **CustomLocale** | String : String | **Your own translation dictionary**<br/>If the SDK needs to be displayed in a language we do not support, you can create a translation dictionary yourself and use it |
-| **Storage** | UDStorage | **Storage that supports UDStorage protocol**<br/>Для Each individual chat must be given its own separate storage |
+| **Storage** | UDStorage | **Storage that supports UDStorage protocol**<br/> Each individual chat must be given its own separate storage |
 | **isCacheMessagesWithFile** | Bool | **Flag to store messages with files in cache**<br/>By default: `true`<br/>If `true`, files will be stored in the cache. If `false`, files won't be stored in the cache |
 | **isSaveTokensInUserDefaults** | Bool | **Flag to store user token in UserDefaults of the application**<br/>By default: `true`<br/>If `true`, the token will be stored in the current device. The disadvantages of this approach are that if you reinstall the application, change device or platform, access to your correspondence will be lost. <br/>To preserve access to client conversations from other devices and platforms, the token must be stored on your system and transferred during initialization. In this case, you must use the value of the parameter `false` |
 | **isPresentDefaultControllers** | Bool | **The flag of automatic display of the controller in the specified parent controller**<br/>By default: `true` |
 | **PresentIn** | UIViewController | **Controller in which the SDK must be opened** |
 
 ### Initializing chat and chat with the Knowledge Base (GUI)
+
+Do not initialize the library in the `viewDidLoad()` method
 
 ```swift
 let usedesk = UseDeskSDK()
