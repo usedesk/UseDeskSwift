@@ -1961,7 +1961,12 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             }
             var isNeedShowSender = true
             if let previousMessage = wSelf.getMessage(IndexPath(row: indexPath.row + 1, section: indexPath.section)) {
-                if (message?.typeSenderMessage == previousMessage.typeSenderMessage) && message?.incoming ?? true && previousMessage.incoming {
+                if (message?.typeSenderMessage == previousMessage.typeSenderMessage),
+                   message?.avatar == previousMessage.avatar,
+                   message?.name == previousMessage.name,
+                   message?.incoming ?? true,
+                   previousMessage.incoming
+                {
                     isNeedShowSender = false
                     if previousMessage.typeSenderMessage == .operator_to_client {
                         isNeedShowSender = message?.operatorId == previousMessage.operatorId ? false : true

@@ -408,7 +408,7 @@ public class UDNetworkManager {
             "api_token" : model.api_token,
             "count"     : count
         ]
-        request(url: url, method: .get, parameters: parameters, successBlock: { value in
+        request(url: url, parameters: parameters, successBlock: { value in
             connectBlock(true)
         }, errorBlock: errorBlock)
     }
