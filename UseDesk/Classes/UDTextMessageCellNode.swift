@@ -57,9 +57,6 @@ class UDTextMessageCellNode: UDMessageCellNode {
             tableButtonsNode.dataSource = self
             tableButtonsNode.delegate = self
             tableButtonsNode.backgroundColor = .clear
-            DispatchQueue.main.async {
-                self.tableButtonsNode.view.separatorStyle = .none
-            }
             addSubnode(tableButtonsNode)
         }
         
