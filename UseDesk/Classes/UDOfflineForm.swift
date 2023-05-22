@@ -184,6 +184,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate, PHPhotoLibraryChange
 
         sendedImage.image = feedbackFormStyle.sendedImage
         sendedLabel.text = usedesk!.model.stringFor("FeedbackSendedMessage")
+        sendedLabel.textColor = feedbackFormStyle.textColor
         closeButton.backgroundColor = feedbackFormStyle.buttonColor
         closeButton.tintColor = feedbackFormStyle.buttonTextColor
         closeButton.titleLabel?.font = feedbackFormStyle.buttonFont

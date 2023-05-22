@@ -14,9 +14,6 @@ protocol DialogflowVCDelegate: AnyObject {
 }
 
 class DialogflowView: UDMessagesView {
-
-    var isFromBase = false
-    var isFromOfflineForm = false
     
     weak var delegate: DialogflowVCDelegate?
     

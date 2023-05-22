@@ -98,6 +98,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     public var allMessages: [UDMessage] = []
     public var newMessagesIds: [Int] = []
     public var isScrollChatToBottom = true
+    public var isFromBase = false
+    public var isFromOfflineForm = false
     
     private let kLimitSizeFile: Double = 128
     
@@ -332,7 +334,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         
         buttonSend.isEnabled = false
         buttonAttach.isEnabled = false
-        textInput.isUserInteractionEnabled = false
+        if !isFromOfflineForm {
+            textInput.isUserInteractionEnabled = false
+        }
     }
     
     func configureAttachCollection() {
@@ -1235,7 +1239,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     
     @IBAction func actionInputSend(_ sender: Any) {
         guard usedesk != nil else {return}
-        DispatchQueue.main.async { 
+        DispatchQueue.main.async {
             self.actionSendMessage()
             if !((self.textInput.text == self.usedesk!.model.stringFor("Write") + "..." && self.textInput.textColor == self.configurationStyle.inputViewStyle.placeholderTextColor)) {
                 self.textInput.text = ""
@@ -2290,17 +2294,17 @@ extension UDMessagesView: UDFeedbackMessageCellNodeDelegate {
 
 // Helper function inserted by Swift 4.2 migrator.
 fileprivate func convertFromUIImagePickerControllerInfoKeyDictionary(_ input: [UIImagePickerController.InfoKey: Any]) -> [String: Any] {
-	return Dictionary(uniqueKeysWithValues: input.map {key, value in (key.rawValue, value)})
+    return Dictionary(uniqueKeysWithValues: input.map {key, value in (key.rawValue, value)})
 }
 
 // Helper function inserted by Swift 4.2 migrator.
 fileprivate func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
-	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
+    return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
 }
 
 // Helper function inserted by Swift 4.2 migrator.
 fileprivate func convertFromUIImagePickerControllerInfoKey(_ input: UIImagePickerController.InfoKey) -> String {
-	return input.rawValue
+    return input.rawValue
 }
 // MARK: - ImagePickerDelegate
 extension UDMessagesView: ImagePickerDelegate {
