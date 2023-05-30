@@ -116,18 +116,22 @@ class UDTextMessageCellNode: UDMessageCellNode {
         let messageStyle = configurationStyle.messageStyle
         
         let linkColor = message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor
-        
-        let attributedString = UDMarkdownParser.mutableAttributedString(for: message.text,
+        var attributedString = UDMarkdownParser.mutableAttributedString(for: message.text,
                                                                                font: messageStyle.font,
                                                                                color: message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor)
-        attributedString.enumerateAttributes(in: NSRange(0..<attributedString.length), options: []) { (attributes, range, _) -> Void in
-            for (attribute, _) in attributes {
-                if attribute == .link {
-                    attributedString.addAttribute(.foregroundColor, value: linkColor, range: range)
-                    attributedString.addAttribute(.underlineColor, value: linkColor, range: range)
-                }
+        let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+        let range = NSMakeRange(0, message.text.count)
+        let mutableString = NSMutableAttributedString()
+        mutableString.append(attributedString)
+        detector?.enumerateMatches(in: message.text, range: range) { (resultDetector, _, _) in
+            if let result = resultDetector {
+                mutableString.addAttribute(.underlineColor, value: linkColor, range: result.range)
+                mutableString.addAttribute(.link, value: result.url, range: result.range)
+                mutableString.addAttribute(.foregroundColor, value: linkColor, range: result.range)
             }
         }
+        attributedString = mutableString
+        
         textMessageNode.attributedText = attributedString
         textMessageNode.isUserInteractionEnabled = true
         textMessageNode.delegate = self
