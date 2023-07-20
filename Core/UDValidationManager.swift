@@ -76,12 +76,16 @@ public class UDValidationManager {
                 errorBlock(.urlError, UDError.urlError.description)
                 return
             }
-            model.urlWithoutPort = url!
+            var urlValue = url!
+            if urlValue.last == "/" && urlValue.count > 2 {
+                urlValue.removeLast()
+            }
+            model.urlWithoutPort = urlValue
             
-            if isExistProtocol(url: url!) {
-                model.url = "\(url!):\(model.port)"
+            if isExistProtocol(url: urlValue) {
+                model.url = "\(urlValue):\(model.port)"
             } else {
-                model.url = "https://" + "\(url!):\(model.port)"
+                model.url = "https://" + "\(urlValue):\(model.port)"
             }
         }
         
@@ -96,31 +100,38 @@ public class UDValidationManager {
             }
         }
         
-        if urlToSendFile != nil {
-            if urlToSendFile != "" {
-                guard urlToSendFile!.udIsValidUrl() else {
+        if let url = urlToSendFile {
+            if url != "" {
+                var urlValue = url
+                guard urlValue.udIsValidUrl() else {
                     errorBlock(.urlToSendFileError, UDError.urlToSendFileError.description)
                     return
                 }
-                if isExistProtocol(url: urlToSendFile!) {
-                    model.urlToSendFile = urlToSendFile!
+                if urlValue.last == "/" && urlValue.count > 2 {
+                    urlValue.removeLast()
+                }
+                if isExistProtocol(url: urlValue) {
+                    model.urlToSendFile = urlValue
                 } else {
-                    model.urlToSendFile = "https://" + urlToSendFile!
+                    model.urlToSendFile = "https://" + urlValue
                 }
             }
         }
         
-        if urlAPI != nil {
-            if urlAPI != "" {
-                var urlAPIValue = urlAPI!
-                if !isExistProtocol(url: urlAPIValue) {
-                    urlAPIValue = "https://" + urlAPIValue
+        if let url = urlAPI {
+            if url != "" {
+                var urlValue = url
+                if !isExistProtocol(url: urlValue) {
+                    urlValue = "https://" + urlValue
                 }
-                guard urlAPIValue.udIsValidUrl() else {
+                guard urlValue.udIsValidUrl() else {
                     errorBlock(.urlAPIError, UDError.urlAPIError.description)
                     return
                 }
-                model.urlAPI = urlAPIValue
+                if urlValue.last == "/" && urlValue.count > 2 {
+                    urlValue.removeLast()
+                }
+                model.urlAPI = urlValue
             }
         }
         
