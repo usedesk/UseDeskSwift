@@ -251,9 +251,11 @@ extension String {
                                             if udIsIndexValid(startIndex) && udIsIndexValid(searchIndex) {
                                                 self = self.replacingOccurrences(of: self[startIndex...searchIndex], with: "")
                                             }
-                                            if let enterIndex = self.index(startIndex, offsetBy: -1, limitedBy: self.startIndex) {
-                                                if self[enterIndex] == "\n" {
-                                                    self.remove(at: enterIndex)
+                                            if self.startIndex > startIndex {
+                                                if let enterIndex = self.index(startIndex, offsetBy: -1, limitedBy: self.startIndex) {
+                                                    if self[enterIndex] == "\n" {
+                                                        self.remove(at: enterIndex)
+                                                    }
                                                 }
                                             }
                                         }
