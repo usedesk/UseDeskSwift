@@ -10,7 +10,7 @@ class UseDeskSDKHelp {
         let payload: [String : Any] = [
             "sdk" : "iOS",
             "type" : "sdk",
-            "version" : "3.4.7",
+            "version" : "3.4.8",
             "message_limit" : countMessagesOnInit,
             "userData" : getUserParameters()
         ] 
@@ -165,7 +165,6 @@ public extension UIDevice {
             }
 
             func udMapToDevice(identifier: String) -> String {
-                #if os(iOS)
                 switch identifier {
                 case "iPod5,1":                                       return "iPod touch (5th generation)"
                 case "iPod7,1":                                       return "iPod touch (6th generation)"
@@ -202,6 +201,10 @@ public extension UIDevice {
                 case "iPhone14,8":                                    return "iPhone 14 Plus"
                 case "iPhone15,2":                                    return "iPhone 14 Pro"
                 case "iPhone15,3":                                    return "iPhone 14 Pro Max"
+                case "iPhone15,4":                                    return "iPhone 15"
+                case "iPhone15,5":                                    return "iPhone 15 Plus"
+                case "iPhone16,1":                                    return "iPhone 15 Pro"
+                case "iPhone16,2":                                    return "iPhone 15 Pro Max"
                 case "iPhone8,4":                                     return "iPhone SE"
                 case "iPhone12,8":                                    return "iPhone SE (2nd generation)"
                 case "iPhone14,6":                                    return "iPhone SE (3rd generation)"
@@ -244,14 +247,6 @@ public extension UIDevice {
                 case "i386", "x86_64", "arm64":                       return "Simulator \(udMapToDevice(identifier: ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] ?? "iOS"))"
                 default:                                              return identifier
                 }
-                #elseif os(tvOS)
-                switch identifier {
-                case "AppleTV5,3": return "Apple TV 4"
-                case "AppleTV6,2": return "Apple TV 4K"
-                case "i386", "x86_64": return "Simulator \(udMapToDevice(identifier: ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] ?? "tvOS"))"
-                default: return identifier
-                }
-                #endif
             }
 
             return udMapToDevice(identifier: identifier)
