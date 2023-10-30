@@ -404,12 +404,6 @@ class UDSocketResponse {
                 }
                 m.text = m.text.replacingOccurrences(of: stringFromButton, with: textButton)
             }
-            for index in 0..<m.buttons.count {
-                let invertIndex = (m.buttons.count - 1) - index
-                if m.buttons[invertIndex].visible {
-                    m.text = m.buttons[invertIndex].title + " " + m.text
-                }
-            }
             //Forms
             let (textWithForms, forms) = UDFormMessageManager.parseForms(from: m.text)
             if forms.count > 0 {
@@ -517,29 +511,33 @@ class UDSocketResponse {
         var isNameExists = true
         while (index < stringButton.count - 2) && isNameExists {
             let indexString = stringButton.index(stringButton.startIndex, offsetBy: index)
-            if stringButton[indexString] != ";" {
-                charactersFromParameter.append(stringButton[indexString])
-                index += 1
-            } else {
+            if stringButton[indexString] == ";" || index == stringButton.count - 3 {
                 // если первый параметр(имя) будет равно "" то не создавать кнопку
                 if (stringsParameters.count == 0) && (charactersFromParameter.count == 0) {
                     isNameExists = false
                 } else {
+                    // если последний символ перед ковычками добавляем его в символы параметра
+                    if index == stringButton.count - 3 {
+                        charactersFromParameter.append(stringButton[indexString])
+                    }
                     stringsParameters.append(String(charactersFromParameter))
                     charactersFromParameter = []
                     index += 1
                 }
+            } else {
+                charactersFromParameter.append(stringButton[indexString])
+                index += 1
             }
         }
 
-        if isNameExists && (stringsParameters.count == 3) {
+        if isNameExists && (stringsParameters.count > 0) {
             stringsParameters.append(String(charactersFromParameter))
             let button = UDMessageButton()
             button.title = stringsParameters[0]
-            button.url = stringsParameters[1]
-            if stringsParameters[3] == "show" {
-                button.visible = true
-            } else {
+            if stringsParameters.count > 1 {
+                button.url = stringsParameters[1]
+            }
+            if stringsParameters.count > 3 && stringsParameters[3] == "noshow" {
                 button.visible = false
             }
             return button

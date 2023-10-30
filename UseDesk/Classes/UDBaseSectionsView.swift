@@ -19,6 +19,7 @@ class UDBaseSectionsView: UDListBaseKnowledgeVC {
     }
     
     override func updateValues() {
+        isUpdatedValues = true
         if usedesk?.model.isLoadedKnowledgeBase ?? false {
             arrayCollections = usedesk?.model.baseSections ?? []
             downloadImagesSection()

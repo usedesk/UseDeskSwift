@@ -9,7 +9,7 @@ class UDBaseArticlesView: UDListBaseKnowledgeVC {
     var articles: [UDArticleTitle]? = nil
     
     override func viewWillAppear(_ animated: Bool) {
-        articles == nil ? showErrorLoadView() : hideErrorLoadView()
+        articles == nil && !isUpdatedValues ? showErrorLoadView() : hideErrorLoadView()
         super.viewWillAppear(animated)
     }
     
@@ -27,10 +27,11 @@ class UDBaseArticlesView: UDListBaseKnowledgeVC {
         tableView.register(UINib(nibName: "UDBaseArticleViewCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDBaseArticleViewCell")
         tableView.reloadData()
         
-        articles == nil ? showErrorLoadView() : hideErrorLoadView()
+        articles == nil && !isUpdatedValues ? showErrorLoadView() : hideErrorLoadView()
     }
     
     override func updateValues() {
+        isUpdatedValues = true
         if usedesk?.model.isLoadedKnowledgeBase ?? false && articles == nil {
             articles = usedesk?.model.selectedKnowledgeBaseCategory?.articlesTitles
             titleVC = usedesk?.model.selectedKnowledgeBaseCategory?.title ?? ""

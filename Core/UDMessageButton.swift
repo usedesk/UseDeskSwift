@@ -7,7 +7,7 @@ import UIKit
 public class UDMessageButton: NSObject, Codable {
     @objc public var title = ""
     @objc public var url = ""
-    @objc public var visible = false
+    @objc public var visible = true
     
     override init() {
         super.init()

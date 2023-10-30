@@ -29,8 +29,8 @@ class DialogflowView: UDMessagesView {
         navigationItem.title = usedesk?.model.nameChat
         
         //Notification
-        NotificationCenter.default.addObserver(self, selector: #selector(self.openUrlFromMessageButton(_:)), name: Notification.Name("messageButtonURLOpen"), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.sendMessageButton(_:)), name: Notification.Name("messageButtonSend"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.openUrlFromMessageButton(_:)), name: Notification.Name("UseDeskMessageButtonURLOpen1!"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.sendMessageButton(_:)), name: Notification.Name("UseDeskMessageButtonSend1!"), object: nil)
         
         allMessages = [UDMessage]()
         

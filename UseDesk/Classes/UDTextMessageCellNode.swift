@@ -424,12 +424,12 @@ extension UDTextMessageCellNode: ASTableDelegate, ASTableDataSource {
             if message.buttons[indexPath.row].url != "" {
                 let urlDataDict:[String: String] = ["url": message.buttons[indexPath.row].url]
                 DispatchQueue.main.async {
-                    NotificationCenter.default.post(name: Notification.Name("messageButtonURLOpen"), object: nil, userInfo: urlDataDict)
+                    NotificationCenter.default.post(name: Notification.Name("UseDeskMessageButtonURLOpen1!"), object: nil, userInfo: urlDataDict)
                 }
             } else {
                 let textDataDict:[String: String] = ["text": message.buttons[indexPath.row].title]
                 DispatchQueue.main.async {
-                    NotificationCenter.default.post(name: Notification.Name("messageButtonSend"), object: nil, userInfo: textDataDict)
+                    NotificationCenter.default.post(name: Notification.Name("UseDeskMessageButtonSend1!"), object: nil, userInfo: textDataDict)
                 }
             }
         } else {

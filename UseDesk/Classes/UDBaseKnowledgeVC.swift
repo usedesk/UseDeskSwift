@@ -236,6 +236,7 @@ class UDBaseKnowledgeVC: UIViewController {
     
     // MARK: - No Internet
     func showErrorLoadView(withAnimate: Bool = false) {
+        guard errorLoadView.alpha != 1 else {return}
         if withAnimate {
             UIView.animate(withDuration: 0.3) {
                 self.errorLoadView.alpha = 1
@@ -247,6 +248,7 @@ class UDBaseKnowledgeVC: UIViewController {
     }
     
     func hideErrorLoadView(withAnimate: Bool = false) {
+        guard errorLoadView.alpha != 0 else {return}
         if withAnimate {
             UIView.animate(withDuration: 0.3) {
                 self.errorLoadView.alpha = 0

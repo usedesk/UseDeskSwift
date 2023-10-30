@@ -12,7 +12,7 @@ class UDBaseCategoriesView: UDListBaseKnowledgeVC {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        сategories == nil ? showErrorLoadView() : hideErrorLoadView()
+        сategories == nil && !isUpdatedValues ? showErrorLoadView() : hideErrorLoadView()
     }
     
     override func firstState() {
@@ -28,10 +28,11 @@ class UDBaseCategoriesView: UDListBaseKnowledgeVC {
         tableView.register(UINib(nibName: "UDBaseCategoriesCell", bundle: BundleId.thisBundle), forCellReuseIdentifier: "UDBaseCategoriesCell")
         tableView.reloadData()
         
-        сategories == nil ? showErrorLoadView() : hideErrorLoadView()
+        сategories == nil && !isUpdatedValues ? showErrorLoadView() : hideErrorLoadView()
     }
     
     override func updateValues() {
+        isUpdatedValues = true
         if usedesk?.model.isLoadedKnowledgeBase ?? false && сategories == nil {
             сategories = usedesk?.model.selectedKnowledgeBaseSection?.categories
             titleVC = usedesk?.model.selectedKnowledgeBaseSection?.title ?? ""

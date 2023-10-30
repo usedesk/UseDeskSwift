@@ -57,6 +57,7 @@ class UDListBaseKnowledgeVC: UDBaseKnowledgeVC, UITableViewDelegate, UITableView
 
     var titleVC: String = ""
     var arrayCollections: [UDBaseCollection] = []
+    var isUpdatedValues = false
     
     private var searchArticles: UDSearchArticle? = nil
     private var isSearchState: Bool = false
@@ -196,6 +197,7 @@ class UDListBaseKnowledgeVC: UDBaseKnowledgeVC, UITableViewDelegate, UITableView
     }
     
     func updateViews() {
+        isUpdatedValues = true
         if usedesk?.model.isLoadedKnowledgeBase ?? false {
             titleSmallLabel.text = titleVC
             titleBigLabel.text = titleVC
