@@ -120,10 +120,10 @@ class UDTextMessageCellNode: UDMessageCellNode {
                                                                                font: messageStyle.font,
                                                                                color: message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor)
         let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
-        let range = NSMakeRange(0, message.text.count)
+        let range = NSMakeRange(0, attributedString.string.count)
         let mutableString = NSMutableAttributedString()
         mutableString.append(attributedString)
-        detector?.enumerateMatches(in: message.text, range: range) { (resultDetector, _, _) in
+        detector?.enumerateMatches(in: attributedString.string, range: range) { (resultDetector, _, _) in
             if let result = resultDetector {
                 mutableString.addAttribute(.underlineColor, value: linkColor, range: result.range)
                 mutableString.addAttribute(.link, value: result.url, range: result.range)

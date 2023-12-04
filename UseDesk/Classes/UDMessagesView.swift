@@ -795,11 +795,18 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             guard let wSelf = self else {return}
             if newMessages.count < (wSelf.usedesk?.model.countMessagesOnInit ?? UD_LIMIT_PAGINATION_DEFAULT) {
                 wSelf.isNeedLoadMoreHistoryMessages = false
+                guard !newMessages.isEmpty else {return}
             }
-            var indexesNewMessages: [IndexPath] = []
-            let sortedNewMessages = Array(newMessages.sorted(by: { $0.date > $1.date }))
+            var uniquiNewMessages: [UDMessage] = []
+            for message in newMessages {
+                if !wSelf.messagesWithSection.contains(where: {$0.contains(where: {$0.id == message.id})}) {
+                    uniquiNewMessages.append(message)
+                }
+            }
+            let sortedNewMessages = Array(uniquiNewMessages.sorted(by: { $0.date > $1.date }))
             var newMessagesWithSection = wSelf.generateSection(messagesForGenerate: sortedNewMessages)
             DispatchQueue.main.async {
+                var indexesNewMessages: [IndexPath] = []
                 if newMessagesWithSection.count > 0, newMessagesWithSection.first?[0].date.dateFormatString == wSelf.messagesWithSection.last?[0].date.dateFormatString {
                     let previousIndexPath = IndexPath(row: wSelf.messagesWithSection.last!.count - 1, section: wSelf.messagesWithSection.count - 1)
                     for index in 0..<newMessagesWithSection.first!.count {
@@ -834,6 +841,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         let sort = countDraftMessagesWithFile + 1
         if let asset = asset as? PHAsset {
             let message = UDMessage()
+            if let id = usedesk?.networkManager?.newIdLoadingMessages() {
+                message.loadingMessageId = id
+            }
             message.type = UD_TYPE_PICTURE
             message.file.sort = sort
             draftMessages.append(message)
@@ -883,6 +893,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             }
         } else if let image = asset as? UIImage {
             let message = UDMessage(image: image, isCacheFile: usedesk?.isCacheMessagesWithFile ?? false)
+            if let id = usedesk?.networkManager?.newIdLoadingMessages() {
+                message.loadingMessageId = id
+            }
             draftMessages.append(message)
             if (message.file.data?.size ?? 0) > kLimitSizeFile {
                 showAlertLimitSizeFile(with: message)
@@ -892,6 +905,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             }
         } else if let urlFile = asset as? URL {
             var message = UDMessage()
+            if let id = usedesk?.networkManager?.newIdLoadingMessages() {
+                message.loadingMessageId = id
+            }
             if urlFile.pathExtension.lowercased() == "mov" {
                 message = UDMessage(urlMovie: urlFile, isCacheFile: usedesk?.isCacheMessagesWithFile ?? false)
             } else {
@@ -2038,6 +2054,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     }
     
     func tableNode(_ tableNode: ASTableNode, willBeginBatchFetchWith context: ASBatchContext) {
+        guard isNeedLoadMoreHistoryMessages else {return}
         fetchNewBatchOfMessagesWithContext(context)
     }
     
