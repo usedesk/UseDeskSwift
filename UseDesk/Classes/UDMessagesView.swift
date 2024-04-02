@@ -334,9 +334,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         
         buttonSend.isEnabled = false
         buttonAttach.isEnabled = false
-        if !isFromOfflineForm {
-            textInput.isUserInteractionEnabled = false
-        }
     }
     
     func configureAttachCollection() {
@@ -2036,9 +2033,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     func tableNode(_ tableNode: ASTableNode, willDisplayRowWith node: ASCellNode) {
         guard let cell = node as? UDMessageCellNode else { return }
         cell.updateAnimateLoader()
-        if let textMessageCell = cell as? UDTextMessageCellNode, textMessageCell.view.gestureRecognizers?.count ?? 0 == 0 {
-            textMessageCell.view.addGestureRecognizer(UILongPressGestureRecognizer(target: textMessageCell, action: #selector(textMessageCell.longPressTextAction)))
-        }
         guard let indexPath = cell.indexPath else { return }
         downloadsForMessages(currentIndexPath: indexPath)
         if newMessagesIds.count > 0 {
@@ -2374,27 +2368,6 @@ extension UDMessagesView: PHPickerViewControllerDelegate {
 
 // MARK: - TextMessageCellNodeDelegate
 extension UDMessagesView: TextMessageCellNodeDelegate {
-    
-    func longPressText(text: String) {
-        guard usedesk != nil else {return}
-        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        alertController.popoverPresentationController?.sourceView = self.view
-        alertController.popoverPresentationController?.sourceRect = CGRect(x: 0, y: self.view.frame.height, width: self.view.frame.width, height: 0)
-
-        let copyAction = UIAlertAction(title: usedesk!.model.stringFor("Copy"), style: .default, handler: {(alert: UIAlertAction!) in
-            UIPasteboard.general.string = text
-        })
-
-        let cancelAction = UIAlertAction(title: usedesk!.model.stringFor("Cancel"), style: .cancel, handler: {(alert: UIAlertAction!) in
-        })
-
-        alertController.addAction(copyAction)
-        alertController.addAction(cancelAction)
-
-        DispatchQueue.main.async {
-            self.present(alertController, animated: true, completion:{})
-        }
-    }
     
     func formListAction(message: UDMessage, indexForm: Int, selectedOption: FieldOption?) {
         let defaultCleanOption = FieldOption(id: -1, value: usedesk?.model.stringFor("NotSelected") ?? "Not Selected")

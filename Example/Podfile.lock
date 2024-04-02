@@ -1,6 +1,6 @@
 PODS:
-  - Alamofire (5.8.0)
-  - IQKeyboardManagerSwift (6.5.12)
+  - Alamofire (5.9.1)
+  - IQKeyboardManagerSwift (6.5.16)
   - MarkdownKit (1.7.1)
   - PINCache (3.0.3):
     - PINCache/Arc-exception-safe (= 3.0.3)
@@ -17,11 +17,11 @@ PODS:
   - PINRemoteImage/PINCache (3.0.3):
     - PINCache (~> 3.0.3)
     - PINRemoteImage/Core
-  - ReachabilitySwift (5.0.0)
+  - ReachabilitySwift (5.2.1)
   - Socket.IO-Client-Swift (16.1.0):
     - Starscream (~> 4.0.6)
-  - Starscream (4.0.6)
-  - SwiftSoup (2.6.1)
+  - Starscream (4.0.8)
+  - SwiftSoup (2.7.2)
   - Texture (3.1.0):
     - Texture/AssetsLibrary (= 3.1.0)
     - Texture/Core (= 3.1.0)
@@ -42,11 +42,11 @@ PODS:
     - Texture/Core
   - Texture/Video (3.1.0):
     - Texture/Core
-  - UseDesk_SDK_Swift (3.4.8):
+  - UseDesk_SDK_Swift (3.4.10):
     - Alamofire (~> 5)
     - MarkdownKit
     - ReachabilitySwift
-    - Socket.IO-Client-Swift (~> 16.0)
+    - Socket.IO-Client-Swift (~> 16)
     - SwiftSoup
     - Texture
 
@@ -73,18 +73,18 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Alamofire: 0e92e751b3e9e66d7982db43919d01f313b8eb91
-  IQKeyboardManagerSwift: 371b08cb39664fb56030f5345c815a4ffc74bbc0
+  Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
+  IQKeyboardManagerSwift: 12d89768845bb77b55cc092ecc2b1f9370f06b76
   MarkdownKit: 0b15195c63cf3e39387949c4bdeccde0055e252a
   PINCache: 7a8fc1a691173d21dbddbf86cd515de6efa55086
   PINOperation: daa34d4aa1d8449089be7d405b9d974abc4724c6
   PINRemoteImage: f1295b29f8c5e640e25335a1b2bd9d805171bd01
-  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
+  ReachabilitySwift: 5ae15e16814b5f9ef568963fb2c87aeb49158c66
   Socket.IO-Client-Swift: ee4b8f80a3db18dd7f32b266ddf273310609443c
-  Starscream: fb2c4510bebf908c62bd383bcf05e673720e91fd
-  SwiftSoup: 5dd2c1b06afc964f30d99894af6ede22ede627aa
+  Starscream: 19b5533ddb925208db698f0ac508a100b884a1b9
+  SwiftSoup: 4164c6bd8af69acd119c23fb36906975a60d71bb
   Texture: 2e8ab2519452515f7f5a520f5a8f7e0a413abfa3
-  UseDesk_SDK_Swift: f3d777dd0a91fb205545df4af3b1a806aea8d4b6
+  UseDesk_SDK_Swift: 003af604ec6cd639bcd70799fe3f7650b9f6c06d
 
 PODFILE CHECKSUM: 3781fd5ccb89f306a2611b5fb505d5d97428e346
 

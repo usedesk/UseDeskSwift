@@ -153,13 +153,17 @@ public class UDValidationManager {
             }
         }
         
-        if phone != nil {
-            if phone != "" {
-                guard isValidPhone(phone: phone!) else {
+        if let phone {
+            if !phone.isEmpty {
+                guard isValidPhone(phone: phone) else {
                     errorBlock(.phoneError, UDError.phoneError.description)
                     return
                 }
-                model.phone = phone!
+                var phoneValid = phone
+                if phoneValid.first == "+" {
+                    phoneValid.removeFirst()
+                }
+                model.phone = phoneValid
             }
         }
         

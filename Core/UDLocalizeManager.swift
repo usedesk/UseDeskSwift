@@ -85,7 +85,7 @@ class UDLocalizeManager {
             "GB"                       : "ГБ",
             "ExceededMaximumSize"      : "превышает максимальный размер файла в",
             "NotInternet"              : "Нет интернета",
-            "NotInternetCheck"         : "Попробуйте отключить режим полета, включить Wi-FI или мобильный интернет и проверить уровень сигнала сети",
+            "NotInternetCheck"         : "Попробуйте отключить режим полета, включить Wi-Fi или мобильный интернет и проверить уровень сигнала сети",
             "Sended"                   : "Отправлено",
             "NotSelected"              : "Не выбрано",
             //Knowledge
@@ -235,7 +235,7 @@ class UDLocalizeManager {
             "GB"                       : "GB",
             "ExceededMaximumSize"      : "excedeu o tamanho máximo do arquivo",
             "NotInternet"              : "Sin conexión al internet",
-            "NotInternetCheck"         : "Intente apagar el modo avión, encienda Wi-FI o Internet móvil y verifique la intensidad de la señal de la red",
+            "NotInternetCheck"         : "Intente apagar el modo avión, encienda Wi-Fi o Internet móvil y verifique la intensidad de la señal de la red",
             "Sended"                   : "Enviado",
             "NotSelected"              : "No seleccionado",
             //Knowledge

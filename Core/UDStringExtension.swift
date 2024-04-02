@@ -57,10 +57,9 @@ extension String {
     }
     
     func udIsValidEmail() -> Bool {
-        let udEmailRegex = "[A-Z0-9a-z]([A-Z0-9a-z._%+-]{0,30}[A-Z0-9a-z_])?" + "@" + "([A-Z0-9a-z]([A-Z0-9a-z-]{0,30}[A-Z0-9a-z])?\\.){1,5}" + "[A-Za-z]{2,8}"
-        let range = NSRange(location: 0, length: self.count)
-        let regex = try! NSRegularExpression(pattern: udEmailRegex)
-        return regex.firstMatch(in: self, options: [], range: range) != nil && !self.udIsHtml()
+        let emailRegex = "[A-Z0-9a-z]([A-Z0-9a-z._%+-]{0,30}[A-Z0-9a-z_])?" + "@" + "([A-Z0-9a-z]([A-Z0-9a-z-]{0,30}[A-Z0-9a-z])?\\.){1,5}" + "[A-Za-z]{2,8}"
+        let emailTest = NSPredicate(format:"SELF MATCHES[c] %@", emailRegex)
+        return emailTest.evaluate(with: self) && !self.udIsHtml()
     }
     
     func udIsValidToken() -> Bool {

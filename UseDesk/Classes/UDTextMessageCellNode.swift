@@ -9,7 +9,6 @@ import UIKit
 import MarkdownKit
 
 protocol TextMessageCellNodeDelegate: AnyObject {
-    func longPressText(text: String)
     func formListAction(message: UDMessage, indexForm: Int, selectedOption: FieldOption?)
     func newFormValue(value: String, message: UDMessage, indexForm: Int)
     func sendFormAction(message: UDMessage)
@@ -18,10 +17,11 @@ protocol TextMessageCellNodeDelegate: AnyObject {
 class UDTextMessageCellNode: UDMessageCellNode {
     
     private var isOutgoing = false
-    private var textMessageNode = ASTextNode()
+    private var textMessageNode = ASEditableTextNode()
     private var tableButtonsNode = ASTableNode()
     private var tableFormsNode = ASTableNode()
-    private var sendFormButton = ASButtonNode()
+    private var sendFormButton: UIButton? = nil
+    private var sendFormButtonNode = ASDisplayNode()
     private var loaderNode = ASDisplayNode()
     
     weak var delegateText: TextMessageCellNodeDelegate?
@@ -68,6 +68,7 @@ class UDTextMessageCellNode: UDMessageCellNode {
         }
         if message.forms.count > 0 {
             if isLoadedFields {
+                setDefaultConfigSendFormButton()
                 if tableFormsNode.supernode == nil {
                     tableFormsNode.dataSource = self
                     tableFormsNode.delegate = self
@@ -77,9 +78,9 @@ class UDTextMessageCellNode: UDMessageCellNode {
                     }
                     addSubnode(tableFormsNode)
                     
-                    sendFormButton.cornerRadius = messageFormStyle.sendFormButtonCornerRadius
-                    sendFormButton.addTarget(self, action: #selector(sendFormAcction), forControlEvents: .touchUpInside)
-                    addSubnode(sendFormButton)
+                    sendFormButtonNode.cornerRadius = messageFormStyle.sendFormButtonCornerRadius
+                    
+                    addSubnode(sendFormButtonNode)
                 } else {
                     updateFormsNodes()
                 }
@@ -91,10 +92,8 @@ class UDTextMessageCellNode: UDMessageCellNode {
                     }
                 }
                 loaderNode.alpha = message.statusForms == .loading ? 1 : 0
-
-                setDefaultConfigSendFormButton()
-                sendFormButton.alpha = message.statusForms == .loading ? 0 : 1
-            } 
+                sendFormButton?.alpha = message.statusForms == .loading ? 0 : 1
+            }
             if loaderNode.supernode == nil {
                 self.loaderNode = ASDisplayNode { [weak self] () -> UIView in
                     guard let wSelf = self else {return UIView()}
@@ -116,33 +115,80 @@ class UDTextMessageCellNode: UDMessageCellNode {
         let messageStyle = configurationStyle.messageStyle
         
         let linkColor = message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor
-        var attributedString = UDMarkdownParser.mutableAttributedString(for: message.text,
+        let attributedString = UDMarkdownParser.mutableAttributedString(for: message.text,
                                                                                font: messageStyle.font,
-                                                                               color: message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor)
-        let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
-        let range = NSMakeRange(0, attributedString.string.count)
-        let mutableString = NSMutableAttributedString()
-        mutableString.append(attributedString)
-        detector?.enumerateMatches(in: attributedString.string, range: range) { (resultDetector, _, _) in
-            if let result = resultDetector {
-                mutableString.addAttribute(.underlineColor, value: linkColor, range: result.range)
-                mutableString.addAttribute(.link, value: result.url, range: result.range)
-                mutableString.addAttribute(.foregroundColor, value: linkColor, range: result.range)
-            }
-        }
-        attributedString = mutableString
+                                                                               color: message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor,
+                                                                        linkColor: .red)
+
+        let linkTextAttributes = [NSAttributedString.Key.foregroundColor: linkColor,
+                                  NSAttributedString.Key.underlineColor: linkColor]
         
         textMessageNode.attributedText = attributedString
         textMessageNode.isUserInteractionEnabled = true
+        textMessageNode.isLayerBacked = false
+        DispatchQueue.main.async {
+            self.textMessageNode.textView.isEditable = false
+            self.textMessageNode.textView.linkTextAttributes = linkTextAttributes
+        }
         textMessageNode.delegate = self
     }
     
     func setDefaultConfigSendFormButton() {
-        let titleSendFormButton = message.statusForms == .sended ? messagesView?.usedesk?.model.stringFor("Sended") ?? "Sended" : messagesView?.usedesk?.model.stringFor("Send") ?? "Send"
-        sendFormButton.setTitle(titleSendFormButton, with: messageFormStyle.sendFormButtonFont, with: messageFormStyle.sendFormButtonTitleColor, for: .normal)
-        sendFormButton.setTitle(titleSendFormButton, with: messageFormStyle.sendFormButtonFont, with: messageFormStyle.sendFormButtonTitleTouchedColor, for: .highlighted)
-        sendFormButton.backgroundColor = message.statusForms == .inputable ? messageFormStyle.sendFormButtonColor : messageFormStyle.sendFormButtonUnavailableColor
-        sendFormButton.isUserInteractionEnabled = true
+        if sendFormButton == nil {
+            sendFormButton?.alpha = 1
+            self.sendFormButtonNode = ASDisplayNode { [weak self] () -> UIView in
+                guard let wSelf = self else {return UIView()}
+                let titleSendFormButton = wSelf.message.statusForms == .sended ? wSelf.messagesView?.usedesk?.model.stringFor("Sended") ?? "Sended" : wSelf.messagesView?.usedesk?.model.stringFor("Send") ?? "Send"
+                let button = UIButton()
+                button.isUserInteractionEnabled = true
+                button.addTarget(self, action: #selector(wSelf.sendFormAcction), for: .touchUpInside)
+                button.setTitle(titleSendFormButton, for: .normal)
+                button.titleLabel?.font = wSelf.messageFormStyle.sendFormButtonFont
+                button.setTitleColor(wSelf.messageFormStyle.sendFormButtonTitleColor, for: .normal)
+                button.setTitleColor(wSelf.messageFormStyle.sendFormButtonTitleTouchedColor, for: .highlighted)
+                button.backgroundColor = wSelf.message.statusForms == .inputable ? wSelf.messageFormStyle.sendFormButtonColor : wSelf.messageFormStyle.sendFormButtonUnavailableColor
+                wSelf.sendFormButton = button
+                return wSelf.sendFormButton!
+            }
+        } else {
+            let titleSendFormButton = message.statusForms == .sended ? messagesView?.usedesk?.model.stringFor("Sended") ?? "Sended" : messagesView?.usedesk?.model.stringFor("Send") ?? "Send"
+            sendFormButton?.isUserInteractionEnabled = true
+            sendFormButton?.addTarget(self, action: #selector(sendFormAcction), for: .touchUpInside)
+            sendFormButton?.setTitle(titleSendFormButton, for: .normal)
+            sendFormButton?.titleLabel?.font = messageFormStyle.sendFormButtonFont
+            sendFormButton?.setTitleColor(messageFormStyle.sendFormButtonTitleColor, for: .normal)
+            sendFormButton?.setTitleColor(messageFormStyle.sendFormButtonTitleTouchedColor, for: .highlighted)
+            sendFormButton?.backgroundColor = message.statusForms == .inputable ? messageFormStyle.sendFormButtonColor : messageFormStyle.sendFormButtonUnavailableColor
+            sendFormButton?.alpha = 1
+        }
+    }
+    
+    func setErrorSendFormButton() {
+        if sendFormButton == nil {
+            sendFormButton?.alpha = 1
+            self.sendFormButtonNode = ASDisplayNode { [weak self] () -> UIView in
+                guard let wSelf = self else {return UIView()}
+                let titleSendFormButton = wSelf.messagesView?.usedesk?.model.stringFor("Error") ?? "Error"
+                let button = UIButton()
+                button.isUserInteractionEnabled = false
+                button.setTitle(titleSendFormButton, for: .normal)
+                button.titleLabel?.font = wSelf.messageFormStyle.sendFormButtonFont
+                button.setTitleColor(wSelf.messageFormStyle.sendFormButtonTitleColor, for: .normal)
+                button.setTitleColor(wSelf.messageFormStyle.sendFormButtonTitleTouchedColor, for: .highlighted)
+                button.backgroundColor = wSelf.messageFormStyle.sendFormButtonErrorColor
+                wSelf.sendFormButton = button
+                return wSelf.sendFormButton!
+            }
+        } else {
+            let titleSendFormButton = messagesView?.usedesk?.model.stringFor("Error") ?? "Error"
+            sendFormButton?.isUserInteractionEnabled = false
+            sendFormButton?.setTitle(titleSendFormButton, for: .normal)
+            sendFormButton?.titleLabel?.font = messageFormStyle.sendFormButtonFont
+            sendFormButton?.setTitleColor(messageFormStyle.sendFormButtonTitleColor, for: .normal)
+            sendFormButton?.setTitleColor(messageFormStyle.sendFormButtonTitleTouchedColor, for: .highlighted)
+            sendFormButton?.backgroundColor = messageFormStyle.sendFormButtonErrorColor
+            sendFormButton?.alpha = 1
+        }
     }
     
     @objc func sendFormAcction() {
@@ -159,20 +205,16 @@ class UDTextMessageCellNode: UDMessageCellNode {
     func showErrorForm() {
         (loaderNode.view as? UIActivityIndicatorView)?.stopAnimating()
         loaderNode.alpha = 0
-        sendFormButton.alpha = 1
-        sendFormButton.isUserInteractionEnabled = false
         updateFormsNodes()
-        UIView.transition(with: sendFormButton.view, duration: 0.4, options: .transitionCrossDissolve, animations: {
-            let titleSendFormButton = self.messagesView?.usedesk?.model.stringFor("Error") ?? "Error"
-            self.sendFormButton.setTitle(titleSendFormButton, with: self.messageFormStyle.sendFormButtonFont, with: self.messageFormStyle.sendFormButtonTitleColor, for: .normal)
-            self.sendFormButton.backgroundColor = self.messageFormStyle.sendFormButtonErrorColor
-        }, completion: { _ in
+        UIView.animate(withDuration: 0.3, delay: 0, options: .transitionCrossDissolve) {
+            self.setErrorSendFormButton()
+        } completion: { _ in
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                UIView.transition(with: self.sendFormButton.view, duration: 0.4, options: .transitionCrossDissolve, animations: {
+                UIView.animate(withDuration: 0.3, delay: 0, options: .transitionCrossDissolve) {
                     self.setDefaultConfigSendFormButton()
-                })
+                }
             }
-        })
+        }
     }
     
     private func updateFormsNodes() {
@@ -225,6 +267,8 @@ class UDTextMessageCellNode: UDMessageCellNode {
         let messageButtonStyle = configurationStyle.messageButtonStyle
         let sizeMessagesManager = UDSizeMessagesManager(messagesView: messagesView, message: message, indexPath: indexPath, configurationStyle: configurationStyle)
         
+//        setDefaultConfigSendFormButton()
+        
         textMessageNode.style.maxWidth = ASDimensionMakeWithPoints(constrainedSize.max.width)
         let textMessageInsets = ASInsetLayoutSpec(insets: UIEdgeInsets(top: messageStyle.textMargin.top, left: messageStyle.textMargin.left, bottom: messageStyle.textMargin.bottom, right: messageStyle.textMargin.right), child: textMessageNode)
 
@@ -266,14 +310,14 @@ class UDTextMessageCellNode: UDMessageCellNode {
                 let insetSpec = ASInsetLayoutSpec(insets: messageFormStyle.margin, child: tableFormsNode)
                 vMessageStack.setChild(insetSpec, at: 2)
                 
-                sendFormButton.style.minHeight = ASDimensionMakeWithPoints(messageFormStyle.sendFormButtonHeight)
-                sendFormButton.style.minWidth = ASDimensionMakeWithPoints(60000.0)
+                sendFormButtonNode.style.minHeight = ASDimensionMakeWithPoints(messageFormStyle.sendFormButtonHeight)
+                sendFormButtonNode.style.minWidth = ASDimensionMakeWithPoints(60000.0)
                 
                 loaderNode.alpha = message.statusForms == .loading ? 1 : 0
                 let loaderAndIconOverlaySpec = ASOverlayLayoutSpec()
                 let centerLoaderSpec = ASCenterLayoutSpec(centeringOptions: .XY, sizingOptions: [], child: loaderNode)
                 loaderAndIconOverlaySpec.overlay = centerLoaderSpec
-                loaderAndIconOverlaySpec.child = sendFormButton
+                loaderAndIconOverlaySpec.child = sendFormButtonNode
     
                 let sendFormButtonInsetSpec = ASInsetLayoutSpec(insets: messageFormStyle.sendFormButtonMargin, child: loaderAndIconOverlaySpec)
                 vMessageStack.setChild(sendFormButtonInsetSpec, at: 3)
@@ -306,10 +350,6 @@ class UDTextMessageCellNode: UDMessageCellNode {
         contentMessageInsetSpec = ASInsetLayoutSpec(insets: UIEdgeInsets.zero, child: messageAndTimeAndSendedStack)
         let messageLayoutSpec = super.layoutSpecThatFits(constrainedSize)
         return messageLayoutSpec
-    }
-    
-    @objc func longPressTextAction() {
-        delegateText?.longPressText(text: message.text)
     }
     
     func heightNodeCellButton(for indexPath: IndexPath) -> CGFloat {
@@ -472,7 +512,7 @@ extension UDTextMessageCellNode: ASTableDelegate, ASTableDataSource {
     }
 }
 // MARK: - ASTextNodeDelegate
-extension UDTextMessageCellNode: ASTextNodeDelegate {
+extension UDTextMessageCellNode: ASEditableTextNodeDelegate {
     public func textNode(_ textNode: ASTextNode, shouldHighlightLinkAttribute attribute: String, value: Any, at point: CGPoint) -> Bool {
         return true
     }
