@@ -179,8 +179,8 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
     @IBAction func startChatButton(_ sender: Any) {
         guard isCanStartSDK else {
             return
-            
         }
+        IQKeyboardManager.shared.enable = false
         isCanStartSDK = false
         usedesk.presentationCompletionBlock = { [weak self] in
             self?.isCanStartSDK = true
@@ -217,6 +217,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
 
         usedesk.presentationCompletionBlock = {
             print("close SDK")
+            IQKeyboardManager.shared.enable = true
         }
     }
     
@@ -240,6 +241,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
             }
             self.isCanStartSDK = true
         }, errorStatus: { [weak self] _, error in
+            IQKeyboardManager.shared.enable = true
             self?.showError(error: error)
             self?.isCanStartSDK = true
         })
@@ -263,6 +265,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
             }
             self.isCanStartSDK = true
         }, errorStatus: { [weak self] _, error in
+            IQKeyboardManager.shared.enable = true
             self?.showError(error: error)
             self?.isCanStartSDK = true
         })

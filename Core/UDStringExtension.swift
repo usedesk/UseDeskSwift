@@ -57,7 +57,7 @@ extension String {
     }
     
     func udIsValidEmail() -> Bool {
-        let emailRegex = "[A-Z0-9a-z]([A-Z0-9a-z._%+-]{0,30}[A-Z0-9a-z_])?" + "@" + "([A-Z0-9a-z]([A-Z0-9a-z-]{0,30}[A-Z0-9a-z])?\\.){1,5}" + "[A-Za-z]{2,8}"
+        let emailRegex = "[A-Z0-9a-z]([A-Z0-9a-z._%+-]{0,64}[A-Z0-9a-z_])?" + "@" + "([A-Z0-9a-z]([A-Z0-9a-z-]{0,255}[A-Z0-9a-z])?\\.){1,5}" + "[A-Za-z]{2,8}"
         let emailTest = NSPredicate(format:"SELF MATCHES[c] %@", emailRegex)
         return emailTest.evaluate(with: self) && !self.udIsHtml()
     }

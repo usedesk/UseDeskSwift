@@ -219,6 +219,7 @@ class UDUIManager: UDUIProtocole {
         if dialogflowVC == nil {
             dialogflowVC = DialogflowView()
             dialogflowVC?.usedesk = usedesk
+            dialogflowVC?.updateChat()
         }
         dialogflowVC?.view.layoutSubviews()
         return dialogflowVC

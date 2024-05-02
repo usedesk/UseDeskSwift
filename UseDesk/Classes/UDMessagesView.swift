@@ -158,8 +158,11 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         
         configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         
-        loader.alpha = 1
-        loader.startAnimating()
+        
+        loader.alpha = isFromBase ? 0 : 1
+        if !isFromBase {
+            loader.startAnimating()
+        }
         
         tableNode.backgroundColor = configurationStyle.chatStyle.backgroundColor
         self.view.backgroundColor = tableNode.backgroundColor

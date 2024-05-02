@@ -292,7 +292,9 @@ class UDListBaseKnowledgeVC: UDBaseKnowledgeVC, UITableViewDelegate, UITableView
             self.searchViewTopC.isActive = true
             self.viewForTableTopCForSuperView.isActive = false
             self.viewForTableTopC.isActive = true
-            self.backButton.alpha = 1
+            if (self.usedesk?.model.isPresentDefaultControllers ?? true) {
+                self.backButton.alpha = 1
+            }
             self.viewForTable.alpha = 1
             self.searchSeparatorView.alpha = 0
             self.searchNotFoundLabel.alpha = 0
