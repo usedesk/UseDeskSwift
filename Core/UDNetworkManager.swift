@@ -76,7 +76,7 @@ public class UDNetworkManager {
             }
         }
         
-        let url = "https://secure.usedesk.ru/widget.js/post" 
+        let url = "https://secure.usedesk.ru/widget.js/post"
         request(url: url, parameters: parameters, isJSONEncoding: true, successBlock: { value in
             connectBlock(true)
         }, errorBlock: errorBlock)
@@ -162,7 +162,7 @@ public class UDNetworkManager {
     
     public func sendFile(url: String, fileName: String, data: Data, messageId: String? = nil, progressBlock: UDProgressUploadBlock? = nil, connectBlock: UDConnectBlock? = nil, errorBlock: UDErrorBlock? = nil) {
         if let currentToken = token {
-            DispatchQueue.global(qos: .utility).async { 
+            DispatchQueue.global(qos: .utility).async {
                 AF.upload(multipartFormData: { multipartFormData in
                     multipartFormData.append(currentToken.data(using: String.Encoding.utf8)!, withName: "chat_token")
                     multipartFormData.append(data, withName: "file", fileName: fileName)
@@ -618,7 +618,9 @@ public class UDNetworkManager {
                 UDSocketResponse.actionFeedbackAnswer(data, feedbackAnswerMessageBlock: feedbackAnswerMessageBlock)
                 
                 UDSocketResponse.actionAddMessage(data, newMessageBlock: newMessageBlock, feedbackMessageBlock: feedbackMessageBlock, sendAdditionalFieldsBlock: {
-                    wSelf.sendAdditionalFields()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        wSelf.sendAdditionalFields()
+                    }
                 }, isSendedAdditionalField: wSelf.isSendedAdditionalField, model: wSelf.model)
             }
         })
