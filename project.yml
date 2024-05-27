@@ -1,0 +1,44 @@
+name: UseDesk_SDK_Swift
+targets:
+  UseDesk_SDK_Swift:
+    supportedDestinations: [iOS]
+    platform: iOS
+    deploymentTarget: 12.0
+    bundleIdentifier: ru.usedesk
+    type: framework
+    sources:
+      - path: UseDesk/Classes
+        excludes:
+        - ".gitkeep"
+        - ".gitignore"
+      - path: UseDesk/Assets
+        excludes:
+        - ".gitkeep"
+        - ".gitignore"
+      - path: Core
+        excludes:
+        - ".gitkeep"
+        - ".gitignore"
+      - path: Info.plist
+      - path: PrivacyInfo.xcprivacy
+    dependencies:
+      - sdk: UIKit.framework
+      - sdk: MapKit.framework
+      - sdk: AVFoundation.framework
+    settings:
+      destination: UseDesk_SDK_Swift
+      MARKETING_VERSION: 3.4.13
+      CODE_SIGN_STYLE: Manual
+      INFOPLIST_FILE: Info.plist
+      IPHONEOS_DEPLOYMENT_TARGET: 12.0
+      CURRENT_PROJECT_VERSION: 3.4.13
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: "ru.usedesk"
+          SWIFT_OBJC_BRIDGING_HEADER: UseDesk_SDK_Swift-UseDesk-Bridging-Header.h
+          DEBUG_MODE: YES
+        Release:
+          PRODUCT_BUNDLE_IDENTIFIER: "ru.usedesk"
+          SWIFT_OBJC_BRIDGING_HEADER: UseDesk_SDK_Swift-UseDesk-Bridging-Header.h
+          DEBUG_MODE: NO
+     

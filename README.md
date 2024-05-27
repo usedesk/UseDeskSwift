@@ -42,6 +42,48 @@ import UseDesk
 
 The SDK implementation for installation using SPM is placed in a separate [repository](https://github.com/usedesk/UseDeskSPM). Please note that GUI is not available when installing with SPM. 
 
+You may use an option with binary target in the SPM configuration.
+1. Install xcodegen:
+    - `brew install xcodegen`
+2. Generate `xcodeproj`:
+    - `xcodegen generate`
+3. Install pods
+    - `pod install`
+4. Build xcframework:
+```sh
+xcodebuild archive \
+    -workspace UseDesk_SDK_Swift.xcworkspace \
+    -scheme UseDesk_SDK_Swift \
+    -destination="generic/platform=iOS" \
+    -sdk iphoneos \
+    -archivePath "build/UseDesk_SDK_Swift-ios" \
+    SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES \
+&& \
+xcodebuild archive \
+    -workspace UseDesk_SDK_Swift.xcworkspace \
+    -scheme UseDesk_SDK_Swift \
+    -destination="simulator" \
+    -sdk iphonesimulator \
+    -archivePath "build/UseDesk_SDK_Swift-simulator" \
+    SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
+
+xcodebuild -create-xcframework \
+    -archive build/UseDesk_SDK_Swift-ios.xcarchive \
+    -archive build/UseDesk_SDK_Swift-simulator.xcarchive \
+    -framework UseDesk_SDK_Swift.framework \
+    -output build/UseDesk_SDK_Swift.xcframework
+```
+4. Archive `xcframework`:
+    - `cd build && zip -r UseDesk_SDK_Swift.zip UseDesk_SDK_Swift/*`
+
+5. Use binary target in `Package.swift`:
+```Swift
+.binaryTarget(
+    name: "UseDesk_SDK_Swift",
+    path: "path/to/some/UseDesk_SDK_Swift.zip",
+    checksum: "The checksum of the ZIP archive that contains the XCFramework."
+),
+```
 ## Initializing a Chat or Knowledge Base with Chat using the GUI
 
 ### Parameters used in the configuration SDK with GUI
