@@ -10,7 +10,7 @@
 				<string>CA92.1</string>
 			</array>
 			<key>NSPrivacyAccessedAPIType</key>
-			<string>User Defaults</string>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
 		</dict>
 	</array>
 	<key>NSPrivacyCollectedDataTypes</key>
