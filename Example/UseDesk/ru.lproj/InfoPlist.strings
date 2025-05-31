@@ -1,0 +1,4 @@
+
+"NSCameraUsageDescription"          = "Запрос доступа";
+"NSPhotoLibraryAddUsageDescription" = "Запрос доступа";
+"NSPhotoLibraryUsageDescription"    = "Запрос доступа";

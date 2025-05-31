@@ -82,6 +82,10 @@ public class UDFile: NSObject, Codable {
         } else {
             return nil
         }
+        guard FileManager.default.fileExists(atPath: pathForURL) else {
+                print("Файл не существует по пути: \(pathForURL)")
+                return nil
+            }
         let url = URL(fileURLWithPath: pathForURL)
         do {
             return try Data(contentsOf: url)
@@ -181,18 +185,6 @@ public class UDFile: NSObject, Codable {
             return "\(gigabyte.udRounded(toPlaces: 1)) \(gbString)"
         } else {
             return "\(megabyte.udRounded(toPlaces: 1)) \(mbString)"
-        }
-    }
-
-    func deleteFile(_ filePath:URL) {
-        guard FileManager.default.fileExists(atPath: filePath.path) else {
-            return
-        }
-
-        do {
-            try FileManager.default.removeItem(atPath: filePath.path)
-        }catch{
-            fatalError("Unable to delete file: \(error) : \(#function).")
         }
     }
     

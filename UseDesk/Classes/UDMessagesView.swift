@@ -1,4 +1,3 @@
-//
 //  UDMessagesView.swift
 
 import AVFoundation
@@ -129,6 +128,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     private var selectedFormObjects: (UDMessage, Int, FieldOption?)? = nil
     private var isNeedLoadMoreHistoryMessages = true
     private var idSelectingMessage: Int? = nil
+    private var isTextInputEditedByUser = false
     
     private var currentOrientation: Orientation {
         return previousOrientation == .portrait ? .landscape : .portrait
@@ -158,7 +158,6 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         
         configurationStyle = usedesk?.configurationStyle ?? ConfigurationStyle()
         
-        
         loader.alpha = isFromBase ? 0 : 1
         if !isFromBase {
             loader.startAnimating()
@@ -187,13 +186,11 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         
         attachBlackView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.closeAttachView)))
         
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardShow(_:)), name: UIResponder.keyboardDidShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardHide(_:)), name: UIResponder.keyboardDidHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(saveMessagesDraftAndFail), name: UIApplication.willTerminateNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(saveMessagesDraftAndFail), name: UIApplication.didEnterBackgroundNotification, object: nil)
-
+        NotificationCenter.default.addObserver(self,selector: #selector(keyboardWillChangeFrame(_:)),name: UIResponder.keyboardWillChangeFrameNotification,object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: UIApplication.willResignActiveNotification, object: nil)
+        
         inputPanelInit()
         
         configurationViews()
@@ -295,9 +292,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         buttonSendWC.constant = configurationStyle.sendButtonStyle.size.width
         buttonSendHC.constant = configurationStyle.sendButtonStyle.size.height
         
+        setFirstTextInTextInput()
         textInput.delegate = self
         textInput.textColor = configurationStyle.inputViewStyle.placeholderTextColor
-        setFirstTextInTextInput()
         textInput.isNeedCustomTextContainerInset = true
         textInput.customTextContainerInset = configurationStyle.inputViewStyle.textMargin
         
@@ -349,13 +346,13 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     }
     
     func setFirstTextInTextInput() {
+        guard !isTextInputEditedByUser else { return }
         if let messageText = draftMessages.filter({$0.type == UD_TYPE_TEXT}).first {
             if messageText.text.count > 0 {
                 textInput.text = messageText.text
                 textInput.textColor = configurationStyle.inputViewStyle.textColor
             } else {
                 textInput.text = usedesk!.model.stringFor("Write") + "..."
-                
             }
         } else {
             textInput.text = usedesk!.model.stringFor("Write") + "..."
@@ -367,9 +364,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         if (usedesk!.storage as? UDStorageMessages) != nil {
             (usedesk!.storage! as! UDStorageMessages).token = usedesk!.model.token
         }
-        if let messeges = usedesk!.storage?.getMessages() {
+        if let messages = usedesk!.storage?.getMessages() {
             draftMessages.removeAll()
-            let allDraftMessages = messeges.filter({$0.statusSend == UD_STATUS_SEND_DRAFT})
+            let allDraftMessages = messages.filter({$0.statusSend == UD_STATUS_SEND_DRAFT})
             var messagesDelete = [UDMessage]()
             allDraftMessages.forEach { message in
                 if message.type != UD_TYPE_TEXT && message.file.data == nil {
@@ -379,9 +376,9 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 }
             }
             usedesk!.storage?.removeMessage(messagesDelete)
-            failMessages = messeges.filter({$0.statusSend == UD_STATUS_SEND_FAIL})
+            failMessages = messages.filter({$0.statusSend == UD_STATUS_SEND_FAIL})
             failMessages = failMessages.sorted{$0.date < $1.date }
-            sendedFormsMessages = messeges.filter({$0.statusForms == .sended})
+            sendedFormsMessages = messages.filter({$0.statusForms == .sended})
         }
     }
     
@@ -1108,45 +1105,40 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     }
     
     // MARK: - Keyboard methods
-    @objc func keyboardShow(_ notification: Notification) {
-        let info = notification.userInfo
-        let keyboard: CGRect? = (info?[UIResponder.keyboardFrameEndUserInfoKey] as AnyObject).cgRectValue
-        let duration = TimeInterval((info?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
-        
-        UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
-            if UIScreen.main.bounds.height > UIScreen.main.bounds.width {
-                self.keyboardHeightPortait = CGFloat(keyboard?.size.height ?? 0)
+    @objc private func keyboardWillChangeFrame(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
+              let curve = userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else {
+            return
+        }
+        let viewFrameInWindow = self.view.convert(self.view.bounds, to: nil)
+        let overlap = max(0, viewFrameInWindow.maxY - keyboardFrame.origin.y)
+        let keyboardVisible = overlap > 0
+        let keyboardHeight = keyboardVisible ? overlap : 0
+        let options = UIView.AnimationOptions(rawValue: curve << 16)
+        let isLandscape = UIDevice.current.orientation.isValidInterfaceOrientation ?
+                UIDevice.current.orientation.isLandscape :
+                UIScreen.main.bounds.width > UIScreen.main.bounds.height
+        UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
+            if isLandscape {
+                self.keyboardHeightLandscape = keyboardHeight
             } else {
-                if self.view.center == self.centerLandscape {
-                    self.keyboardHeightLandscape = CGFloat(keyboard?.size.height ?? 0)
-                }
-            }
-            var keyboardHeight = self.previousOrientation == .portrait ? self.keyboardHeightPortait : self.keyboardHeightLandscape
-            if CGFloat(keyboard?.size.height ?? 0) > keyboardHeight {
-                keyboardHeight = CGFloat(keyboard?.size.height ?? 0)
+                self.keyboardHeightPortait = keyboardHeight
             }
             self.textInputViewBC.constant = keyboardHeight
             self.tableNode.style.width = ASDimensionMake(self.viewForTable.frame.width)
             self.tableNode.style.height = ASDimensionMake(self.viewForTable.frame.height)
             self.view.layoutIfNeeded()
         })
-        isShowKeyboard = true
-        inputPanelUpdate()
+        self.isShowKeyboard = keyboardVisible
+        self.inputPanelUpdate()
     }
     
-    @objc func keyboardHide(_ notification: Notification?) {
-        if isShowKeyboard {
-            let info = notification?.userInfo
-            let duration = TimeInterval((info?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.0)
-            UIView.animate(withDuration: duration, delay: 0, options: .allowUserInteraction, animations: {
-                self.textInputViewBC.constant = 0
-                self.view.layoutIfNeeded()
-            })
-            isShowKeyboard = false
-            inputPanelUpdate()
-        }
+    @objc private func willResignActive() {
+        self.view.endEditing(true)
     }
-    
+
     func dismissKeyboard() {
         view.endEditing(true)
     }
@@ -1226,6 +1218,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
                 }
             }
         }
+        buttonAttach.isEnabled = true
+        textInput.isUserInteractionEnabled = true
     }
     
     // MARK: - User actions (bubble tap)
@@ -1311,28 +1305,15 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             PHPhotoLibrary.requestAuthorization { status in
                 DispatchQueue.main.async { [weak self] in
                     guard let wSelf = self else {return}
-                    if status == .notDetermined || status == .denied {
-                        if AVCaptureDevice.authorizationStatus(for: .video) != .authorized {
-                            AVCaptureDevice.requestAccess(for: .video) { success in
-                                DispatchQueue.main.async { [weak self] in
-                                    guard let wSelf = self else {return}
-                                    wSelf.showAlertAllowMedia()
-                                }
+                    if AVCaptureDevice.authorizationStatus(for: .video) != .authorized {
+                        AVCaptureDevice.requestAccess(for: .video) { success in
+                            DispatchQueue.main.async { [weak self] in
+                                guard let wSelf = self else {return}
+                                wSelf.checkMaxCountAssetsAndShowAttachView()
                             }
-                        } else {
-                            wSelf.showAlertAllowMedia()
                         }
                     } else {
-                        if AVCaptureDevice.authorizationStatus(for: .video) != .authorized {
-                            AVCaptureDevice.requestAccess(for: .video) { success in
-                                DispatchQueue.main.async { [weak self] in
-                                    guard let wSelf = self else {return}
-                                    wSelf.checkMaxCountAssetsAndShowAttachView()
-                                }
-                            }
-                        } else {
-                            wSelf.checkMaxCountAssetsAndShowAttachView()
-                        }
+                        wSelf.checkMaxCountAssetsAndShowAttachView()
                     }
                 }
             }
@@ -1549,21 +1530,10 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     }
     
     func selectPhoto() {
-        if #available(iOS 14, *) {
-            var configuration = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
-            let maxCountAssets = usedesk != nil ? usedesk!.maxCountAssets - countDraftMessagesWithFile : 10 - countDraftMessagesWithFile
-            configuration.selectionLimit = maxCountAssets
-            if usedesk!.isSupportedAttachmentOnlyPhoto {
-                configuration.filter = .images
-            } else if usedesk!.isSupportedAttachmentOnlyVideo {
-                configuration.filter = .videos
-            }
-            let picker = PHPickerViewController(configuration: configuration)
-            picker.delegate = self
-            present(picker, animated: true)
-        } else {
-            imagePicker.present()
-        }
+        let galleryVC = UDGalleryViewController(availableAssets: assetsGallery, usedesk: usedesk)
+        galleryVC.delegate = self
+        let galleryNav = UINavigationController(rootViewController: galleryVC)
+        present(galleryNav, animated: true)
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
@@ -1944,6 +1914,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     func textViewDidBeginEditing(_ textView: UITextView) {
         guard usedesk != nil else {return}
         if textView == textInput {
+            isTextInputEditedByUser = true
             if (textView.text == usedesk!.model.stringFor("Write") + "..." && textView.textColor == configurationStyle.inputViewStyle.placeholderTextColor) {
                 textInput.text = ""
                 textInput.textColor = configurationStyle.inputViewStyle.textColor
@@ -1954,6 +1925,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     func textViewDidEndEditing(_ textView: UITextView) {
         guard usedesk != nil else {return}
         if textView == textInput {
+            isTextInputEditedByUser = false
             if (textView.text == "") {
                 textInput.text = usedesk!.model.stringFor("Write") + "..."
                 textInput.textColor = configurationStyle.inputViewStyle.placeholderTextColor
@@ -2330,6 +2302,23 @@ extension UDMessagesView: ImagePickerDelegate {
         showAttachCollection()
     }
 }
+
+extension UDMessagesView: UDGalleryViewControllerDelegate {
+    func didFinishPicking(_ assets: [PHAsset]) {
+        for index in 0..<assets.count {
+            addDraftMessage(with: assets[index], isEnabledButtonSend: index == assets.count - 1)
+            if index == assets.count - 1 {
+                closeAttachView()
+                showAttachCollection()
+            }
+        }
+    }
+    
+    func didAddAssets(_ assets: [PHAsset]) {
+        
+    }
+}
+
 // MARK: - PHPickerViewControllerDelegate
 @available(iOS 14, *)
 extension UDMessagesView: PHPickerViewControllerDelegate {

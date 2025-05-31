@@ -51,6 +51,7 @@ class UDLocalizeManager {
             "AllowMedia"               : "Разрешите доступ к фото и видео в настройках",
             "AllowCamera"              : "Разрешите доступ к камере в настройках",
             "ToSendMedia"              : "Для отправки фото или видео",
+            "MediaAccessLimited"       : "Вы ограничили доступ к вашим фото и видео",
             "Article"                  : "Статья",
             "Category"                 : "Категория",
             "KnowlengeBase"            : "База знаний",
@@ -88,6 +89,7 @@ class UDLocalizeManager {
             "NotInternetCheck"         : "Попробуйте отключить режим полета, включить Wi-Fi или мобильный интернет и проверить уровень сигнала сети",
             "Sended"                   : "Отправлено",
             "NotSelected"              : "Не выбрано",
+            "Edit"                     : "Изменить",
             //Knowledge
             "Send"                     : "Отправить",
             "ArticleReviewTitle"       : "Что не так?",
@@ -110,7 +112,7 @@ class UDLocalizeManager {
             "ServerError"              : "Сервер не отвечает. Проверьте соединение и попробуйте еще раз.",
             "Understand"               : "Понятно",
             "FeedbackSendedMessage"    : "Сообщение отправлено! \n Ответим вам в течение 1 рабочего дня.",
-            "FeedbackText"             : "Все операторы заняты. Оставьте сообщение, мы ответим вам на почту в течение 1 рабочего дня."
+            "FeedbackText"             : "Все операторы заняты. Оставьте сообщение, мы ответим вам, как только сможем."
         ]
         return ruLocale
     }
@@ -126,6 +128,7 @@ class UDLocalizeManager {
             "AllowMedia"               : "Allow access to digital media and files",
             "AllowCamera"              : "Allow access to the camera",
             "ToSendMedia"              : "To send photo/video",
+            "MediaAccessLimited"       : "You have limited access to your photos and videos",
             "Article"                  : "Article",
             "Category"                 : "Category",
             "KnowlengeBase"            : "Knowledge Base",
@@ -140,7 +143,7 @@ class UDLocalizeManager {
             "File2"                    : "File",
             "File3"                    : "File",
             "Attach"                   : "Attach",
-            "AttachFile"               : "Прикрепить файл",
+            "AttachFile"               : "Attach file",
             "Write"                    : "Text",
             "AttachmentLimit"          : "Attachment limit reached",
             "Ok"                       : "OK",
@@ -163,6 +166,7 @@ class UDLocalizeManager {
             "NotInternetCheck"         : "Try turning off airplane mode, turning on Wi-Fi or mobile internet and checking the network signal strength",
             "Sended"                   : "Sent",
             "NotSelected"              : "Not selected",
+            "Edit"                     : "Edit",
             //Knowledge
             "Send"                     : "Send",
             "ArticleReviewTitle"       : "What's goes wrong?",
@@ -185,7 +189,7 @@ class UDLocalizeManager {
             "ServerError"              : "The server isn't responding. Check your connection and try again.",
             "Understand"               : "OK",
             "FeedbackSendedMessage"    : "Your message has been sent. We will reply to you within one business day.",
-            "FeedbackText"             : "All agents are busy at this time. Leave your message and we'll answer withing one working day."
+            "FeedbackText"             : "All operators are busy. Please leave a message and we will get back to you as soon as possible."
         ]
         return enLocale
     }
@@ -201,6 +205,7 @@ class UDLocalizeManager {
             "AllowMedia"               : "Permitir el acceso a medios digitales y archivos",
             "AllowCamera"              : "Permitir el acceso a la cámara",
             "ToSendMedia"              : "Para enviar foto / video",
+            "MediaAccessLimited"       : "Has limitado el acceso a tus fotos y videos",
             "Article"                  : "Artículo",
             "Category"                 : "Categoría",
             "KnowlengeBase"            : "Base de conocimientos",
@@ -215,7 +220,7 @@ class UDLocalizeManager {
             "File2"                    : "Archivo",
             "File3"                    : "Archivo",
             "Attach"                   : "Adjuntar",
-            "AttachFile"               : "Прикрепить файл",
+            "AttachFile"               : "Adjuntar archivo",
             "Write"                    : "Escribir",
             "AttachmentLimit"          : "Se alcanzó el límite de archivos adjuntos",
             "Ok"                       : "OK",
@@ -238,6 +243,7 @@ class UDLocalizeManager {
             "NotInternetCheck"         : "Intente apagar el modo avión, encienda Wi-Fi o Internet móvil y verifique la intensidad de la señal de la red",
             "Sended"                   : "Enviado",
             "NotSelected"              : "No seleccionado",
+            "Edit"                     : "Editar",
             //Knowledge
             "Send"                     : "Enviar",
             "ArticleReviewTitle"       : "¿Qué va mal?",
@@ -260,7 +266,7 @@ class UDLocalizeManager {
             "ServerError"              : "El servidor no responde. Verifique su conexión y vuelva a intentarlo.",
             "Understand"               : "OK",
             "FeedbackSendedMessage"    : "Tu mensaje ha sido enviado. Le responderemos dentro de un día hábil.",
-            "FeedbackText"             : "Todos los agentes están ocupados en este momento. Deje su mensaje que te responderemos en un día hábil. "
+            "FeedbackText"             : "Todos los operadores están ocupados. Por favor, deje un mensaje y le responderemos lo antes posible."
         ]
         return esLocale
     }
@@ -276,6 +282,7 @@ class UDLocalizeManager {
             "AllowMedia"               : "Permitir o acesso a arquivos e  media digital ",
             "AllowCamera"              : "Permitir acesso à câmera",
             "ToSendMedia"              : "Para enviar foto / vídeo",
+            "MediaAccessLimited"       : "Você limitou o acesso às suas fotos e vídeos",
             "Article"                  : "Artigo",
             "Category"                 : "Categoria",
             "KnowlengeBase"            : "Base de Conhecimento",
@@ -290,7 +297,7 @@ class UDLocalizeManager {
             "File2"                    : "Arquivo",
             "File3"                    : "Arquivo",
             "Attach"                   : "Anexar",
-            "AttachFile"               : "Прикрепить файл",
+            "AttachFile"               : "Anexar arquivo",
             "Write"                    : "Escrever",
             "AttachmentLimit"          : "Limite de anexos atingido",
             "Ok"                       : "OK",
@@ -313,6 +320,7 @@ class UDLocalizeManager {
             "NotInternetCheck"         : "Tente desligar o modo avião, ligue o Wi-Fi ou a internet móvel e verifique a força do sinal da rede",
             "Sended"                   : "Enviado",
             "NotSelected"              : "Não selecionado",
+            "Edit"                     : "Editar",
             //Knowledge
             "Send"                     : "Enviar",
             "ArticleReviewTitle"       : "O que há de errado?",
@@ -335,10 +343,12 @@ class UDLocalizeManager {
             "ServerError"              : "O servidor não está respondendo. Verifique sua conexão e tente novamente.",
             "Understand"               : "OK",
             "FeedbackSendedMessage"    : "Sua mensagem foi enviada. Nós responderemos  dentro de um dia útil.",
-            "FeedbackText"             : "Todos os atendentes estão ocupados neste momento. Deixe sua mensagem que nós te  responderemos em até um dia útil."
+            "FeedbackText"             : "Todos os operadores estão ocupados. Por favor, deixe uma mensagem e responderemos assim que possível."
         ]
         return ptLocale
     }
     
     
 }
+
+

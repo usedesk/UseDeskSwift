@@ -547,7 +547,7 @@ public class UDNetworkManager {
             connectBlock?(true)
             print("socket connected")
             let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.model.companyID, chanelId: wSelf.model.chanelId, email: wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, url: wSelf.model.url, countMessagesOnInit: wSelf.model.countMessagesOnInit, token: wSelf.token)
-            socket?.emit("dispatch", with: arrConfStart!, completion: nil)
+            socket?.emit("dispatch", with: arrConfStart, completion: nil)
         })
     }
     
@@ -570,7 +570,7 @@ public class UDNetworkManager {
             connectBlock?(false)
             print("socket disconnect")
             let arrConfStart = UseDeskSDKHelp.config_CompanyID(wSelf.model.companyID, chanelId: wSelf.model.chanelId, email: wSelf.model.email, phone: wSelf.model.phone, name: wSelf.model.name, url: wSelf.model.url, countMessagesOnInit: wSelf.model.countMessagesOnInit, token: wSelf.token)
-            socket?.emit("dispatch", with: arrConfStart!, completion: nil)
+            socket?.emit("dispatch", with: arrConfStart, completion: nil)
         })
     }
     

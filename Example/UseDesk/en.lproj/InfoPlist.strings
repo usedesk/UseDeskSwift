@@ -1,2 +1,5 @@
 /* Localized versions of Info.plist keys */
 
+"NSCameraUsageDescription"          = "Access request";
+"NSPhotoLibraryAddUsageDescription" = "Access request";
+"NSPhotoLibraryUsageDescription"    = "Access request";

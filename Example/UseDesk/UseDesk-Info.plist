@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>${PRODUCT_NAME}</string>
 	<key>CFBundleExecutable</key>
@@ -27,13 +27,13 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Запрос доступа</string>
+	<string>Access request</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Запрос доступа</string>
+	<string>Access request</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Запрос доступа</string>
+	<string>Access request</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Запрос доступа</string>
+	<string>Access request</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

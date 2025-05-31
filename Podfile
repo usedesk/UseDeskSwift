@@ -1,7 +1,7 @@
 project 'UseDesk_SDK_Swift.xcodeproj'
 
 # Uncomment the next line to define a global platform for your project
-platform :ios, '11.0'
+platform :ios, '14.0'
 
 target 'UseDesk_SDK_Swift' do
 
@@ -12,12 +12,12 @@ target 'UseDesk_SDK_Swift' do
   pod 'Texture'
   pod 'ReachabilitySwift'
   pod 'SwiftSoup'
-
+  
   post_install do |installer|
   installer.pods_project.targets.each do |target|
     if target.name == 'Socket.IO-Client-Swift' then
       target.build_configurations.each do |config|
-        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
       end
     end
   end

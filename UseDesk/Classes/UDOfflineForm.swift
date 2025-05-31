@@ -30,6 +30,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate, PHPhotoLibraryChange
     @IBOutlet weak var textLabel: UILabel!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var tableViewHC: NSLayoutConstraint!
+    @IBOutlet weak var tableViewTopC: NSLayoutConstraint!
     
     @IBOutlet weak var sendMessageButton: UIButton!
     @IBOutlet weak var sendMessageButtonTopC: NSLayoutConstraint!
@@ -71,7 +72,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate, PHPhotoLibraryChange
     private var isFirstOpen = true
     private var previousOrientation: Orientation = .portrait
     private var selectedTopicIndex: Int? = nil
-    private var dialogflowVC : DialogflowView = DialogflowView()
+    private var dialogflowVC: DialogflowView = DialogflowView()
     private var kOffsetScrollViewForKeyboard: CGFloat = 20
     private var heightNavigationBar : CGFloat {
         return navigationController?.navigationBar.frame.height ?? 44
@@ -159,9 +160,11 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate, PHPhotoLibraryChange
         tableView.delegate = self
         tableView.dataSource = self
         tableView.backgroundColor = configurationStyle.chatStyle.backgroundColor
+        let text = usedesk?.callbackSettings.greeting ?? usedesk!.model.stringFor("FeedbackText")
         textLabel.textColor = feedbackFormStyle.textColor
-        textLabel.font = feedbackFormStyle.textFont
-        textLabel.text = usedesk?.callbackSettings.greeting ?? usedesk!.model.stringFor("FeedbackText")
+        textLabel.font = feedbackFormStyle.textFont 
+        textLabel.text = text
+        tableViewTopC.constant = text.isEmpty ? -15 : 12
         sendMessageButton.backgroundColor = feedbackFormStyle.buttonColorDisabled
         sendMessageButton.tintColor = feedbackFormStyle.buttonTextColor
         sendMessageButton.titleLabel?.font = feedbackFormStyle.buttonFont

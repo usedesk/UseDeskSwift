@@ -44,6 +44,7 @@ public struct ConfigurationStyle {
     public var attachButtonStyle: AttachButtonStyle
     public var sendButtonStyle: SendButtonStyle
     public var attachViewStyle: AttachViewStyle
+    public var galleryStyle: GalleryStyle
     public var messageButtonStyle: MessageButtonStyle
     public var messageFormStyle: MessageFormStyle
     public var scrollButtonStyle: ScrollButtonStyle
@@ -72,6 +73,7 @@ public struct ConfigurationStyle {
                 attachButtonStyle: AttachButtonStyle = AttachButtonStyle(),
                 sendButtonStyle: SendButtonStyle = SendButtonStyle(),
                 attachViewStyle: AttachViewStyle = AttachViewStyle(),
+                galleryStyle: GalleryStyle = GalleryStyle(),
                 messageButtonStyle: MessageButtonStyle = MessageButtonStyle(),
                 messageFormStyle: MessageFormStyle = MessageFormStyle(),
                 scrollButtonStyle: ScrollButtonStyle = ScrollButtonStyle(),
@@ -99,6 +101,7 @@ public struct ConfigurationStyle {
         self.attachButtonStyle = attachButtonStyle
         self.sendButtonStyle = sendButtonStyle
         self.attachViewStyle = attachViewStyle
+        self.galleryStyle = galleryStyle
         self.messageButtonStyle = messageButtonStyle
         self.messageFormStyle = messageFormStyle
         self.scrollButtonStyle = scrollButtonStyle
@@ -592,6 +595,79 @@ public struct AttachViewStyle {
                 textButtonColor: UIColor? = nil) {
         self.backgroundColor = backgroundColor ?? UIColor(hexString: "F9F9F9")
         self.textButtonColor = textButtonColor ?? UIColor(hexString: "007AFF")
+    }
+}
+
+// MARK: - Gallery Style
+public struct GalleryStyle {
+    public var limitedAccessTextFont: UIFont
+    public var limitedAccessTextColor: UIColor
+    public var limitedAccessTextNumberOfLines: Int
+    public var limitedAccessTextAlignment: NSTextAlignment
+    public var limitedAccessTextLineBreakMode: NSLineBreakMode
+
+    public var limitedAccessEditButtonFont: UIFont
+    public var limitedAccessEditButtonColor: UIColor
+    public var limitedAccessEditButtonTextAlignment: NSTextAlignment
+    public var limitedAccessEditButtonBackgroundColor: UIColor
+    public var limitedAccessEditButtonCornerRadius: CGFloat
+
+    public var limitedAccessStackMargin: UIEdgeInsets
+    public var limitedAccessStackSpacing: CGFloat
+    public var limitedAccessStackAxis: NSLayoutConstraint.Axis
+    public var limitedAccessStackAlignment: UIStackView.Alignment
+
+    public var limitedAccessBackgroundColor: UIColor
+    public var limitedAccessCornerRadius: CGFloat
+    public var limitedAccessViewMargin: UIEdgeInsets
+    public var limitedAccessViewShadowColor: UIColor
+    public var limitedAccessViewShadowOffset: CGSize
+    public var limitedAccessViewShadowOpacity: Float
+    public var limitedAccessViewShadowRadius: CGFloat
+
+    public init(limitedAccessTextFont: UIFont = UIFont.systemFont(ofSize: 16),
+                limitedAccessTextColor: UIColor? = nil,
+                limitedAccessTextNumberOfLines: Int = 0,
+                limitedAccessTextAlignment: NSTextAlignment = .left,
+                limitedAccessTextLineBreakMode: NSLineBreakMode = .byWordWrapping,
+                limitedAccessEditButtonFont: UIFont = UIFont.systemFont(ofSize: 16),
+                limitedAccessEditButtonColor: UIColor? = nil,
+                limitedAccessEditButtonTextAlignment: NSTextAlignment = .right,
+                limitedAccessEditButtonBackgroundColor: UIColor? = nil,
+                limitedAccessEditButtonCornerRadius: CGFloat = 8,
+                limitedAccessStackMargin: UIEdgeInsets = UIEdgeInsets(top: 10, left: 8, bottom: 10, right: 8),
+                limitedAccessStackSpacing: CGFloat = 12,
+                limitedAccessStackAxis: NSLayoutConstraint.Axis = .horizontal,
+                limitedAccessStackAlignment: UIStackView.Alignment = .top,
+                limitedAccessBackgroundColor: UIColor? = nil,
+                limitedAccessCornerRadius: CGFloat = 8,
+                limitedAccessViewMargin: UIEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10),
+                limitedAccessViewShadowColor: UIColor = .black,
+                limitedAccessViewShadowOffset: CGSize = CGSize(width: 0, height: 0),
+                limitedAccessViewShadowOpacity: Float = 0.15,
+                limitedAccessViewShadowRadius: CGFloat = 5
+    ) {
+        self.limitedAccessTextFont = limitedAccessTextFont
+        self.limitedAccessTextColor = limitedAccessTextColor ?? UIColor(hexString: "333333")
+        self.limitedAccessTextNumberOfLines = limitedAccessTextNumberOfLines
+        self.limitedAccessTextAlignment = limitedAccessTextAlignment
+        self.limitedAccessTextLineBreakMode = limitedAccessTextLineBreakMode
+        self.limitedAccessEditButtonFont = limitedAccessEditButtonFont
+        self.limitedAccessEditButtonColor = limitedAccessEditButtonColor ?? .white
+        self.limitedAccessEditButtonTextAlignment = limitedAccessEditButtonTextAlignment
+        self.limitedAccessEditButtonBackgroundColor = limitedAccessEditButtonBackgroundColor ?? .systemBlue
+        self.limitedAccessEditButtonCornerRadius = limitedAccessEditButtonCornerRadius
+        self.limitedAccessStackMargin = limitedAccessStackMargin
+        self.limitedAccessStackSpacing = limitedAccessStackSpacing
+        self.limitedAccessStackAxis = limitedAccessStackAxis
+        self.limitedAccessStackAlignment = limitedAccessStackAlignment
+        self.limitedAccessBackgroundColor = limitedAccessBackgroundColor ?? UIColor(hexString: "ffffff")
+        self.limitedAccessCornerRadius = limitedAccessCornerRadius
+        self.limitedAccessViewMargin = limitedAccessViewMargin
+        self.limitedAccessViewShadowColor = limitedAccessViewShadowColor
+        self.limitedAccessViewShadowOffset = limitedAccessViewShadowOffset
+        self.limitedAccessViewShadowOpacity = limitedAccessViewShadowOpacity
+        self.limitedAccessViewShadowRadius = limitedAccessViewShadowRadius
     }
 }
 

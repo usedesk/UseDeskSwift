@@ -31,7 +31,6 @@ class DialogflowView: UDMessagesView {
         //Notification
         NotificationCenter.default.addObserver(self, selector: #selector(self.openUrlFromMessageButton(_:)), name: Notification.Name("UseDeskMessageButtonURLOpen1!"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.sendMessageButton(_:)), name: Notification.Name("UseDeskMessageButtonSend1!"), object: nil)
-        
         allMessages = [UDMessage]()
         
         usedesk?.newMessageBlock = { messageOptional in
