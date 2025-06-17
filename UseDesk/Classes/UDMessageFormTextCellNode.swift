@@ -68,12 +68,21 @@ class UDMessageFormTextCellNode: UDMessageFormCellNode, ASEditableTextNodeDelega
     
     func editableTextNodeDidUpdateText(_ editableTextNode: ASEditableTextNode) {
         backgroundNode.borderColor = messageFormStyle.textFormBorderColor
-        form.value = editableTextNode.attributedText?.string ?? ""
-        delegateValue?.newValue(value: form.value, indexForm: indexForm)
+        form.value = editableTextNode.attributedText?.string.udRemoveFirstAndLastLineBreaksAndSpaces() ?? ""
+        if form.value.isEmpty {
+            delegateValue?.newValue(value: form.value, indexForm: indexForm)
+        }
     }
     
     func editableTextNodeDidBeginEditing(_ editableTextNode: ASEditableTextNode) {
         delegate?.tapForm(indexForm: indexForm)
+    }
+    
+    func editableTextNodeDidFinishEditing(_ editableTextNode: ASEditableTextNode) {
+        let text = editableTextNode.attributedText?.string.udRemoveFirstAndLastLineBreaksAndSpaces() ?? ""
+        if text.isEmpty {
+            editableTextNode.attributedText = nil
+        }
     }
     
     // MARK: - LayoutSpecThatFits

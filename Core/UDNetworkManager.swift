@@ -317,25 +317,27 @@ public class UDNetworkManager {
                 if field.type == .text {
                     let formParameters: [String : Any] = [
                         "associate" : form.idAdditionalField,
-                        "value"     : field.value
+                        "value"     : field.value,
+                        "label"     : field.name
                     ]
                     formsParameters.append(formParameters)
                 } else if field.type == .checkbox {
                     let formParameters: [String : Any] = [
                         "associate" : form.idAdditionalField,
-                        "value"     : field.value == "1" ? "true" : "false"
+                        "value"     : field.value == "1" ? "true" : "false",
+                        "label"     : field.name
                     ]
                     formsParameters.append(formParameters)
-                } else if let selectedOptionFirstField = field.selectedOption?.id {
+                } else if let selectedOptionFirstField = field.selectedOption {
                     var formParameters: [String : Any] = ["associate" : form.idAdditionalField]
                     var formsChildeParameters: [[String : Any]] = []
-                    formsChildeParameters.append(["id" : form.field!.id, "value" : String(selectedOptionFirstField)])
+                    formsChildeParameters.append(["id" : form.field!.id, "value" : String(selectedOptionFirstField.id), "label" : selectedOptionFirstField.name])
                     var isExistChildeFields = true
                     var idParentField = form.idAdditionalField
                     while forms.count > 0 && isExistChildeFields {
                         if forms[0].field?.idParentField == idParentField {
                             if let selectedOption = forms[0].field!.selectedOption {
-                                formsChildeParameters.append(["id" : forms[0].field!.id, "value" : String(selectedOption.id)])
+                                formsChildeParameters.append(["id" : forms[0].field!.id, "value" : String(selectedOption.id), "label" : selectedOption.name])
                             }
                             idParentField = forms[0].idAdditionalField
                             forms.remove(at: 0)
@@ -346,7 +348,7 @@ public class UDNetworkManager {
                     if formsChildeParameters.count > 1 {
                         formParameters["value"] = formsChildeParameters
                     } else {
-                        formParameters["value"] = String(selectedOptionFirstField)
+                        formParameters["value"] = String(selectedOptionFirstField.id)
                     }
                     formsParameters.append(formParameters)
                 }
@@ -354,7 +356,8 @@ public class UDNetworkManager {
                 let formParameters: [String : Any] = [
                     "associate" : form.type.rawValue,
                     "required" : form.isRequired,
-                    "value" : form.value
+                    "value" : form.value,
+                    "label" : form.name
                 ]
                 formsParameters.append(formParameters)
             }

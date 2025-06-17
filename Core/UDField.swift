@@ -136,15 +136,17 @@ public class UDField: NSObject, Codable {
 @objc public class FieldOption: NSObject, Codable {
     @objc public var id: Int = 0
     @objc public var value = ""
+    @objc public var name = ""
     @objc public var idsParentOption = [Int]()
     
     override init() {
         super.init()
     }
     
-    init(id: Int, value: String) {
+    init(id: Int, value: String, name: String = "") {
         self.id = id
         self.value = value
+        self.name = name
     }
     
     // MARK: - Codable methods
@@ -153,12 +155,14 @@ public class UDField: NSObject, Codable {
         try container.encode(id, forKey: .id)
         try container.encode(value, forKey: .value)
         try container.encode(idsParentOption, forKey: .idsParentOption)
+        try container.encode(name, forKey: .value)
     }
     
     required public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(Int.self, forKey: .id)
         value = try container.decode(String.self, forKey: .value)
+        name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
         idsParentOption = try container.decode([Int].self, forKey: .idsParentOption)
     }
     
@@ -166,5 +170,6 @@ public class UDField: NSObject, Codable {
         case id
         case value
         case idsParentOption
+        case name
     }
 }

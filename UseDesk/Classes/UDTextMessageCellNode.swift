@@ -114,11 +114,18 @@ class UDTextMessageCellNode: UDMessageCellNode {
     private func setTextMessageNode() {
         let messageStyle = configurationStyle.messageStyle
         
+        var textMessage = message.text
+        if !message.forms.isEmpty || !message.buttons.isEmpty {
+            textMessage = textMessage.udRemoveLastSymbol(with: "\n")
+        }
+        
         let linkColor = message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor
-        let attributedString = UDMarkdownParser.mutableAttributedString(for: message.text,
-                                                                               font: messageStyle.font,
-                                                                               color: message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor,
-                                                                        linkColor: .red)
+        let attributedString = UDMarkdownParser.mutableAttributedString(
+            for: textMessage,
+            font: messageStyle.font,
+            color: message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor,
+            linkColor: .red
+        )
 
         let linkTextAttributes = [NSAttributedString.Key.foregroundColor: linkColor,
                                   NSAttributedString.Key.underlineColor: linkColor]
@@ -267,8 +274,7 @@ class UDTextMessageCellNode: UDMessageCellNode {
         let messageButtonStyle = configurationStyle.messageButtonStyle
         let sizeMessagesManager = UDSizeMessagesManager(messagesView: messagesView, message: message, indexPath: indexPath, configurationStyle: configurationStyle)
         
-//        setDefaultConfigSendFormButton()
-        
+        let textMessage = textMessageNode.attributedText?.string.udRemoveFirstAndLastLineBreaksAndSpaces() ?? ""
         textMessageNode.style.maxWidth = ASDimensionMakeWithPoints(constrainedSize.max.width)
         let textMessageInsets = ASInsetLayoutSpec(insets: UIEdgeInsets(top: messageStyle.textMargin.top, left: messageStyle.textMargin.left, bottom: messageStyle.textMargin.bottom, right: messageStyle.textMargin.right), child: textMessageNode)
 
@@ -330,7 +336,7 @@ class UDTextMessageCellNode: UDMessageCellNode {
             }
         }
         
-        if (textMessageNode.attributedText?.string.isEmpty ?? true) && (message.buttons.count > 0 || message.forms.count > 0) {
+        if textMessage.isEmpty && (message.buttons.count > 0 || message.forms.count > 0) {
             textMessageNode.style.maxHeight = ASDimensionMakeWithPoints(0)
         } else {
             textMessageNode.style.maxHeight = ASDimensionMakeWithPoints(constrainedSize.max.height)
