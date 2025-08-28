@@ -10,7 +10,7 @@ class UseDeskSDKHelp {
         let payload: [String : Any] = [
             "sdk" : "iOS",
             "type" : "sdk",
-            "version" : "3.4.16",
+            "version" : "3.4.17",
             "message_limit" : countMessagesOnInit,
             "userData" : getUserParameters()
         ] 

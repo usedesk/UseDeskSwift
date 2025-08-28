@@ -414,8 +414,7 @@ class UDSocketResponse {
             m.name = mess?["name"] as? String ?? ""
         }
         m.text = m.text.udRemoveMultipleLineBreaks()
-        m.text = m.text.udRemoveFirstSymbol(with: "\n")
-        m.text = m.text.udRemoveLastSymbol(with: "\n")
+        m.text = m.text.udRemoveFirstAndLastLineBreaksAndSpaces()
         if m.text == "" && m.buttons.count == 0 && m.forms.count == 0 {
             return nil
         }
