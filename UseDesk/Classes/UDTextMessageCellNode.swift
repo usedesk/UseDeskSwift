@@ -136,6 +136,7 @@ class UDTextMessageCellNode: UDMessageCellNode {
         DispatchQueue.main.async {
             self.textMessageNode.textView.isEditable = false
             self.textMessageNode.textView.linkTextAttributes = linkTextAttributes
+            self.textMessageNode.textView.layoutManager.allowsNonContiguousLayout = false
         }
         textMessageNode.delegate = self
     }

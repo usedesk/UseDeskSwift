@@ -449,33 +449,24 @@ class UDSocketResponse {
     }
         
     private class func parseMessageFromButtons(text: String) -> [String] {
-        var isAddingButton: Bool = false
-        var characterArrayFromButton = [Character]()
-        var stringsFromButton = [String]()
-        if text.count > 2 {
-            for index in 0..<text.count - 1 {
-                let indexString = text.index(text.startIndex, offsetBy: index)
-                let secondIndexString = text.index(text.startIndex, offsetBy: index + 1)
-                if isAddingButton {
-                    characterArrayFromButton.append(text[indexString])
-                    if (text[indexString] == "}") && (text[secondIndexString] == "}") {
-                        characterArrayFromButton.append(text[secondIndexString])
-                        isAddingButton = false
-                        let stringFromButton = String(characterArrayFromButton)
-                        if !UDFormMessageManager.isForm(string: stringFromButton) {
-                            stringsFromButton.append(stringFromButton)
-                        }
-                        characterArrayFromButton = []
-                    }
-                } else {
-                    if (text[indexString] == "{") && (text[secondIndexString] == "{") {
-                        characterArrayFromButton.append(text[indexString])
-                        isAddingButton = true
-                    }
-                }
+        var results: [String] = []
+        guard text.count > 2, text.contains("{{"), text.contains("}}") else { return results }
+
+        var searchStart = text.startIndex
+        let endIndex = text.endIndex
+
+        while searchStart < endIndex {
+            guard let startRange = text.range(of: "{{", range: searchStart..<endIndex) else { break }
+            guard let endRange = text.range(of: "}}", range: startRange.upperBound..<endIndex) else { break }
+
+            let candidate = String(text[startRange.lowerBound..<endRange.upperBound])
+            if !UDFormMessageManager.isForm(string: candidate) {
+                results.append(candidate)
             }
+            searchStart = endRange.upperBound
         }
-        return stringsFromButton
+        
+        return results
     }
     
     private class func parseText(_ textPars: String) -> ([String], String?) {

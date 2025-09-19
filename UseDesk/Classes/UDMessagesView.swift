@@ -429,23 +429,24 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
     }
     
     func indexPathForMessage(at messageFind: UDMessage) -> IndexPath? {
+        var indexTextMessage: IndexPath?
         var section = 0
         var row = 0
-        var flag = true
-        while section < messagesWithSection.count && flag {
-            while row < messagesWithSection[section].count && flag {
+        let isFileFind = (messageFind.type == UD_TYPE_PICTURE || messageFind.type == UD_TYPE_VIDEO || messageFind.type == UD_TYPE_File)
+        while section < messagesWithSection.count {
+            while row < messagesWithSection[section].count {
                 let indexPath = IndexPath(row: row, section: section)
                 let message = messagesWithSection[section][row]
                 if message.id == messageFind.id || ((message.loadingMessageId == messageFind.loadingMessageId) && (!message.loadingMessageId.isEmpty)) {
-                    let isFileCurrentMessage = message.type == UD_TYPE_PICTURE || message.type == UD_TYPE_VIDEO || message.type == UD_TYPE_File
-                    if isFileCurrentMessage {
-                        if message.file.id == messageFind.file.id {
-                            flag = false
+                    let isFileCurrent = (message.type == UD_TYPE_PICTURE || message.type == UD_TYPE_VIDEO || message.type == UD_TYPE_File)
+                    if isFileFind {
+                        if messageFind.file.id != 0 && isFileCurrent && message.file.id == messageFind.file.id {
                             return indexPath
                         }
                     } else {
-                        flag = false
-                        return indexPath
+                        if !isFileCurrent && indexTextMessage == nil {
+                            indexTextMessage = indexPath
+                        }
                     }
                 }
                 row += 1
@@ -453,7 +454,12 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             row = 0
             section += 1
         }
-        return nil
+
+        if isFileFind {
+            return nil
+        }
+        
+        return indexTextMessage
     }
     
     func updateOrientation() {
@@ -1465,6 +1471,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
         buttonAttachLoader.alpha = 0
         buttonAttachLoader.stopAnimating()
         self.tabBarController?.tabBar.isHidden = true
+        self.view.setNeedsLayout()
     }
     
     @objc func closeAttachView() {
@@ -1483,6 +1490,7 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             self.attachCollectionView.contentOffset.x = 0
             self.attachCollectionView.reloadData()
             self.tabBarController?.tabBar.isHidden = false
+            self.view.setNeedsLayout()
         }
     }
     

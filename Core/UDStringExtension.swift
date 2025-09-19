@@ -115,49 +115,52 @@ extension String {
     }
     
     func udRemoveMultipleLineBreaks() -> String {
-        guard self.contains("\n") else {return self}
-        var resultString = ""
-        var index = 0
-        while index < self.count - 1 {
-            if let searchStartIndex = self.index(startIndex, offsetBy: index, limitedBy: self.endIndex) {
-                if self[searchStartIndex] == "\n" {
-                    var endIndexMultipleLineBreaks = index + 1
-                    var isFindEndMultipleLineBreaks = false
-                    var countMultipleLineBreaks = 0
-                    var isEndSpace = false
-                    while endIndexMultipleLineBreaks < self.count - 1 && !isFindEndMultipleLineBreaks {
-                        if let searchEndIndexMultipleLineBreaks = self.index(startIndex, offsetBy: endIndexMultipleLineBreaks, limitedBy: self.endIndex),
-                           self[searchEndIndexMultipleLineBreaks] == "\n" {
-                            countMultipleLineBreaks += 1
-                            index += 1
-                            isEndSpace = false
-                        } else if let searchEndIndexMultipleLineBreaks = self.index(startIndex, offsetBy: endIndexMultipleLineBreaks, limitedBy: self.endIndex),
-                                  self[searchEndIndexMultipleLineBreaks] == " " {
-                            isEndSpace = true
-                            index += 1
-                        } else {
-                            isFindEndMultipleLineBreaks = true
-                        }
-                        endIndexMultipleLineBreaks += 1
-                    }
-                    if countMultipleLineBreaks > 0 {
-                        resultString.append("\n\n")
+        let bytes = Array(self.utf8)
+        var out: [UInt8] = []
+        out.reserveCapacity(bytes.count)
+
+        var i = 0
+        while i < bytes.count {
+            let b = bytes[i]
+            if b == 0x0A { // '\n'
+                var countMultipleLineBreaks = 0
+                var isEndSpace = false
+
+                var j = i + 1
+                while j < bytes.count {
+                    let nb = bytes[j]
+                    if nb == 0x0A { // another '\n'
+                        countMultipleLineBreaks += 1
+                        i += 1
+                        isEndSpace = false
+                    } else if nb == 0x20 { // space ' ' only (NOT tabs)
+                        isEndSpace = true
+                        i += 1
                     } else {
-                        resultString.append("\n")
+                        break
                     }
-                    if isEndSpace {
-                        index -= 1
-                    }
-                } else {
-                    resultString.append(self[searchStartIndex] )
+                    j += 1
                 }
-                index += 1
+
+                if countMultipleLineBreaks > 0 {
+                    out.append(0x0A)
+                    out.append(0x0A)
+                } else {
+                    out.append(0x0A)
+                }
+
+                if isEndSpace {
+                    // Re-process the last space to keep exactly one
+                    i -= 1
+                }
+                i += 1
+            } else {
+                out.append(b)
+                i += 1
             }
         }
-        if self.last != "\n" {
-            resultString.append(self.last ?? Character(""))
-        }
-        return resultString
+
+        return String(decoding: out, as: UTF8.self)
     }
     
     func udRemoveFirstSpaces() -> String {
