@@ -70,13 +70,24 @@ extension String {
     }
     
     func udIsValidUrl() -> Bool {
-        let detector = try! NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
-        if URL(string: self) != nil,
-           let match = detector.firstMatch(in: self, options: [], range: NSRange(location: 0, length: self.utf16.count)) {
-            return match.range.length == self.utf16.count
-        } else {
-            return false
+        let s = self.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !s.isEmpty else { return false }
+
+        let urlString = s.hasPrefix("http://") || s.hasPrefix("https://") ? s : "https://" + s
+
+        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else { return false }
+
+        let range = NSRange(location: 0, length: urlString.utf16.count)
+        guard let match = detector.firstMatch(in: urlString, options: [], range: range) else { return false }
+        guard match.range.location == 0 && match.range.length == range.length else { return false }
+
+        if let scheme = match.url?.scheme?.lowercased() {
+            if scheme != "http" && scheme != "https" {
+                return false
+            }
         }
+
+        return true
     }
     
     func udIsHtml() -> Bool {

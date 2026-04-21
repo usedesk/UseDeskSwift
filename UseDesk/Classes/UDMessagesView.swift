@@ -368,9 +368,17 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             draftMessages.removeAll()
             let allDraftMessages = messages.filter({$0.statusSend == UD_STATUS_SEND_DRAFT})
             var messagesDelete = [UDMessage]()
+            var textDraftAdded = false
             allDraftMessages.forEach { message in
                 if message.type != UD_TYPE_TEXT && message.file.data == nil {
                     messagesDelete.append(message)
+                } else if message.type == UD_TYPE_TEXT {
+                    if textDraftAdded {
+                        messagesDelete.append(message)
+                    } else {
+                        draftMessages.append(message)
+                        textDraftAdded = true
+                    }
                 } else {
                     draftMessages.append(message)
                 }
@@ -590,6 +598,13 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             }
         }
         if saveMessages.count > 0 {
+            if let storage = usedesk!.storage as? UDStorageMessages {
+                let existingMessages = storage.getMessages()
+                let draftsToRemove = existingMessages.filter { $0.statusSend == UD_STATUS_SEND_DRAFT }
+                if !draftsToRemove.isEmpty {
+                    storage.removeMessage(draftsToRemove)
+                }
+            }
             usedesk!.storage?.saveMessages(saveMessages)
         } else {
             if (usedesk!.storage as? UDStorageMessages) != nil {
@@ -1119,7 +1134,8 @@ class UDMessagesView: UIViewController, UITextViewDelegate, UIImagePickerControl
             return
         }
         let viewFrameInWindow = self.view.convert(self.view.bounds, to: nil)
-        let overlap = max(0, viewFrameInWindow.maxY - keyboardFrame.origin.y)
+        let viewMaxY = viewFrameInWindow.maxY > 0 ? viewFrameInWindow.maxY : UIScreen.main.bounds.height
+        let overlap = max(0, viewMaxY - keyboardFrame.origin.y)
         let keyboardVisible = overlap > 0
         let keyboardHeight = keyboardVisible ? overlap : 0
         let options = UIView.AnimationOptions(rawValue: curve << 16)

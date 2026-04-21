@@ -370,6 +370,7 @@ public struct FeedbackMessageStyle {
     public var dislikeOffImage: UIImage
     public var isFirstDislike: Bool
     public var textColor: UIColor
+    public var linkColor: UIColor
     public var font: UIFont
     public var textMargin: UIEdgeInsets
     
@@ -382,6 +383,7 @@ public struct FeedbackMessageStyle {
                 dislikeOffImage: UIImage? = nil,
                 isFirstDislike: Bool = true,
                 textColor: UIColor? = nil,
+                linkColor: UIColor? = nil,
                 font: UIFont = UIFont.systemFont(ofSize: 17),
                 textMargin: UIEdgeInsets = UIEdgeInsets(top: 17, left: 28, bottom: 14, right: 28)) {
         self.buttonSize = buttonSize
@@ -393,6 +395,7 @@ public struct FeedbackMessageStyle {
         self.dislikeOffImage = dislikeOffImage ?? UIImage.named("udDislikeOff")
         self.isFirstDislike = isFirstDislike
         self.textColor = textColor ?? UIColor(hexString: "333333")
+        self.linkColor = linkColor ?? UIColor(hexString: "333333")
         self.font = font
         self.textMargin = textMargin
     }

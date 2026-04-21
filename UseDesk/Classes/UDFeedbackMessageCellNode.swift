@@ -31,15 +31,14 @@ class UDFeedbackMessageCellNode: UDMessageCellNode {
         let feedbackMessageStyle = configurationStyle.feedbackMessageStyle
         feedbackAction = message.feedbackAction
         
-        let messageStyle = configurationStyle.messageStyle
         var attributedString = UDMarkdownParser.mutableAttributedString(for: message.text,
-                                                                    font: messageStyle.font,
-                                                                    color: message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor,
-                                                                    linkColor: message.outgoing ? messageStyle.linkOutgoingColor : messageStyle.linkIncomingColor)
+                                                                    font: feedbackMessageStyle.font,
+                                                                    color: feedbackMessageStyle.textColor,
+                                                                    linkColor: feedbackMessageStyle.linkColor)
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
         paragraphStyle.lineBreakMode = .byWordWrapping
-        attributedString.addAttributes([.font : messageStyle.font, .foregroundColor : message.outgoing ? messageStyle.textOutgoingColor : messageStyle.textIncomingColor, .paragraphStyle : paragraphStyle], range: NSRange(location: 0, length: attributedString.length))
+        attributedString.addAttributes([.font : feedbackMessageStyle.font, .foregroundColor : feedbackMessageStyle.textColor, .paragraphStyle : paragraphStyle], range: NSRange(location: 0, length: attributedString.length))
         textMessageNode.attributedText = attributedString
         textMessageNode.style.alignSelf = .center
         addSubnode(textMessageNode)

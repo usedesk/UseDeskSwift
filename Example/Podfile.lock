@@ -2,53 +2,53 @@ PODS:
   - Alamofire (5.9.1)
   - IQKeyboardManagerSwift (6.5.16)
   - MarkdownKit (1.7.1)
-  - PINCache (3.0.3):
-    - PINCache/Arc-exception-safe (= 3.0.3)
-    - PINCache/Core (= 3.0.3)
-  - PINCache/Arc-exception-safe (3.0.3):
+  - PINCache (3.0.4):
+    - PINCache/Arc-exception-safe (= 3.0.4)
+    - PINCache/Core (= 3.0.4)
+  - PINCache/Arc-exception-safe (3.0.4):
     - PINCache/Core
-  - PINCache/Core (3.0.3):
-    - PINOperation (~> 1.2.1)
-  - PINOperation (1.2.2)
-  - PINRemoteImage/Core (3.0.3):
+  - PINCache/Core (3.0.4):
+    - PINOperation (~> 1.2.3)
+  - PINOperation (1.2.3)
+  - PINRemoteImage/Core (3.0.4):
     - PINOperation
-  - PINRemoteImage/iOS (3.0.3):
+  - PINRemoteImage/iOS (3.0.4):
     - PINRemoteImage/Core
-  - PINRemoteImage/PINCache (3.0.3):
-    - PINCache (~> 3.0.3)
+  - PINRemoteImage/PINCache (3.0.4):
+    - PINCache (~> 3.0.4)
     - PINRemoteImage/Core
   - ReachabilitySwift (5.2.1)
   - Socket.IO-Client-Swift (16.1.0):
     - Starscream (~> 4.0.6)
   - Starscream (4.0.8)
   - SwiftSoup (2.7.2)
-  - Texture (3.1.0):
-    - Texture/AssetsLibrary (= 3.1.0)
-    - Texture/Core (= 3.1.0)
-    - Texture/MapKit (= 3.1.0)
-    - Texture/Photos (= 3.1.0)
-    - Texture/PINRemoteImage (= 3.1.0)
-    - Texture/Video (= 3.1.0)
-  - Texture/AssetsLibrary (3.1.0):
+  - Texture (3.2.0):
+    - Texture/AssetsLibrary (= 3.2.0)
+    - Texture/Core (= 3.2.0)
+    - Texture/MapKit (= 3.2.0)
+    - Texture/Photos (= 3.2.0)
+    - Texture/PINRemoteImage (= 3.2.0)
+    - Texture/Video (= 3.2.0)
+  - Texture/AssetsLibrary (3.2.0):
     - Texture/Core
-  - Texture/Core (3.1.0)
-  - Texture/MapKit (3.1.0):
+  - Texture/Core (3.2.0)
+  - Texture/MapKit (3.2.0):
     - Texture/Core
-  - Texture/Photos (3.1.0):
+  - Texture/Photos (3.2.0):
     - Texture/Core
-  - Texture/PINRemoteImage (3.1.0):
+  - Texture/PINRemoteImage (3.2.0):
     - PINRemoteImage/iOS (~> 3.0.0)
     - PINRemoteImage/PINCache
     - Texture/Core
-  - Texture/Video (3.1.0):
+  - Texture/Video (3.2.0):
     - Texture/Core
-  - UseDesk_SDK_Swift (3.4.16):
+  - UseDesk_SDK_Swift (3.4.19):
     - Alamofire (~> 5)
     - MarkdownKit
     - ReachabilitySwift
     - Socket.IO-Client-Swift (~> 16)
     - SwiftSoup
-    - Texture
+    - Texture (~> 3.2.0)
 
 DEPENDENCIES:
   - IQKeyboardManagerSwift
@@ -76,16 +76,16 @@ SPEC CHECKSUMS:
   Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
   IQKeyboardManagerSwift: 12d89768845bb77b55cc092ecc2b1f9370f06b76
   MarkdownKit: 0b15195c63cf3e39387949c4bdeccde0055e252a
-  PINCache: 7a8fc1a691173d21dbddbf86cd515de6efa55086
-  PINOperation: daa34d4aa1d8449089be7d405b9d974abc4724c6
-  PINRemoteImage: f1295b29f8c5e640e25335a1b2bd9d805171bd01
+  PINCache: d9a87a0ff397acffe9e2f0db972ac14680441158
+  PINOperation: fb563bcc9c32c26d6c78aaff967d405aa2ee74a7
+  PINRemoteImage: 6256a644f4996991f124811763c7286b2a63ff94
   ReachabilitySwift: 5ae15e16814b5f9ef568963fb2c87aeb49158c66
   Socket.IO-Client-Swift: ee4b8f80a3db18dd7f32b266ddf273310609443c
   Starscream: 19b5533ddb925208db698f0ac508a100b884a1b9
   SwiftSoup: 4164c6bd8af69acd119c23fb36906975a60d71bb
-  Texture: 2e8ab2519452515f7f5a520f5a8f7e0a413abfa3
-  UseDesk_SDK_Swift: 60746be00627d7fe8243447d920e0e31b6ef5ecf
+  Texture: 61e86ea2ee124f545be40293b54b5b8986006da2
+  UseDesk_SDK_Swift: c565517353d0adfd6a8edf65ae4ed1f94acdc433
 
-PODFILE CHECKSUM: 094f9fd5407562e8e00fad26145461fb12f12724
+PODFILE CHECKSUM: 7dc216d2a5b89ea500856b30a26098d1d8fb768d
 
 COCOAPODS: 1.16.2
