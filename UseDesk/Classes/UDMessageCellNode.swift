@@ -25,10 +25,26 @@ class UDMessageCellNode: ASCellNode {
     var contentMessageInsetSpec = ASInsetLayoutSpec()
     var orientaion: Orientation = .portrait
     
+    private var traitObserver: TraitObserverView?
+    private var rawBubbleColor: UIColor = .clear
+    
     override init() {
         super.init()
         addSubnode(bubbleImageNode)
         addSubnode(bubbleSelectingImageNode)
+    }
+    
+    override func didLoad() {
+        super.didLoad()
+        applyBubbleColor(with: view.traitCollection)
+
+        let observer = TraitObserverView(frame: .zero)
+        observer.isUserInteractionEnabled = false
+        observer.onChange = { [weak self] traits in
+            self?.applyBubbleColor(with: traits)
+        }
+        view.addSubview(observer)
+        traitObserver = observer
     }
     
     func bindData(messagesView messagesView_: UDMessagesView?, message : UDMessage) {
@@ -43,7 +59,9 @@ class UDMessageCellNode: ASCellNode {
         var bubbleImage = message.outgoing ? bubbleStyle.backgroundImageOutgoing : bubbleStyle.backgroundImageIncoming
         bubbleImage = bubbleImage.stretchableImage(withLeftCapWidth: 23, topCapHeight: 16).withRenderingMode(.alwaysTemplate)
         bubbleImageNode.image = bubbleImage
-        bubbleImageNode.imageModificationBlock = ASImageNodeTintColorModificationBlock(message.incoming != false ? bubbleStyle.bubbleColorIncoming : bubbleStyle.bubbleColorOutgoing)
+        
+        rawBubbleColor = message.incoming != false ? bubbleStyle.bubbleColorIncoming : bubbleStyle.bubbleColorOutgoing
+        bubbleImageNode.imageModificationBlock = ASImageNodeTintColorModificationBlock(rawBubbleColor)
         
         bubbleSelectingImageNode.image = bubbleImage
         bubbleSelectingImageNode.imageModificationBlock = ASImageNodeTintColorModificationBlock(bubbleStyle.bubbleSelectColor)
@@ -208,5 +226,27 @@ class UDMessageCellNode: ASCellNode {
     func setSendedStatus() {
         sendedImageNode.image = isPictureOrVideoType ? configurationStyle.messageStyle.sendedStatusImageForImageMessage : configurationStyle.messageStyle.sendedStatusImage
         notSentImageNode.alpha = 0
+    }
+    
+    private func applyBubbleColor(with traits: UITraitCollection) {
+        let resolved: UIColor
+        if #available(iOS 13, *) {
+            resolved = rawBubbleColor.resolvedColor(with: traits)
+        } else {
+            resolved = rawBubbleColor
+        }
+        bubbleImageNode.imageModificationBlock = ASImageNodeTintColorModificationBlock(resolved)
+        bubbleImageNode.setNeedsDisplay()
+    }
+}
+
+private class TraitObserverView: UIView {
+    var onChange: ((UITraitCollection) -> Void)?
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if #available(iOS 13, *) {
+            guard traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) else { return }
+            onChange?(traitCollection)
+        }
     }
 }

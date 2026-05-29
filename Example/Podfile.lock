@@ -22,33 +22,33 @@ PODS:
     - Starscream (~> 4.0.6)
   - Starscream (4.0.8)
   - SwiftSoup (2.7.2)
-  - Texture (3.2.0):
-    - Texture/AssetsLibrary (= 3.2.0)
-    - Texture/Core (= 3.2.0)
-    - Texture/MapKit (= 3.2.0)
-    - Texture/Photos (= 3.2.0)
-    - Texture/PINRemoteImage (= 3.2.0)
-    - Texture/Video (= 3.2.0)
-  - Texture/AssetsLibrary (3.2.0):
-    - Texture/Core
-  - Texture/Core (3.2.0)
-  - Texture/MapKit (3.2.0):
-    - Texture/Core
-  - Texture/Photos (3.2.0):
-    - Texture/Core
-  - Texture/PINRemoteImage (3.2.0):
+  - Texture-UseDesk (3.2.1):
+    - Texture-UseDesk/AssetsLibrary (= 3.2.1)
+    - Texture-UseDesk/Core (= 3.2.1)
+    - Texture-UseDesk/MapKit (= 3.2.1)
+    - Texture-UseDesk/Photos (= 3.2.1)
+    - Texture-UseDesk/PINRemoteImage (= 3.2.1)
+    - Texture-UseDesk/Video (= 3.2.1)
+  - Texture-UseDesk/AssetsLibrary (3.2.1):
+    - Texture-UseDesk/Core
+  - Texture-UseDesk/Core (3.2.1)
+  - Texture-UseDesk/MapKit (3.2.1):
+    - Texture-UseDesk/Core
+  - Texture-UseDesk/Photos (3.2.1):
+    - Texture-UseDesk/Core
+  - Texture-UseDesk/PINRemoteImage (3.2.1):
     - PINRemoteImage/iOS (~> 3.0.0)
     - PINRemoteImage/PINCache
-    - Texture/Core
-  - Texture/Video (3.2.0):
-    - Texture/Core
-  - UseDesk_SDK_Swift (3.4.19):
+    - Texture-UseDesk/Core
+  - Texture-UseDesk/Video (3.2.1):
+    - Texture-UseDesk/Core
+  - UseDesk_SDK_Swift (3.4.20):
     - Alamofire (~> 5)
     - MarkdownKit
     - ReachabilitySwift
     - Socket.IO-Client-Swift (~> 16)
     - SwiftSoup
-    - Texture (~> 3.2.0)
+    - Texture-UseDesk (~> 3.2.1)
 
 DEPENDENCIES:
   - IQKeyboardManagerSwift
@@ -66,7 +66,7 @@ SPEC REPOS:
     - Socket.IO-Client-Swift
     - Starscream
     - SwiftSoup
-    - Texture
+    - Texture-UseDesk
 
 EXTERNAL SOURCES:
   UseDesk_SDK_Swift:
@@ -83,9 +83,9 @@ SPEC CHECKSUMS:
   Socket.IO-Client-Swift: ee4b8f80a3db18dd7f32b266ddf273310609443c
   Starscream: 19b5533ddb925208db698f0ac508a100b884a1b9
   SwiftSoup: 4164c6bd8af69acd119c23fb36906975a60d71bb
-  Texture: 61e86ea2ee124f545be40293b54b5b8986006da2
-  UseDesk_SDK_Swift: c565517353d0adfd6a8edf65ae4ed1f94acdc433
+  Texture-UseDesk: 775a4ef6710a054fce6821030f9ad397b0eaba13
+  UseDesk_SDK_Swift: 23d319177440e9ec85fff9338b39e646f4052a8f
 
-PODFILE CHECKSUM: 7dc216d2a5b89ea500856b30a26098d1d8fb768d
+PODFILE CHECKSUM: a84cdc15bddbc8c8731b8a19b8efb6c95fd8a8d5
 
 COCOAPODS: 1.16.2

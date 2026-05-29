@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
 	s.name             = 'UseDesk_SDK_Swift'
-	s.version          = '3.4.19'
+	s.version          = '3.4.20'
 	s.summary          = 'A short description of UseDesk.'
 
 	s.homepage         = 'https://github.com/usedesk/UseDeskSwift'
@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
 	s.dependency 'Socket.IO-Client-Swift', '~> 16'
 	s.dependency 'Alamofire', '~> 5'
   s.dependency 'MarkdownKit'
-  s.dependency 'Texture', '~> 3.2.0'
+  s.dependency 'Texture-UseDesk', '~> 3.2.1'
   s.dependency 'ReachabilitySwift'
   s.dependency 'SwiftSoup'
   
