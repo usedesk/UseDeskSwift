@@ -238,8 +238,8 @@ public class UDValidationManager {
        do {
            let detector = try NSDataDetector(types: NSTextCheckingResult.CheckingType.phoneNumber.rawValue)
            let matches = detector.matches(in: phone, options: [], range: NSMakeRange(0, phone.count))
-           if let res = matches.first {
-               return res.resultType == .phoneNumber && res.range.location == 0 && res.range.length == phone.count
+           if let phoneMatch = matches.first {
+               return phoneMatch.resultType == .phoneNumber && phoneMatch.range.location == 0 && phoneMatch.range.length == phone.count
            } else {
                return false
            }

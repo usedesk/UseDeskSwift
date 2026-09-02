@@ -1,7 +1,6 @@
 //
 //  UDTextView.swift
 //  UseDesk_SDK_Swift
-//
 
 import Foundation
 class UDTextView: UITextView {
@@ -10,7 +9,6 @@ class UDTextView: UITextView {
     var customTextContainerInset: UIEdgeInsets = .zero
     
     override func layoutSubviews() {
-//        super.layoutSubviews()
         if isNeedCustomTextContainerInset {
             self.textContainerInset = customTextContainerInset
             self.textContainer.lineFragmentPadding = 0

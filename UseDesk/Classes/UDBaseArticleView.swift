@@ -244,20 +244,10 @@ class UDBaseArticleView: UDBaseKnowledgeVC, WKUIDelegate, UISearchBarDelegate, U
         }
         reviewPositiveButton.setTitleColor(baseArticleStyle.reviewYesTextColor, for: .normal)
         reviewPositiveButton.setTitle(usedesk!.model.stringFor("PositiveReviewButton"), for: .normal)
-        if #available(iOS 15.0, *) {
-            reviewPositiveButton.configurationUpdateHandler = { [weak self] button in
-                guard let wSelf = self else {return}
-                button.configuration?.imagePadding = wSelf.baseArticleStyle.reviewButtonImagePadding
-                button.configuration?.contentInsets = NSDirectionalEdgeInsets(from: wSelf.baseArticleStyle.reviewButtonContentInsets)
-            }
-        } else {
-            if baseArticleStyle.isNeedImageForReviewButton {
-                reviewPositiveButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: baseArticleStyle.reviewButtonImagePadding, bottom: 0, right: -(baseArticleStyle.reviewButtonImagePadding))
-                reviewPositiveButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: baseArticleStyle.reviewButtonImagePadding)
-                reviewPositiveButton.contentEdgeInsets = UIEdgeInsets(top: baseArticleStyle.reviewButtonContentInsets.top, left: baseArticleStyle.reviewButtonContentInsets.left, bottom: baseArticleStyle.reviewButtonContentInsets.bottom, right: 2 * baseArticleStyle.reviewButtonContentInsets.right)
-            } else {
-                reviewPositiveButton.contentEdgeInsets = UIEdgeInsets(top: baseArticleStyle.reviewButtonContentInsets.top, left: baseArticleStyle.reviewButtonContentInsets.left, bottom: baseArticleStyle.reviewButtonContentInsets.bottom, right: baseArticleStyle.reviewButtonContentInsets.right)
-            }
+        reviewPositiveButton.configurationUpdateHandler = { [weak self] button in
+            guard let wSelf = self else {return}
+            button.configuration?.imagePadding = wSelf.baseArticleStyle.reviewButtonImagePadding
+            button.configuration?.contentInsets = NSDirectionalEdgeInsets(from: wSelf.baseArticleStyle.reviewButtonContentInsets)
         }
         
         reviewNegativeButtonTC.constant = baseArticleStyle.reviewNoButtonMargin.right
@@ -272,20 +262,10 @@ class UDBaseArticleView: UDBaseKnowledgeVC, WKUIDelegate, UISearchBarDelegate, U
         }
         reviewNegativeButton.setTitleColor(baseArticleStyle.reviewNoTextColor, for: .normal)
         reviewNegativeButton.setTitle(usedesk!.model.stringFor("NegativeReviewButton"), for: .normal)
-        if #available(iOS 15.0, *) {
-            reviewNegativeButton.configurationUpdateHandler = { [weak self] button in
-                guard let wSelf = self else {return}
-                button.configuration?.imagePadding = wSelf.baseArticleStyle.reviewButtonImagePadding
-                button.configuration?.contentInsets = NSDirectionalEdgeInsets(from: wSelf.baseArticleStyle.reviewButtonContentInsets)
-            }
-        } else {
-            if baseArticleStyle.isNeedImageForReviewButton {
-                reviewNegativeButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: baseArticleStyle.reviewButtonImagePadding, bottom: 0, right: -(baseArticleStyle.reviewButtonImagePadding))
-                reviewNegativeButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: baseArticleStyle.reviewButtonImagePadding)
-                reviewNegativeButton.contentEdgeInsets = UIEdgeInsets(top: baseArticleStyle.reviewButtonContentInsets.top, left: baseArticleStyle.reviewButtonContentInsets.left, bottom: baseArticleStyle.reviewButtonContentInsets.bottom, right: 2 * baseArticleStyle.reviewButtonContentInsets.right)
-            } else {
-                reviewNegativeButton.contentEdgeInsets = UIEdgeInsets(top: baseArticleStyle.reviewButtonContentInsets.top, left: baseArticleStyle.reviewButtonContentInsets.left, bottom: baseArticleStyle.reviewButtonContentInsets.bottom, right: baseArticleStyle.reviewButtonContentInsets.right)
-            }
+        reviewNegativeButton.configurationUpdateHandler = { [weak self] button in
+            guard let wSelf = self else {return}
+            button.configuration?.imagePadding = wSelf.baseArticleStyle.reviewButtonImagePadding
+            button.configuration?.contentInsets = NSDirectionalEdgeInsets(from: wSelf.baseArticleStyle.reviewButtonContentInsets)
         }
         view.setNeedsLayout()
         view.layoutIfNeeded()
@@ -316,10 +296,8 @@ class UDBaseArticleView: UDBaseKnowledgeVC, WKUIDelegate, UISearchBarDelegate, U
         } else {
             var titlePositiveButton = "T"
             var titleNegativeButton = "T"
-            if #available(iOS 15.0, *) {
-                titlePositiveButton = reviewPositiveButton.titleLabel?.text ?? ""
-                titleNegativeButton = reviewNegativeButton.titleLabel?.text ?? ""
-            }
+            titlePositiveButton = reviewPositiveButton.titleLabel?.text ?? ""
+            titleNegativeButton = reviewNegativeButton.titleLabel?.text ?? ""
             let heightPositiveButton = titlePositiveButton.size(availableWidth: reviewPositiveButton.frame.width, attributes: [NSAttributedString.Key.font : baseArticleStyle.reviewButtonFont]).height + baseArticleStyle.reviewButtonContentInsets.top + baseArticleStyle.reviewButtonContentInsets.bottom
             let heightNegativeButton = titleNegativeButton.size(availableWidth: reviewNegativeButton.frame.width, attributes: [NSAttributedString.Key.font : baseArticleStyle.reviewButtonFont]).height + baseArticleStyle.reviewButtonContentInsets.top + baseArticleStyle.reviewButtonContentInsets.bottom
             let maxHeightButtons = heightNegativeButton > heightPositiveButton ? heightNegativeButton : heightPositiveButton

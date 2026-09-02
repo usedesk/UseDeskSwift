@@ -20,9 +20,11 @@
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6003F5BC195388D20070C39A /* Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5BB195388D20070C39A /* Tests.m */; };
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
+		8D315B0449E14634B5958223 /* UDStartViewController+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA191A00475B44919D7D2411 /* UDStartViewController+UI.swift */; };
 		92675A0ADB429FC5F094F48F /* Pods_UseDesk_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2023EDE6BA4F6C85E59BE07C /* Pods_UseDesk_Example.framework */; };
 		A5238CF02208D9F100C2D6EC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5238CEF2208D9F100C2D6EC /* AppDelegate.swift */; };
 		A5238CF22208DAFA00C2D6EC /* UDStartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5238CF12208DAFA00C2D6EC /* UDStartViewController.swift */; };
+		A54FC7102FFD685F00A073D0 /* PlaceholderTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54FC70F2FFD685F00A073D0 /* PlaceholderTextView.swift */; };
 		AA4D3682F725E2864DB3AD11 /* Pods_UseDesk_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 705B37F4FF28F7A63F231904 /* Pods_UseDesk_Tests.framework */; };
 /* End PBXBuildFile section */
 
@@ -61,7 +63,9 @@
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A5238CEF2208D9F100C2D6EC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A5238CF12208DAFA00C2D6EC /* UDStartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDStartViewController.swift; sourceTree = "<group>"; };
+		A54FC70F2FFD685F00A073D0 /* PlaceholderTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTextView.swift; sourceTree = "<group>"; };
 		A5E0A5D623B4DA0800A73A89 /* UseDesk_Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UseDesk_Example-Bridging-Header.h"; sourceTree = "<group>"; };
+		AA191A00475B44919D7D2411 /* UDStartViewController+UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UDStartViewController+UI.swift"; sourceTree = "<group>"; };
 		BA5789BF650489B7A24A2E25 /* Pods-UseDesk_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UseDesk_Tests.debug.xcconfig"; path = "Target Support Files/Pods-UseDesk_Tests/Pods-UseDesk_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -95,7 +99,9 @@
 			isa = PBXGroup;
 			children = (
 				A5238CF12208DAFA00C2D6EC /* UDStartViewController.swift */,
+				AA191A00475B44919D7D2411 /* UDStartViewController+UI.swift */,
 				500D7FDA20DA4491000F5100 /* UDStartViewController.xib */,
+				A54FC70F2FFD685F00A073D0 /* PlaceholderTextView.swift */,
 			);
 			path = UDStartViewController;
 			sourceTree = "<group>";
@@ -339,28 +345,20 @@
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/IQKeyboardManagerSwift/IQKeyboardManagerSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/MarkdownKit/MarkdownKit.framework",
-				"${BUILT_PRODUCTS_DIR}/PINCache/PINCache.framework",
-				"${BUILT_PRODUCTS_DIR}/PINOperation/PINOperation.framework",
-				"${BUILT_PRODUCTS_DIR}/PINRemoteImage/PINRemoteImage.framework",
 				"${BUILT_PRODUCTS_DIR}/ReachabilitySwift/Reachability.framework",
 				"${BUILT_PRODUCTS_DIR}/Socket.IO-Client-Swift/SocketIO.framework",
 				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftSoup/SwiftSoup.framework",
-				"${BUILT_PRODUCTS_DIR}/Texture-UseDesk/AsyncDisplayKit.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardManagerSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MarkdownKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PINCache.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PINOperation.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PINRemoteImage.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Reachability.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SocketIO.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftSoup.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AsyncDisplayKit.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -414,7 +412,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A54FC7102FFD685F00A073D0 /* PlaceholderTextView.swift in Sources */,
 				A5238CF22208DAFA00C2D6EC /* UDStartViewController.swift in Sources */,
+				8D315B0449E14634B5958223 /* UDStartViewController+UI.swift in Sources */,
 				A5238CF02208D9F100C2D6EC /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -513,7 +513,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -563,7 +563,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -588,9 +588,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "UseDesk/UseDesk-Prefix.pch";
 				INFOPLIST_FILE = "UseDesk/UseDesk-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.4.19;
+				MARKETING_VERSION = 4.0.0;
 				MODULE_NAME = ExampleApp;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = UseDeskExampleSDK.ru;
@@ -621,9 +621,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "UseDesk/UseDesk-Prefix.pch";
 				INFOPLIST_FILE = "UseDesk/UseDesk-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.4.19;
+				MARKETING_VERSION = 4.0.0;
 				MODULE_NAME = ExampleApp;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = UseDeskExampleSDK.ru;

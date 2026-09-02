@@ -1,7 +1,6 @@
 //
 //  UDFile.swift
 //  UseDesk_SDK_Swift
-//
 
 import Foundation
 import QuickLook
@@ -48,7 +47,6 @@ public class UDFile: NSObject, Codable {
         if sizeInt > 0 {
             return sizeInt
         }
-        // разбор страка формата - "123 KB"
         if size.contains(" ") {
             if let number = Int(size.components(separatedBy: " ")[0]) {
                 let sizeTypeString = size.components(separatedBy: " ")[1]
@@ -93,19 +91,35 @@ public class UDFile: NSObject, Codable {
             return nil
         }
     }
-    
+
+    private var cachedImagePath = ""
+    private var cachedImage: UIImage?
+    private var cachedPreviewPath = ""
+    private var cachedPreview: UIImage?
+
     var image: UIImage? {
-        if let dataFile = data {
-            return UIImage(data: dataFile)?.udResizeImage()
+        let currentPath = path.count > 0 ? path : defaultPath
+        guard currentPath.count > 0 else { return nil }
+        if currentPath == cachedImagePath, let cachedImage = cachedImage {
+            return cachedImage
         }
-        return nil
+        guard let dataFile = data, let image = UIImage(data: dataFile)?.udResizeImage() else { return nil }
+        cachedImagePath = currentPath
+        cachedImage = image
+        return image
     }
     
     var preview: UIImage? {
         if let image = previewImage {
             return image
         } else if previewPath.count > 0 {
-            return UIImage(contentsOfFile: previewPath)?.udResizeImage()
+            if previewPath == cachedPreviewPath, let cachedPreview = cachedPreview {
+                return cachedPreview
+            }
+            guard let preview = UIImage(contentsOfFile: previewPath)?.udResizeImage() else { return nil }
+            cachedPreviewPath = previewPath
+            cachedPreview = preview
+            return preview
         }
         return nil
     }
@@ -129,7 +143,7 @@ public class UDFile: NSObject, Codable {
             let sizeTypeString = size.components(separatedBy: " ")[1]
             var sizeStringLocalized = numberString
             switch sizeTypeString {
-            case "B":
+            case "B", "bytes":
                 sizeStringLocalized += " " + model.stringFor("B")
             case "KB":
                 sizeStringLocalized += " " + model.stringFor("KB")

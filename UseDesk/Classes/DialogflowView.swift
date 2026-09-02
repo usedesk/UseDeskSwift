@@ -1,12 +1,10 @@
 //
 //  DialogflowView.swift
 
-
 import Foundation
 import UIKit
 import AVKit
 import Photos
-import AsyncDisplayKit
 import MobileCoreServices
 
 protocol DialogflowVCDelegate: AnyObject {
@@ -33,7 +31,7 @@ class DialogflowView: UDMessagesView {
         NotificationCenter.default.addObserver(self, selector: #selector(self.sendMessageButton(_:)), name: Notification.Name("UseDeskMessageButtonSend1!"), object: nil)
         allMessages = [UDMessage]()
         
-        usedesk?.newMessageBlock = { messageOptional in
+        usedesk?.internalNewMessageBlock = { messageOptional in
             DispatchQueue.main.async { [weak self] in
                 guard let wSelf = self else {return}
                 guard let message = messageOptional else {return}
@@ -61,13 +59,7 @@ class DialogflowView: UDMessagesView {
                                 message.file = wSelf.messagesWithSection[indexSection][index].file
                                 message.status = wSelf.messagesWithSection[indexSection][index].status
                                 wSelf.messagesWithSection[indexSection][index] = message
-                                if let cell = (wSelf.tableNode.nodeForRow(at: IndexPath(row: index, section: indexSection)) as? UDMessageCellNode) {
-                                    cell.setSendedStatus()
-                                    cell.setNeedsLayout()
-                                    cell.layoutIfNeeded()
-                                } else {
-                                    wSelf.tableNode.reloadRows(at: [IndexPath(row: index, section: indexSection)], with: .automatic)
-                                }
+                                wSelf.syncViewModel()
                             }
                             index += 1
                         }
@@ -154,13 +146,13 @@ class DialogflowView: UDMessagesView {
             wSelf.buttonAttach.isEnabled = true
             wSelf.textInput.isUserInteractionEnabled = true
             if !wSelf.isFromOfflineForm && !wSelf.isFromBase {
-                wSelf.tableNode.reloadData()
+                wSelf.syncViewModel()
                 wSelf.loader.stopAnimating()
                 wSelf.loader.alpha = 0
             }
         }
     }
-    
+
     func loadHistory() {
         for message in allMessages {
             if message.file.path != "" {
@@ -196,16 +188,21 @@ class DialogflowView: UDMessagesView {
     // MARK: - Message methods
     func addMessage(_ message: UDMessage, incoming: Bool = false) {
         allMessages.append(message)
+        
         if !incoming {
             newMessagesIds.append(message.id > 0 ? message.id : Int(message.loadingMessageId) ?? 0)
+            didScrollToFirstUnread = false
+            if isChatScrolledToBottom {
+                isNewMessagesReceivedAtBottom = true
+            }
             updateCountNewMessagesView()
+            chatViewModel.preserveOffsetOnNextGrowth()
         }
-        var isNewSection = true
+
         if messagesWithSection.count > 0 {
             if messagesWithSection[0].count > 0 {
                 if messagesWithSection[0].first?.date.dateFormatString == message.date.dateFormatString {
                     messagesWithSection[0].insert(message, at: 0)
-                    isNewSection = false
                 } else {
                     messagesWithSection.insert([message], at: 0)
                 }
@@ -215,56 +212,10 @@ class DialogflowView: UDMessagesView {
         } else {
             messagesWithSection.insert([message], at: 0)
         }
-        if isNewSection {
-            tableNode.insertSections([0], with: .top)
-            tableNode.setNeedsLayout()
-            tableNode.layoutIfNeeded()
-            
-            let secondNodeIndexPath = IndexPath(row: 1, section: 1)
-            let firstNodeIndexPath = IndexPath(row: 0, section: 1)
-            
-            guard messagesWithSection.count > 1 else {return}
-            if messagesWithSection[1].count > 0 {
-                if let cellNode = tableNode.nodeForRow(at: firstNodeIndexPath) as? UDMessageCellNode {
-                    cellNode.setNeedsLayout()
-                    cellNode.layoutIfNeeded()
-                }
-            }
-            if messagesWithSection[1].count > 1 {
-                if let cellNode = tableNode.nodeForRow(at: secondNodeIndexPath) as? UDMessageCellNode {
-                    cellNode.setNeedsLayout()
-                    cellNode.layoutIfNeeded()
-                }
-            }
-        } else {
-            let secondNodeIndexPath = IndexPath(row: 1, section: 0)
-            let firstNodeIndexPath = IndexPath(row: 0, section: 0)
-            
-            if messagesWithSection[0].count > 0 {
-                if let cellNode = tableNode.nodeForRow(at: firstNodeIndexPath) as? UDMessageCellNode {
-                    cellNode.setNeedsLayout()
-                    cellNode.layoutIfNeeded()
-                }
-            }
-            tableNode.performBatchUpdates {
-                tableNode.insertRows(at: [firstNodeIndexPath], with: .top)
-            }
-            if let cellNode = tableNode.nodeForRow(at: firstNodeIndexPath) as? UDMessageCellNode {
-                cellNode.setNeedsLayout()
-                cellNode.layoutIfNeeded()
-            }
-            if messagesWithSection[0].count > 1 {
-                if let cellNode = tableNode.nodeForRow(at: secondNodeIndexPath) as? UDMessageCellNode {
-                    cellNode.setNeedsLayout()
-                    cellNode.layoutIfNeeded()
-                }
-            }
-        }
-        if incoming {
-            scrollChatToStart()
-        }
+        
+        syncViewModel()
     }
-    
+
     func chekSentMessage(_ message: UDMessage) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 20) { [weak self] in
             guard let wSelf = self else {return}
@@ -288,7 +239,7 @@ class DialogflowView: UDMessagesView {
                         usedesk?.storage?.saveMessages([message])
                     }
                     messagesWithSection[indexSection][index] = message
-                    tableNode.reloadRows(at: [IndexPath(row: index, section: indexSection)], with: .automatic)
+                    syncViewModel()
                     if let replaceMessage = allMessages.filter({ $0.loadingMessageId == loadingMessageId}).first {
                         if let index = allMessages.firstIndex(of: replaceMessage) {
                             allMessages[index] = message
@@ -305,16 +256,9 @@ class DialogflowView: UDMessagesView {
         DispatchQueue.main.async {
             if let url = notification.userInfo?["url"] as? String {
                 let url = URL(string: url)
-                if #available(iOS 10.0, *) {
-                    if UIApplication.shared.responds(to: #selector(UIApplication.open(_:options:completionHandler:))) {
-                        if let anUrl = url {
-                            UIApplication.shared.open(anUrl, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
-                        }
-                    } else {
-                        // Fallback on earlier versions
-                        if let anUrl = url {
-                            UIApplication.shared.openURL(anUrl)
-                        }
+                if UIApplication.shared.responds(to: #selector(UIApplication.open(_:options:completionHandler:))) {
+                    if let anUrl = url {
+                        UIApplication.shared.open(anUrl, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
                     }
                 } else {
                     if let anUrl = url {
@@ -360,7 +304,7 @@ class DialogflowView: UDMessagesView {
             }
             wSelf.allMessages = newMessages
             wSelf.messagesWithSection = wSelf.generateSection()
-            wSelf.tableNode.reloadData()
+            wSelf.syncViewModel()
             wSelf.buttonAttach.isEnabled = true
             wSelf.textInput.isUserInteractionEnabled = true
             wSelf.loader.stopAnimating()
@@ -479,6 +423,7 @@ class DialogflowView: UDMessagesView {
         buttonSend.alpha = 1
         buttonSendLoader.alpha = 0
         buttonSendLoader.stopAnimating()
+        chatViewModel.scrollToBottom()
     }
     
     func sendOtherMessages() {
@@ -530,9 +475,10 @@ class DialogflowView: UDMessagesView {
     func closeNoInternet() {
         isNoInternet = false
         // update download files
-        for node in tableNode.visibleNodes {
-            guard let nodeCell = node as? UDMessageCellNode else {break}
-            downloadFile(node: nodeCell)
+        for section in 0..<messagesWithSection.count {
+            for row in 0..<messagesWithSection[section].count {
+                downloadsForMessages(currentIndexPath: IndexPath(row: row, section: section))
+            }
         }
         // view no internet
         guard isShowNoInternet, noInternetVC != nil else {return}
@@ -553,8 +499,22 @@ class DialogflowView: UDMessagesView {
         }
     }
    
-    // MARK: - TableNode
-    func tableNode(_ tableNode: ASTableNode, didSelectRowAt indexPath: IndexPath) {
+    override func handleTapFailedMessage(message: UDMessage) {
+        if let indexPath = indexPathForMessage(at: message.id > 0 ? message.id : (Int(message.loadingMessageId) ?? 0)) {
+            actionTapFailedMessage(at: indexPath)
+        } else {
+            for section in 0..<messagesWithSection.count {
+                if let row = messagesWithSection[section].firstIndex(where: { $0.loadingMessageId == message.loadingMessageId && !message.loadingMessageId.isEmpty }) {
+                    actionTapFailedMessage(at: IndexPath(row: row, section: section))
+                    return
+                }
+            }
+        }
+    }
+
+    // MARK: - Tap on failed message (resend / delete)
+    func actionTapFailedMessage(at indexPath: IndexPath) {
+        guard indexPath.section < messagesWithSection.count, indexPath.row < messagesWithSection[indexPath.section].count else { return }
         if messagesWithSection[indexPath.section][indexPath.row].statusSend == UD_STATUS_SEND_FAIL {
             let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
             
@@ -568,7 +528,7 @@ class DialogflowView: UDMessagesView {
                         wSelf.failMessages.remove(at: index)
                     }
                     message.statusSend = UD_STATUS_SEND_DRAFT
-                    tableNode.deleteRows(at: [indexPath], with: .bottom)
+                    wSelf.syncViewModel()
                     wSelf.addMessage(message)
                     wSelf.sendMessage(message)
                 }
@@ -589,7 +549,7 @@ class DialogflowView: UDMessagesView {
                 wSelf.messagesWithSection[indexPath.section].remove(at: indexPath.row)
                 DispatchQueue.main.async(execute: { [weak self] in
                     guard let wSelf = self else {return}
-                    wSelf.tableNode.reloadData()
+                    wSelf.syncViewModel()
                 })
             })
 

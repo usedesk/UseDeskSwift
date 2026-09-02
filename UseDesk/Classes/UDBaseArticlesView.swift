@@ -1,7 +1,6 @@
 //
 //  UDBaseArticlesView.swift
 
-
 import Foundation
 import UIKit
 

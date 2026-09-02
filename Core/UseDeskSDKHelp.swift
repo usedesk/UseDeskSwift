@@ -10,7 +10,7 @@ class UseDeskSDKHelp {
         let payload: [String : Any] = [
             "sdk" : "iOS",
             "type" : "sdk",
-            "version" : "3.4.20",
+            "version" : "4.0.0",
             "message_limit" : countMessagesOnInit,
             "userData" : getUserParameters()
         ] 
@@ -73,17 +73,9 @@ class UseDeskSDKHelp {
         return [dic]
     }
     
-    class func feedback(_ fb: Bool, message_id: Int) -> [SocketData]? {
-        var data: String
-        
-        if fb {
-            data = "LIKE"
-        } else {
-            data = "DISLIKE"
-        }
-
+    class func feedback(ratingId: String, message_id: Int) -> [SocketData]? {
         var payload: [String : Any] = [
-            "data" : data,
+            "data" : ratingId,
             "type" : "action"
         ]
         if message_id != 0 {

@@ -1,8 +1,6 @@
 //
 //  UDUIManager.swift
 //  UseDesk_SDK_Swift
-//
-//
 
 import Foundation
 import UIKit
@@ -17,7 +15,8 @@ class UDUIManager: UDUIProtocole {
     private var baseArticleVC: UDBaseArticleView? = nil
     private var networkVC = UDNoInternetVC()
     
-    let RootView = UIApplication.shared.keyWindow?.rootViewController
+    let rootView = UIApplication.shared.activeKeyWindow?.rootViewController
+    
     var configurationStyle: ConfigurationStyle {
         usedesk?.configurationStyle ?? ConfigurationStyle()
     }
@@ -54,7 +53,7 @@ class UDUIManager: UDUIProtocole {
     func startBaseFlow(in parentControllerOptional: UIViewController?) {
         guard usedesk != nil else {return}
         let model = usedesk?.model ?? UseDeskModel()
-        let parentController = parentControllerOptional ?? RootView
+        let parentController = parentControllerOptional ?? rootView
         baseSectionsVC = UDBaseSectionsView()
         baseSectionsVC?.usedesk = usedesk
         var openVC: UIViewController? = nil
@@ -154,7 +153,7 @@ class UDUIManager: UDUIProtocole {
     }
     
     func startDialogFlow(in parentControllerOptional: UIViewController?, isFromBase: Bool) {
-        let parentController = parentControllerOptional ?? RootView
+        let parentController = parentControllerOptional ?? rootView
         guard !(navController?.visibleViewController is DialogflowView) else {return}
         dialogflowVC = DialogflowView()
         dialogflowVC!.usedesk = usedesk
@@ -227,5 +226,15 @@ class UDUIManager: UDUIProtocole {
     
     func visibleViewController() -> UIViewController? {
         return navController?.visibleViewController
+    }
+}
+
+extension UIApplication {
+    var activeKeyWindow: UIWindow? {
+        connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .filter { $0.activationState == .foregroundActive }
+            .flatMap { $0.windows }
+            .first { $0.isKeyWindow }
     }
 }

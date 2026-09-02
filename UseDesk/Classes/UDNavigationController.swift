@@ -26,24 +26,18 @@ class UDNavigationController: UINavigationController {
         titleTextColor = configurationStyle.navigationBarStyle.textColor
         titleTextFont = configurationStyle.navigationBarStyle.font
         
-        if #available(iOS 13.0, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = configurationStyle.navigationBarStyle.backgroundColor
-            appearance.titleTextAttributes = [.font: titleTextFont!,
-                                              .foregroundColor: titleTextColor!]
-            
-            navigationBar.isTranslucent = false
-            navigationBar.barTintColor = configurationStyle.navigationBarStyle.backgroundColor
-            navigationBar.tintColor =  configurationStyle.navigationBarStyle.backButtonColor
-            navigationBar.standardAppearance = appearance
-            navigationBar.compactAppearance = appearance
-            navigationBar.scrollEdgeAppearance = appearance
-        } else {
-            navigationBar.isTranslucent = false
-            navigationBar.barTintColor = configurationStyle.navigationBarStyle.backgroundColor
-            navigationBar.tintColor = configurationStyle.navigationBarStyle.textColor
-        }
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = configurationStyle.navigationBarStyle.backgroundColor
+        appearance.titleTextAttributes = [.font: titleTextFont!,
+                                          .foregroundColor: titleTextColor!]
+        
+        navigationBar.isTranslucent = false
+        navigationBar.barTintColor = configurationStyle.navigationBarStyle.backgroundColor
+        navigationBar.tintColor =  configurationStyle.navigationBarStyle.backButtonColor
+        navigationBar.standardAppearance = appearance
+        navigationBar.compactAppearance = appearance
+        navigationBar.scrollEdgeAppearance = appearance
     }
     
     func setTitleTextAttributes() {

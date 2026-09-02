@@ -1,8 +1,6 @@
 //
 //  UDUIProtocole.swift
 //  UseDesk_SDK_Swift
-//
-//
 
 import Foundation
 import UIKit

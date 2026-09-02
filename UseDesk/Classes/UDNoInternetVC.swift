@@ -1,7 +1,6 @@
 //
 //  UDNoInternetVC.swift
 //  UseDesk_SDK_Swift-UseDesk
-//
 
 import Foundation
 import UIKit

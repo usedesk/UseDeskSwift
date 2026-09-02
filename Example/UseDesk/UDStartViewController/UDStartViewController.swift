@@ -7,184 +7,110 @@ import UIKit
 import UseDesk_SDK_Swift
 import IQKeyboardManagerSwift
 
-class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarControllerDelegate {
-    
+class UDStartViewController: UIViewController {
+
     @IBOutlet weak var scrollView: UIScrollView!
-    @IBOutlet var companyIdTextField: UITextField!
-    @IBOutlet weak var chanelIdTextField: UITextField!
-    @IBOutlet var emailTextField: UITextField!
-    @IBOutlet var urlTextField: UITextField!
-    @IBOutlet var portTextField: UITextField!
-    @IBOutlet weak var knowledgeBaseIDTextField: UITextField!
-    @IBOutlet weak var urlBaseTextField: UITextField!
-    @IBOutlet weak var apiTokenTextField: UITextField!
-    @IBOutlet weak var nameTextField: UITextField!
-    @IBOutlet weak var phoneTextField: UITextField!
-    @IBOutlet weak var nameChatTextField: UITextField!
-    @IBOutlet weak var avatarUrlDataTextField: UITextField!
-    @IBOutlet weak var avatarUrlTextField: UITextField!
-    @IBOutlet weak var firstMessageTextField: UITextField!
-    @IBOutlet weak var countMessagesOnInitTextField: UITextField!
-    @IBOutlet weak var operatorNameTextField: UITextField!
-    @IBOutlet weak var urlToSendFileTextField: UITextField!
-    @IBOutlet weak var noteTextField: UITextField!
-    @IBOutlet weak var tokenTextField: UITextField!
-    @IBOutlet weak var additionalIdTextField: UITextField!
-    @IBOutlet weak var localeIdTextField: UITextField!
-    @IBOutlet weak var sectionIdTextField: UITextField!
-    @IBOutlet weak var categoryIdTextField: UITextField!
-    @IBOutlet weak var articleIdTextField: UITextField!
+    @IBOutlet var companyIdTextField: UITextView!
+    @IBOutlet weak var chanelIdTextField: UITextView!
+    @IBOutlet var emailTextField: UITextView!
+    @IBOutlet var urlTextField: UITextView!
+    @IBOutlet var portTextField: UITextView!
+    @IBOutlet weak var knowledgeBaseIDTextField: UITextView!
+    @IBOutlet weak var urlBaseTextField: UITextView!
+    @IBOutlet weak var apiTokenTextField: UITextView!
+    @IBOutlet weak var nameTextField: UITextView!
+    @IBOutlet weak var phoneTextField: UITextView!
+    @IBOutlet weak var nameChatTextField: UITextView!
+    @IBOutlet weak var avatarUrlDataTextField: UITextView!
+    @IBOutlet weak var avatarUrlTextField: UITextView!
+    @IBOutlet weak var firstMessageTextField: UITextView!
+    @IBOutlet weak var countMessagesOnInitTextField: UITextView!
+    @IBOutlet weak var operatorNameTextField: UITextView!
+    @IBOutlet weak var urlToSendFileTextField: UITextView!
+    @IBOutlet weak var noteTextField: UITextView!
+    @IBOutlet weak var tokenTextField: UITextView!
+    @IBOutlet weak var additionalIdTextField: UITextView!
+    @IBOutlet weak var localeIdTextField: UITextView!
+    @IBOutlet weak var sectionIdTextField: UITextView!
+    @IBOutlet weak var categoryIdTextField: UITextView!
+    @IBOutlet weak var articleIdTextField: UITextView!
     @IBOutlet weak var isOnlyKnowledgeBaseSwitch: UISwitch!
     @IBOutlet weak var isReturnParentSwitch: UISwitch!
     @IBOutlet weak var isTabBarSwitch: UISwitch!
     @IBOutlet weak var versionLabel: UILabel!
-    
-    @IBOutlet weak var idField1: UITextField!
-    @IBOutlet weak var value1: UITextField!
-    @IBOutlet weak var idField2: UITextField!
-    @IBOutlet weak var value2: UITextField!
-    @IBOutlet weak var idField3: UITextField!
-    @IBOutlet weak var value3: UITextField!
-    
-    @IBOutlet weak var idFieldNested1: UITextField!
-    @IBOutlet weak var valueNested1: UITextField!
-    @IBOutlet weak var idFieldNested2: UITextField!
-    @IBOutlet weak var valueNested2: UITextField!
-    @IBOutlet weak var idFieldNested3: UITextField!
-    @IBOutlet weak var valueNested3: UITextField!
-    
+    @IBOutlet weak var startButton: UIButton!
+    @IBOutlet weak var footerBarView: UIView!
+
+    @IBOutlet weak var idField1: UITextView!
+    @IBOutlet weak var value1: UITextView!
+    @IBOutlet weak var idField2: UITextView!
+    @IBOutlet weak var value2: UITextView!
+    @IBOutlet weak var idField3: UITextView!
+    @IBOutlet weak var value3: UITextView!
+
+    @IBOutlet weak var idFieldNested1: UITextView!
+    @IBOutlet weak var valueNested1: UITextView!
+    @IBOutlet weak var idFieldNested2: UITextView!
+    @IBOutlet weak var valueNested2: UITextView!
+    @IBOutlet weak var idFieldNested3: UITextView!
+    @IBOutlet weak var valueNested3: UITextView!
+
     var collection: UDBaseCollection? = nil
     var usedesk = UseDeskSDK()
     var isOpenVCWithTabBar = false
     var isCanStartSDK = true
     let tabBarVC = TabBarController()
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        IQKeyboardManager.shared.enableAutoToolbar = false
-        IQKeyboardManager.shared.enable = true
-        
-        navigationController?.navigationBar.titleTextAttributes = [
-            NSAttributedString.Key.foregroundColor: UIColor.white
-        ]
-        
-        navigationController?.navigationBar.barStyle = .black
+    weak var activeTextView: UITextView?
+    var keyboardHeightInView: CGFloat = 0
 
-        if #available(iOS 13.0, *) {
-            let appearance = UINavigationBarAppearance()
+    lazy var loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.color = .white
+        indicator.hidesWhenStopped = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        startButton.addSubview(indicator)
+        NSLayoutConstraint.activate([
+            indicator.centerXAnchor.constraint(equalTo: startButton.centerXAnchor),
+            indicator.centerYAnchor.constraint(equalTo: startButton.centerYAnchor)
+        ])
+        return indicator
+    }()
+    
+    func applyDefaultValues() {
+        companyIdTextField.text = ""
+        chanelIdTextField.text = ""
+        urlTextField.text = ""
+        portTextField.text = ""
+        urlBaseTextField.text = ""
+        apiTokenTextField.text = ""
+        urlToSendFileTextField.text = ""
+        knowledgeBaseIDTextField.text = ""
+        sectionIdTextField.text = ""
+        categoryIdTextField.text = ""
+        articleIdTextField.text = ""
+        isReturnParentSwitch.isOn = true
+        nameTextField.text = ""
+        emailTextField.text = ""
+        phoneTextField.text = ""
+        avatarUrlDataTextField.text = ""
+        avatarUrlTextField.text = ""
+        nameChatTextField.text = ""
+        firstMessageTextField.text = ""
+        countMessagesOnInitTextField.text = String(20)
+        operatorNameTextField.text = ""
+        noteTextField.text = ""
+        tokenTextField.text = ""
+        additionalIdTextField.text = ""
+        localeIdTextField.text = ""
+    }
 
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = .red
-            appearance.titleTextAttributes = [.font: UIFont.boldSystemFont(ofSize: 18.0),
-                                              .foregroundColor: UIColor.white]
-
-            // Customizing our navigation bar
-            navigationController?.navigationBar.tintColor = .white
-            navigationController?.navigationBar.barTintColor = .red
-            navigationController?.navigationBar.standardAppearance = appearance
-            navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        } else {
-            navigationController?.navigationBar.tintColor = .white
-            navigationController?.navigationBar.barTintColor = .red
-        }
-        
-        title = "UseDesk SDK"
-        let singleTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleSingleTap(_:)))
-        singleTapGestureRecognizer.numberOfTapsRequired = 1
-        view.addGestureRecognizer(singleTapGestureRecognizer)
-        
-        var versionNumber = ""
-        if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-            versionNumber = "v. " + appVersion
-        }
-        if let appBuild = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
-            versionNumber += " (\(appBuild))"
-        }
-        versionLabel.text = versionNumber
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
-    }
-    
-    func additionalFields() -> [Int : String] {
-        var fields: [Int : String] = [:]
-        if let id = idField1.text {
-            if let id = Int(id) {
-                if id > 0 {
-                    fields[id] = value1.text ?? ""
-                }
-            }
-        }
-        if let id = idField2.text {
-            if let id = Int(id) {
-                if id > 0 {
-                    if fields[id] == nil {
-                        fields[id] = value2.text ?? ""
-                    }
-                }
-            }
-        }
-        if let id = idField3.text {
-            if let id = Int(id) {
-                if id > 0 {
-                    if fields[id] == nil {
-                        fields[id] = value3.text ?? ""
-                    }
-                }
-            }
-        }
-        return fields
-    }
-    
-    func additionalNestedFields() -> [[Int : String]] {
-        var fields: [Int : String] = [:]
-        if let id = idFieldNested1.text {
-            if let id = Int(id) {
-                if id > 0 {
-                    fields[id] = valueNested1.text ?? ""
-                }
-            }
-        }
-        if let id = idFieldNested2.text {
-            if let id = Int(id) {
-                if id > 0 {
-                    if fields[id] == nil {
-                        fields[id] = valueNested2.text ?? ""
-                    }
-                }
-            }
-        }
-        if let id = idFieldNested3.text {
-            if let id = Int(id) {
-                if id > 0 {
-                    if fields[id] == nil {
-                        fields[id] = valueNested3.text ?? ""
-                    }
-                }
-            }
-        }
-        return [fields]
-    }
-    
-    @objc func handleSingleTap(_ sender: UITapGestureRecognizer?) {
-        view.endEditing(true)
-    }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-    }
-    
     @IBAction func startChatButton(_ sender: Any) {
         guard isCanStartSDK else {
             return
         }
         IQKeyboardManager.shared.enable = false
         isCanStartSDK = false
-        usedesk.presentationCompletionBlock = { [weak self] in
-            self?.isCanStartSDK = true
-        }
+        setLoading(true)
         if isTabBarSwitch.isOn {
             usedesk.configurationStyle = ConfigurationStyle(baseStyle: BaseStyle(windowBottomMargin: 48 + view.safeAreaInsets.bottom))
         }
@@ -215,12 +141,14 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
             }
         }
 
-        usedesk.presentationCompletionBlock = {
+        usedesk.presentationCompletionBlock = { [weak self] in
             print("close SDK")
+            self?.isCanStartSDK = true
+            self?.setLoading(false)
             IQKeyboardManager.shared.enable = true
         }
     }
-    
+
     func startSDK(dataAvatar: Data? = nil, presentIn presentVC: UIViewController? = nil) {
         let targetVC = presentVC ?? self
         let isPresentDefault = presentVC == nil ? !isTabBarSwitch.isOn : true
@@ -229,7 +157,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
             chanelId: chanelIdTextField.text ?? "",
             url: urlTextField.text ?? "",
             port: portTextField.text!,
-            urlAPI: urlBaseTextField.text,
+            urlAPI:  urlBaseTextField.text,
             api_token: apiTokenTextField.text ?? "",
             urlToSendFile: urlToSendFileTextField.text ?? "",
             knowledgeBaseID: knowledgeBaseIDTextField.text ?? "",
@@ -237,7 +165,8 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
             knowledgeBaseCategoryId: NSNumber(value: Int(categoryIdTextField.text ?? "") ?? 0),
             knowledgeBaseArticleId: NSNumber(value: Int(articleIdTextField.text ?? "") ?? 0),
             isReturnToParentFromKnowledgeBase: isReturnParentSwitch.isOn,
-            name: nameTextField.text, email: emailTextField.text ?? "",
+            name: nameTextField.text,
+            email: emailTextField.text ?? "",
             phone: phoneTextField.text,
             avatar: dataAvatar,
             avatarUrl: URL(string: avatarUrlTextField.text ?? ""),
@@ -258,9 +187,12 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
                 let chatVC = self.usedesk.chatViewController() ?? UIViewController()
                 let baseNС = self.usedesk.baseNavigationController() ?? UINavigationController()
                 let secondVC = SecondViewController()
-                secondVC.title = "Second"
+                secondVC.title = "Close"
+                secondVC.tabBarItem.image = UIImage(systemName: "xmark.circle")
                 chatVC.title = "Chat"
+                chatVC.tabBarItem.image = UIImage(systemName: "message.fill")
                 baseNС.title = "Base"
+                baseNС.tabBarItem.image = UIImage(systemName: "book.fill")
                 self.tabBarVC.viewControllers = nil
                 self.tabBarVC.delegateClose = self
                 self.tabBarVC.setViewControllers([(self.knowledgeBaseIDTextField.text ?? "").count > 0 ? baseNС : chatVC, secondVC], animated: true)
@@ -271,6 +203,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
                 }
             }
             self.isCanStartSDK = true
+            self.setLoading(false)
             let key = "usedeskClientToken\(self.emailTextField.text ?? "")\(self.phoneTextField.text ?? "")\(self.nameTextField.text ?? "")\(self.chanelIdTextField.text ?? "")"
             if let token = UserDefaults.standard.string(forKey: key) {
                 self.tokenTextField.text = token
@@ -279,6 +212,7 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
             IQKeyboardManager.shared.enable = true
             self?.showError(error: error)
             self?.isCanStartSDK = true
+            self?.setLoading(false)
         })
     }
 
@@ -298,12 +232,14 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
             isPresentDefaultControllers: !isTabBarSwitch.isOn,
             presentIn: self,
             connectionStatus: { success in
-                
+
             if self.isTabBarSwitch.isOn && success {
                 let chatVC = self.usedesk.baseNavigationController() ?? UINavigationController()
                 let secondVC = SecondViewController()
-                secondVC.title = "Second"
+                secondVC.title = "Close"
+                secondVC.tabBarItem.image = UIImage(systemName: "xmark.circle")
                 chatVC.title = "Chat"
+                chatVC.tabBarItem.image = UIImage(systemName: "book.fill")
                 self.tabBarVC.viewControllers = nil
                 self.tabBarVC.delegateClose = self
                 self.tabBarVC.setViewControllers([chatVC, secondVC], animated: true)
@@ -314,29 +250,91 @@ class UDStartViewController: UIViewController, UITextFieldDelegate, TabBarContro
                 }
             }
             self.isCanStartSDK = true
+            self.setLoading(false)
         }, errorStatus: { [weak self] _, error in
             IQKeyboardManager.shared.enable = true
             self?.showError(error: error)
             self?.isCanStartSDK = true
+            self?.setLoading(false)
         })
     }
-    
+
+    func additionalFields() -> [Int : String] {
+        var fields: [Int : String] = [:]
+        if let id = idField1.text {
+            if let id = Int(id) {
+                if id > 0 {
+                    fields[id] = value1.text ?? ""
+                }
+            }
+        }
+        if let id = idField2.text {
+            if let id = Int(id) {
+                if id > 0 {
+                    if fields[id] == nil {
+                        fields[id] = value2.text ?? ""
+                    }
+                }
+            }
+        }
+        if let id = idField3.text {
+            if let id = Int(id) {
+                if id > 0 {
+                    if fields[id] == nil {
+                        fields[id] = value3.text ?? ""
+                    }
+                }
+            }
+        }
+        return fields
+    }
+
+    func additionalNestedFields() -> [[Int : String]] {
+        var fields: [Int : String] = [:]
+        if let id = idFieldNested1.text {
+            if let id = Int(id) {
+                if id > 0 {
+                    fields[id] = valueNested1.text ?? ""
+                }
+            }
+        }
+        if let id = idFieldNested2.text {
+            if let id = Int(id) {
+                if id > 0 {
+                    if fields[id] == nil {
+                        fields[id] = valueNested2.text ?? ""
+                    }
+                }
+            }
+        }
+        if let id = idFieldNested3.text {
+            if let id = Int(id) {
+                if id > 0 {
+                    if fields[id] == nil {
+                        fields[id] = valueNested3.text ?? ""
+                    }
+                }
+            }
+        }
+        return [fields]
+    }
+
     func showError(error: String?) {
         let alert = UIAlertController(title: "Error", message: error ?? "", preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default) { _ in}
         alert.addAction(okAction)
         present(alert, animated: true)
     }
-    
-    func close() {
-        isCanStartSDK = true
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
 
 class SecondViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .white
+        self.view.backgroundColor = .systemBackground
     }
 }
 
@@ -345,18 +343,45 @@ protocol TabBarControllerDelegate: AnyObject {
 }
 
 class TabBarController: UITabBarController, UITabBarControllerDelegate {
-    
+
     weak var delegateClose: TabBarControllerDelegate?
-    
+
     override func viewDidLoad() {
-        navigationController?.navigationBar.tintColor = .white
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Close TabBar", style: .plain, target: self, action: #selector(self.actionClose))
+        super.viewDidLoad()
+        var configuration = UIButton.Configuration.plain()
+        configuration.title = "Close TabBar"
+        configuration.image = UIImage(systemName: "xmark.circle.fill")
+        configuration.imagePadding = 6
+
+        if #available(iOS 26.0, *) {
+            configuration.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
+        } else {
+            let navAppearance = UINavigationBarAppearance()
+            navAppearance.configureWithTransparentBackground()
+            navAppearance.backgroundEffect = UIBlurEffect(style: .systemMaterial)
+            navigationController?.navigationBar.standardAppearance = navAppearance
+            navigationController?.navigationBar.scrollEdgeAppearance = navAppearance
+
+            let tabAppearance = UITabBarAppearance()
+            tabAppearance.configureWithTransparentBackground()
+            tabAppearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+            tabBar.standardAppearance = tabAppearance
+            tabBar.scrollEdgeAppearance = tabAppearance
+
+            configuration.contentInsets = .zero
+            configuration.baseForegroundColor = .systemRed
+        }
+
+        let closeButton = UIButton(configuration: configuration, primaryAction: UIAction { [weak self] _ in
+            self?.actionClose()
+        })
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: closeButton)
     }
-    
+
     override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
-        navigationController?.isNavigationBarHidden = item.title == "Second" ? false : true
+        navigationController?.isNavigationBarHidden = item.title == "Close" ? false : true
     }
-    
+
     @objc func actionClose() {
         delegateClose?.close()
         self.navigationController?.popViewController(animated: true)

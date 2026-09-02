@@ -1,7 +1,6 @@
 //
 //  UDMenuItem.swift
 
-
 import Foundation
 
 class UDMenuItem: UIMenuItem {

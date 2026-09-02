@@ -1,7 +1,6 @@
 //
 //  UDStorage.swift
 //  UseDesk_SDK_Swift
-//
 
 import Foundation
 
@@ -78,7 +77,7 @@ public class UDStorageMessages: NSObject, UDStorage {
     
     public func removeMessage(_ messages: [UDMessage]) {
         guard token.count > 0, messages.count > 0 else {return}
-        var allMessages = getMessages()
+        let allMessages = getMessages()
 
         let filteredMessages = allMessages.filter { existingMessage in
             !messages.contains(where: { removingMessage in

@@ -9,7 +9,6 @@ public class UDMessage: NSObject, Codable {
     @objc public var type: Int = 0
     @objc public var typeSenderMessageString = ""
     @objc public var incoming = false
-    @objc public var feedbackActionInt: Int = -1
     @objc public var text = ""
     @objc public var buttons = [UDMessageButton]()
     @objc public var date = Date()
@@ -26,20 +25,11 @@ public class UDMessage: NSObject, Codable {
     @objc public var avatarImage: UIImage? = nil
     @objc public var file = UDFile()
     @objc public var forms = [UDFormMessage]()
+    @objc public var csi: UDCsi? = nil
+    @objc public var feedbackRatingId = ""
     
     var outgoing: Bool {
         return !incoming
-    }
-    
-    var feedbackAction: Bool? {
-        switch feedbackActionInt {
-        case 0:
-            return false
-        case 1:
-            return true
-        default:
-            return nil
-        }
     }
     
     var typeSenderMessage: TypeSenderMessage {
@@ -73,6 +63,9 @@ public class UDMessage: NSObject, Codable {
         statusSend = UD_STATUS_SEND_DRAFT
         self.incoming = incoming
         self.text = text
+        if !incoming {
+            typeSenderMessageString = "client_to_operator"
+        }
     }
     
     init(urlMovie: URL, sort: Int = 0, isCacheFile: Bool = true) {
@@ -150,7 +143,6 @@ public class UDMessage: NSObject, Codable {
         message.type = type
         message.typeSenderMessageString = typeSenderMessageString
         message.incoming = incoming
-        message.feedbackActionInt = feedbackActionInt
         message.text = text
         message.buttons = buttons
         message.date = date
@@ -167,6 +159,8 @@ public class UDMessage: NSObject, Codable {
         message.avatarImage = avatarImage
         message.file = file
         message.forms = forms
+        message.csi = csi
+        message.feedbackRatingId = feedbackRatingId
         return message
     }
     
@@ -243,7 +237,6 @@ public class UDMessage: NSObject, Codable {
         try container.encode(type, forKey: .type)
         try container.encode(typeSenderMessageString, forKey: .typeSenderMessageString)
         try container.encode(incoming, forKey: .incoming)
-        try container.encode(feedbackActionInt, forKey: .feedbackActionInt)
         try container.encode(text, forKey: .text)
         try container.encode(buttons, forKey: .buttons)
         try container.encode(date, forKey: .date)
@@ -259,6 +252,8 @@ public class UDMessage: NSObject, Codable {
         try container.encode(avatar, forKey: .avatar)
         try container.encode(file, forKey: .file)
         try container.encode(forms, forKey: .forms)
+        try container.encode(csi, forKey: .csi)
+        try container.encode(feedbackRatingId, forKey: .feedbackRatingId)
     }
     
     required public init(from decoder: Decoder) throws {
@@ -266,7 +261,6 @@ public class UDMessage: NSObject, Codable {
         type = try container.decode(Int.self, forKey: .type)
         typeSenderMessageString = try container.decode(String.self, forKey: .typeSenderMessageString)
         incoming = try container.decode(Bool.self, forKey: .incoming)
-        feedbackActionInt = try container.decode(Int.self, forKey: .feedbackActionInt)
         text = try container.decode(String.self, forKey: .text)
         buttons = try container.decode([UDMessageButton].self, forKey: .buttons)
         date = try container.decode(Date.self, forKey: .date)
@@ -282,13 +276,14 @@ public class UDMessage: NSObject, Codable {
         avatar = try container.decode(String.self, forKey: .avatar)
         file = try container.decode(UDFile.self, forKey: .file)
         forms = try container.decode([UDFormMessage].self, forKey: .forms)
+        csi = try container.decodeIfPresent(UDCsi.self, forKey: .csi)
+        feedbackRatingId = try container.decodeIfPresent(String.self, forKey: .feedbackRatingId) ?? ""
     }
     
     enum CodingKeys: String, CodingKey {
         case type
         case typeSenderMessageString
         case incoming
-        case feedbackActionInt
         case text
         case buttons
         case date
@@ -304,5 +299,7 @@ public class UDMessage: NSObject, Codable {
         case avatar
         case file
         case forms
+        case csi
+        case feedbackRatingId
     }
 }

@@ -25,16 +25,16 @@ class UDMarkdownParser {
 
         var convertedText = text
         if let regex {
-            var out = convertedText
+            var workingText = convertedText
             let matches = regex.matches(in: convertedText, range: NSRange(convertedText.startIndex..., in: convertedText)).reversed()
-            for m in matches {
-                let dashRange = m.range(at: 2)
+            for match in matches {
+                let dashRange = match.range(at: 2)
                 let intersectsLink = linkRanges.contains { NSIntersectionRange($0, dashRange).length > 0 }
-                if !intersectsLink, let r = Range(dashRange, in: out) {
-                    out.replaceSubrange(r, with: "\\-")
+                if !intersectsLink, let dashStringRange = Range(dashRange, in: workingText) {
+                    workingText.replaceSubrange(dashStringRange, with: "\\-")
                 }
             }
-            convertedText = out
+            convertedText = workingText
         }
 
         let parsed = markdownParser.parse(convertedText)

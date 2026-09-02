@@ -1,6 +1,5 @@
 //
 //  UDUIImageExtension.swift
-//
 
 import Foundation
 import UIKit
@@ -53,8 +52,8 @@ extension UIImage {
         let rect = CGRect(x: 0.0, y: 0.0, width: CGFloat(actualWidth), height: CGFloat(actualHeight))
         UIGraphicsBeginImageContext(rect.size)
         self.draw(in: rect)
-        let img = UIGraphicsGetImageFromCurrentImageContext()
-        let imageData = img!.jpegData(compressionQuality: CGFloat(compressionQuality))
+        let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        let imageData = resizedImage!.jpegData(compressionQuality: CGFloat(compressionQuality))
         UIGraphicsEndImageContext()
         return UIImage(data: imageData!)
     }
@@ -118,19 +117,19 @@ extension UIImage {
             transform = transform.scaledBy(x: -1, y: 1);
         }
 
-        let ctx:CGContext = CGContext(data: nil, width: Int(size.width), height: Int(size.height),
+        let context:CGContext = CGContext(data: nil, width: Int(size.width), height: Int(size.height),
                                       bitsPerComponent: cgImage!.bitsPerComponent, bytesPerRow: 0,
                                       space: cgImage!.colorSpace!,
                                       bitmapInfo: cgImage!.bitmapInfo.rawValue)!
 
-        ctx.concatenate(transform)
+        context.concatenate(transform)
 
         if (imageOrientation == UIImage.Orientation.left || imageOrientation == UIImage.Orientation.leftMirrored || imageOrientation == UIImage.Orientation.right || imageOrientation == UIImage.Orientation.rightMirrored) {
-            ctx.draw(cgImage!, in: CGRect(x:0,y:0,width:size.height,height:size.width))
+            context.draw(cgImage!, in: CGRect(x:0,y:0,width:size.height,height:size.width))
         } else {
-            ctx.draw(cgImage!, in: CGRect(x:0,y:0,width:size.width,height:size.height))
+            context.draw(cgImage!, in: CGRect(x:0,y:0,width:size.width,height:size.height))
         }
-        let cgimg:CGImage = ctx.makeImage()!
+        let cgimg:CGImage = context.makeImage()!
         let imgEnd:UIImage = UIImage(cgImage: cgimg)
 
         return imgEnd

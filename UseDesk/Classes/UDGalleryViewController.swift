@@ -42,16 +42,12 @@ class UDGalleryViewController: UIViewController {
     }
     
     deinit {
-        if #available(iOS 14, *) {
-            PHPhotoLibrary.shared().unregisterChangeObserver(self)
-        }
+        PHPhotoLibrary.shared().unregisterChangeObserver(self)
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        if #available(iOS 13, *) {
-            view.backgroundColor = .systemBackground
-        }
+        view.backgroundColor = .systemBackground
         setupCollectionView()
         setupLimitedAccessView()
         updateLimitedAccessViewVisibility()
@@ -153,22 +149,8 @@ class UDGalleryViewController: UIViewController {
     }
 
     @objc private func addMorePhotosTapped() {
-        if #available(iOS 14, *) {
-            PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: self)
-            PHPhotoLibrary.shared().register(self)
-        } else {
-            let picker = UIImagePickerController()
-            picker.delegate = self
-            picker.sourceType = .photoLibrary
-            if usedesk?.isSupportedAttachmentOnlyPhoto ?? false {
-                picker.mediaTypes = ["public.image"]
-            } else if usedesk?.isSupportedAttachmentOnlyVideo ?? false {
-                picker.mediaTypes = ["public.movie"]
-            } else {
-                picker.mediaTypes = ["public.image", "public.movie"]
-            }
-            present(picker, animated: true)
-        }
+        PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: self)
+        PHPhotoLibrary.shared().register(self)
     }
     
     private func reloadGalleryAssets() {
@@ -200,13 +182,8 @@ class UDGalleryViewController: UIViewController {
     }
     
     private func isLimitedPhotoAccess() -> Bool {
-        if #available(iOS 14, *) {
-            let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
-            return status == .limited
-        } else {
-            // На iOS ниже 14 нет ограниченного доступа
-            return false
-        }
+        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        return status == .limited
     }
 }
 

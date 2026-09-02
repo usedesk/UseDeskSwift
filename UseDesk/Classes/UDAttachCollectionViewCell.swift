@@ -1,7 +1,6 @@
 //
 //  UDAttachCollectionViewCell.swift
 //  UseDesk_SDK_Swift
-//
 
 import UIKit
 import Photos
@@ -116,7 +115,7 @@ class UDAttachCollectionViewCell: UICollectionViewCell {
     
     func showLoader() {
         if loader == nil {
-            loader = UIActivityIndicatorView(style: .gray)
+            loader = UIActivityIndicatorView(style: .medium)
             loader!.translatesAutoresizingMaskIntoConstraints = false
             self.addSubview(loader!)
             let horizontalConstraint = NSLayoutConstraint(item: loader!, attribute: NSLayoutConstraint.Attribute.centerX, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.centerX, multiplier: 1, constant: 0)

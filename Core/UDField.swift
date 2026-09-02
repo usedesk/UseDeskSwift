@@ -2,7 +2,6 @@
 //  UDField.swift
 //  UseDesk_SDK_Swift
 
-
 import Foundation
 
 public enum UDFormMessageAdditionalFieldType: Int {

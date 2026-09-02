@@ -57,15 +57,13 @@ class UDBaseKnowledgeVC: UIViewController {
                 updateViewsBeforeChangeOrientationWindow()
             }
         } else {
-            if #available(iOS 11.0, *) {
-                safeAreaInsetsLeftOrRight = view.safeAreaInsets.left > view.safeAreaInsets.right ? view.safeAreaInsets.left : view.safeAreaInsets.right
-                if UIDevice.current.orientation == .landscapeLeft {
-                    landscapeOrientation = .left
-                } else if UIDevice.current.orientation == .landscapeRight {
-                    landscapeOrientation = .right
-                } else {
-                    landscapeOrientation = nil
-                }
+            safeAreaInsetsLeftOrRight = view.safeAreaInsets.left > view.safeAreaInsets.right ? view.safeAreaInsets.left : view.safeAreaInsets.right
+            if UIDevice.current.orientation == .landscapeLeft {
+                landscapeOrientation = .left
+            } else if UIDevice.current.orientation == .landscapeRight {
+                landscapeOrientation = .right
+            } else {
+                landscapeOrientation = nil
             }
             if previousOrientation != .landscape {
                 previousOrientation = .landscape

@@ -1,8 +1,7 @@
 //
 //  UDSocketResponse.swift
 //  UseDesk_SDK_Swift
-//
-//
+
 import Foundation
 import MarkdownKit
 import SwiftSoup
@@ -175,7 +174,7 @@ class UDSocketResponse {
             if (message?["chat"] is NSNull) {
                 return
             }
-            var m: UDMessage? = nil
+            var parsedMessage: UDMessage? = nil
             var messageFile: UDMessage? = nil
             var messagesImageLink: [UDMessage] = []
             var textWithoutLinkImage: String? = nil
@@ -192,17 +191,17 @@ class UDSocketResponse {
             if (message!["file"] as? [AnyHashable : Any] ) != nil {
                 messageFile = parseFileMessageDic(message)
             }
-            m = parseMessageDic(message, textWithoutLinkImage: textWithoutLinkImage, model: model)
-            
+            parsedMessage = parseMessageDic(message, textWithoutLinkImage: textWithoutLinkImage, model: model)
+
             var isAddMessage = false
-            if m != nil {
-                if m?.type == UD_TYPE_Feedback && (feedbackMessageBlock != nil) {
-                    feedbackMessageBlock!(m)
+            if parsedMessage != nil {
+                if parsedMessage?.type == UD_TYPE_Feedback && (feedbackMessageBlock != nil) {
+                    feedbackMessageBlock!(parsedMessage)
                     isAddMessage = true
                     return
                 } else {
-                    if newMessageBlock != nil && m!.text != "​" {
-                        newMessageBlock?(m)
+                    if newMessageBlock != nil && parsedMessage!.text != "​" {
+                        newMessageBlock?(parsedMessage)
                         isAddMessage = true
                     }
                 }
@@ -211,8 +210,8 @@ class UDSocketResponse {
                 newMessageBlock!(messageFile!)
                 isAddMessage = true
             }
-            for m in messagesImageLink {
-                newMessageBlock!(m)
+            for imageMessage in messagesImageLink {
+                newMessageBlock!(imageMessage)
                 isAddMessage = true
             }
             if isAddMessage && model.token.count > 0 && !isSendedAdditionalField {
@@ -229,7 +228,7 @@ class UDSocketResponse {
     public class func parseMessages(_ messagesJson: [Any], model: UseDeskModel) -> [UDMessage] {
         var messages: [UDMessage] = []
         for mess in messagesJson {
-            var m: UDMessage? = nil
+            var parsedMessage: UDMessage? = nil
             var messageFile: UDMessage? = nil
             var messagesImageLink: [UDMessage] = []
             if let message = mess as? [AnyHashable : Any] {
@@ -247,25 +246,26 @@ class UDSocketResponse {
                 if (message["file"] as? [AnyHashable : Any] ) != nil {
                     messageFile = UDSocketResponse.parseFileMessageDic(message)
                 }
-                m = UDSocketResponse.parseMessageDic(message, textWithoutLinkImage: textWithoutLinkImage, model: model)
+                parsedMessage = UDSocketResponse.parseMessageDic(message, textWithoutLinkImage: textWithoutLinkImage, model: model)
             }
-            if m != nil && m!.text != "​" {
-                messages.append(m!)
+            if parsedMessage != nil && parsedMessage!.text != "​" {
+                messages.append(parsedMessage!)
             }
-            for m in messagesImageLink {
-                messages.append(m)
+            for imageMessage in messagesImageLink {
+                messages.append(imageMessage)
             }
             if messageFile != nil {
                 messages.append(messageFile!)
             }
         }
+        
         return messages
     }
     
     // MARK: - Private Methods
     private class func parseFileMessageDic(_ mess: [AnyHashable : Any]?, withImageUrl imageUrl: String? = nil, numberImageUrl: Int? = nil) -> UDMessage? {
-        let m = UDMessage(text: "", incoming: false)
-        m.statusSend = UD_STATUS_SEND_SUCCEED
+        let fileMessage = UDMessage(text: "", incoming: false)
+        fileMessage.statusSend = UD_STATUS_SEND_SUCCEED
         let createdAt = mess?["createdAt"] as? String ?? ""
         let dateFormatter = DateFormatter()
         dateFormatter.locale = .current
@@ -276,42 +276,42 @@ class UDSocketResponse {
         }
         if createdAt != "" {
             if dateFormatter.date(from: createdAt) != nil {
-                m.date = dateFormatter.date(from: createdAt)!
+                fileMessage.date = dateFormatter.date(from: createdAt)!
             } else {
                 dateFormatter.locale = Locale(identifier: "en_US_POSIX")
                 if dateFormatter.date(from: createdAt) != nil {
-                    m.date = dateFormatter.date(from: createdAt)!
+                    fileMessage.date = dateFormatter.date(from: createdAt)!
                 }
             }
         }
         if let type = mess?["type"] as? String {
-            m.typeSenderMessageString = type
+            fileMessage.typeSenderMessageString = type
         }
-        m.incoming = (m.typeSenderMessage == .operator_to_client || m.typeSenderMessage == .bot_to_client) ? true : false
-        m.name = mess?["name"] as? String ?? ""
-        if m.typeSenderMessage == .operator_to_client {
+        fileMessage.incoming = (fileMessage.typeSenderMessage == .operator_to_client || fileMessage.typeSenderMessage == .bot_to_client) ? true : false
+        fileMessage.name = mess?["name"] as? String ?? ""
+        if fileMessage.typeSenderMessage == .operator_to_client {
             if let operatorId = mess?["type"] as? Int {
-                m.operatorId = operatorId
+                fileMessage.operatorId = operatorId
             }
         }
         if let payload = mess?["payload"] as? [AnyHashable : Any] {
             if let avatar = payload["avatar"] as? String {
-                m.avatar = avatar
+                fileMessage.avatar = avatar
             }
             if payload["message_id"] != nil {
-                m.loadingMessageId = payload["message_id"] as? String ?? ""
+                fileMessage.loadingMessageId = payload["message_id"] as? String ?? ""
             }
         }
-        m.id = mess?["id"] as? Int ?? 0
+        fileMessage.id = mess?["id"] as? Int ?? 0
         let fileDic = mess?["file"] as? [AnyHashable : Any]
         if let url = imageUrl, let numberImage = numberImageUrl {
             let imageUrlLowercased = imageUrl!.lowercased()
             if imageUrlLowercased.contains(".png") || imageUrlLowercased.contains(".gif") || imageUrlLowercased.contains(".jpg") || imageUrlLowercased.contains(".jpeg") || imageUrlLowercased.contains(".heic") || imageUrlLowercased.contains(".webp") {
-                m.type = UD_TYPE_PICTURE
+                fileMessage.type = UD_TYPE_PICTURE
                 let file = UDFile()
                 file.urlFile = url
-                file.id = m.id + numberImage
-                m.file = file
+                file.id = fileMessage.id + numberImage
+                fileMessage.file = file
             } else {
                 return nil
             }
@@ -331,8 +331,8 @@ class UDSocketResponse {
             }
             file.size = fileDic?["size"] as? String ?? ""
             file.id = fileDic?["fileId"] as? Int ?? 0
-            m.file = file
-            m.status = UD_STATUS_LOADING
+            fileMessage.file = file
+            fileMessage.status = UD_STATUS_LOADING
             var type = ""
             if (fileDic?["file_name"] as? String ?? "") != "" {
                 type = URL.init(string: fileDic?["file_name"] as? String ?? "")?.pathExtension ?? ""
@@ -341,23 +341,23 @@ class UDSocketResponse {
                 type = URL.init(string: fileDic?["fullLink"] as? String ?? "")?.pathExtension ?? ""
             }
             if typeFileString.contains("image") || isImage(of: type) || isImage(of: typeFileString) {
-                m.type = UD_TYPE_PICTURE
+                fileMessage.type = UD_TYPE_PICTURE
             } else if typeFileString.contains("video") || isVideo(of: type) || isVideo(of: typeFileString) {
-                m.type = UD_TYPE_VIDEO
-                m.file.typeExtension = type
+                fileMessage.type = UD_TYPE_VIDEO
+                fileMessage.file.typeExtension = type
                 file.type = .video
             } else {
-                m.type = UD_TYPE_File
+                fileMessage.type = UD_TYPE_File
             }
         } else {
             return nil
         }
-        return m
+        return fileMessage
     }
         
     class func parseMessageDic(_ mess: [AnyHashable : Any]?, textWithoutLinkImage: String? = nil, model: UseDeskModel) -> UDMessage? {
-        let m = UDMessage(text: "", incoming: false)
-        m.statusSend = UD_STATUS_SEND_SUCCEED
+        let parsedMessage = UDMessage(text: "", incoming: false)
+        parsedMessage.statusSend = UD_STATUS_SEND_SUCCEED
         let createdAt = mess?["createdAt"] as? String ?? ""
         let dateFormatter = DateFormatter()
         dateFormatter.locale = .current
@@ -368,86 +368,94 @@ class UDSocketResponse {
         }
         if createdAt != "" {
             if let date = dateFormatter.date(from: createdAt) {
-                m.date = date
+                parsedMessage.date = date
             } else {
                 dateFormatter.locale = Locale(identifier: "en_US_POSIX")
                 if let date = dateFormatter.date(from: createdAt) {
-                    m.date = date
+                    parsedMessage.date = date
                 }
             }
         }
         if mess?["id"] != nil {
-            m.id = mess?["id"] as? Int ?? 0
+            parsedMessage.id = mess?["id"] as? Int ?? 0
         }
         if let type = mess?["type"] as? String {
-            m.typeSenderMessageString = type
+            parsedMessage.typeSenderMessageString = type
         }
-        m.incoming = (m.typeSenderMessage == .operator_to_client || m.typeSenderMessage == .bot_to_client) ? true : false
-        if m.typeSenderMessage == .operator_to_client {
+        parsedMessage.incoming = (parsedMessage.typeSenderMessage == .operator_to_client || parsedMessage.typeSenderMessage == .bot_to_client) ? true : false
+        if parsedMessage.typeSenderMessage == .operator_to_client {
             if let operatorId = mess?["type"] as? Int {
-                m.operatorId = operatorId
+                parsedMessage.operatorId = operatorId
             }
         }
-        m.text = textWithoutLinkImage != nil ? textWithoutLinkImage! : mess?["text"] as? String ?? ""
-        if m.incoming {
+        parsedMessage.text = textWithoutLinkImage != nil ? textWithoutLinkImage! : mess?["text"] as? String ?? ""
+        if parsedMessage.incoming {
             //Buttons
-            let stringsFromButtons = parseMessageFromButtons(text: m.text)
+            let stringsFromButtons = parseMessageFromButtons(text: parsedMessage.text)
             for stringFromButton in stringsFromButtons {
                 let button = buttonFromString(stringButton: stringFromButton)
                 var textButton = ""
                 if button != nil {
-                    m.buttons.append(button!)
+                    parsedMessage.buttons.append(button!)
                     if button!.visible {
-                        textButton = m.text.count > 0 ? " " : ""
+                        textButton = parsedMessage.text.count > 0 ? " " : ""
                         textButton += button!.title
                     }
                 }
-                m.text = m.text.replacingOccurrences(of: stringFromButton, with: textButton)
+                parsedMessage.text = parsedMessage.text.replacingOccurrences(of: stringFromButton, with: textButton)
             }
             //Forms
-            let (textWithForms, forms) = UDFormMessageManager.parseForms(from: m.text)
+            let (textWithForms, forms) = UDFormMessageManager.parseForms(from: parsedMessage.text)
             if forms.count > 0 {
-                m.text = textWithForms.udRemoveFirstAndLastLineBreaksAndSpaces()
-                m.forms = forms
+                parsedMessage.text = textWithForms.udRemoveFirstAndLastLineBreaksAndSpaces()
+                parsedMessage.forms = forms
             }
             //Name
-            m.name = mess?["name"] as? String ?? ""
+            parsedMessage.name = mess?["name"] as? String ?? ""
         }
-        m.text = m.text.udRemoveMultipleLineBreaks()
-        m.text = m.text.udRemoveFirstAndLastLineBreaksAndSpaces()
-        if m.text == "" && m.buttons.count == 0 && m.forms.count == 0 {
+        parsedMessage.text = parsedMessage.text.udRemoveMultipleLineBreaks()
+        parsedMessage.text = parsedMessage.text.udRemoveFirstAndLastLineBreaksAndSpaces()
+        if parsedMessage.text == "" && parsedMessage.buttons.count == 0 && parsedMessage.forms.count == 0 {
             return nil
         }
-        
-        if m.buttons.count != 0 || m.forms.count != 0 {
-            m.text += "\n"
+
+        if parsedMessage.buttons.count != 0 || parsedMessage.forms.count != 0 {
+            parsedMessage.text += "\n"
         }
-        
+
         if let payload = mess?["payload"] as? [AnyHashable : Any] {
             if let avatar = payload["avatar"] as? String {
-                m.avatar = avatar
+                parsedMessage.avatar = avatar
             }
-            if payload["csi"] != nil {
-                m.type = UD_TYPE_Feedback
-            }
-            if let userRating = payload["userRating"] as? String {
-                m.type = UD_TYPE_Feedback
-                if userRating == "LIKE" {
-                    m.feedbackActionInt = 1
-                    m.text = model.stringFor("CSIReviewLike")
-                }
-                if userRating == "DISLIKE" {
-                    m.feedbackActionInt = 0
-                    m.text = model.stringFor("CSIReviewDislike")
+            if let dicCsi = payload["buttons_csi"] as? [AnyHashable : Any], let csi = UDCsi(dic: dicCsi) {
+                parsedMessage.type = UD_TYPE_Feedback
+                parsedMessage.csi = csi
+                if let button = csiButton(userRating: payload["userRating"], csi: csi) {
+                    parsedMessage.feedbackRatingId = button.id
+                    parsedMessage.text = model.stringFor("CSIReviewSended")
                 }
             }
             if payload["message_id"] != nil {
-                m.loadingMessageId = payload["message_id"] as? String ?? ""
+                parsedMessage.loadingMessageId = payload["message_id"] as? String ?? ""
             }
         }
-        return m
+        return parsedMessage
     }
         
+    private class func csiButton(userRating: Any?, csi: UDCsi) -> UDCsiButton? {
+        var rating = ""
+        if let ratingString = userRating as? String {
+            rating = ratingString
+        } else if let ratingInt = userRating as? Int {
+            rating = String(ratingInt)
+        }
+        guard !rating.isEmpty else { return nil }
+        if let button = csi.button(withId: rating) {
+            return button
+        }
+        return csi.buttons.first(where: {$0.label.lowercased() == rating.lowercased()})
+    }
+    
     private class func parseMessageFromButtons(text: String) -> [String] {
         var results: [String] = []
         guard text.count > 2, text.contains("{{"), text.contains("}}") else { return results }

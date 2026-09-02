@@ -1,7 +1,6 @@
 //
 //  UDUIAlertControllerExtension.swift
 //  UseDesk_SDK_Swift
-//
 
 import UIKit
 
@@ -17,12 +16,13 @@ extension UIAlertController {
         }
         let scaleSize = CGSize(width: imgSize.width*ratio, height: imgSize.height*ratio)
         var resizedImage = image.udImageWithSize(scaleSize)
-        
+
         if isVideo {
             let previewImageView = UIImageView(image: resizedImage)
-            let videoViewContainer = UIView(frame: CGRect(x: (self.view.frame.width - previewImageView.frame.width) / 2, y: 0, width: previewImageView.frame.width, height: previewImageView.frame.height))
+            previewImageView.frame = CGRect(origin: .zero, size: resizedImage.size)
+            let videoViewContainer = UIView(frame: CGRect(origin: .zero, size: resizedImage.size))
             videoViewContainer.addSubview(previewImageView)
-            let backView = UIView(frame: CGRect(x: (previewImageView.frame.width / 2) - 20, y: (previewImageView.frame.height / 2) - 20, width: 40, height: 40))
+            let backView = UIView(frame: CGRect(x: (resizedImage.size.width / 2) - 20, y: (resizedImage.size.height / 2) - 20, width: 40, height: 40))
             backView.layer.masksToBounds = true
             backView.layer.cornerRadius = 40 / 2
             backView.backgroundColor = UIColor(hexString: "454D63")
@@ -34,15 +34,20 @@ extension UIAlertController {
             resizedImage = videoViewContainer.udImage()
         }
 
-        if (imgSize.height > imgSize.width) {
-            let left = (maxSize.width - resizedImage.size.width) / 2
-            resizedImage = resizedImage.withAlignmentRectInsets(UIEdgeInsets(top: 0, left: -left, bottom: 0, right: 0))
-        }
-        
-        let imgAction = UIAlertAction(title: "", style: .default, handler: nil)
-        imgAction.isEnabled = false
-        imgAction.setValue(resizedImage.withRenderingMode(.alwaysOriginal), forKey: "image")
+        let imageView = UIImageView(image: resizedImage.withRenderingMode(.alwaysOriginal))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
 
-        self.addAction(imgAction)
+        let contentVC = UIViewController()
+        contentVC.view.addSubview(imageView)
+        NSLayoutConstraint.activate([
+            imageView.topAnchor.constraint(equalTo: contentVC.view.topAnchor),
+            imageView.bottomAnchor.constraint(equalTo: contentVC.view.bottomAnchor),
+            imageView.centerXAnchor.constraint(equalTo: contentVC.view.centerXAnchor),
+            imageView.widthAnchor.constraint(equalToConstant: resizedImage.size.width),
+            imageView.heightAnchor.constraint(equalToConstant: resizedImage.size.height)
+        ])
+        contentVC.preferredContentSize = resizedImage.size
+
+        self.setValue(contentVC, forKey: "contentViewController")
     }
 }

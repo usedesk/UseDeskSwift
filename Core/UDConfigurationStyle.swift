@@ -156,7 +156,7 @@ public struct ChatStyle {
                 backgroundColorLoaderView: UIColor? = nil,
                 alphaLoaderView: CGFloat = 0.8) {
         self.backgroundColor = backgroundColor ?? UIColor(hexString: "FFFFFF")
-        self.backgroundColorLoaderView = backgroundColorLoaderView ?? .lightGray
+        self.backgroundColorLoaderView = backgroundColorLoaderView ?? UIColor(hexString: "999999")
         self.alphaLoaderView = alphaLoaderView
     }
 }
@@ -164,34 +164,30 @@ public struct ChatStyle {
 public struct SectionHeaderStyle {
     public var margin: UIEdgeInsets
     public var textColor: UIColor
-    public var textHeight: CGFloat
     public var font: UIFont
     public var backViewPadding: UIEdgeInsets
     public var backViewColor: UIColor
     public var backViewCornerRadius: CGFloat
     public var backViewOpacity: CGFloat
-    
+    public var floatingHeaderSpacing: CGFloat
+
     public init(margin: UIEdgeInsets = UIEdgeInsets(top: 12, left: 10, bottom: 12, right: 10),
                 textColor: UIColor? = nil,
-                textHeight: CGFloat = 16,
                 font: UIFont = UIFont.systemFont(ofSize: 13),
                 backViewPadding: UIEdgeInsets = UIEdgeInsets(top: 4, left: 10, bottom: 4, right: 10),
                 backViewColor: UIColor = .white,
                 backViewCornerRadius: CGFloat = 12,
-                backViewOpacity: CGFloat = 0.8) {
-        
+                backViewOpacity: CGFloat = 0.8,
+                floatingHeaderSpacing: CGFloat? = nil) {
+
         self.margin = margin
         self.textColor = textColor ?? UIColor(hexString: "454D63")
-        self.textHeight = textHeight
         self.font = font
         self.backViewPadding = backViewPadding
         self.backViewColor = backViewColor
         self.backViewCornerRadius = backViewCornerRadius
         self.backViewOpacity = backViewOpacity
-    }
-    
-    public var heightHeader: CGFloat {
-        return textHeight + backViewPadding.top + backViewPadding.bottom + margin.top + margin.bottom
+        self.floatingHeaderSpacing = floatingHeaderSpacing ?? margin.top + margin.bottom
     }
 }
 // MARK: - Bubble
@@ -200,8 +196,6 @@ public struct BubbleStyle {
     public var backgroundImageIncoming: UIImage
     public var marginBefore: CGFloat
     public var marginAfter: CGFloat
-    public var bubbleWidthMin: CGFloat
-    public var bubbleHeightMin: CGFloat
     public var spacingOneSender: CGFloat
     public var spacingDifferentSender: CGFloat
     public var bubbleColorOutgoing: UIColor
@@ -211,9 +205,7 @@ public struct BubbleStyle {
     public init(backgroundImageOutgoing: UIImage? = nil,
                 backgroundImageIncoming: UIImage? = nil,
                 marginBefore: CGFloat = 10.0,
-                marginAfter: CGFloat = 50.0,
-                bubbleWidthMin: CGFloat = 7.0,
-                bubbleHeightMin: CGFloat = 30.0,
+                marginAfter: CGFloat = 70.0,
                 spacingOneSender: CGFloat = 4,
                 spacingDifferentSender: CGFloat = 16,
                 bubbleColorOutgoing: UIColor? = nil,
@@ -223,20 +215,24 @@ public struct BubbleStyle {
         self.backgroundImageIncoming = backgroundImageIncoming ?? UIImage.named("udBubbleIncoming")
         self.marginBefore = marginBefore
         self.marginAfter = marginAfter
-        self.bubbleWidthMin = bubbleWidthMin
-        self.bubbleHeightMin = bubbleHeightMin
         self.spacingOneSender = spacingOneSender
         self.spacingDifferentSender = spacingDifferentSender
         self.bubbleColorOutgoing = bubbleColorOutgoing ?? UIColor(hexString: "e0ecfc")
         self.bubbleColorIncoming = bubbleColorIncoming ?? UIColor(hexString: "F0F0F0")
-        self.bubbleSelectColor = bubbleSelectColor ?? UIColor(hexString: "08A3E2")
+        self.bubbleSelectColor = bubbleSelectColor ?? UIColor.white
     }
 }
 // MARK: - Avatar
+public enum AvatarFallbackPriority {
+    case initials
+    case defaultImage
+}
+
 public struct AvatarStyle {
     public var avatarDiameter: CGFloat
     public var margin: UIEdgeInsets
     public var avatarIncomingHidden: Bool
+    public var avatarFallbackPriority: AvatarFallbackPriority
     public var avatarBackColor: UIColor
     public var avatarTextColor: UIColor
     public var avatarFont: UIFont
@@ -245,6 +241,7 @@ public struct AvatarStyle {
     public init(avatarDiameter: CGFloat = 30.0,
                 margin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8),
                 avatarIncomingHidden: Bool = false,
+                avatarFallbackPriority: AvatarFallbackPriority = .initials,
                 avatarBackColor: UIColor? = nil,
                 avatarTextColor: UIColor = UIColor.white,
                 avatarFont: UIFont = UIFont.systemFont(ofSize: 12),
@@ -252,10 +249,11 @@ public struct AvatarStyle {
         self.avatarDiameter = avatarDiameter
         self.margin = margin
         self.avatarIncomingHidden = avatarIncomingHidden
-        self.avatarBackColor = avatarBackColor ?? UIColor(hexString: "d6d6d6ff")
+        self.avatarBackColor = avatarBackColor ?? UIColor(hexString: "333333")
         self.avatarTextColor = avatarTextColor
         self.avatarFont = avatarFont
         self.avatarImageDefault = avatarImageDefault ?? UIImage.named("udAvatarOperator")
+        self.avatarFallbackPriority = avatarFallbackPriority
     }
 }
 // MARK: - Text cell
@@ -320,7 +318,7 @@ public struct MessageStyle {
                 sendStatusImageForImageMessage: UIImage? = nil,
                 sendedStatusImageForImageMessage: UIImage? = nil,
                 sendedStatusSize: CGSize = CGSize(width: 12, height: 12),
-                sendedStatusMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 2, bottom: 6.5, right: 4),
+                sendedStatusMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 2, bottom: 1, right: 4),
                 notSentImage: UIImage? = nil,
                 notSentImageSize: CGSize = CGSize(width: 24, height: 24),
                 notSentImageMarginToBubble: CGFloat = 8,
@@ -368,11 +366,21 @@ public struct FeedbackMessageStyle {
     public var likeOffImage: UIImage
     public var dislikeOnImage: UIImage
     public var dislikeOffImage: UIImage
-    public var isFirstDislike: Bool
+    public var ratingOnImage: UIImage
+    public var ratingOffImage: UIImage
     public var textColor: UIColor
     public var linkColor: UIColor
     public var font: UIFont
     public var textMargin: UIEdgeInsets
+    
+    func reactionImage(label: String, isSelected: Bool) -> UIImage {
+        switch label.lowercased() {
+        case "dislike":
+            return isSelected ? dislikeOnImage : dislikeOffImage
+        default:
+            return isSelected ? likeOnImage : likeOffImage
+        }
+    }
     
     public init(buttonSize: CGSize = CGSize(width: 56, height: 56),
                 buttonsMarginTop: CGFloat = 25,
@@ -381,11 +389,12 @@ public struct FeedbackMessageStyle {
                 likeOffImage: UIImage? = nil,
                 dislikeOnImage: UIImage? = nil,
                 dislikeOffImage: UIImage? = nil,
-                isFirstDislike: Bool = true,
+                ratingOnImage: UIImage? = nil,
+                ratingOffImage: UIImage? = nil,
                 textColor: UIColor? = nil,
                 linkColor: UIColor? = nil,
                 font: UIFont = UIFont.systemFont(ofSize: 17),
-                textMargin: UIEdgeInsets = UIEdgeInsets(top: 17, left: 28, bottom: 14, right: 28)) {
+                textMargin: UIEdgeInsets = UIEdgeInsets(top: 17, left: 12, bottom: 14, right: 12)) {
         self.buttonSize = buttonSize
         self.buttonsMarginTop = buttonsMarginTop
         self.buttonsSpacing = buttonsSpacing
@@ -393,7 +402,8 @@ public struct FeedbackMessageStyle {
         self.likeOffImage = likeOffImage ?? UIImage.named("udLikeOff")
         self.dislikeOnImage = dislikeOnImage ?? UIImage.named("udDislikeOn")
         self.dislikeOffImage = dislikeOffImage ?? UIImage.named("udDislikeOff")
-        self.isFirstDislike = isFirstDislike
+        self.ratingOnImage = ratingOnImage ?? UIImage.named("udRatingOn")
+        self.ratingOffImage = ratingOffImage ?? UIImage.named("udRatingOff")
         self.textColor = textColor ?? UIColor(hexString: "333333")
         self.linkColor = linkColor ?? UIColor(hexString: "333333")
         self.font = font
@@ -405,18 +415,15 @@ public struct PictureStyle {
     public var margin: UIEdgeInsets
     public var cornerRadius: CGFloat
     public var imageDefault: UIImage
-    public var sizeDefault: CGSize
     public var isNeedBubble: Bool
     
     public init(margin: UIEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2),
                 cornerRadius: CGFloat = 8,
                 imageDefault: UIImage? = nil,
-                sizeDefault: CGSize = CGSize(width: 150, height: 150),
                 isNeedBubble: Bool = true) {
         self.margin = margin
         self.cornerRadius = cornerRadius
         self.imageDefault = imageDefault ?? UIImage.named("udPictureDefault")
-        self.sizeDefault = sizeDefault
         self.isNeedBubble = isNeedBubble
     }
 }
@@ -425,18 +432,15 @@ public struct VideoStyle {
     public var margin: UIEdgeInsets
     public var cornerRadius: CGFloat
     public var imageDefault: UIImage
-    public var sizeDefault: CGSize
     public var isNeedBubble: Bool
 
     public init(margin: UIEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2),
                 cornerRadius: CGFloat = 8,
                 imageDefault: UIImage? = nil,
-                sizeDefault: CGSize = CGSize(width: 150, height: 170),
                 isNeedBubble: Bool = true) {
         self.margin = margin
         self.cornerRadius = cornerRadius
         self.imageDefault = imageDefault ?? UIImage.named("udVideoDefault")
-        self.sizeDefault = sizeDefault
         self.isNeedBubble = isNeedBubble
     }
 }
@@ -691,7 +695,7 @@ public struct MessageButtonStyle {
                 cornerRadius: CGFloat = 8,
                 spacing: CGFloat = 8,
                 minHeight: CGFloat = 36,
-                margin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 8, right: 6),
+                margin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 8, right: 12),
                 maximumLine: Int = 3) {
         self.color = color ?? UIColor(hexString: "333333")
         self.textColor = textColor ?? UIColor(hexString: "FFFFFF")
@@ -708,6 +712,7 @@ public struct MessageButtonStyle {
 public struct MessageFormStyle {
     public var margin: UIEdgeInsets
     public var spacing: CGFloat
+    public var formLoaderActivityIndicatorStyle: UIActivityIndicatorView.Style
     
     public var textFormMargin: UIEdgeInsets
     public var textFormHeight: CGFloat
@@ -744,12 +749,13 @@ public struct MessageFormStyle {
     public var sendFormButtonMargin: UIEdgeInsets
     public var sendFormButtonHeight: CGFloat
     public var sendFormActivityIndicatorStyle: UIActivityIndicatorView.Style
-    
+
     public var pickerDoneButtonColor: UIColor
     public var pickerTopViewColor: UIColor
     
-    public init(margin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 6),
+    public init(margin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 12),
                 spacing: CGFloat = 10,
+                formLoaderActivityIndicatorStyle: UIActivityIndicatorView.Style = .medium,
                 textFormMargin: UIEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8),
                 textFormHeight: CGFloat = 36,
                 textFormBackgroundColor: UIColor? = nil,
@@ -767,7 +773,7 @@ public struct MessageFormStyle {
                 textFormIconSelectSize: CGSize = CGSize(width: 8, height: 8),
                 textFormIconMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8),
                 checkboxFormImageSize: CGSize = CGSize(width: 16, height: 16),
-                checkboxFormImageMargin: UIEdgeInsets = UIEdgeInsets(top: 11, left: 0, bottom: 0, right: 0),
+                checkboxFormImageMargin: UIEdgeInsets = UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 0),
                 checkboxFormTextMargin: UIEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 0, right: 12),
                 checkboxFormImageNotSelected: UIImage? = nil,
                 checkboxFormImageSelected: UIImage? = nil,
@@ -780,13 +786,14 @@ public struct MessageFormStyle {
                 sendFormButtonTitleTouchedColor: UIColor? = nil,
                 sendFormButtonFont: UIFont = UIFont.systemFont(ofSize: 15),
                 sendFormButtonCornerRadius: CGFloat = 8,
-                sendFormButtonMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 12, right: 6),
+                sendFormButtonMargin: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 12, right: 0),
                 sendFormButtonHeight: CGFloat = 36,
-                sendFormActivityIndicatorStyle: UIActivityIndicatorView.Style = .gray,
+                sendFormActivityIndicatorStyle: UIActivityIndicatorView.Style = .medium,
                 pickerDoneButtonColor: UIColor = .blue,
                 pickerTopViewColor: UIColor? = nil) {
         self.margin = margin
         self.spacing = spacing
+        self.formLoaderActivityIndicatorStyle = formLoaderActivityIndicatorStyle
         self.textFormMargin = textFormMargin
         self.textFormHeight = textFormHeight
         self.textFormBackgroundColor = textFormBackgroundColor ?? UIColor(hexString: "FAFBFC")
@@ -1014,7 +1021,7 @@ public struct BaseStyle {
     public var errorLoadTextColor: UIColor
     
     public init(windowBottomMargin: CGFloat = 0,
-                loaderStyle: UIActivityIndicatorView.Style = .gray,
+                loaderStyle: UIActivityIndicatorView.Style = .medium,
                 backgroundColor: UIColor? = nil,
                 backButtonImage: UIImage? = nil,
                 backButtonSize: CGSize = CGSize(width: 48, height: 40),

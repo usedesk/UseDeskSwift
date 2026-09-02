@@ -1,7 +1,7 @@
 //
 //  UDStringExtansion.swift
 //  UseDesk_SDK_Swift
-//
+
 import UIKit
 
 extension String {
@@ -56,6 +56,14 @@ extension String {
         return size
     }
     
+    var udInitials: String {
+        let words = self.udRemoveFirstAndLastLineBreaksAndSpaces()
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+        let letters = words.prefix(2).compactMap { $0.first }
+        return String(letters).uppercased()
+    }
+
     func udIsValidEmail() -> Bool {
         let emailRegex = "[A-Z0-9a-z]([A-Z0-9a-z._%+-]{0,64}[A-Z0-9a-z_])?" + "@" + "([A-Z0-9a-z]([A-Z0-9a-z-]{0,255}[A-Z0-9a-z])?\\.){1,5}" + "[A-Za-z]{2,8}"
         let emailTest = NSPredicate(format:"SELF MATCHES[c] %@", emailRegex)
@@ -70,10 +78,10 @@ extension String {
     }
     
     func udIsValidUrl() -> Bool {
-        let s = self.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !s.isEmpty else { return false }
+        let trimmed = self.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return false }
 
-        let urlString = s.hasPrefix("http://") || s.hasPrefix("https://") ? s : "https://" + s
+        let urlString = trimmed.hasPrefix("http://") || trimmed.hasPrefix("https://") ? trimmed : "https://" + trimmed
 
         guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else { return false }
 
@@ -127,24 +135,24 @@ extension String {
     
     func udRemoveMultipleLineBreaks() -> String {
         let bytes = Array(self.utf8)
-        var out: [UInt8] = []
-        out.reserveCapacity(bytes.count)
+        var outputBytes: [UInt8] = []
+        outputBytes.reserveCapacity(bytes.count)
 
         var i = 0
         while i < bytes.count {
-            let b = bytes[i]
-            if b == 0x0A { // '\n'
+            let byte = bytes[i]
+            if byte == 0x0A { // '\n'
                 var countMultipleLineBreaks = 0
                 var isEndSpace = false
 
                 var j = i + 1
                 while j < bytes.count {
-                    let nb = bytes[j]
-                    if nb == 0x0A { // another '\n'
+                    let nextByte = bytes[j]
+                    if nextByte == 0x0A { // another '\n'
                         countMultipleLineBreaks += 1
                         i += 1
                         isEndSpace = false
-                    } else if nb == 0x20 { // space ' ' only (NOT tabs)
+                    } else if nextByte == 0x20 { // space ' ' only (NOT tabs)
                         isEndSpace = true
                         i += 1
                     } else {
@@ -154,10 +162,10 @@ extension String {
                 }
 
                 if countMultipleLineBreaks > 0 {
-                    out.append(0x0A)
-                    out.append(0x0A)
+                    outputBytes.append(0x0A)
+                    outputBytes.append(0x0A)
                 } else {
-                    out.append(0x0A)
+                    outputBytes.append(0x0A)
                 }
 
                 if isEndSpace {
@@ -166,12 +174,12 @@ extension String {
                 }
                 i += 1
             } else {
-                out.append(b)
+                outputBytes.append(byte)
                 i += 1
             }
         }
 
-        return String(decoding: out, as: UTF8.self)
+        return String(decoding: outputBytes, as: UTF8.self)
     }
     
     func udRemoveFirstSpaces() -> String {
@@ -302,7 +310,7 @@ extension String {
         var string = self
         while count < 9000 && flag {
             if let range = string.range(of: "<http") {
-                var startIndex = range.lowerBound
+                let startIndex = range.lowerBound
                 var isFindEnd = false
                 var index = 0
                 while !isFindEnd {

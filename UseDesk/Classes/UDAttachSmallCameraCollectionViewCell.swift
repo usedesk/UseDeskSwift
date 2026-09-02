@@ -1,7 +1,6 @@
 //
 //  UDAttachSmallCameraCollectionViewCell.swift
 //  UseDesk_SDK_Swift
-//
 
 import UIKit
 import AVFoundation

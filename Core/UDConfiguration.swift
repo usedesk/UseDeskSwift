@@ -1,8 +1,6 @@
 //
 //  UDConfiguration.swift
 //  UseDesk_SDK_Swift
-//
-//
 
 import Alamofire
 import Foundation

@@ -39,27 +39,27 @@ extension Int {
     }
     
     func timeString() -> String {
-        let h = self / 3600
-        let m = (self % 3600) / 60
-        let s = (self % 3600) % 60
+        let hours = self / 3600
+        let minutes = (self % 3600) / 60
+        let seconds = (self % 3600) % 60
         var string = ""
-        if h != 0 {
-            if h > 9 {
-                string += "\(h):"
+        if hours != 0 {
+            if hours > 9 {
+                string += "\(hours):"
             } else {
-                string += "0\(h):"
+                string += "0\(hours):"
             }
         }
-        if m > 9 {
-            string += "\(m)"
+        if minutes > 9 {
+            string += "\(minutes)"
         } else {
-            string += "0\(m)"
+            string += "0\(minutes)"
         }
-        if h == 0 {
-            if s > 9 {
-                string += ":\(s)"
+        if hours == 0 {
+            if seconds > 9 {
+                string += ":\(seconds)"
             } else {
-                string += ":0\(s)"
+                string += ":0\(seconds)"
             }
         }
         return string

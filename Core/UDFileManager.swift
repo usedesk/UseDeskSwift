@@ -1,7 +1,6 @@
 //
 //  UDFileManager.swift
 //  UseDesk_SDK_Swift
-//
 
 import UIKit
 import Foundation
@@ -19,14 +18,14 @@ class UDFileManager: NSObject {
     class func downloadFile(indexPath: IndexPath, urlPath: String, name: String, extansion: String, successBlock: @escaping (IndexPath, URL)->(), errorBlock: (_ error: String) -> Void) {
         if let url = URL(string: urlPath) {
             let destination: DownloadRequest.Destination = { _, _ in
-                let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                var fileURL = documentsURL.appendingPathComponent("\(name)")
+                let cacheURL = URL(fileURLWithPath: FileManager.default.udCacheDataPath)
+                var fileURL = cacheURL.appendingPathComponent("\(name)")
                 var flag = true
                 var index = 0
                 while flag {
                     if FileManager.default.fileExists(atPath: fileURL.path) {
                         index += 1
-                        fileURL = documentsURL.appendingPathComponent("\(index)\(name)")
+                        fileURL = cacheURL.appendingPathComponent("\(index)\(name)")
                     } else {
                         flag = false
                     }
@@ -71,13 +70,23 @@ extension FileManager {
     
     var udCacheDataPath: String {
         let cachePath = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).last ?? ""
-        let finalPath = cachePath
-        
+        let finalPath = cachePath + "/UseDeskSDK"
+
         if (!fileExists(atPath: finalPath)) {
             try? createDirectory(atPath: finalPath, withIntermediateDirectories: true, attributes: nil)
         }
-        
+
         return finalPath
+    }
+
+    func udRemoveOrphanedCacheFiles(keepPaths: Set<String>) {
+        guard let fileNames = try? contentsOfDirectory(atPath: udCacheDataPath) else { return }
+        for fileName in fileNames {
+            let filePath = udCacheDataPath + "/" + fileName
+            if !keepPaths.contains(filePath) {
+                try? removeItem(atPath: filePath)
+            }
+        }
     }
     
     func udWriteDataToCacheDirectory(data: Data, fileExtension: String? = nil) -> String? {

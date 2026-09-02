@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
 	s.name             = 'UseDesk_SDK_Swift'
-	s.version          = '3.4.20'
+	s.version          = '4.0.0'
 	s.summary          = 'A short description of UseDesk.'
 
 	s.homepage         = 'https://github.com/usedesk/UseDeskSwift'
@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
 	s.author           = { 'serega@budyakov.com' => 'kon.sergius@gmail.com' }
 	s.source           = { :git => 'https://github.com/usedesk/UseDeskSwift.git', :tag => s.version.to_s }
 
-	s.ios.deployment_target = '14.0'
+	s.ios.deployment_target = '16.0'
 	s.swift_version = '5.0'
 	s.static_framework = true
 
@@ -24,7 +24,6 @@ Pod::Spec.new do |s|
 	s.dependency 'Socket.IO-Client-Swift', '~> 16'
 	s.dependency 'Alamofire', '~> 5'
   s.dependency 'MarkdownKit'
-  s.dependency 'Texture-UseDesk', '~> 3.2.1'
   s.dependency 'ReachabilitySwift'
   s.dependency 'SwiftSoup'
   

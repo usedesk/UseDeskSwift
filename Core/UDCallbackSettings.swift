@@ -2,7 +2,6 @@
 //  UDCallbackSettings.swift
 //  UseDesk_SDK_Swift
 
-
 import Foundation
 
 public class UDCallbackSettings: NSObject {

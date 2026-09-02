@@ -1,19 +1,8 @@
 {
   "images" : [
     {
-      "filename" : "scroll_button.png",
-      "idiom" : "universal",
-      "scale" : "1x"
-    },
-    {
-      "filename" : "scroll_button@2x.png",
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
       "filename" : "scroll_button@3x.png",
-      "idiom" : "universal",
-      "scale" : "3x"
+      "idiom" : "universal"
     }
   ],
   "info" : {

@@ -9,7 +9,6 @@ target 'UseDesk_SDK_Swift' do
   pod 'Socket.IO-Client-Swift', '~> 16'
   pod 'Alamofire', '~> 5'
   pod 'MarkdownKit'
-  pod 'Texture'
   pod 'ReachabilitySwift'
   pod 'SwiftSoup'
   

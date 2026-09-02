@@ -2,7 +2,6 @@
 //  UDLocalizeManager.swift
 //  UseDesk_SDK_Swift
 
-
 import Foundation
 
 class UDLocalizeManager {
@@ -76,8 +75,7 @@ class UDLocalizeManager {
             "Loading"                  : "Загрузка",
             "DeleteMessage"            : "Удалить сообщение",
             "SendAgain"                : "Отправить повторно",
-            "CSIReviewLike"            : "Оценка: отлично",
-            "CSIReviewDislike"         : "Оценка: плохо",
+            "CSIReviewSended"          : "Спасибо за оценку",
             "LimitIsExceeded"          : "Превышен лимит",
             "ThisFileSize"             : "Этот файл размером",
             "B"                        : "Б",
@@ -153,8 +151,7 @@ class UDLocalizeManager {
             "Loading"                  : "Loading",
             "DeleteMessage"            : "Delete message",
             "SendAgain"                : "Resend",
-            "CSIReviewLike"            : "Rating: excellent",
-            "CSIReviewDislike"         : "Rating: poor",
+            "CSIReviewSended"          : "Thanks for the rating",
             "LimitIsExceeded"          : "Limit is exceeded",
             "ThisFileSize"             : "This file size",
             "B"                        : "B",
@@ -230,8 +227,7 @@ class UDLocalizeManager {
             "Loading"                  : "Cargando",
             "DeleteMessage"            : "Borrar mensaje",
             "SendAgain"                : "Reenviar",
-            "CSIReviewLike"            : "Satisfacción: Excelente",
-            "CSIReviewDislike"         : "Satisfacción: Pobre",
+            "CSIReviewSended"          : "Gracias por la valoración",
             "LimitIsExceeded"          : "Limite foi excedido",
             "ThisFileSize"             : "Tamanho do arquivo",
             "B"                        : "B",
@@ -307,8 +303,7 @@ class UDLocalizeManager {
             "Loading"                  : "Carregando",
             "DeleteMessage"            : "Apagar mensagem",
             "SendAgain"                : "Reenviar",
-            "CSIReviewLike"            : "Avaliação: Excelente",
-            "CSIReviewDislike"         : "Avaliação: Ruim",
+            "CSIReviewSended"          : "Obrigado pela avaliação",
             "LimitIsExceeded"          : "Se supera el límite",
             "ThisFileSize"             : "Tamaño del archivo",
             "B"                        : "B",

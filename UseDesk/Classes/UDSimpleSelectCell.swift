@@ -1,7 +1,6 @@
 //
 //  UDSimpleSelectCell.swift
 //  UseDesk_SDK_Swift
-//
 
 import Foundation
 

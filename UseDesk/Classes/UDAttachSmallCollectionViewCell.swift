@@ -1,7 +1,6 @@
 //
 //  UDAttachSmallCollectionViewCell.swift
 //  UseDesk_SDK_Swift
-//
 
 import UIKit
 

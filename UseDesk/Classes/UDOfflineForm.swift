@@ -208,25 +208,18 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate, PHPhotoLibraryChange
     }
     
     func setAttachViews() {
-        if #available(iOS 15.0, *) {
-            var configuration = UIButton.Configuration.plain()
-            configuration.title = usedesk!.model.stringFor("AttachFile")
-            configuration.image = configurationStyle.attachButtonStyle.image
-            configuration.background = .clear()
-            configuration.imagePlacement = .leading
-            configuration.imagePadding = 5
-            configuration.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-            configuration.attributedTitle = AttributedString(usedesk!.model.stringFor("AttachFile"), attributes: AttributeContainer([.font : configurationStyle.feedbackFormStyle.attachButtonTitleFont, .foregroundColor : configurationStyle.feedbackFormStyle.attachButtonTitleColor]))
-            attachButton.configuration = configuration
-        } else {
-            attachButton.setImage(configurationStyle.attachButtonStyle.image, for: .normal)
-            attachButton.setTitle(usedesk!.model.stringFor("AttachFile"), for: .normal)
-            attachButton.setAttributedTitle(NSAttributedString(string: usedesk!.model.stringFor("AttachFile"), attributes: [.font : configurationStyle.feedbackFormStyle.attachButtonTitleFont, .foregroundColor : configurationStyle.feedbackFormStyle.attachButtonTitleColor]), for: .normal)
-            attachButton.setTitleColor(configurationStyle.feedbackFormStyle.attachButtonTitleColor, for: .normal)
-            attachButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: -16, bottom: 0, right: 0)
-            attachButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-            attachButton.tintColor = configurationStyle.feedbackFormStyle.attachButtonTitleColor
-        }
+        var configuration = UIButton.Configuration.plain()
+        configuration.title = usedesk!.model.stringFor("AttachFile")
+        let attachImageSize = configurationStyle.attachButtonStyle.size
+        let attachImage = configurationStyle.attachButtonStyle.image
+        configuration.image = (attachImage.size.width > attachImageSize.width || attachImage.size.height > attachImageSize.height) ? attachImage.udImageWithSize(attachImageSize).withRenderingMode(attachImage.renderingMode) : attachImage
+        configuration.background = .clear()
+        configuration.imagePlacement = .leading
+        configuration.imagePadding = 5
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+        configuration.attributedTitle = AttributedString(usedesk!.model.stringFor("AttachFile"), attributes: AttributeContainer([.font : configurationStyle.feedbackFormStyle.attachButtonTitleFont, .foregroundColor : configurationStyle.feedbackFormStyle.attachButtonTitleColor]))
+        attachButton.configuration = configuration
+        
         attachedCollectionView.delegate = self
         attachedCollectionView.dataSource = self
         attachedCollectionView.register(UDAttachCollectionViewCell.self, forCellWithReuseIdentifier: "UDAttachCollectionViewCell")
@@ -621,20 +614,16 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate, PHPhotoLibraryChange
     }
     
     func selectPhoto() {
-        if #available(iOS 14, *) {
-            var configuration = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
-            configuration.selectionLimit = 1
-            if usedesk!.isSupportedAttachmentOnlyPhoto {
-                configuration.filter = .images
-            } else if usedesk!.isSupportedAttachmentOnlyVideo {
-                configuration.filter = .videos
-            }
-            let picker = PHPickerViewController(configuration: configuration)
-            picker.delegate = self
-            present(picker, animated: true)
-        } else {
-            imagePicker.present()
+        var configuration = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
+        configuration.selectionLimit = 1
+        if usedesk!.isSupportedAttachmentOnlyPhoto {
+            configuration.filter = .images
+        } else if usedesk!.isSupportedAttachmentOnlyVideo {
+            configuration.filter = .videos
         }
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        present(picker, animated: true)
     }
     
     func deleteMeessage(from arrayMessages: inout [UDMessage], index: Int) {
@@ -765,19 +754,10 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate, PHPhotoLibraryChange
                         deactivateSendMessageButton()
                     } else {
                         file.sourceTypeString = UDTypeSourceFile.URL.rawValue
-                        if #available(iOS 14.0, *) {
-                            if let type = UTType(filenameExtension: urlFile.pathExtension), let mimeType = type.preferredMIMEType {
-                                file.mimeType = mimeType
-                            } else {
-                                file.mimeType = "application/pdf"
-                            }
+                        if let type = UTType(filenameExtension: urlFile.pathExtension), let mimeType = type.preferredMIMEType {
+                            file.mimeType = mimeType
                         } else {
                             file.mimeType = "application/pdf"
-                            if let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, NSString(string: urlFile.pathExtension), nil)?.takeRetainedValue() {
-                                if let mimetype = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue() {
-                                    file.mimeType = mimetype as String
-                                }
-                            }
                         }
                         file.content = "data:\(file.mimeType);base64,\(dataFile.base64EncodedString())"
                         file.dataLocal = dataFile
@@ -928,9 +908,7 @@ class UDOfflineForm: UIViewController, UITextFieldDelegate, PHPhotoLibraryChange
             let importMenu = UIDocumentPickerViewController(documentTypes: ["public.item"], in: .import)
             importMenu.delegate = self
             importMenu.modalPresentationStyle = .formSheet
-            if #available(iOS 13.0, *) {
-                importMenu.overrideUserInterfaceStyle = UIScreen.main.traitCollection.userInterfaceStyle
-            }
+            importMenu.overrideUserInterfaceStyle = UIScreen.main.traitCollection.userInterfaceStyle
             present(importMenu, animated: true, completion: nil)
         } else {
             showAlertMaxCountAttach()

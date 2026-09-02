@@ -1,7 +1,6 @@
 //
 //  UDBaseCollection.swift
 
-
 import Foundation
 import UIKit
 
